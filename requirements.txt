@@ -1,0 +1,4 @@
+cdsapi==0.5.1
+fastapi==0.88.0
+pydantic==1.10.2
+rocketpy==0.12.1
