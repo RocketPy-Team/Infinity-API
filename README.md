@@ -24,15 +24,16 @@ curl --location --request POST 'http://127.0.0.1:3000/env/' \
 
 ## Project structure
 ```
-├── README.md ---> This file 
-├── apprunner.yaml ---> AWS App runner config
+├── README.md
+├── apprunner.yaml # AWS App runner config
 ├── lib 
 │   ├── __init__.py
 │   ├── __main__.py
-│   ├── api.py ---> fastAPI app
-│   ├── data ---> rocketPy dependencies 
-│   ├── rocket_simulation.py
-│   └── templates.py
+│   ├── api.py     # API controller 
+│   ├── models.py
+│   ├── views.py
+│   ├── interfaces.py
+│   └── data       # extra simulation dependencies
 └── requirements.txt
 ```
 

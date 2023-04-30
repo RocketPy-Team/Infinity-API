@@ -1,4 +1,4 @@
-# api.py
+# api.py (controller)
 
 from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,12 +7,13 @@ from rocketpy import Environment, Flight
 from typing import Optional
 from pydantic import BaseModel
 
-from lib.rocket_simulation import Calisto
-from lib.templates import flight_summary 
+from lib.models import Calisto
+from lib.views import full_flight_summary 
 
 import datetime
 import json
 
+#tbd: refactor to interface (pydantic contract) and model (interface implementation) structure
 class Env(BaseModel):
     railLength: Optional[float] = 5.2
     latitude: float 
