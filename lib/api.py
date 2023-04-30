@@ -42,7 +42,7 @@ async def create_env(env: Env):
     )
     env.setAtmosphericModel(type='StandardAtmosphere', file='GFS')
     TestFlight = Flight(rocket=Calisto, environment=env, inclination=85, heading=0)
-    summary = flight_summary(TestFlight) 
+    summary = full_flight_summary(TestFlight) 
     return summary
 
 # Check app health
