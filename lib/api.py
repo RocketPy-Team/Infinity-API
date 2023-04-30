@@ -1,15 +1,14 @@
 # api.py
 
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 
+from rocketpy import Environment, Flight
 from typing import Optional
 from pydantic import BaseModel
 
-from rocketpy import Environment, Flight
-from rocketPy import main
-# from rocket_simulation import Calisto
-# from templates import flight_summary 
+from lib.rocket_simulation import Calisto
+from lib.templates import flight_summary 
 
 import datetime
 import json
