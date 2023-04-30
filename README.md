@@ -2,7 +2,7 @@
 
 ## Capabilities
 - Performs rocket simulations and returns simulation data
-- Stores simulation data in mongo-db setting an input-hash as primary key
+- Stores simulation data in mongo-db
 
 ## Setup
 - [Install python3](https://www.python.org/downloads/)
@@ -22,7 +22,7 @@ curl --location --request POST 'http://127.0.0.1:3000/env/' \
 }'
 ```
 
-##Project structure
+## Project structure
 ```
 ├── README.md ---> This file 
 ├── apprunner.yaml ---> AWS App runner config
