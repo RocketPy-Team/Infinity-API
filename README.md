@@ -6,7 +6,7 @@
 
 ## Setup
 - [Install python3](https://www.python.org/downloads/)
-- Install python3 dependencies with `python3 -m pip install -r requirements.txt`
+- Install dependencies `python3 -m pip install -r requirements.txt`
 
 ## Starting the server
 - Dev: `uvicorn lib:app --reload --port 3000`
