@@ -11,5 +11,5 @@ run:
   network:
     port: 3000 
   env:
-    - name: FAUST_WEB_URL 
-      value: https://mpkqdgwhvp.us-east-1.awsapprunner.com/ 
+    - name: EXAMPLE 
+      value: https://www.example.com 
