@@ -7,7 +7,7 @@ def mainTrigger(p, y):
     return True if y[5] < 0 and y[2] < 800 else False
 
 Pro75M1670 = SolidMotor(
-    thrustSource="data/motors/Cesaroni_M1670.eng",
+    thrustSource="lib/data/motors/Cesaroni_M1670.eng",
     burnOut=3.9,
     grainNumber=5,
     grainSeparation=5/1000,
@@ -28,8 +28,8 @@ Calisto = Rocket(
     inertiaZ=0.0351,
     distanceRocketNozzle=-1.255,
     distanceRocketPropellant=-0.85704,
-    powerOffDrag='data/calisto/powerOffDragCurve.csv',
-    powerOnDrag='data/calisto/powerOnDragCurve.csv'
+    powerOffDrag='lib/data/calisto/powerOffDragCurve.csv',
+    powerOnDrag='lib/data/calisto/powerOnDragCurve.csv'
 )
 
 Calisto.setRailButtons([0.2, -0.5])
