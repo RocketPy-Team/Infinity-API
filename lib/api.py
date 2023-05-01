@@ -1,12 +1,10 @@
-# api.py (controller)
+# api.py
 
 from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from rocketpy import Flight
-from lib.models import Calisto, Env
-from lib.controllers import EnvController
-from lib.views import full_flight_summary 
+from lib.models import Env, Flight
+from lib.controllers import EnvController, FlightController
 
 app = FastAPI()
 app.add_middleware(
@@ -18,13 +16,12 @@ app.add_middleware(
 )
 
 # Environment
-@app.post("/env/")
-async def create_env(environment: Env):
-    env=EnvController(environment)
-
-    flight = Flight(rocket=Calisto, environment=env.env, inclination=85, heading=0)
-    summary = full_flight_summary(flight) 
-    return summary
+@app.post("/simulation/env/")
+async def create_env(env: Env):
+    envController = EnvController(env)
+    flightController = FlightController(Flight(environment=envController.view().obj))
+    flight_summary = flightController.view().full_flight_summary()
+    return flight_summary
 
 # Check app health
 @app.get("/health", status_code=status.HTTP_200_OK)
