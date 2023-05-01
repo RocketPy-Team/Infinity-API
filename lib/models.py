@@ -1,19 +1,22 @@
 from rocketpy import Rocket, SolidMotor
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, TypeVar
 import datetime
 
 class Env(BaseModel):
-    railLength: Optional[float] = 5.2
     latitude: float 
     longitude: float
+    railLength: Optional[float] = 5.2
     elevation: Optional[int] = 1400
     atmosphericModelType: Optional[str] = 'StandardAtmosphere' 
     atmosphericModelFile: Optional[str] = 'GFS'
     date: Optional[datetime.datetime] = datetime.datetime.today() + datetime.timedelta(days=1) 
 
 class Flight(BaseModel):
-    pass
+    environment: TypeVar('Environment')
+    rocket: Optional[TypeVar('Rocket')]
+    inclination: Optional[int] = 85
+    heading: Optional[int] = 0
 
 def drogueTrigger(p, y):
     return True if y[5] < 0 else False
