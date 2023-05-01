@@ -8,15 +8,13 @@ class EnvController(BaseModel):
     
     def __init__(self, environment: Env):
         super().__init__()
-        self.env = Environment(
+        env = Environment(
                     railLength=environment.railLength,
                     latitude=environment.latitude,
                     longitude=environment.longitude,
                     elevation=environment.elevation,
                     date=environment.date
         )
-        
-    def setATM(self, typ: str, fil: str):
-        self.env.setAtmosphericModel(type=typ, file=fil)
-
-
+        env.setAtmosphericModel(type=environment.atmosphericModelType, 
+                                file=environment.atmosphericModelFile)
+        self.env = env
