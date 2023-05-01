@@ -24,7 +24,7 @@ class EnvController():
 class FlightController():
     def __init__(self, flight: Flight):
         rocketpy_flight = rocketpy.Flight(
-                rocket = Calisto,
+                rocket = Calisto(),
                 inclination=flight.inclination, 
                 heading=flight.heading,
                 environment=flight.environment
