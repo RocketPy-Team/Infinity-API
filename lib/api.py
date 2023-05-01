@@ -18,9 +18,10 @@ app.add_middleware(
 # Environment
 @app.post("/simulation/env/")
 async def create_env(env: Env):
-    envController = EnvController(env)
-    flightController = FlightController(Flight(environment=envController.view().obj))
-    flight_summary = flightController.view().full_flight_summary()
+    env_controller = EnvController(env)
+    flight_controller = FlightController( Flight(environment=env_controller.view().obj) )
+
+    flight_summary = flight_controller.view().full_flight_summary()
     return flight_summary
 
 # Check app health
