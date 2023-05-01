@@ -1,4 +1,14 @@
 from rocketpy import Rocket, SolidMotor
+from pydantic import BaseModel
+from typing import Optional
+import datetime
+
+class Env(BaseModel):
+    railLength: Optional[float] = 5.2
+    latitude: float 
+    longitude: float
+    elevation: Optional[int] = 1400
+    date: Optional[datetime.datetime] = datetime.datetime.today() + datetime.timedelta(days=1) 
 
 def drogueTrigger(p, y):
     return True if y[5] < 0 else False
