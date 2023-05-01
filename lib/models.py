@@ -8,7 +8,12 @@ class Env(BaseModel):
     latitude: float 
     longitude: float
     elevation: Optional[int] = 1400
+    atmosphericModelType: Optional[str] = 'StandardAtmosphere' 
+    atmosphericModelFile: Optional[str] = 'GFS'
     date: Optional[datetime.datetime] = datetime.datetime.today() + datetime.timedelta(days=1) 
+
+class Flight(BaseModel):
+    pass
 
 def drogueTrigger(p, y):
     return True if y[5] < 0 else False

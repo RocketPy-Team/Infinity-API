@@ -21,10 +21,9 @@ app.add_middleware(
 @app.post("/env/")
 async def create_env(environment: Env):
     env=EnvController(environment)
-    env.setATM('StandardAtmosphere', 'GFS')
 
-    TestFlight = Flight(rocket=Calisto, environment=env.env, inclination=85, heading=0)
-    summary = full_flight_summary(TestFlight) 
+    flight = Flight(rocket=Calisto, environment=env.env, inclination=85, heading=0)
+    summary = full_flight_summary(flight) 
     return summary
 
 # Check app health
