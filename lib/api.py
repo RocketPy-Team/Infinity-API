@@ -3,23 +3,10 @@
 from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from rocketpy import Environment, Flight
-from typing import Optional
-from pydantic import BaseModel
-
-from lib.models import Calisto
+from rocketpy import Flight
+from lib.models import Calisto, Env
+from lib.controllers import EnvController
 from lib.views import full_flight_summary 
-
-import datetime
-import json
-
-#tbd: refactor to interface (pydantic contract) and model (interface implementation) structure
-class Env(BaseModel):
-    railLength: Optional[float] = 5.2
-    latitude: float 
-    longitude: float
-    elevation: Optional[int] = 1400
-    date: Optional[datetime.datetime] = datetime.datetime.today() + datetime.timedelta(days=1) 
 
 app = FastAPI()
 app.add_middleware(
@@ -32,16 +19,11 @@ app.add_middleware(
 
 # Environment
 @app.post("/env/")
-async def create_env(env: Env):
-    env = Environment(
-            railLength=env.railLength,
-            latitude=env.latitude,
-            longitude=env.longitude,
-            elevation=env.elevation,
-            date=env.date
-    )
-    env.setAtmosphericModel(type='StandardAtmosphere', file='GFS')
-    TestFlight = Flight(rocket=Calisto, environment=env, inclination=85, heading=0)
+async def create_env(environment: Env):
+    env=EnvController(environment)
+    env.setATM('StandardAtmosphere', 'GFS')
+
+    TestFlight = Flight(rocket=Calisto, environment=env.env, inclination=85, heading=0)
     summary = full_flight_summary(TestFlight) 
     return summary
 
