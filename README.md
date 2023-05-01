@@ -25,15 +25,16 @@ curl --location --request POST 'http://127.0.0.1:3000/simulation/env/' \
 ## Project structure
 ```
 ├── README.md
-├── apprunner.yaml # AWS App runner config
-├── lib 
+├── apprunner.yaml    # AWS App runner config
+├── lib
 │   ├── __init__.py
 │   ├── __main__.py
-│   ├── api.py     # API controller 
+│   ├── __pycache__
+│   ├── api.py        # main app
+│   ├── controllers.py
+│   ├── data          # extra simulation dependencies
 │   ├── models.py
-│   ├── views.py
-│   ├── interfaces.py
-│   └── data       # extra simulation dependencies
+│   └── views.py
 └── requirements.txt
 ```
 
