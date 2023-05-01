@@ -29,7 +29,6 @@ curl --location --request POST 'http://127.0.0.1:3000/simulation/env/' \
 ├── lib
 │   ├── __init__.py
 │   ├── __main__.py
-│   ├── __pycache__
 │   ├── api.py        # main app
 │   ├── controllers.py
 │   ├── models.py
