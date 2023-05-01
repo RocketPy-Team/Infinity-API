@@ -13,7 +13,7 @@
 - Prod: `gunicorn -k uvicorn.workers.UvicornWorker lib:app --reload -b 0.0.0.0:3000`
 
 ## Smoke testing
-```
+``` bash
 curl --location --request POST 'http://127.0.0.1:3000/simulation/env/' \
 --header 'Content-Type: application/json' \
 -d '{
@@ -32,9 +32,9 @@ curl --location --request POST 'http://127.0.0.1:3000/simulation/env/' \
 │   ├── __pycache__
 │   ├── api.py        # main app
 │   ├── controllers.py
-│   ├── data          # extra simulation dependencies
 │   ├── models.py
-│   └── views.py
+│   ├── views.py
+│   └── data.py       # extra simulation dependencies
 └── requirements.txt
 ```
 
