@@ -14,8 +14,8 @@ class Env(BaseModel):
     date: Optional[datetime.datetime] = datetime.datetime.today() + datetime.timedelta(days=1) 
 
 class Flight(BaseModel):
-    environment: TypeVar('Environment')
-    rocket: Optional[TypeVar('Rocket')]
+    environment: Env
+    rocket: Optional[TypeVar('Rocket')] #tbd: pydantic model of Rocket
     inclination: Optional[int] = 85
     heading: Optional[int] = 0
 
