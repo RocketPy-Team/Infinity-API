@@ -12,6 +12,7 @@ build/
 develop-eggs/
 dist/
 downloads/
+rocketpy/
 eggs/
 .eggs/
 lib64/

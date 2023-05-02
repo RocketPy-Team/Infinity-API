@@ -23,20 +23,28 @@ class Flight(BaseModel):
 class Calisto(Rocket):
     def __init__(self):
         super().__init__(
-                motor=Pro75M1670(),
                 radius=127/2000,
                 mass=19.197-2.956,
                 inertiaI=6.60,
                 inertiaZ=0.0351,
-                distanceRocketNozzle=-1.255,
-                distanceRocketPropellant=-0.85704,
                 powerOffDrag='lib/data/calisto/powerOffDragCurve.csv',
-                powerOnDrag='lib/data/calisto/powerOnDragCurve.csv'
+                powerOnDrag='lib/data/calisto/powerOnDragCurve.csv',
+                centerOfDryMassPosition=0,
+                coordinateSystemOrientation="tailToNose"
         )
         self.setRailButtons([0.2, -0.5])
-        self.addNose(length=0.55829, kind="vonKarman", distanceToCM=0.71971)
-        self.addTrapezoidalFins(4, span=0.100, rootChord=0.120, tipChord=0.040, distanceToCM=-1.04956)
-        self.addTail(topRadius=0.0635, bottomRadius=0.0435, length=0.060, distanceToCM=-1.194656)
+        self.addMotor(Pro75M1670(), position=-1.255)
+        self.addNose(length=0.55829, kind="vonKarman", position=0.71971 + 0.55829)
+        self.addTrapezoidalFins(n=4,
+                                rootChord=0.120,
+                                tipChord=0.040,
+                                span=0.100,
+                                position=-1.04956,
+                                cantAngle=0,
+                                radius=None,
+                                airfoil=None
+        )
+        self.addTail(topRadius=0.0635, bottomRadius=0.0435, length=0.060, position=-1.194656)
         self.addParachute('Main',
                             CdS=10.0,
                             trigger=self.mainTrigger,
@@ -51,10 +59,10 @@ class Calisto(Rocket):
                               noise=(0, 8.3, 0.5))
 
     def drogueTrigger(self, p, y):
-        return True if y[5] < 0 else False
+        return y[5] < 0
 
     def mainTrigger(self, p, y):
-        return True if y[5] < 0 and y[2] < 800 else False
+        return y[5] < 0 and y[2] < 800
 
 class Pro75M1670(SolidMotor):
     def __init__(self):
@@ -65,6 +73,7 @@ class Pro75M1670(SolidMotor):
                 grainOuterRadius=33/1000,
                 grainInitialInnerRadius=15/1000,
                 grainInitialHeight=120/1000,
+                grainsCenterOfMassPosition=-0.85704,
                 thrustSource = "lib/data/motors/Cesaroni_M1670.eng"
         )
         self.grainSeparation = 5/1000
