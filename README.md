@@ -20,6 +20,15 @@ curl --location --request POST 'http://127.0.0.1:3000/simulation/env/' \
     "latitude": 32.990254,
     "longitude": 106.974998
 }'
+
+curl --location --request POST 'http://127.0.0.1:3000/simulation/flight/' \
+--header 'Content-Type: application/json' \
+-d '{
+    "environment": { 
+        "latitude": 32.990254,
+        "longitude": 106.974998
+    }
+}'
 ```
 
 ## Project structure

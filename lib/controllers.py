@@ -27,7 +27,7 @@ class FlightController():
                 rocket = Calisto(),
                 inclination=flight.inclination, 
                 heading=flight.heading,
-                environment=flight.environment
+                environment=EnvController(flight.environment).view().obj
         )
         self.flight = rocketpy_flight 
 
