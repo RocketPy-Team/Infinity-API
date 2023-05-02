@@ -1,4 +1,5 @@
 from rocketpy import Environment, Flight
+from rocketpy.prints import _FlightPrints
 
 class EnvView():
     def __init__(self, env: Environment):
@@ -57,7 +58,7 @@ class FlightView():
                     "maximum_reynolds_number": "{:.3e} at {:.2f} s".format(self.obj.maxReynoldsNumber, self.obj.maxReynoldsNumberTime),
                     "maximum_dynamic_pressure": "{:.3e} Pa at {:.2f} s".format(self.obj.maxDynamicPressure, self.obj.maxDynamicPressureTime),
                     "maximum_acceleration": "{:.3f} m/s² at {:.2f} s".format(self.obj.maxAcceleration, self.obj.maxAccelerationTime),
-                    "maximum_gs": "{:.3f} g at {:.2f} s".format(self.obj.maxAcceleration / self.obj.env.g, self.obj.maxAccelerationTime),
+                    "maximum_gs": "{:.3f} g at {:.2f} s".format(self.obj.maxAcceleration / self.obj.env.gravity(self.obj.z(self.obj.maxAccelerationTime)), self.obj.maxAccelerationTime),
                     "maximum_upper_rail_button_normal_force": "{:.3f} N".format(self.obj.maxRailButton1NormalForce),
                     "maximum_upper_rail_button_shear_force": "{:.3f} N".format(self.obj.maxRailButton1ShearForce),
                     "maximum_lower_rail_button_normal_force": "{:.3f} N".format(self.obj.maxRailButton2NormalForce),
