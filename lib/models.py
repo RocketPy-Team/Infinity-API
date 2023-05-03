@@ -1,6 +1,6 @@
 from rocketpy import SolidMotor
 from pydantic import BaseModel 
-from typing import Optional, List, Callable
+from typing import Optional, List, Callable, Tuple
 import datetime
 
 class Env(BaseModel):
@@ -25,8 +25,8 @@ class Rocket(BaseModel):
     motorPosition: Optional[float] = -1.255
     
     class RailButtons(BaseModel):
-        distanceToCM: Optional[float] = 0.2
-        angularPosition: Optional[float] = -0.5
+        distanceToCM: Optional[List[float]] = [0.2, -0.5]
+        angularPosition: Optional[float] = 45 
 
     class Motor(BaseModel):
         burnOut: Optional[float] = 3.9
@@ -65,15 +65,20 @@ class Rocket(BaseModel):
         position: Optional[float] = -1.194656
 
     class Parachute(BaseModel):
-        name: Optional[str] = ['Main', 'Drogue']
-        CdS: Optional[float] = [10.0, 1.0]
+        name: Optional[List[str]] = ['Main', 'Drogue']
+        CdS: Optional[List[float]] = [10.0, 1.0]
         trigger: Optional[List[Callable[[list, list], bool]]] = [
                 lambda p, y: y[5] < 0 and y[2] < 800,
                 lambda p, y: y[5] < 0
         ]
-        samplingRate: Optional[float] = [105, 105]
-        lag: Optional[float] = [1.5, 1.5]
-        noise: Optional[float] = [(0, 8.3, 0.5), (0, 8.3, 0.5)]
+        samplingRate: Optional[List[int]] = [105, 105]
+        lag: Optional[List[float]] = [1.5, 1.5]
+        noise: Optional[List[Tuple[float, float, float]]] = [(0.0, 8.3, 0.5), (0.0, 8.3, 0.5)]
+
+        def __len__(self):
+            if self.name is not None:
+                return len(self.name)
+            return 0
 
     railButtons: Optional[RailButtons] = RailButtons()
     motor: Optional[Motor] = Motor()
