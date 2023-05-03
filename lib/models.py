@@ -1,9 +1,8 @@
-from rocketpy import Rocket, SolidMotor
+from rocketpy import SolidMotor
 from pydantic import BaseModel
 from typing import Optional, TypeVar
 import datetime
 
-# pydantic models
 class Env(BaseModel):
     latitude: float 
     longitude: float
@@ -15,68 +14,71 @@ class Env(BaseModel):
 
 class Flight(BaseModel):
     environment: Env
-    rocket: Optional[TypeVar('Rocket')] #tbd: pydantic model of Rocket
+    rocket: Optional[Rocket] = Rocket()
     inclination: Optional[int] = 85
     heading: Optional[int] = 0
 
-# non-pydantic models
-class Calisto(Rocket):
-    def __init__(self):
-        super().__init__(
-                radius=127/2000,
-                mass=19.197-2.956,
-                inertiaI=6.60,
-                inertiaZ=0.0351,
-                powerOffDrag='lib/data/calisto/powerOffDragCurve.csv',
-                powerOnDrag='lib/data/calisto/powerOnDragCurve.csv',
-                centerOfDryMassPosition=0,
-                coordinateSystemOrientation="tailToNose"
-        )
-        self.setRailButtons([0.2, -0.5])
-        self.addMotor(Pro75M1670(), position=-1.255)
-        self.addNose(length=0.55829, kind="vonKarman", position=0.71971 + 0.55829)
-        self.addTrapezoidalFins(n=4,
-                                rootChord=0.120,
-                                tipChord=0.040,
-                                span=0.100,
-                                position=-1.04956,
-                                cantAngle=0,
-                                radius=None,
-                                airfoil=None
-        )
-        self.addTail(topRadius=0.0635, bottomRadius=0.0435, length=0.060, position=-1.194656)
-        self.addParachute('Main',
-                            CdS=10.0,
-                            trigger=self.mainTrigger,
-                            samplingRate=105,
-                            lag=1.5,
-                            noise=(0, 8.3, 0.5))
-        self.addParachute('Drogue',
-                              CdS=1.0,
-                              trigger=self.drogueTrigger,
-                              samplingRate=105,
-                              lag=1.5,
-                              noise=(0, 8.3, 0.5))
+class Rocket(BaseModel):
+    radius: Optional[float] = 127/2000
+    mass: Optional[float] = 19.197-2.956
+    inertiaI: Optional[float] = 6.60
+    inertiaZ: Optional[float] = 0.0351
+    powerOffDrag: Optional[str] = 'lib/data/calisto/powerOffDragCurve.csv'
+    powerOnDrag: Optional[str] = 'lib/data/calisto/powerOnDragCurve.csv'
+    centerOfDryMassPosition: Optional[int] = 0
+    coordinateSystemOrientation: Optional[str] = "tailToNose"
+    railButtons: Optional[RailButtons] = RailButtons()
+    motorPosition: Optional[float] = -1.255
+    motor: Optional[Motor] = Motor()
+    nose: Optional[Nose] = Nose()
+    fins: Optional[Fins] = TrapezoidalFins()
+    tail: Optional[Tail] = Tail()
+    parachute: Optional[[Parachute]] = [Parachute()]
 
-    def drogueTrigger(self, p, y):
-        return y[5] < 0
+    class RailButtons(BaseModel):
+        distanceToCM: Optional[float] = 0.2
+        angularPosition: Optional[float] = -0.5
 
-    def mainTrigger(self, p, y):
-        return y[5] < 0 and y[2] < 800
+    class Motor(BaseModel):
+        burnOut: Optional[float] = 3.9
+        grainNumber: Optional[int] = 5
+        grainDensity: Optional[float] = 1815
+        grainOuterRadius: Optional[float] = 33/1000
+        grainInitialInnerRadius: Optional[float] = 15/1000
+        grainInitialHeight: Optional[float] = 120/1000
+        grainsCenterOfMassPosition: Optional[float] = -0.85704
+        thrustSource: Optional[str] = "lib/data/motors/Cesaroni_M1670.eng"
+        grainSeparation: Optional[float] = 5/1000
+        nozzleRadius: Optional[float] = 33/1000
+        throatRadius: Optional[float] = 11/1000
+        interpolationMethod: Optional[str] = 'linear'
 
-class Pro75M1670(SolidMotor):
-    def __init__(self):
-        super().__init__(
-                burnOut=3.9,
-                grainNumber=5,
-                grainDensity=1815,
-                grainOuterRadius=33/1000,
-                grainInitialInnerRadius=15/1000,
-                grainInitialHeight=120/1000,
-                grainsCenterOfMassPosition=-0.85704,
-                thrustSource = "lib/data/motors/Cesaroni_M1670.eng"
-        )
-        self.grainSeparation = 5/1000
-        self.nozzleRadius = 33/1000
-        self.throatRadius = 11/1000
-        self.interpolationMethod = 'linear'
+    class Nose(BaseModel):
+        length: Optional[float] = 0.55829
+        kind: Optional[str] = "vonKarman"
+        position: Optional[float] = 0.71971 + 0.55829
+
+    class Fins(BaseModel):
+        class TrapezoidalFins(BaseModel):
+            n: Optional[int] = 4
+            rootChord: Optional[float] = 0.120
+            tipChord: Optional[float] = 0.040
+            span: Optional[float] = 0.100
+            position: Optional[float] = -1.04956
+            cantAngle: Optional[float] = 0
+            radius: Optional[float] = None
+            airfoil: Optional[str] = None
+
+    class Tail(BaseModel):
+        topRadius: Optional[float] = 0.0635
+        bottomRadius: Optional[float] = 0.0435
+        length: Optional[float] = 0.060
+        position: Optional[float] = -1.194656
+
+    class Parachute(BaseModel):
+        name: Optional[str] = ['Main', 'Drogue']
+        CdS: Optional[float] = [10.0, 1.0]
+        trigger: Optional[PyObject] = [lambda p, y: y[5] < 0 and y[2] < 800, lambda p, y: y[5] < 0]
+        samplingRate: Optional[float] = [105, 105]
+        lag: Optional[float] = [1.5, 1.5]
+        noise: Optional[float] = [(0, 8.3, 0.5), (0, 8.3, 0.5)]
