@@ -1,12 +1,10 @@
-from lib.models import Rocket, Flight, Env
+from lib.models import Rocket, Flight, Env, NoseCone, TrapezoidalFins, Tail, Parachute, Motor, RailButtons
 from lib.views import EnvView, FlightView
 
 from rocketpy import Environment, SolidMotor, AeroSurfaces
 import rocketpy.Flight
 import rocketpy.Rocket
 import rocketpy.Parachute
-
-#improve semantics
 
 class EnvController():
     def __init__(self, env: Env, default: bool = True):
@@ -50,85 +48,85 @@ class RocketController():
                 centerOfDryMassPosition=rocket.centerOfDryMassPosition,
                 coordinateSystemOrientation=rocket.coordinateSystemOrientation
         )
-        rocket_railButtons = rocket.RailButtons()
-        rocketpy_rocket.setRailButtons(rocket_railButtons.distanceToCM,
-                                       rocket_railButtons.angularPosition)
+        railButtons = RailButtons()
+        rocketpy_rocket.setRailButtons(railButtons.distanceToCM,
+                                       railButtons.angularPosition)
 
         rocketpy_rocket.addMotor(MotorController(rocket.motor).rocketpy_motor,
                                  rocket.motorPosition)
 
-        nose = self.NoseConeController(rocket, rocket.Nose()).rocketpy_nose
+        nose = self.NoseConeController(NoseCone(rocket.radius)).rocketpy_nose
         rocketpy_rocket.aerodynamicSurfaces.append(aeroSurface=nose, position=nose.position)
         rocketpy_rocket.nosecone.append(nose)
         rocketpy_rocket.evaluateStaticMargin()
 
-        finset = self.TrapezoidalFinsController(rocket.Fins()).rocketpy_finset
+        finset = self.TrapezoidalFinsController(TrapezoidalFins(rocket.radius)).rocketpy_finset
         rocketpy_rocket.aerodynamicSurfaces.append(aeroSurface=finset, position=finset.position)
         rocketpy_rocket.fins.append(finset)
         rocketpy_rocket.evaluateStaticMargin()
 
-        tail = self.TailController(rocket.Tail()).rocketpy_tail 
+        tail = self.TailController(Tail(rocket.radius)).rocketpy_tail 
         rocketpy_rocket.aerodynamicSurfaces.append(aeroSurface=tail, position=tail.position)
         rocketpy_rocket.tail.append(tail)
         rocketpy_rocket.evaluateStaticMargin()
 
-        rocket_parachutes = rocket.Parachute()
+        rocket_parachutes = Parachute()
         for p in range(len(rocket_parachutes)):
-            parachute = ParachuteController(rocket_parachutes, p).rocketpy_parachute
-            rocketpy_rocket.append(parachute)
+            parachute = self.ParachuteController(rocket_parachutes, p).rocketpy_parachute
+            rocketpy_rocket.parachutes.append(parachute)
 
         self.rocketpy_rocket = rocketpy_rocket 
 
     class NoseConeController():
-        def __init__(self, rocket: Rocket, nose: Rocket.Nose, default: bool = True):
+        def __init__(self, nose: NoseCone, default: bool = True):
             rocketpy_nose = AeroSurfaces.NoseCone(
                     length=nose.length,
                     kind=nose.kind,
-                    baseRadius=rocket.radius,
-                    rocketRadius=rocket.radius
+                    baseRadius=nose.baseRadius,
+                    rocketRadius=nose.rocketRadius
             )
             rocketpy_nose.position = nose.position
             self.rocketpy_nose = rocketpy_nose
 
     class TrapezoidalFinsController():
-        def __init__(self, trapezoidalFins: Rocket.Fins, default: bool = True):
-            rocketpy_finset = TrapezoidalFins(
+        def __init__(self, trapezoidalFins: TrapezoidalFins, default: bool = True):
+            rocketpy_finset = AeroSurfaces.TrapezoidalFins(
                     n=trapezoidalFins.n,
                     rootChord=trapezoidalFins.rootChord,
                     tipChord=trapezoidalFins.tipChord,
                     span=trapezoidalFins.span,
                     cantAngle=trapezoidalFins.cantAngle,
-                    radius=trapezoidalFins.radius,
+                    rocketRadius=trapezoidalFins.radius,
                     airfoil=trapezoidalFins.airfoil
             )
-            rocketpy_finset.position = trapezoidalFins.position,
+            rocketpy_finset.position = trapezoidalFins.position
             self.rocketpy_finset = rocketpy_finset
 
     class TailController():
-        def __init__(self, tail: Rocket.Tail, default: bool = True):
-            rocketpy_tail = rocketpy.Tail(
+        def __init__(self, tail: Tail, default: bool = True):
+            rocketpy_tail = AeroSurfaces.Tail(
                     topRadius=tail.topRadius,
                     bottomRadius=tail.bottomRadius,
                     length=tail.length,
-                    position=tail.position
+                    rocketRadius=tail.radius
             )
             rocketpy_tail.position = tail.position
             self.rocketpy_tail = rocketpy_tail
 
     class ParachuteController():
-        def __init__(self, parachute: Rocket.Parachute, p: int, default: bool = True):
-            rocketpy_parachute = rocketpy.Parachute(
+        def __init__(self, parachute: Parachute, p: int, default: bool = True):
+            rocketpy_parachute = rocketpy.Parachute.Parachute(
                     name=parachute[p].name,
                     CdS=parachute[p].CdS,
-                    trigger=parachute[p].trigger,
+                    Trigger=parachute[p].trigger,
                     samplingRate=parachute[p].samplingRate,
                     lag=parachute[p].lag,
-                    noise=parachute[p].noise
+                    noise=parachute[p].noise[0]
             )
             self.rocketpy_parachute = rocketpy_parachute
 
 class MotorController():
-    def __init__(self, motor: Rocket.Motor, default: bool = True):
+    def __init__(self, motor: Motor, default: bool = True):
         rocketpy_motor = SolidMotor(
                 burnOut=motor.burnOut,
                 grainNumber=motor.grainNumber,
