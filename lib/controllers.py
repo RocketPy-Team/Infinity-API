@@ -116,11 +116,11 @@ class RocketController():
     class ParachuteController():
         def __init__(self, parachute: Parachute, p: int, default: bool = True):
             rocketpy_parachute = rocketpy.Parachute.Parachute(
-                    name=parachute[p].name,
-                    CdS=parachute[p].CdS,
-                    Trigger=parachute[p].trigger,
-                    samplingRate=parachute[p].samplingRate,
-                    lag=parachute[p].lag,
+                    name=parachute[p].name[0],
+                    CdS=parachute[p].CdS[0],
+                    Trigger=parachute[p].trigger[0],
+                    samplingRate=parachute[p].samplingRate[0],
+                    lag=parachute[p].lag[0],
                     noise=parachute[p].noise[0]
             )
             self.rocketpy_parachute = rocketpy_parachute
