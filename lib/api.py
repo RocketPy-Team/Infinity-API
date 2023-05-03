@@ -3,7 +3,7 @@
 from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from lib.models import Env, Flight
+from lib.models import Env, Flight, Rocket
 from lib.controllers import EnvController, FlightController
 
 app = FastAPI()
@@ -17,17 +17,27 @@ app.add_middleware(
 
 # Environment
 @app.post("/simulation/env/")
-async def create_env(env: Env):
+async def simulate_env(env: Env):
     flight_controller = FlightController( Flight(environment=env) )
-    flight_summary = flight_controller.view().full_flight_summary()
+    flight_summary = flight_controller.summary('full')
     return flight_summary
 
 # Flight
 @app.post("/simulation/flight/")
-async def create_flight(flight: Flight):
+async def simulate_flight(flight: Flight):
     flight_controller = FlightController(flight)
-    flight_summary = flight_controller.view().full_flight_summary()
+    flight_summary = flight_controller.summary('full')
     return flight_summary
+
+# Rocket
+@app.post("/simulation/rocket/")
+async def simulate_rocket(rocket: Rocket):
+    return None 
+
+# Read simmulation
+@app.get("/simulation/{id}")
+async def read_simulation(id: str):
+    return None
 
 # Check app health
 @app.get("/health", status_code=status.HTTP_200_OK)
