@@ -57,9 +57,9 @@ class RocketController():
         rocketpy_rocket.addMotor(MotorController(rocket.motor).rocketpy_motor,
                                  rocket.motorPosition)
 
-        nose = self.NoseConeController(rocket.Nose()).rocketpy_nose
+        nose = self.NoseConeController(rocket, rocket.Nose()).rocketpy_nose
         rocketpy_rocket.aerodynamicSurfaces.append(aeroSurface=nose, position=nose.position)
-        rocketpy_rocket.nose.append(nose)
+        rocketpy_rocket.nosecone.append(nose)
         rocketpy_rocket.evaluateStaticMargin()
 
         finset = self.TrapezoidalFinsController(rocket.Fins()).rocketpy_finset
@@ -80,12 +80,12 @@ class RocketController():
         self.rocketpy_rocket = rocketpy_rocket 
 
     class NoseConeController():
-        def __init__(self, nose: Rocket.Nose, default: bool = True):
+        def __init__(self, rocket: Rocket, nose: Rocket.Nose, default: bool = True):
             rocketpy_nose = AeroSurfaces.NoseCone(
                     length=nose.length,
                     kind=nose.kind,
-                    baseRadius=self.rocket.radius,
-                    rocketRadius=self.rocket.radius
+                    baseRadius=rocket.radius,
+                    rocketRadius=rocket.radius
             )
             rocketpy_nose.position = nose.position
             self.rocketpy_nose = rocketpy_nose
