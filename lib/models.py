@@ -1,6 +1,6 @@
 from rocketpy import SolidMotor
-from pydantic import BaseModel
-from typing import Optional, TypeVar
+from pydantic import BaseModel 
+from typing import Optional, List, Callable
 import datetime
 
 class Env(BaseModel):
@@ -12,11 +12,6 @@ class Env(BaseModel):
     atmosphericModelFile: Optional[str] = 'GFS'
     date: Optional[datetime.datetime] = datetime.datetime.today() + datetime.timedelta(days=1) 
 
-class Flight(BaseModel):
-    environment: Env
-    rocket: Optional[Rocket] = Rocket()
-    inclination: Optional[int] = 85
-    heading: Optional[int] = 0
 
 class Rocket(BaseModel):
     radius: Optional[float] = 127/2000
@@ -27,14 +22,8 @@ class Rocket(BaseModel):
     powerOnDrag: Optional[str] = 'lib/data/calisto/powerOnDragCurve.csv'
     centerOfDryMassPosition: Optional[int] = 0
     coordinateSystemOrientation: Optional[str] = "tailToNose"
-    railButtons: Optional[RailButtons] = RailButtons()
     motorPosition: Optional[float] = -1.255
-    motor: Optional[Motor] = Motor()
-    nose: Optional[Nose] = Nose()
-    fins: Optional[Fins] = TrapezoidalFins()
-    tail: Optional[Tail] = Tail()
-    parachute: Optional[[Parachute]] = [Parachute()]
-
+    
     class RailButtons(BaseModel):
         distanceToCM: Optional[float] = 0.2
         angularPosition: Optional[float] = -0.5
@@ -78,7 +67,24 @@ class Rocket(BaseModel):
     class Parachute(BaseModel):
         name: Optional[str] = ['Main', 'Drogue']
         CdS: Optional[float] = [10.0, 1.0]
-        trigger: Optional[PyObject] = [lambda p, y: y[5] < 0 and y[2] < 800, lambda p, y: y[5] < 0]
+        trigger: Optional[List[Callable[[list, list], bool]]] = [
+                lambda p, y: y[5] < 0 and y[2] < 800,
+                lambda p, y: y[5] < 0
+        ]
         samplingRate: Optional[float] = [105, 105]
         lag: Optional[float] = [1.5, 1.5]
         noise: Optional[float] = [(0, 8.3, 0.5), (0, 8.3, 0.5)]
+
+    railButtons: Optional[RailButtons] = RailButtons()
+    motor: Optional[Motor] = Motor()
+    nose: Optional[Nose] = Nose()
+    fins: Optional[Fins] = Fins.TrapezoidalFins()
+    tail: Optional[Tail] = Tail()
+    parachutes: Optional[Parachute] = Parachute()
+
+class Flight(BaseModel):
+    environment: Env
+    rocket: Optional[Rocket] = Rocket()
+    inclination: Optional[int] = 85
+    heading: Optional[int] = 0
+
