@@ -80,12 +80,14 @@ class Parachute(BaseModel):
     samplingRate: Optional[List[int]] = [105, 105]
     lag: Optional[List[float]] = [1.5, 1.5]
     noise: Optional[List[Tuple[float, float, float]]] = [(0.0, 8.3, 0.5), (0.0, 8.3, 0.5)]
-    triggers: Optional[List[Callable]] 
+    triggers: Optional[List[Callable]]
 
-    def __init__(self, triggers: Callable = 
-                 [ lambda p, y: y[5] < 0 and y[2] < 800, lambda p, y: y[5] < 0]):
+    def __init__(self, triggers: List[Callable] = 
+                 [ lambda p, y: y[5] < 0 and y[2] < 800, lambda p, y: y[5] < 0],
+                 name=name, CdS=CdS, samplingRate=samplingRate, lag=lag, noise=noise):
         super().__init__()
-        self.triggers = triggers
+        if not self.triggers:
+            self.triggers = triggers
 
     def __getitem__(self, idx):
         if isinstance(idx, slice):
@@ -94,7 +96,7 @@ class Parachute(BaseModel):
             return Parachute(
                 name=[self.name[idx]],
                 CdS=[self.CdS[idx]],
-                trigger=[self.trigger[idx]],
+                triggers=[self.triggers[idx]],
                 samplingRate=[self.samplingRate[idx]],
                 lag=[self.lag[idx]],
                 noise=[self.noise[idx]],
