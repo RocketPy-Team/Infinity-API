@@ -77,13 +77,15 @@ class Tail(BaseModel):
 class Parachute(BaseModel):
     name: Optional[List[str]] = ['Main', 'Drogue']
     CdS: Optional[List[float]] = [10.0, 1.0]
-    trigger: Optional[List[Callable]] = [
-            lambda p, y: y[5] < 0 and y[2] < 800,
-            lambda p, y: y[5] < 0
-    ]
     samplingRate: Optional[List[int]] = [105, 105]
     lag: Optional[List[float]] = [1.5, 1.5]
     noise: Optional[List[Tuple[float, float, float]]] = [(0.0, 8.3, 0.5), (0.0, 8.3, 0.5)]
+    triggers: Optional[List[Callable]] 
+
+    def __init__(self, triggers: Callable = 
+                 [ lambda p, y: y[5] < 0 and y[2] < 800, lambda p, y: y[5] < 0]):
+        super().__init__()
+        self.triggers = triggers
 
     def __getitem__(self, idx):
         if isinstance(idx, slice):
