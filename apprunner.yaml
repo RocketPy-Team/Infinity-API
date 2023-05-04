@@ -7,7 +7,7 @@ build:
       - pip install -r requirements.txt 
 
 run:
-  command: gunicorn -k uvicorn.workers.UvicornWorker api:app --reload --log-level Debug -b 0.0.0.0:3000
+  command: gunicorn -k uvicorn.workers.UvicornWorker lib:app --reload --log-level Debug -b 0.0.0.0:3000
   network:
     port: 3000 
   env:

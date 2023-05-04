@@ -32,12 +32,12 @@ async def simulate_flight(flight: Flight):
 # Rocket
 @app.post("/simulation/rocket/")
 async def simulate_rocket(rocket: Rocket):
-    return None 
+    return "Coming soon!" 
 
 # Read simmulation
 @app.get("/simulation/{id}")
 async def read_simulation(id: str):
-    return None
+    return "Coming soon!" 
 
 # Check app health
 @app.get("/health", status_code=status.HTTP_200_OK)
