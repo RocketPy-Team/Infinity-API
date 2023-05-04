@@ -70,7 +70,7 @@ class RocketController():
         rocketpy_rocket.tail.append(tail)
         rocketpy_rocket.evaluateStaticMargin()
 
-        rocket_parachutes = Parachute()
+        rocket_parachutes = Parachute(rocket.parachute_triggers)
         for p in range(len(rocket_parachutes)):
             parachute = self.ParachuteController(rocket_parachutes, p).rocketpy_parachute
             rocketpy_rocket.parachutes.append(parachute)
