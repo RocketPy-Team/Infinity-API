@@ -34,14 +34,14 @@ class NoseCone(BaseModel):
     length: Optional[float] = 0.55829
     kind: Optional[str] = "vonKarman"
     position: Optional[float] = 0.71971 + 0.55829
-    baseRadius: Optional[float] = None
-    rocketRadius: Optional[float] = None
+    baseRadius: Optional[float] = 0 
+    rocketRadius: Optional[float] = 0 
 
     def __init__(self, radius: float):
         super().__init__()
-        if not self.baseRadius:
+        if self.baseRadius == 0:
             self.baseRadius = radius
-        if not self.rocketRadius:
+        if self.rocketRadius == 0:
             self.rocketRadius = radius
 
 class Fins(BaseModel):
@@ -54,12 +54,12 @@ class TrapezoidalFins(BaseModel):
     span: Optional[float] = 0.100
     position: Optional[float] = -1.04956
     cantAngle: Optional[float] = 0
-    radius: Optional[float] = None
-    airfoil: Optional[str] = None
+    radius: Optional[float] = 0
+    airfoil: Optional[str] = "" 
 
     def __init__(self, radius: float):
         super().__init__()
-        if not self.radius:
+        if self.radius == 0: 
             self.radius = radius
 
 class Tail(BaseModel):
@@ -67,11 +67,11 @@ class Tail(BaseModel):
     bottomRadius: Optional[float] = 0.0435
     length: Optional[float] = 0.060
     position: Optional[float] = -1.194656
-    radius: Optional[float] = None
+    radius: Optional[float] = 0 
 
     def __init__(self, radius: float):
         super().__init__()
-        if not self.radius:
+        if self.radius == 0:
             self.radius = radius
 
 class Parachute(BaseModel):
