@@ -4,8 +4,8 @@ runtime: python3
 build:
   commands:
     build:
-      - apt-get update
-      - apt-get install -y git
+      - yum update -y
+      - yum install -y git
       - pip install -r requirements.txt 
       - pip install git+https://github.com/RocketPy-Team/RocketPy@beta/v1.0.0#rocketpy --user
 
