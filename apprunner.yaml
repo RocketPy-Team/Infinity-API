@@ -10,6 +10,3 @@ run:
   command: gunicorn -k uvicorn.workers.UvicornWorker lib:app --reload --log-level Debug -b 0.0.0.0:3000
   network:
     port: 3000 
-  env:
-    - name: EXAMPLE 
-      value: https://www.example.com 
