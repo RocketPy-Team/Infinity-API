@@ -1,6 +1,5 @@
 cdsapi==0.6.1
 fastapi==0.95.1
 pydantic==1.10.2
-rocketpy==0.12.1
 gunicorn
 uvicorn
