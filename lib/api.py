@@ -37,7 +37,7 @@ async def simulate_rocket(rocket: Rocket):
 # Read simmulation
 @app.get("/simulation/{id}")
 async def read_simulation(id: str):
-    return "Coming soon!" 
+    return "Coming soon 2!" 
 
 # Check app health
 @app.get("/health", status_code=status.HTTP_200_OK)
