@@ -21,20 +21,6 @@ class EnvController():
         )
         self.rocketpy_env = rocketpy_env 
 
-class FlightController():
-    def __init__(self, flight: Flight, default: bool = True):
-        rocketpy_flight = rocketpy.Flight(
-                rocket = RocketController(flight.rocket).rocketpy_rocket,
-                inclination=flight.inclination, 
-                heading=flight.heading,
-                environment= EnvController(flight.environment).rocketpy_env
-        )
-        self.rocketpy_flight = rocketpy_flight 
-
-    def summary(self, level: str):
-        flight_view = FlightView(self.rocketpy_flight)
-        if level == 'full':
-            return flight_view.full_flight_summary()
 
 class RocketController():
     def __init__(self, rocket: Rocket, default: bool = True):
@@ -48,7 +34,7 @@ class RocketController():
                 centerOfDryMassPosition=rocket.centerOfDryMassPosition,
                 coordinateSystemOrientation=rocket.coordinateSystemOrientation
         )
-        railButtons = RailButtons()
+        railButtons = rocket.railButtons
         rocketpy_rocket.setRailButtons(railButtons.distanceToCM,
                                        railButtons.angularPosition)
 
@@ -70,7 +56,7 @@ class RocketController():
         rocketpy_rocket.tail.append(tail)
         rocketpy_rocket.evaluateStaticMargin()
 
-        rocket_parachutes = Parachute()
+        rocket_parachutes = rocket.parachutes 
         for p in range(len(rocket_parachutes)):
             parachute = self.ParachuteController(rocket_parachutes, p).rocketpy_parachute
             rocketpy_rocket.parachutes.append(parachute)
@@ -124,6 +110,25 @@ class RocketController():
                     noise=parachute[p].noise[0]
             )
             self.rocketpy_parachute = rocketpy_parachute
+
+class FlightController():
+    def __init__(self, flight: Flight, default: bool = True):
+        rocketpy_rocket = RocketController(flight.rocket).rocketpy_rocket
+        rocketpy_env = EnvController(flight.environment).rocketpy_env
+
+        rocketpy_flight=rocketpy.Flight(
+                rocket=rocketpy_rocket,
+                inclination=flight.inclination, 
+                heading=flight.heading,
+                environment=rocketpy_env
+        )
+        self.rocketpy_flight = rocketpy_flight 
+
+    def summary(self, level: str):
+        flight_view = FlightView(self.rocketpy_flight)
+        if level == 'full':
+            return flight_view.full_flight_summary()
+
 
 class MotorController():
     def __init__(self, motor: Motor, default: bool = True):
