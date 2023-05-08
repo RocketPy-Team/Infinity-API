@@ -55,7 +55,7 @@ class RocketController():
         rocketpy_rocket.evaluateStaticMargin()
 
         #Tail
-        tail = self.TailController(Tail(rocket.radius)).rocketpy_tail 
+        tail = self.TailController(rocket.tail).rocketpy_tail 
         rocketpy_rocket.aerodynamicSurfaces.append(aeroSurface=tail, position=tail.position)
         rocketpy_rocket.tail.append(tail)
         rocketpy_rocket.evaluateStaticMargin()
