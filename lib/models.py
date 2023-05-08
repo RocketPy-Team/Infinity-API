@@ -1,9 +1,9 @@
 from rocketpy import SolidMotor
-from pydantic import BaseModel 
-from typing import Optional, List, Callable, Tuple
+from pydantic import BaseModel, Field
+from typing import Optional, Callable, List
 import datetime
 
-class Env(BaseModel):
+class Env(BaseModel, frozen=True):
     latitude: float 
     longitude: float
     railLength: Optional[float] = 5.2
@@ -12,82 +12,70 @@ class Env(BaseModel):
     atmosphericModelFile: Optional[str] = 'GFS'
     date: Optional[datetime.datetime] = datetime.datetime.today() + datetime.timedelta(days=1) 
 
-class RailButtons(BaseModel):
-        distanceToCM: Optional[List[float]] = [0.2, -0.5]
+class RailButtons(BaseModel, frozen=True):
+        distanceToCM: Optional[tuple[float, float]] = (0.2, -0.5)
         angularPosition: Optional[float] = 45 
     
-class Motor(BaseModel):
-    burnOut: Optional[float] = 3.9
-    grainNumber: Optional[int] = 5
-    grainDensity: Optional[float] = 1815
-    grainOuterRadius: Optional[float] = 33/1000
-    grainInitialInnerRadius: Optional[float] = 15/1000
-    grainInitialHeight: Optional[float] = 120/1000
-    grainsCenterOfMassPosition: Optional[float] = -0.85704
+class Motor(BaseModel, frozen=True):
+    burnOut: float
+    grainNumber: int
+    grainDensity: float
+    grainOuterRadius: float
+    grainInitialInnerRadius: float
+    grainInitialHeight: float
+    grainsCenterOfMassPosition: float
+    #TBD: thrustSource must be the id of a previously uploaded .eng file and a list of "default" files must be provided in the api docs
     thrustSource: Optional[str] = "lib/data/motors/Cesaroni_M1670.eng"
-    grainSeparation: Optional[float] = 5/1000
-    nozzleRadius: Optional[float] = 33/1000
-    throatRadius: Optional[float] = 11/1000
-    interpolationMethod: Optional[str] = 'linear'
+    grainSeparation: float
+    nozzleRadius: float
+    throatRadius: float
+    interpolationMethod: str
 
-class NoseCone(BaseModel):
-    length: Optional[float] = 0.55829
-    kind: Optional[str] = "vonKarman"
-    position: Optional[float] = 0.71971 + 0.55829
-    baseRadius: Optional[float] = 0 
-    rocketRadius: Optional[float] = 0 
+class NoseCone(BaseModel, frozen=True):
+    length: float
+    kind: str
+    position: float
+    baseRadius: float
+    rocketRadius: float
 
-    def __init__(self, radius: float):
+class Fins(BaseModel, frozen=True):
+    n: int
+    rootChord: float
+    tipChord: float
+    span: float
+    position: float
+    cantAngle: float
+    radius: float
+    airfoil: str
+
+class TrapezoidalFins(Fins, frozen=True):
+    def __init__():
         super().__init__()
-        if self.baseRadius == 0:
-            self.baseRadius = radius
-        if self.rocketRadius == 0:
-            self.rocketRadius = radius
+    
+class Tail(BaseModel, frozen=True):
+    topRadius: float
+    bottomRadius: float
+    length: float
+    position: float
+    radius: float
 
-class Fins(BaseModel):
-    pass
+class Parachute(BaseModel, frozen=True):
+    name: List[str]
+    CdS: List[float]
+    samplingRate: List[int]
+    lag: List[float]
+    noise: List[tuple[float, float, float]]
+    triggers: List[str]
 
-class TrapezoidalFins(BaseModel):
-    n: Optional[int] = 4
-    rootChord: Optional[float] = 0.120
-    tipChord: Optional[float] = 0.040
-    span: Optional[float] = 0.100
-    position: Optional[float] = -1.04956
-    cantAngle: Optional[float] = 0
-    radius: Optional[float] = 0
-    airfoil: Optional[str] = "" 
-
-    def __init__(self, radius: float):
-        super().__init__()
-        if self.radius == 0: 
-            self.radius = radius
-
-class Tail(BaseModel):
-    topRadius: Optional[float] = 0.0635
-    bottomRadius: Optional[float] = 0.0435
-    length: Optional[float] = 0.060
-    position: Optional[float] = -1.194656
-    radius: Optional[float] = 0 
-
-    def __init__(self, radius: float):
-        super().__init__()
-        if self.radius == 0:
-            self.radius = radius
-
-class Parachute(BaseModel):
-    name: Optional[List[str]] = ['Main', 'Drogue']
-    CdS: Optional[List[float]] = [10.0, 1.0]
-    samplingRate: Optional[List[int]] = [105, 105]
-    lag: Optional[List[float]] = [1.5, 1.5]
-    noise: Optional[List[Tuple[float, float, float]]] = [(0.0, 8.3, 0.5), (0.0, 8.3, 0.5)]
-    triggers: Optional[List[Callable]]
-
-    def __init__(self, triggers: List[Callable] = 
-                 [ lambda p, y: y[5] < 0 and y[2] < 800, lambda p, y: y[5] < 0],
-                 name=name, CdS=CdS, samplingRate=samplingRate, lag=lag, noise=noise):
-        super().__init__()
-        if not self.triggers:
-            self.triggers = triggers
+    def __hash__(self):
+        return hash((
+            tuple(self.name),
+            tuple(self.CdS),
+            tuple(self.samplingRate),
+            tuple(self.lag),
+            tuple(self.noise),
+            tuple(self.triggers),
+        ))
 
     def __getitem__(self, idx):
         if isinstance(idx, slice):
@@ -107,26 +95,27 @@ class Parachute(BaseModel):
             return len(self.name)
         return 0
 
-class Rocket(BaseModel):
-    radius: Optional[float] = 127/2000
-    mass: Optional[float] = 19.197-2.956
-    inertiaI: Optional[float] = 6.60
-    inertiaZ: Optional[float] = 0.0351
+class Rocket(BaseModel, frozen=True):
+    radius: float
+    mass: float
+    inertiaI: float
+    inertiaZ: float
+    #TBD: powerOffDrag an powerOnDrag need to be the id of previously uploaded .csv files and a list of "default" files must be provided in the api docs
     powerOffDrag: Optional[str] = 'lib/data/calisto/powerOffDragCurve.csv'
     powerOnDrag: Optional[str] = 'lib/data/calisto/powerOnDragCurve.csv'
-    centerOfDryMassPosition: Optional[int] = 0
+    centerOfDryMassPosition: int
+    #TBD: a list of possible tailToNose values must be provided in the api docs
     coordinateSystemOrientation: Optional[str] = "tailToNose"
-    motorPosition: Optional[float] = -1.255
-    railButtons: Optional[RailButtons] = RailButtons()
-    motor: Optional[Motor] = Motor()
-    nose: Optional[NoseCone] = NoseCone(radius)
-    fins: Optional[Fins] = TrapezoidalFins(radius)
-    tail: Optional[Tail] = Tail(radius)
-    parachutes: Optional[Parachute] = Parachute()
+    motorPosition: float
+    railButtons: RailButtons
+    motor: Motor
+    nose: NoseCone
+    fins: Fins
+    tail: Tail
+    parachutes: Parachute
 
-class Flight(BaseModel):
+class Flight(BaseModel, frozen=True):
     environment: Env
-    rocket: Optional[Rocket] = Rocket()
-    inclination: Optional[int] = 85
-    heading: Optional[int] = 0
-
+    rocket: Rocket
+    inclination: int
+    heading: int
