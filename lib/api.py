@@ -22,8 +22,7 @@ app.add_middleware(
 ## Create flight
 @app.post("/flight/")
 async def create_flight(flight: Flight) -> dict[str, str]:
-    successfully_created_flight = FlightController(flight).create_flight()
-    return successfully_created_flight
+    return FlightController(flight).create_flight()
 
 ## Read flight 
 @app.get("/flight/")
