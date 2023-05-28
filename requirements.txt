@@ -1,6 +1,7 @@
 cdsapi==0.6.1
-fastapi==0.95.1
+fastapi==0.95.2
 pydantic==1.10.2
+pymongo==4.3.3
 urllib3<2
 gunicorn
 uvicorn
