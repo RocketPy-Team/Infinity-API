@@ -249,7 +249,7 @@ curl -X 'DELETE' \
 ### Simulate flight
 ``` bash
 curl -X 'POST' \
-  'http://127.0.0.1:3001/flight/simulate/?flight_id=0' \
+  'http://127.0.0.1:3000/flight/simulate/?flight_id=0' \
   -H 'accept: application/json' \
 ```
 
