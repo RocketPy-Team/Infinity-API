@@ -45,9 +45,9 @@ class RocketController():
         )
 
         #RailButtons
-        rocketpy_rocket.setRailButtons(rocket.railButtons.upper_button_position,
-                                       rocket.railButtons.lower_button_position,
-                                       rocket.railButtons.angularPosition)
+        rocketpy_rocket.setRailButtons(upper_button_position=rocket.railButtons.upper_button_position,
+                                       lower_button_position=rocket.railButtons.lower_button_position,
+                                       angular_position=rocket.railButtons.angularPosition)
         rocketpy_rocket.addMotor(MotorController(rocket.motor).rocketpy_motor,
                                  rocket.motorPosition)
 
@@ -213,7 +213,8 @@ class FlightController():
         flight = FlightRepository(flight=self.flight)
         successfully_created_flight = flight.create_flight()
         if successfully_created_flight: 
-            return {"message": "Flight created", "flight_id": flight.flight_id}
+            print(self.rocketpy_flight.__dict__)
+            return {"message": "Flight created", "flight_id": flight.flight_id}#, "rocketpy_flight": self.rocketpy_flight.__dict__}
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
