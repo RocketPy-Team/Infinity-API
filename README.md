@@ -113,8 +113,8 @@ curl --location --request POST 'http://127.0.0.1:3000/flight/' \
         ]
       ],
       "triggers": [
-        "lambda p, y: y[5] < 0 and y[2] < 800",
-        "lambda p, y: y[5] < 0"
+        "lambda p, h, y: y[5] < 0 and h < 800",
+        "lambda p, h, y: y[5] < 0"
       ]
     }
   },
@@ -229,8 +229,8 @@ curl -X 'GET' \
         ]
       ],
       "triggers": [
-        "lambda p, y: y[5] < 0 and y[2] < 800",
-        "lambda p, y: y[5] < 0"
+        "lambda p, h, y: y[5] < 0 and h < 800",
+        "lambda p, h, y: y[5] < 0"
       ]
     }
   },

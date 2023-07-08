@@ -69,9 +69,13 @@ class RocketController():
 
         #Parachutes
         for p in range(len(rocket.parachutes)):
+            lambda_trigger = eval(rocket.parachutes[p].triggers[0])
+            #TBD: Add safey check to lambda
+            #lambda_trigger(0,0,[0,0,0,0,0,0,0,0,0,0])
+
             parachute = self.ParachuteController(rocket.parachutes, p).rocketpy_parachute
             rocketpy_rocket.parachutes.append(parachute)
-
+            
         self.rocketpy_rocket = rocketpy_rocket 
         self.rocket = rocket
 
@@ -119,7 +123,7 @@ class RocketController():
             rocketpy_parachute = rocketpy.Parachute.Parachute(
                     name=parachute[p].name[0],
                     CdS=parachute[p].CdS[0],
-                    Trigger=eval(parachute[p].triggers[0]),
+                    trigger=eval(parachute[p].triggers[0]),
                     samplingRate=parachute[p].samplingRate[0],
                     lag=parachute[p].lag[0],
                     noise=parachute[p].noise[0]
