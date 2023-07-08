@@ -7,8 +7,8 @@ build:
       - yum update -y
       - yum install -y git
       - pip install -r requirements.txt 
-      - pip install git+https://github.com/RocketPy-Team/RocketPy@beta/v1.0.0#rocketpy --user
-
+      - pip install git+https://github.com/RocketPy-Team/RocketPy@enh/betav1-infinity-api#rocketpy --user
+ 
 run:
   command: gunicorn -k uvicorn.workers.UvicornWorker lib:app --reload --log-level Debug -b 0.0.0.0:3000
   network:
