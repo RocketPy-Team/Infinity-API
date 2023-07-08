@@ -42,7 +42,8 @@ class RocketController():
         )
 
         #RailButtons
-        rocketpy_rocket.setRailButtons(rocket.railButtons.distanceToCM,
+        rocketpy_rocket.setRailButtons(rocket.railButtons.upper_button_position,
+                                       rocket.railButtons.lower_button_position,
                                        rocket.railButtons.angularPosition)
         rocketpy_rocket.addMotor(MotorController(rocket.motor).rocketpy_motor,
                                  rocket.motorPosition)
