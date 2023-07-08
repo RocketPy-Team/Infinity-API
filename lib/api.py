@@ -29,6 +29,11 @@ async def create_flight(flight: Flight) -> dict[str, str]:
 async def read_flight(flight_id: int) -> Flight:
     return FlightController.get_flight(flight_id)
 
+## Read rocketpy flight
+@app.get("/flight/rocketpy/")
+async def read_rocketpy_flight(flight_id: int) -> dict[str, Any]:
+    return FlightController.get_rocketpy_flight(flight_id)
+
 ## Update flight environment 
 @app.put("/flight/env/")
 async def update_flight_env(flight_id: int, env: Env) -> dict[str, Any]:
