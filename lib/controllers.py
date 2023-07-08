@@ -2,7 +2,7 @@ from lib.models import Rocket, Flight, Env, NoseCone, TrapezoidalFins, Tail, Par
 from lib.views import FlightSummary, SurfaceWindConditions, RailDepartureState, BurnoutState, Apogee, MaximumValues
 from lib.repositories import FlightRepository
 
-from rocketpy import Environment, SolidMotor, AeroSurfaces
+from rocketpy import Environment, SolidMotor, AeroSurface
 
 from typing import Any 
 from fastapi import Response, status
@@ -76,7 +76,7 @@ class RocketController():
 
     class NoseConeController():
         def __init__(self, nose: NoseCone):
-            rocketpy_nose = AeroSurfaces.NoseCone(
+            rocketpy_nose = AeroSurface.NoseCone(
                     length=nose.length,
                     kind=nose.kind,
                     baseRadius=nose.baseRadius,
@@ -88,7 +88,7 @@ class RocketController():
 
     class TrapezoidalFinsController():
         def __init__(self, trapezoidalFins: TrapezoidalFins):
-            rocketpy_finset = AeroSurfaces.TrapezoidalFins(
+            rocketpy_finset = AeroSurface.TrapezoidalFins(
                     n=trapezoidalFins.n,
                     rootChord=trapezoidalFins.rootChord,
                     tipChord=trapezoidalFins.tipChord,
@@ -103,7 +103,7 @@ class RocketController():
 
     class TailController():
         def __init__(self, tail: Tail):
-            rocketpy_tail = AeroSurfaces.Tail(
+            rocketpy_tail = AeroSurface.Tail(
                     topRadius=tail.topRadius,
                     bottomRadius=tail.bottomRadius,
                     length=tail.length,
