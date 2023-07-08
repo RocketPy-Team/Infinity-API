@@ -211,10 +211,9 @@ class FlightController():
 
     def create_flight(self) -> dict[str, str]:
         flight = FlightRepository(flight=self.flight)
-        successfully_created_flight = flight.create_flight()
+        successfully_created_flight = flight.create_flight(self.rocketpy_flight)
         if successfully_created_flight: 
-            print(self.rocketpy_flight.__dict__)
-            return {"message": "Flight created", "flight_id": flight.flight_id}#, "rocketpy_flight": self.rocketpy_flight.__dict__}
+            return { "message": "Flight created", "flight_id": flight.flight_id }
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -223,7 +222,13 @@ class FlightController():
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
         return successfully_read_flight
-    
+
+    def get_rocketpy_flight(flight_id: int) -> str:
+        successfully_read_rocketpy_flight = FlightRepository(flight_id=flight_id).get_rocketpy_flight()
+        if not successfully_read_rocketpy_flight:
+            return Response(status_code=status.HTTP_404_NOT_FOUND)
+        return { "jsonpickle_rocketpy_flight": successfully_read_rocketpy_flight }
+           
     def update_flight(self, flight_id: int) -> dict[str, Any] | Response:
         successfully_read_flight = FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:

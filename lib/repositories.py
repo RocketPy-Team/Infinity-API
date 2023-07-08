@@ -2,6 +2,7 @@ from pymongo import MongoClient
 from pymongo.results import InsertOneResult
 from pymongo.results import DeleteResult
 from lib.models import Flight
+import jsonpickle
 
 class Repository:
     _self = None
@@ -33,11 +34,13 @@ class FlightRepository(Repository):
     def __del__(self):
         super().__del__()
 
-    def create_flight(self) -> InsertOneResult:
+    def create_flight(self, rocketpy_flight) -> InsertOneResult:
         if not self.get_flight():
             try: 
                 flight_to_dict = self.flight.dict()
                 flight_to_dict["flight_id"] = self.flight_id 
+                rocketpy_jsonpickle_hash = jsonpickle.encode(rocketpy_flight)
+                flight_to_dict["rocketpy_flight"] = rocketpy_jsonpickle_hash
                 return self.collection.insert_one(flight_to_dict)
             except:
                 raise Exception("Error creating flight")
@@ -63,11 +66,22 @@ class FlightRepository(Repository):
             flight = self.collection.find_one({ "flight_id": self.flight_id })
             if flight is not None:
                 del flight["_id"] 
+                del flight["rocketpy_flight"]
                 return Flight.parse_obj(flight)
             else:
                 return None
         except:
             raise Exception("Error getting flight")
+
+    def get_rocketpy_flight(self) -> str | None:
+        try:
+            flight = self.collection.find_one({ "flight_id": self.flight_id })
+            if flight is not None:
+                return flight["rocketpy_flight"]
+            else:
+                return None
+        except:
+            raise Exception("Error getting rocketpy flight")
     
     def delete_flight(self) -> DeleteResult: 
         try: 
