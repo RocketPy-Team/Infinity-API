@@ -54,20 +54,17 @@ class RocketController():
         #NoseCone
         nose = self.NoseConeController(rocket.nose).rocketpy_nose
         rocketpy_rocket.aerodynamicSurfaces.add(nose, nose.position)
-        rocketpy_rocket.nosecone.append(nose)
         rocketpy_rocket.evaluateStaticMargin()
 
         #FinSet
         #TBD: re-write this to match overall fins not only TrapezoidalFins
         finset = self.TrapezoidalFinsController(rocket.fins).rocketpy_finset
         rocketpy_rocket.aerodynamicSurfaces.add(finset, finset.position)
-        rocketpy_rocket.fins.append(finset)
         rocketpy_rocket.evaluateStaticMargin()
 
         #Tail
         tail = self.TailController(rocket.tail).rocketpy_tail 
         rocketpy_rocket.aerodynamicSurfaces.add(tail, tail.position)
-        rocketpy_rocket.tail.append(tail)
         rocketpy_rocket.evaluateStaticMargin()
 
         #Parachutes
