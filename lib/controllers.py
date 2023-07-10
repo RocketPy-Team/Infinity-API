@@ -223,7 +223,7 @@ class FlightController():
             flight_id (int): Flight id.
 
         Returns:
-            Response: Response object with the simulation results.
+            Flight summary view.
 
         Raises:
             HTTP 404 Not Found: If the flight does not exist in the database.
