@@ -1,3 +1,4 @@
+from __future__ import annotations
 from lib.models import Rocket, Flight, Env, NoseCone, TrapezoidalFins, Tail, Parachute, Motor, RailButtons
 from lib.views import FlightSummary, SurfaceWindConditions, RailDepartureState, BurnoutState, Apogee, MaximumValues
 from lib.repositories import FlightRepository
