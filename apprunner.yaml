@@ -1,5 +1,5 @@
 version: 1.5
-runtime: python3 
+runtime: python3.9
 
 build:
   commands:
