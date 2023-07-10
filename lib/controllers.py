@@ -15,6 +15,15 @@ import rocketpy.Rocket
 import rocketpy.Parachute
 
 class EnvController(): 
+    """ 
+    Controller for the Environment model.
+
+    Init Attributes:
+        env (models.Env): Environment model object.
+
+    Enables:
+        - Create a rocketpy.Environment object from an Env model object.
+    """
     def __init__(self, env: Env):
         rocketpy_env = Environment(
                 railLength=env.railLength,
@@ -32,6 +41,15 @@ class EnvController():
 
 
 class RocketController():
+    """
+    Controller for the Rocket model.
+
+    Init Attributes:
+        rocket (models.Rocket): Rocket model object.
+
+    Enables:
+       create a rocketpy.Rocket object from a Rocket model object.
+    """
     def __init__(self, rocket: Rocket):
         rocketpy_rocket = rocketpy.Rocket(
                 radius=rocket.radius,
@@ -80,6 +98,15 @@ class RocketController():
         self.rocket = rocket
 
     class NoseConeController():
+        """
+        Controller for the NoseCone model.
+
+        Init Attributes:
+            nose (models.NoseCone): NoseCone model object.
+
+        Enables:
+            - Create a rocketpy.AeroSurface.NoseCone object from a NoseCone model object.
+        """
         def __init__(self, nose: NoseCone):
             rocketpy_nose = rocketpy_NoseCone(
                     length=nose.length,
@@ -92,6 +119,15 @@ class RocketController():
             self.nose = nose
 
     class TrapezoidalFinsController():
+        """
+        Controller for the TrapezoidalFins model.
+
+        Init Attributes:
+            trapezoidalFins (models.TrapezoidalFins): TrapezoidalFins model object.
+
+        Enables:
+            - Create a rocketpy.AeroSurface.TrapezoidalFins object from a TrapezoidalFins model object.
+        """
         def __init__(self, trapezoidalFins: TrapezoidalFins):
             rocketpy_finset = rocketpy_TrapezoidalFins(
                     n=trapezoidalFins.n,
@@ -107,6 +143,15 @@ class RocketController():
             self.trapezoidalFins = trapezoidalFins
 
     class TailController():
+        """
+        Controller for the Tail model.
+
+        Init Attributes:
+            tail (models.Tail): Tail model object.
+
+        Enables:
+            - Create a rocketpy.AeroSurface.Tail object from a Tail model object.
+        """
         def __init__(self, tail: Tail):
             rocketpy_tail = rocketpy_Tail(
                     topRadius=tail.topRadius,
@@ -119,6 +164,15 @@ class RocketController():
             self.tail = tail
 
     class ParachuteController():
+        """
+        Controller for the Parachute model.
+
+        Init Attributes:
+            parachute (models.Parachute): Parachute model object.
+
+        Enables:
+            - Create a rocketpy.Parachute.Parachute object from a Parachute model object.
+        """
         def __init__(self, parachute: Parachute, p: int):
             rocketpy_parachute = rocketpy.Parachute.Parachute(
                     name=parachute[p].name[0],
@@ -132,6 +186,22 @@ class RocketController():
             self.parachute = parachute
 
 class FlightController():
+    """
+    Controller for the Flight model.
+
+    Init Attributes:
+        flight (models.Flight): Flight model object.
+
+    Enables:
+        - Create a rocketpy.Flight object from a Flight model object.
+        - Generate trajectory simulation from a rocketpy.Flight object.
+        - Create both Flight model and rocketpy.Flight objects in the database.
+        - Update both Flight model and rocketpy.Flight objects in the database.
+        - Delete both Flight model and rocketpy.Flight objects from the database.
+        - Read a Flight model from the database.
+        - Read a rocketpy.Flight object from the database.
+
+    """
     def __init__(self, flight: Flight):
         rocketpy_rocket = RocketController(flight.rocket).rocketpy_rocket
         rocketpy_env = EnvController(flight.environment).rocketpy_env
@@ -146,6 +216,18 @@ class FlightController():
         self.flight = flight
 
     def simulate(flight_id: int):
+        """
+        Simulate a rocket flight.
+
+        Args:
+            flight_id (int): Flight id.
+
+        Returns:
+            Response: Response object with the simulation results.
+
+        Raises:
+            HTTP 404 Not Found: If the flight does not exist in the database.
+        """
         successfully_read_flight = FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
@@ -210,6 +292,12 @@ class FlightController():
         return flight_summary
 
     def create_flight(self) -> dict[str, str]:
+        """
+        Create a flight in the database.
+
+        Returns:
+            dict[str, str]: Flight id.
+        """
         flight = FlightRepository(flight=self.flight)
         successfully_created_flight = flight.create_flight(self.rocketpy_flight)
         if successfully_created_flight: 
@@ -218,18 +306,54 @@ class FlightController():
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get_flight(flight_id: int) -> Flight | Response:
+        """
+        Get a flight from the database.
+
+        Args:
+            flight_id (int): Flight id.
+
+        Returns:
+            Flight model object
+
+        Raises:
+            HTTP 404 Not Found: If the flight is not found in the database. 
+        """
         successfully_read_flight = FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
         return successfully_read_flight
 
     def get_rocketpy_flight(flight_id: int) -> str:
+        """
+        Get a rocketpy flight object encoded as jsonpickle string from the database.
+
+        Args:
+            flight_id (int): Flight id.
+
+        Returns:
+            str: jsonpickle string of the rocketpy flight.
+
+        Raises:
+            HTTP 404 Not Found: If the flight is not found in the database.
+        """
         successfully_read_rocketpy_flight = FlightRepository(flight_id=flight_id).get_rocketpy_flight()
         if not successfully_read_rocketpy_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
         return { "jsonpickle_rocketpy_flight": successfully_read_rocketpy_flight }
            
     def update_flight(self, flight_id: int) -> dict[str, Any] | Response:
+        """
+        Update a flight in the database.
+
+        Args:
+            flight_id (int): Flight id.
+
+        Returns:
+            dict[str, Any]: Flight id and message.
+
+        Raises:
+            HTTP 404 Not Found: If the flight is not found in the database.
+        """
         successfully_read_flight = FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
@@ -246,6 +370,19 @@ class FlightController():
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def update_env(flight_id: int, env: Env) -> dict[str, Any] | Response:
+        """
+        Update the environment of a flight in the database.
+
+        Args:
+            flight_id (int): Flight id.
+            env (models.Env): Environment model object.
+
+        Returns:
+            dict[str, Any]: Flight id and message.
+
+        Raises:
+            HTTP 404 Not Found: If the flight is not found in the database.
+        """
         successfully_read_flight = FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
@@ -261,6 +398,19 @@ class FlightController():
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def update_rocket(flight_id: int, rocket: Rocket) -> dict[str, Any] | Response:
+        """
+        Update the rocket of a flight in the database.
+
+        Args:
+            flight_id (int): Flight id.
+            rocket (models.Rocket): Rocket model object.
+
+        Returns:
+            dict[str, Any]: Flight id and message.
+
+        Raises:
+            HTTP 404 Not Found: If the flight is not found in the database.
+        """
         successfully_read_flight = FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
@@ -276,6 +426,18 @@ class FlightController():
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete_flight(flight_id: int) -> dict[str, str] | Response:
+        """
+        Delete a flight from the database.
+
+        Args:
+            flight_id (int): Flight id.
+
+        Returns:
+            dict[str, str]: Flight id and message.
+
+        Raises:
+            HTTP 404 Not Found: If the flight is not found in the database.
+        """
         successfully_read_flight = FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
@@ -287,6 +449,15 @@ class FlightController():
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class MotorController():
+    """
+    Controller for the motor model.
+
+    Init Attributes:
+        motor (models.Motor): Motor model object.
+
+    Enables:
+        - Create a rocketpy.Motor object from a Motor model object.
+    """
     def __init__(self, motor: Motor):
         rocketpy_motor = SolidMotor(
                 burnOut=motor.burnOut,
