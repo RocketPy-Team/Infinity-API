@@ -159,5 +159,5 @@ async def simulate_flight(flight_id: int) -> FlightSummary:
     return FlightController.simulate(flight_id)
 
 @app.get("/health", status_code=status.HTTP_200_OK)
-async def perform_healthcheck():
+async def __perform_healthcheck():
     return {'health': 'Everything OK!'}
