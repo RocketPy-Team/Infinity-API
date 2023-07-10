@@ -57,7 +57,7 @@ class FlightRepository(Repository):
             )
 
             self.flight_id = flight_to_dict["flight_id"]
-            return  self.flight_id, self.get_flight()
+            return  self.flight_id
         except:
             raise Exception("Error updating flight")
 
