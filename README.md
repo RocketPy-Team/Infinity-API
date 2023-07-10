@@ -246,11 +246,11 @@ curl -X 'DELETE' \
   -H 'accept: application/json'
 ```
 
-### Simulate flight
+### Flight Simulation
 ``` bash
-curl -X 'POST' \
-  'http://127.0.0.1:3000/flight/simulate/?flight_id=0' \
-  -H 'accept: application/json' \
+curl -X 'GET' \
+  'http://127.0.0.1:3000/flight/simulation/?flight_id=0' \
+  -H 'accept: application/json'
 ```
 
 ## Project structure
