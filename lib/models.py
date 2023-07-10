@@ -13,8 +13,8 @@ class Env(BaseModel, frozen=True):
     date: Optional[datetime.datetime] = datetime.datetime.today() + datetime.timedelta(days=1) 
 
 class RailButtons(BaseModel, frozen=True):
-        upper_button_position: Optional[float | int] = -0.5
-        lower_button_position: Optional[float | int] = 0.2
+        upper_button_position: Optional[float] = -0.5
+        lower_button_position: Optional[float] = 0.2
         angularPosition: Optional[float] = 45 
     
 class Motor(BaseModel, frozen=True):
