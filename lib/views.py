@@ -1,3 +1,4 @@
+from __future__ import annotations
 from rocketpy import Environment, Flight
 from rocketpy.prints import _FlightPrints
 from pydantic import BaseModel

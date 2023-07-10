@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 This is the main API file for the RocketPy API.
 """
