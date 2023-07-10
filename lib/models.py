@@ -1,6 +1,6 @@
 from rocketpy import SolidMotor
 from pydantic import BaseModel, Field
-from typing import Optional, Callable, List
+from typing import Optional, Callable
 import datetime
 
 class Env(BaseModel, frozen=True):
@@ -61,12 +61,12 @@ class Tail(BaseModel, frozen=True):
     radius: float
 
 class Parachute(BaseModel, frozen=True):
-    name: List[str]
-    CdS: List[float]
-    samplingRate: List[int]
-    lag: List[float]
-    noise: List[tuple[float, float, float]]
-    triggers: List[str]
+    name: list[str]
+    CdS: list[float]
+    samplingRate: list[int]
+    lag: list[float]
+    noise: list[tuple[float, float, float]]
+    triggers: list[str]
 
     def __hash__(self):
         return hash((
