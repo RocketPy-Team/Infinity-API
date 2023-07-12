@@ -1,4 +1,3 @@
-from __future__ import annotations
 from rocketpy import SolidMotor
 from pydantic import BaseModel, Field
 from typing import Optional, Callable, List
