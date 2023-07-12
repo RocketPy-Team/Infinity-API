@@ -1,4 +1,3 @@
-from __future__ import annotations
 from pymongo import MongoClient
 from pymongo.results import InsertOneResult
 from pymongo.results import DeleteResult
