@@ -1,6 +1,6 @@
 from rocketpy import SolidMotor
 from pydantic import BaseModel, Field
-from typing import Optional, Callable, List
+from typing import Optional, Callable, List, Tuple
 import datetime
 
 class Env(BaseModel, frozen=True):
@@ -65,7 +65,7 @@ class Parachute(BaseModel, frozen=True):
     CdS: "List[float]"
     samplingRate: "List[int]"
     lag: "List[float]"
-    noise: "List[tuple[float, float, float]]"
+    noise: "List[Tuple[float, float, float]]"
     triggers: "List[str]"
 
     def __hash__(self):
