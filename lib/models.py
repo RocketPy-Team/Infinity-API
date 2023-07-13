@@ -61,12 +61,12 @@ class Tail(BaseModel, frozen=True):
     radius: float
 
 class Parachute(BaseModel, frozen=True):
-    name: List[str]
-    CdS: List[float]
-    samplingRate: List[int]
-    lag: List[float]
-    noise: List[tuple[float, float, float]]
-    triggers: List[str]
+    name: "List[str]"
+    CdS: "List[float]"
+    samplingRate: "List[int]"
+    lag: "List[float]"
+    noise: "List[tuple[float, float, float]]"
+    triggers: "List[str]"
 
     def __hash__(self):
         return hash((
