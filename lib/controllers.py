@@ -7,7 +7,7 @@ from rocketpy.AeroSurface import NoseCone as rocketpy_NoseCone
 from rocketpy.AeroSurface import TrapezoidalFins as rocketpy_TrapezoidalFins
 from rocketpy.AeroSurface import Tail as rocketpy_Tail
 
-from typing import Any, Union
+from typing import Dict, Any, Union
 from fastapi import Response, status
 
 import rocketpy.Flight
@@ -291,12 +291,12 @@ class FlightController():
 
         return flight_summary
 
-    def create_flight(self) -> "dict[str, str]":
+    def create_flight(self) -> "Dict[str, str]":
         """
         Create a flight in the database.
 
         Returns:
-            dict[str, str]: Flight id.
+            Dict[str, str]: Flight id.
         """
         flight = FlightRepository(flight=self.flight)
         successfully_created_flight = flight.create_flight(self.rocketpy_flight)
@@ -341,7 +341,7 @@ class FlightController():
             return Response(status_code=status.HTTP_404_NOT_FOUND)
         return { "jsonpickle_rocketpy_flight": successfully_read_rocketpy_flight }
            
-    def update_flight(self, flight_id: int) -> "Union[dict[str, Any], Response]":
+    def update_flight(self, flight_id: int) -> "Union[Dict[str, Any], Response]":
         """
         Update a flight in the database.
 
@@ -349,7 +349,7 @@ class FlightController():
             flight_id (int): Flight id.
 
         Returns:
-            dict[str, Any]: Flight id and message.
+            Dict[str, Any]: Flight id and message.
 
         Raises:
             HTTP 404 Not Found: If the flight is not found in the database.
@@ -369,7 +369,7 @@ class FlightController():
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def update_env(flight_id: int, env: Env) -> "Union[dict[str, Any], Response]":
+    def update_env(flight_id: int, env: Env) -> "Union[Dict[str, Any], Response]":
         """
         Update the environment of a flight in the database.
 
@@ -378,7 +378,7 @@ class FlightController():
             env (models.Env): Environment model object.
 
         Returns:
-            dict[str, Any]: Flight id and message.
+            Dict[str, Any]: Flight id and message.
 
         Raises:
             HTTP 404 Not Found: If the flight is not found in the database.
@@ -397,7 +397,7 @@ class FlightController():
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def update_rocket(flight_id: int, rocket: Rocket) -> "Union[dict[str, Any], Response]":
+    def update_rocket(flight_id: int, rocket: Rocket) -> "Union[Dict[str, Any], Response]":
         """
         Update the rocket of a flight in the database.
 
@@ -406,7 +406,7 @@ class FlightController():
             rocket (models.Rocket): Rocket model object.
 
         Returns:
-            dict[str, Any]: Flight id and message.
+            Dict[str, Any]: Flight id and message.
 
         Raises:
             HTTP 404 Not Found: If the flight is not found in the database.
@@ -425,7 +425,7 @@ class FlightController():
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def delete_flight(flight_id: int) -> "Union[dict[str, str], Response]":
+    def delete_flight(flight_id: int) -> "Union[Dict[str, str], Response]":
         """
         Delete a flight from the database.
 
@@ -433,7 +433,7 @@ class FlightController():
             flight_id (int): Flight id.
 
         Returns:
-            dict[str, str]: Flight id and message.
+            Dict[str, str]: Flight id and message.
 
         Raises:
             HTTP 404 Not Found: If the flight is not found in the database.
