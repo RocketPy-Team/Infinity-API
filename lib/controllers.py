@@ -7,7 +7,7 @@ from rocketpy.AeroSurface import NoseCone as rocketpy_NoseCone
 from rocketpy.AeroSurface import TrapezoidalFins as rocketpy_TrapezoidalFins
 from rocketpy.AeroSurface import Tail as rocketpy_Tail
 
-from typing import Any 
+from typing import Any, Union
 from fastapi import Response, status
 
 import rocketpy.Flight
@@ -291,7 +291,7 @@ class FlightController():
 
         return flight_summary
 
-    def create_flight(self) -> dict[str, str]:
+    def create_flight(self) -> "dict[str, str]":
         """
         Create a flight in the database.
 
@@ -305,7 +305,7 @@ class FlightController():
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def get_flight(flight_id: int) -> Flight | Response:
+    def get_flight(flight_id: int) -> "Union[Flight, Response]":
         """
         Get a flight from the database.
 
@@ -341,7 +341,7 @@ class FlightController():
             return Response(status_code=status.HTTP_404_NOT_FOUND)
         return { "jsonpickle_rocketpy_flight": successfully_read_rocketpy_flight }
            
-    def update_flight(self, flight_id: int) -> dict[str, Any] | Response:
+    def update_flight(self, flight_id: int) -> "Union[dict[str, Any], Response]":
         """
         Update a flight in the database.
 
@@ -369,7 +369,7 @@ class FlightController():
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def update_env(flight_id: int, env: Env) -> dict[str, Any] | Response:
+    def update_env(flight_id: int, env: Env) -> "Union[dict[str, Any], Response]":
         """
         Update the environment of a flight in the database.
 
@@ -397,7 +397,7 @@ class FlightController():
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def update_rocket(flight_id: int, rocket: Rocket) -> dict[str, Any] | Response:
+    def update_rocket(flight_id: int, rocket: Rocket) -> "Union[dict[str, Any], Response]":
         """
         Update the rocket of a flight in the database.
 
@@ -425,7 +425,7 @@ class FlightController():
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def delete_flight(flight_id: int) -> dict[str, str] | Response:
+    def delete_flight(flight_id: int) -> "Union[dict[str, str], Response]":
         """
         Delete a flight from the database.
 
