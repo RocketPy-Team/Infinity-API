@@ -2,6 +2,7 @@ from pymongo import MongoClient
 from pymongo.results import InsertOneResult
 from pymongo.results import DeleteResult
 from lib.models import Flight
+from typing import Union
 import jsonpickle
 
 class Repository:
@@ -67,7 +68,7 @@ class FlightRepository(Repository):
                 raise Exception("Error creating flight")
         return InsertOneResult( acknowledged=True, inserted_id=None )
 
-    def update_flight(self) -> "int | None":
+    def update_flight(self) -> "Union[int, None]":
         """
         Updates a flight in the database
 
@@ -88,7 +89,7 @@ class FlightRepository(Repository):
         except:
             raise Exception("Error updating flight")
 
-    def get_flight(self) -> "Flight | None":
+    def get_flight(self) -> "Union[Flight, None]":
         """
         Gets a flight from the database
         
@@ -106,7 +107,7 @@ class FlightRepository(Repository):
         except:
             raise Exception("Error getting flight")
 
-    def get_rocketpy_flight(self) -> "str | None":
+    def get_rocketpy_flight(self) -> "Union[str, None]":
         """
         Gets a rocketpy flight from the database
 
