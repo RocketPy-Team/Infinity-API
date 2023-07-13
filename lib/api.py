@@ -9,7 +9,7 @@ from lib.views import FlightSummary
 from lib.models import Env, Flight, Rocket
 from lib.controllers import EnvController, FlightController
 
-from typing import Any
+from typing import Any, Dict
 
 app = FastAPI()
 app.add_middleware(
