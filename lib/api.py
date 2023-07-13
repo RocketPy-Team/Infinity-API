@@ -21,7 +21,7 @@ app.add_middleware(
 )
 
 @app.post("/flight/")
-async def create_flight(flight: Flight) -> dict[str, str]:
+async def create_flight(flight: Flight) -> "Dict[str, str]":
     """
     Creates a new flight.
 
@@ -54,7 +54,7 @@ async def read_flight(flight_id: int) -> Flight:
     return FlightController.get_flight(flight_id)
 
 @app.get("/flight/rocketpy/")
-async def read_rocketpy_flight(flight_id: int) -> dict[str, Any]:
+async def read_rocketpy_flight(flight_id: int) -> "Dict[str, Any]":
     """
     Reads a rocketpy flight object.
 
@@ -70,7 +70,7 @@ async def read_rocketpy_flight(flight_id: int) -> dict[str, Any]:
     return FlightController.get_rocketpy_flight(flight_id)
 
 @app.put("/flight/env/")
-async def update_flight_env(flight_id: int, env: Env) -> dict[str, Any]:
+async def update_flight_env(flight_id: int, env: Env) -> "Dict[str, Any]":
     """
     Updates flight environment.
 
@@ -89,7 +89,7 @@ async def update_flight_env(flight_id: int, env: Env) -> dict[str, Any]:
     return FlightController.update_env(flight_id, env)
 
 @app.put("/flight/rocket/")
-async def update_flight_rocket(flight_id: int, rocket: Rocket) -> dict[str, Any]:
+async def update_flight_rocket(flight_id: int, rocket: Rocket) -> "Dict[str, Any]":
     """
     Updates flight rocket.
 
@@ -108,7 +108,7 @@ async def update_flight_rocket(flight_id: int, rocket: Rocket) -> dict[str, Any]
     return FlightController.update_rocket(flight_id, rocket)
 
 @app.put("/flight/")
-async def update_flight(flight_id: int, flight: Flight) -> dict[str, Any]:
+async def update_flight(flight_id: int, flight: Flight) -> "Dict[str, Any]":
     """
     Updates whole flight.
 
@@ -127,7 +127,7 @@ async def update_flight(flight_id: int, flight: Flight) -> dict[str, Any]:
     return FlightController(flight).update_flight(flight_id)
 
 @app.delete("/flight/")
-async def delete_flight(flight_id: int) -> dict[str, str]:
+async def delete_flight(flight_id: int) -> "Dict[str, str]":
     """
     Deletes a flight.
 
