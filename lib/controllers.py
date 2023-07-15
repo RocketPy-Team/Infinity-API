@@ -10,6 +10,7 @@ from rocketpy.AeroSurface import Tail as rocketpy_Tail
 from typing import Dict, Any, Union
 from fastapi import Response, status
 
+import ast
 import rocketpy.Flight
 import rocketpy.Rocket
 import rocketpy.Parachute
@@ -87,12 +88,14 @@ class RocketController():
 
         #Parachutes
         for p in range(len(rocket.parachutes)):
-            lambda_trigger = eval(rocket.parachutes[p].triggers[0])
-            #TBD: Add safey check to lambda
-            #lambda_trigger(0,0,[0,0,0,0,0,0,0,0,0,0])
-
-            parachute = self.ParachuteController(rocket.parachutes, p).rocketpy_parachute
-            rocketpy_rocket.parachutes.append(parachute)
+            parachute_trigger = rocket.parachutes[p].triggers[0]
+            if self.ParachuteController.check_trigger(parachute_trigger):
+                rocket.parachutes[p].triggers[0] = compile(parachute_trigger, '<string>', 'eval')
+                parachute = self.ParachuteController(rocket.parachutes, p).rocketpy_parachute
+                rocketpy_rocket.parachutes.append(parachute)
+            else:
+                print("Parachute trigger not valid. Skipping parachute.")
+                continue
             
         self.rocketpy_rocket = rocketpy_rocket 
         self.rocket = rocket
@@ -184,6 +187,64 @@ class RocketController():
             )
             self.rocketpy_parachute = rocketpy_parachute
             self.parachute = parachute
+
+        def check_trigger(expression: str) -> bool:
+            """
+            Check if the trigger expression is valid.
+
+            Args:
+                expression (str): Trigger expression.
+
+            Returns:
+                bool: True if the expression is valid, False otherwise.
+            """
+
+            # Parsing the expression into an AST
+            try:
+                parsed_expression = ast.parse(expression, mode='eval')
+            except SyntaxError:
+                print("Invalid syntax.")
+                return False
+
+            # Constant case (supported after beta v1) 
+            if isinstance(parsed_expression.body, ast.Constant):
+                return True
+            # Name case (supported after beta v1)
+            elif isinstance(parsed_expression.body, ast.Name) \
+            and parsed_expression.body.id == "apogee":
+                global apogee
+                apogee = "apogee"
+                return True
+
+            # Validating the expression structure
+            if not isinstance(parsed_expression.body, ast.Lambda):
+                print("Invalid expression structure (not a Lambda).")
+                return False
+
+            lambda_node = parsed_expression.body
+            if len(lambda_node.args.args) != 3:
+                print("Invalid expression structure (invalid arity).")
+                return False
+
+            if not isinstance(lambda_node.body, ast.Compare):
+                try:
+                    for operand in lambda_node.body.values:
+                        if not isinstance(operand, ast.Compare):
+                            print("Invalid expression structure (not a Compare).")
+                            return False
+                except AttributeError:
+                    print("Invalid expression structure (not a Compare).")
+                    return False
+
+            # Restricting access to functions or attributes
+            for node in ast.walk(lambda_node):
+                if isinstance(node, ast.Call):
+                    print("Calling functions is not allowed in the expression.")
+                    return False
+                elif isinstance(node, ast.Attribute):
+                    print("Accessing attributes is not allowed in the expression.")
+                    return False
+            return True 
 
 class FlightController():
     """
