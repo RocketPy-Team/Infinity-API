@@ -20,6 +20,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Flight routes
 @app.post("/flight/")
 async def create_flight(flight: Flight) -> "Dict[str, str]":
     """
@@ -157,6 +158,10 @@ async def simulate_flight(flight_id: int) -> FlightSummary:
         HTTP 404 Not Found: If flight_id does not exist in database.
     """
     return FlightController.simulate(flight_id)
+
+#@app.get("/flight/modular/")
+
+#Environment routes
 
 @app.get("/health", status_code=status.HTTP_200_OK)
 async def __perform_healthcheck():
