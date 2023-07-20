@@ -1,6 +1,6 @@
 from lib.models import Rocket, Flight, Env, NoseCone, TrapezoidalFins, Tail, Parachute, Motor, RailButtons
 from lib.views import FlightSummary, SurfaceWindConditions, RailDepartureState, BurnoutState, Apogee, MaximumValues
-from lib.repositories import FlightRepository
+from lib.repositories.flight import FlightRepository 
 
 from rocketpy import Environment, SolidMotor
 from rocketpy.AeroSurface import NoseCone as rocketpy_NoseCone
