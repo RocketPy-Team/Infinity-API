@@ -118,5 +118,5 @@ class FlightRepository(Repository):
         """
         Encodes a rocketpy flight object as a jsonpickle string hash
         """
-            return jsonpickle.encode(rocketpy_flight)
+        return jsonpickle.encode(rocketpy_flight)
 
