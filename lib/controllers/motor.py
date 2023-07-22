@@ -1,3 +1,6 @@
+from rocketpy import SolidMotor
+from lib.models.motor import Motor
+
 class MotorController():
     """
     Controller for the motor model.

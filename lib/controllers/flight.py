@@ -1,21 +1,16 @@
-from lib.models import Rocket, Flight, Env, NoseCone, TrapezoidalFins, Tail, Parachute, Motor, RailButtons
+from lib.models.rocket import Rocket
+from lib.models.flight import Flight
+from lib.models.environment import Env
 from lib.views import FlightSummary, SurfaceWindConditions, RailDepartureState, BurnoutState, Apogee, MaximumValues
 from lib.repositories.flight import FlightRepository 
 from lib.controllers.environment import EnvController
 from lib.controllers.rocket import RocketController
-
-from rocketpy import Environment, SolidMotor
-from rocketpy.AeroSurface import NoseCone as rocketpy_NoseCone
-from rocketpy.AeroSurface import TrapezoidalFins as rocketpy_TrapezoidalFins
-from rocketpy.AeroSurface import Tail as rocketpy_Tail
 
 from typing import Dict, Any, Union
 from fastapi import Response, status
 
 import ast
 import rocketpy.Flight
-import rocketpy.Rocket
-import rocketpy.Parachute
 
 class FlightController():
     """
