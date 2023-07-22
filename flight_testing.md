@@ -113,6 +113,12 @@ curl -X 'GET' \
   'http://127.0.0.1:3000/flight/?flight_id=0' \
   -H 'accept: application/json'
 ```
+## Read rocketpy flight
+``` bash
+curl -X 'GET' \
+  'http://127.0.0.1:3000/flight/rocketpy/?flight_id=0' \
+  -H 'accept: application/json'
+```
 ### Update flight
 ``` bash
     curl -X 'PUT' \
