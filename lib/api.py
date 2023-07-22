@@ -7,7 +7,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from lib.views import FlightSummary
 from lib.models import Env, Flight, Rocket
-from lib.controllers import EnvController, FlightController
+from lib.controllers.flight import FlightController
+from lib.controllers.environment import EnvController
+from lib.controllers.rocket import RocketController
+from lib.controllers.motor import MotorController
 
 from typing import Any, Dict
 
