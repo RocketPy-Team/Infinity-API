@@ -1,9 +1,10 @@
 from pymongo.results import InsertOneResult
 from pymongo.results import DeleteResult
-from lib.models import Flight
+from lib.models.flight import Flight
 from lib.repositories.repo import Repository
 from typing import Union
 import jsonpickle
+import sys
 
 class FlightRepository(Repository):
     """
@@ -42,6 +43,9 @@ class FlightRepository(Repository):
                 flight_to_dict = self.flight.dict()
                 flight_to_dict["flight_id"] = self.flight_id 
                 flight_to_dict["rocketpy_flight"] = self.get_encoded_flight(rocketpy_flight)
+                print(sys.getsizeof(flight_to_dict))
+                print(sys.getsizeof(flight_to_dict))
+                print(sys.getsizeof(flight_to_dict))
                 return self.collection.insert_one(flight_to_dict)
             except:
                 raise Exception("Error creating flight")

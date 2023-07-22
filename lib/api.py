@@ -6,7 +6,9 @@ from fastapi import FastAPI, Response, status, Header
 from fastapi.middleware.cors import CORSMiddleware
 
 from lib.views import FlightSummary
-from lib.models import Env, Flight, Rocket
+from lib.models.environment import Env
+from lib.models.flight import Flight
+from lib.models.rocket import Rocket
 from lib.controllers.flight import FlightController
 from lib.controllers.environment import EnvController
 from lib.controllers.rocket import RocketController
@@ -231,9 +233,8 @@ async def delete_env(env_id: int) -> "Dict[str, str]":
     """
     return EnvController.delete_env(env_id)
 
-#read rocketpy env
 @app.get("/env/rocketpy/")
-async def read_rocketpy_env(env_id: int) -> RocketPyEnv:
+async def read_rocketpy_env(env_id: int) -> "Dict[str, Any]":
     """
     Reads a rocketpy environment.
 
@@ -241,7 +242,7 @@ async def read_rocketpy_env(env_id: int) -> RocketPyEnv:
         env_id: Environment ID hash.
 
     Returns:
-        RocketPyEnv object as JSON.
+        Rocketpy Environment object encoded as JSONPickle string.
 
     Raises:
         HTTP 404 Not Found: If env_id does not exist in database.
