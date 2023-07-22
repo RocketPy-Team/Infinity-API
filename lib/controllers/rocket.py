@@ -9,6 +9,7 @@ from rocketpy.AeroSurface import Tail as rocketpy_Tail
 
 import rocketpy.Parachute
 import rocketpy.Rocket
+import ast
 
 class RocketController():
     """

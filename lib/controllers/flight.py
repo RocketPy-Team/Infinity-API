@@ -9,7 +9,6 @@ from lib.controllers.rocket import RocketController
 from typing import Dict, Any, Union
 from fastapi import Response, status
 
-import ast
 import rocketpy.Flight
 
 class FlightController():
