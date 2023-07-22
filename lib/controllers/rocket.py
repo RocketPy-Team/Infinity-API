@@ -1,4 +1,14 @@
 from lib.controllers.motor import MotorController
+from lib.models.rocket import Rocket
+from lib.models.aerosurfaces import NoseCone, TrapezoidalFins, Tail, RailButtons
+from lib.models.parachute import Parachute
+
+from rocketpy.AeroSurface import NoseCone as rocketpy_NoseCone
+from rocketpy.AeroSurface import TrapezoidalFins as rocketpy_TrapezoidalFins
+from rocketpy.AeroSurface import Tail as rocketpy_Tail
+
+import rocketpy.Parachute
+import rocketpy.Rocket
 
 class RocketController():
     """

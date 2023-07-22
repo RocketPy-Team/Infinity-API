@@ -1,3 +1,6 @@
+from rocketpy import Environment
+from lib.models.environment import Env
+
 class EnvController(): 
     """ 
     Controller for the Environment model.

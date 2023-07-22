@@ -1,6 +1,6 @@
 from pymongo.results import InsertOneResult
 from pymongo.results import DeleteResult
-from lib.models import Environment
+from lib.models.environment import Env 
 from lib.repositories.repo import Repository
 from typing import Union
 import jsonpickle
@@ -10,13 +10,13 @@ class EnvironmentRepository(Repository):
     Environment repository
 
     Init Attributes:
-        environment: Environment object
+        environment: Env object
         environment_id: Environment id
 
     Enables CRUD operations on environment objects
     """
         
-    def __init__(self, environment: Environment = None, environment_id: str = None):
+    def __init__(self, environment: Env = None, environment_id: str = None):
         super().__init__()
         self.environment = environment
         if environment_id:
@@ -69,19 +69,19 @@ class EnvironmentRepository(Repository):
         except:
             raise Exception("Error updating environment")
 
-    def get_environment(self) -> "Union[Environment, None]":
+    def get_environment(self) -> "Union[Env, None]":
         """
         Gets a environment from the database
         
         Returns:
-            models.Environment: Model environment object
+            models.Env: Model environment object
         """
         try:
             environment = self.collection.find_one({ "environment_id": self.environment_id })
             if environment is not None:
                 del environment["_id"] 
                 del environment["rocketpy_environment"]
-                return Environment.parse_obj(environment)
+                return Env.parse_obj(environment)
             else:
                 return None
         except:
