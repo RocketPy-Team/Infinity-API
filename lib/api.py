@@ -159,9 +159,91 @@ async def simulate_flight(flight_id: int) -> FlightSummary:
     """
     return FlightController.simulate(flight_id)
 
-#@app.get("/flight/modular/")
-
 #Environment routes
+@app.post("/env/")
+async def create_env(env: Env) -> "Dict[str, str]":
+    """
+    Creates a new environment.
+
+    Args:
+        Pydantic env object as a JSON request according to API docs.
+    
+    Returns:
+        HTTP 200 { "message": "Environment created successfully.", id: env_id_hash }
+      
+    Raises:
+        HTTP 422 Unprocessable Entity: If API is unable to parse env data, usually happens when some parameter is invalid, please attend to API docs request specifications.
+        HTTP 500 Internal Server Error: If API is either unable to create env in mongoDB or valid parameter type/structure provided but content is breaking the API. 
+    """
+    return EnvController(env).create_env()
+
+@app.get("/env/")
+async def read_env(env_id: int) -> Env:
+    """
+    Reads an environment.
+
+    Args:
+        env_id: Environment ID hash.
+
+    Returns:
+        Pydantic env object as JSON.
+
+    Raises:
+        HTTP 404 Not Found: If env_id does not exist in database.
+    """
+    return EnvController.get_env(env_id)
+
+@app.put("/env/")
+async def update_env(env_id: int, env: Env) -> "Dict[str, Any]":
+    """
+    Updates an environment.
+
+    Args:
+        env_id: Environment ID hash.
+        env: Pydantic env object as JSON request according to API docs.
+
+    Returns:
+        HTTP 200 { "message": "Environment updated successfully.", new_env_id: new_env_id_hash }
+
+    Raises:
+        HTTP 404 Not Found: If env_id does not exist in database.
+        HTTP 422 Unprocessable Entity: If API is unable to parse env data, usually happens when some parameter is invalid, please attend to API docs request specifications.
+        HTTP 500 Internal Server Error: If API is either unable to update env in mongoDB or valid parameter type/structure provided but content is breaking the API.
+    """
+    return EnvController(env).update_env(env_id)
+
+@app.delete("/env/")
+async def delete_env(env_id: int) -> "Dict[str, str]":
+    """
+    Deletes an environment.
+
+    Args:
+        env_id: Environment ID hash.
+
+    Returns:
+        HTTP 200 { "message": "Environment deleted successfully." }
+
+    Raises:
+        HTTP 404 Not Found: If env_id does not exist in database.
+    """
+    return EnvController.delete_env(env_id)
+
+#read rocketpy env
+@app.get("/env/rocketpy/")
+async def read_rocketpy_env(env_id: int) -> RocketPyEnv:
+    """
+    Reads a rocketpy environment.
+
+    Args:
+        env_id: Environment ID hash.
+
+    Returns:
+        RocketPyEnv object as JSON.
+
+    Raises:
+        HTTP 404 Not Found: If env_id does not exist in database.
+    """
+    return EnvController.get_rocketpy_env(env_id)
 
 @app.get("/health", status_code=status.HTTP_200_OK)
 async def __perform_healthcheck():
