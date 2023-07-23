@@ -17,7 +17,7 @@ class FlightRepository(Repository):
     """
         
     def __init__(self, flight: Flight = None, flight_id: str = None):
-        super().__init__()
+        super().__init__("flights")
         self.flight = flight
         if flight_id:
             self.flight_id = flight_id
