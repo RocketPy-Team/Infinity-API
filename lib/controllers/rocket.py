@@ -7,6 +7,7 @@ from rocketpy.AeroSurface import NoseCone as rocketpy_NoseCone
 from rocketpy.AeroSurface import TrapezoidalFins as rocketpy_TrapezoidalFins
 from rocketpy.AeroSurface import Tail as rocketpy_Tail
 
+from fastapi import Response, status
 import rocketpy.Parachute
 import rocketpy.Rocket
 import ast
