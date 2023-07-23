@@ -11,11 +11,11 @@ class Repository:
             cls._self = super().__new__(cls)
         return cls._self
 
-    def __init__(self):
+    def __init__(self, collection: str):
         self.connection_string = "mongodb+srv://Cluster37645:QkdvWU1Ucn5b@cluster37645.ynpplud.mongodb.net/?retryWrites=true&w=majority"
         self.client = MongoClient(self.connection_string)
         self.db = self.client.rocketpy
-        self.collection = self.db.flights
+        self.collection = self.db[collection]
 
     def __del__(self):
         self.client.close()
