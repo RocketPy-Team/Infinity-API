@@ -1,6 +1,7 @@
 from rocketpy import Environment
 from lib.models.environment import Env
 from lib.repositories.environment import EnvRepository
+from fastapi import Response, status
 
 class EnvController(): 
     """ 

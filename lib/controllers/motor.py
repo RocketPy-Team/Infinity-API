@@ -1,5 +1,6 @@
 from rocketpy import SolidMotor
 from lib.models.motor import Motor
+from fastapi import Response, status
 
 class MotorController():
     """
