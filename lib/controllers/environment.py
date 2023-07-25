@@ -128,3 +128,26 @@ class EnvController():
             return {"env_id": env_id, "message": "env deleted successfully"}
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def simulate(env_id: int):
+        """
+        Simulate a rocket environment.
+
+        Args:
+            env_id (int): Env id.
+
+        Returns:
+            Env summary view.
+
+        Raises:
+            HTTP 404 Not Found: If the env does not exist in the database.
+        """
+        successfully_read_env = EnvRepository(env_id=env_id).get_env()
+        if not successfully_read_env:
+            return Response(status_code=status.HTTP_404_NOT_FOUND)
+
+        env = EnvController(successfully_read_env).rocketpy_env
+
+        #env_summary = EnvSummary()
+
+        return flight_summary

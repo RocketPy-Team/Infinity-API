@@ -249,6 +249,22 @@ async def read_rocketpy_env(env_id: int) -> "Dict[str, Any]":
     """
     return EnvController.get_rocketpy_env(env_id)
 
+@app.get("/env/simulation/")
+async def simulate_env(env_id: int) -> EnvSummary:
+    """
+    Simulates an environment.
+
+    Args:
+        env_id: Env ID hash.
+
+    Returns:
+        HTTP 200 pydantic env summary object as JSON.
+
+    Raises:
+        HTTP 404 Not Found: If env_id does not exist in database.
+    """
+    return EnvController.simulate(env_id)
+
 @app.get("/health", status_code=status.HTTP_200_OK)
 async def __perform_healthcheck():
     return {'health': 'Everything OK!'}
