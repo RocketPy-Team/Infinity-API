@@ -5,7 +5,7 @@ This is the main API file for the RocketPy API.
 from fastapi import FastAPI, Response, status, Header
 from fastapi.middleware.cors import CORSMiddleware
 
-from lib.views import FlightSummary
+from lib.views import FlightSummary, EnvSummary
 from lib.models.environment import Env
 from lib.models.flight import Flight
 from lib.models.rocket import Rocket
@@ -258,7 +258,7 @@ async def simulate_env(env_id: int) -> EnvSummary:
         env_id: Env ID hash.
 
     Returns:
-        HTTP 200 pydantic env summary object as JSON.
+        HTTP 200 pydantic env summary object containig simulation numbers and plots as JSON.
 
     Raises:
         HTTP 404 Not Found: If env_id does not exist in database.
