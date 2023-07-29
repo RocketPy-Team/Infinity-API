@@ -3,7 +3,6 @@ from pymongo.results import DeleteResult
 from lib.models.flight import Flight
 from lib.repositories.repo import Repository
 from typing import Union
-import jsonpickle
 
 class FlightRepository(Repository):
     """
