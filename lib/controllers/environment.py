@@ -1,6 +1,7 @@
 from rocketpy import Environment
 from lib.models.environment import Env
 from lib.repositories.environment import EnvRepository
+from lib.views import EnvSummary, EnvData, EnvPlots
 from fastapi import Response, status
 
 class EnvController(): 
@@ -147,7 +148,9 @@ class EnvController():
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
         env = EnvController(successfully_read_env).rocketpy_env
+        env_simulation_numbers = EnvData.parse_obj(env.allInfoReturned())
+        env_simulation_plots = EnvPlots.parse_obj(env.allPlotInfoReturned())
 
-        #env_summary = EnvSummary()
+        env_summary = EnvSummary( data=env_simulation_numbers, plots=env_simulation_plots )
 
-        return flight_summary
+        return env_summary

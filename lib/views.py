@@ -1,7 +1,7 @@
 from rocketpy import Environment, Flight
 from rocketpy.prints import _FlightPrints
 from pydantic import BaseModel
-from typing import Optional 
+from typing import Optional, List, Any
 
 class SurfaceWindConditions(BaseModel):
     frontal_surface_wind_speed: str 
@@ -46,3 +46,36 @@ class FlightSummary(BaseModel):
     burnout_state: Optional[BurnoutState]
     apogee: Optional[Apogee]
     maximum_values: Optional[MaximumValues]
+
+class EnvData(BaseModel):
+    #TBD: review grav type
+    grav: "Any"  
+    launch_rail_length: float 
+    elevation: int
+    modelType: str
+    modelTypeMaxExpectedHeight: int
+    windSpeed: float 
+    windDirection: float 
+    windHeading: float
+    surfacePressure: float
+    surfaceTemperature: float
+    surfaceAirDensity: float
+    surfaceSpeedOfSound: float
+    launch_date: str
+    lat: float
+    lon: float
+
+class EnvPlots(BaseModel):
+    grid: "List[float]"
+    windSpeed: "List[float]"
+    windDirection: "List[float]"
+    speedOfSound: "List[float]"
+    density: "List[float]"
+    windVelX: "List[float]"
+    windVelY: "List[float]"
+    pressure: "List[float]"
+    temperature: "List[float]"
+
+class EnvSummary(BaseModel):
+    data: EnvData
+    plots: EnvPlots
