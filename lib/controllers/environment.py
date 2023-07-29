@@ -4,6 +4,8 @@ from lib.repositories.environment import EnvRepository
 from lib.views import EnvSummary, EnvData, EnvPlots
 from fastapi import Response, status
 
+import jsonpickle
+
 class EnvController(): 
     """ 
     Controller for the Environment model.
@@ -61,7 +63,7 @@ class EnvController():
             return Response(status_code=status.HTTP_404_NOT_FOUND)
         return successfully_read_env
 
-    def get_rocketpy_env(env_id: int) -> str:
+    def get_rocketpy_env(env_id: int) -> "Union[Dict[str, Any], Response]":
         """
         Get a rocketpy env object encoded as jsonpickle string from the database.
 
@@ -74,10 +76,14 @@ class EnvController():
         Raises:
             HTTP 404 Not Found: If the env is not found in the database.
         """
-        successfully_read_rocketpy_env = EnvRepository(env_id=env_id).get_rocketpy_env()
-        if not successfully_read_rocketpy_env:
+        successfully_read_env = EnvRepository(env_id=env_id).get_env()
+        if not successfully_read_env:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
-        return { "jsonpickle_rocketpy_env": successfully_read_rocketpy_env }
+
+        successfully_read_rocketpy_env  = EnvController( successfully_read_env ).rocketpy_env
+
+        return { "jsonpickle_rocketpy_env": jsonpickle.encode(successfully_read_rocketpy_env) }
+
            
     def update_env(self, env_id: int) -> "Union[Dict[str, Any], Response]":
         """
