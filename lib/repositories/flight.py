@@ -41,7 +41,6 @@ class FlightRepository(Repository):
             try: 
                 flight_to_dict = self.flight.dict()
                 flight_to_dict["flight_id"] = self.flight_id 
-                flight_to_dict["rocketpy_flight"] = self.get_encoded_flight(rocketpy_flight)
                 return self.collection.insert_one(flight_to_dict)
             except:
                 raise Exception("Error creating flight")
@@ -79,29 +78,12 @@ class FlightRepository(Repository):
             flight = self.collection.find_one({ "flight_id": self.flight_id })
             if flight is not None:
                 del flight["_id"] 
-                del flight["rocketpy_flight"]
                 return Flight.parse_obj(flight)
             else:
                 return None
         except:
             raise Exception("Error getting flight")
 
-    def get_rocketpy_flight(self) -> "Union[str, None]":
-        """
-        Gets a rocketpy flight from the database
-
-        Returns:
-            str: rocketpy flight object encoded as a jsonpickle string hash
-        """
-        try:
-            flight = self.collection.find_one({ "flight_id": self.flight_id })
-            if flight is not None:
-                return flight["rocketpy_flight"]
-            else:
-                return None
-        except:
-            raise Exception("Error getting rocketpy flight")
-    
     def delete_flight(self) -> DeleteResult: 
         """
         Deletes a flight from the database
@@ -113,10 +95,3 @@ class FlightRepository(Repository):
             return self.collection.delete_one({ "flight_id": self.flight_id })
         except:
             raise Exception("Error deleting flight")
-
-    def get_encoded_flight(self, rocketpy_flight):
-        """
-        Encodes a rocketpy flight object as a jsonpickle string hash
-        """
-        return jsonpickle.encode(rocketpy_flight)
-
