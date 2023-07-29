@@ -150,7 +150,7 @@ class FlightController():
             return Response(status_code=status.HTTP_404_NOT_FOUND)
         return successfully_read_flight
 
-    def get_rocketpy_flight(flight_id: int) -> "Dict[str]":
+    def get_rocketpy_flight(flight_id: int) -> "Union[Dict[str, Any], Response]":
         """
         Get a rocketpy flight object encoded as jsonpickle string from the database.
 
@@ -163,7 +163,11 @@ class FlightController():
         Raises:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
-        successfully_read_rocketpy_flight = FlightController( FlightController.get_flight(flight_id=flight_id) ).rocketpy_flight
+        successfully_read_flight = FlightRepository(flight_id=flight_id).get_flight()
+        if not successfully_read_flight:
+            return Response(status_code=status.HTTP_404_NOT_FOUND)
+
+        successfully_read_rocketpy_flight = FlightController(successfully_read_flight).rocketpy_flight
 
         return { "jsonpickle_rocketpy_flight": jsonpickle.encode(successfully_read_rocketpy_flight) }
            
