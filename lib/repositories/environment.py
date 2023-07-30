@@ -26,7 +26,7 @@ class EnvRepository(Repository):
     def __del__(self):
         super().__del__()
 
-    def create_env(self, rocketpy_env) -> InsertOneResult:
+    def create_env(self) -> InsertOneResult:
         """
         Creates a environment in the database
 
