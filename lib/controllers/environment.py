@@ -39,7 +39,7 @@ class EnvController():
             Dict[str, str]: Environment id.
         """
         env = EnvRepository(environment=self.env)
-        successfully_created_env = env.create_env(self.rocketpy_env)
+        successfully_created_env = env.create_env()
         if successfully_created_env: 
             return { "message": "env created", "env_id": env.env_id }
         else:

@@ -26,7 +26,7 @@ class FlightRepository(Repository):
     def __del__(self):
         super().__del__()
 
-    def create_flight(self, rocketpy_flight) -> InsertOneResult:
+    def create_flight(self) -> InsertOneResult:
         """
         Creates a flight in the database
 
