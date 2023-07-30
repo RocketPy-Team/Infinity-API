@@ -126,7 +126,7 @@ class FlightController():
             Dict[str, str]: Flight id.
         """
         flight = FlightRepository(flight=self.flight)
-        successfully_created_flight = flight.create_flight(self.rocketpy_flight)
+        successfully_created_flight = flight.create_flight()
         if successfully_created_flight: 
             return { "message": "Flight created", "flight_id": flight.flight_id }
         else:
