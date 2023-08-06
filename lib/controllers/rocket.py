@@ -2,14 +2,18 @@ from lib.controllers.motor import MotorController
 from lib.models.rocket import Rocket
 from lib.models.aerosurfaces import NoseCone, TrapezoidalFins, Tail, RailButtons
 from lib.models.parachute import Parachute
+from lib.repositories.rocket import RocketRepository
 
 from rocketpy.AeroSurface import NoseCone as rocketpy_NoseCone
 from rocketpy.AeroSurface import TrapezoidalFins as rocketpy_TrapezoidalFins
 from rocketpy.AeroSurface import Tail as rocketpy_Tail
 
 from fastapi import Response, status
+from typing import Dict, Any, Union
+
 import rocketpy.Parachute
 import rocketpy.Rocket
+import jsonpickle
 import ast
 
 class RocketController():
@@ -216,3 +220,135 @@ class RocketController():
                     print("Accessing attributes is not allowed in the expression.")
                     return False
             return True 
+
+    def create_rocket(self) -> "Dict[str, str]":
+        """
+        Create a rocket in the database.
+
+        Returns:
+            Dict[str, str]: Rocket id.
+        """
+        rocket = RocketRepository(rocket=self.rocket)
+        successfully_created_rocket = rocket.create_rocket()
+        if successfully_created_rocket: 
+            return { "message": "rocket created", "rocket_id": rocket.rocket_id }
+        else:
+            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def get_rocket(rocket_id: int) -> "Union[Rocket, Response]":
+        """
+        Get a rocket from the database.
+
+        Args:
+            rocket_id (int): Rocket id.
+
+        Returns:
+            rocket model object
+
+        Raises:
+            HTTP 404 Not Found: If the rocket is not found in the database. 
+        """
+        successfully_read_rocket = RocketRepository(rocket_id=rocket_id).get_rocket()
+        if not successfully_read_rocket:
+            return Response(status_code=status.HTTP_404_NOT_FOUND)
+        return successfully_read_rocket
+
+    def get_rocketpy_rocket(rocket_id: int) -> "Union[Dict[str, Any], Response]":
+        """
+        Get a rocketpy rocket object encoded as jsonpickle string from the database.
+
+        Args:
+            rocket_id (int): rocket id.
+
+        Returns:
+            str: jsonpickle string of the rocketpy rocket.
+
+        Raises:
+            HTTP 404 Not Found: If the rocket is not found in the database.
+        """
+        successfully_read_rocket = RocketRepository(rocket_id=rocket_id).get_rocket()
+        if not successfully_read_rocket:
+            return Response(status_code=status.HTTP_404_NOT_FOUND)
+
+        successfully_read_rocketpy_rocket  = RocketController( successfully_read_rocket ).rocketpy_rocket
+
+        return { "jsonpickle_rocketpy_rocket": jsonpickle.encode(successfully_read_rocketpy_rocket) }
+
+           
+    def update_rocket(self, rocket_id: int) -> "Union[Dict[str, Any], Response]":
+        """
+        Update a rocket in the database.
+
+        Args:
+            rocket_id (int): rocket id.
+
+        Returns:
+            Dict[str, Any]: rocket id and message.
+
+        Raises:
+            HTTP 404 Not Found: If the rocket is not found in the database.
+        """
+        successfully_read_rocket = RocketRepository(rocket_id=rocket_id).get_rocket()
+        if not successfully_read_rocket:
+            return Response(status_code=status.HTTP_404_NOT_FOUND)
+
+        successfully_updated_rocket = \
+                RocketRepository(rocket=self.rocket, rocket_id=rocket_id).update_rocket()
+
+        if successfully_updated_rocket:
+            return { 
+                    "message": "rocket updated successfully", 
+                    "new_rocket_id": successfully_updated_rocket
+            }
+        else:
+            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def delete_rocket(rocket_id: int) -> "Union[Dict[str, str], Response]":
+        """
+        Delete a rocket from the database.
+
+        Args:
+            rocket_id (int): Rocket id.
+
+        Returns:
+            Dict[str, str]: Rocket id and message.
+
+        Raises:
+            HTTP 404 Not Found: If the rocket is not found in the database.
+        """
+        successfully_read_rocket = RocketRepository(rocket_id=rocket_id).get_rocket()
+        if not successfully_read_rocket:
+            return Response(status_code=status.HTTP_404_NOT_FOUND)
+
+        successfully_deleted_rocket = RocketRepository(rocket_id=rocket_id).delete_rocket()
+        if successfully_deleted_rocket: 
+            return {"rocket_id": rocket_id, "message": "rocket deleted successfully"}
+        else:
+            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def simulate(rocket_id: int) -> "Union[RocketSummary, Response]":
+        """
+        Simulate a rocket rocket.
+
+        Args:
+            rocket_id (int): Rocket id.
+
+        Returns:
+            Rocket summary view.
+
+        Raises:
+            HTTP 404 Not Found: If the rocket does not exist in the database.
+        """
+        successfully_read_rocket = RocketRepository(rocket_id=rocket_id).get_rocket()
+        if not successfully_read_rocket:
+            return Response(status_code=status.HTTP_404_NOT_FOUND)
+
+        #rocket = RocketController(successfully_read_rocket).rocketpy_rocket
+        #rocket_simulation_numbers = RocketData.parse_obj(rocket.allInfoReturned())
+        #rocket_simulation_plots = RocketPlots.parse_obj(rocket.allPlotInfoReturned())
+
+        #rocket_summary = RocketSummary( data=rocket_simulation_numbers, plots=rocket_simulation_plots )
+
+        #return rocket_summary
+        pass
+

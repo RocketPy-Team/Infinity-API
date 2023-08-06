@@ -79,3 +79,6 @@ class EnvPlots(BaseModel):
 class EnvSummary(BaseModel):
     data: EnvData
     plots: EnvPlots
+
+class RocketSummary(BaseModel):
+    pass

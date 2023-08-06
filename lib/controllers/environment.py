@@ -1,8 +1,11 @@
 from rocketpy import Environment
+
 from lib.models.environment import Env
 from lib.repositories.environment import EnvRepository
 from lib.views import EnvSummary, EnvData, EnvPlots
+
 from fastapi import Response, status
+from typing import Dict, Any, Union
 
 import jsonpickle
 
@@ -45,7 +48,7 @@ class EnvController():
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def get_env(env_id: int) -> "Union[env, Response]":
+    def get_env(env_id: int) -> "Union[Env, Response]":
         """
         Get a env from the database.
 
@@ -136,7 +139,7 @@ class EnvController():
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def simulate(env_id: int):
+    def simulate(env_id: int) -> "Union[EnvSummary, Response]":
         """
         Simulate a rocket environment.
 
