@@ -5,7 +5,7 @@ This is the main API file for the RocketPy API.
 from fastapi import FastAPI, Response, status, Header
 from fastapi.middleware.cors import CORSMiddleware
 
-from lib.views import FlightSummary, EnvSummary
+from lib.views import FlightSummary, EnvSummary, RocketSummary
 from lib.models.environment import Env
 from lib.models.flight import Flight
 from lib.models.rocket import Rocket
@@ -44,7 +44,7 @@ async def create_flight(flight: Flight) -> "Dict[str, str]":
     return FlightController(flight).create_flight()
 
 @app.get("/flight/")
-async def read_flight(flight_id: int) -> Flight:
+async def read_flight(flight_id: int) -> "Flight":
     """
     Reads a flight.
 
@@ -149,7 +149,7 @@ async def delete_flight(flight_id: int) -> "Dict[str, str]":
     return FlightController.delete_flight(flight_id)
 
 @app.get("/flight/simulation/")
-async def simulate_flight(flight_id: int) -> FlightSummary:
+async def simulate_flight(flight_id: int) -> "FlightSummary":
     """
     Simulates a flight.
 
@@ -183,7 +183,7 @@ async def create_env(env: Env) -> "Dict[str, str]":
     return EnvController(env).create_env()
 
 @app.get("/env/")
-async def read_env(env_id: int) -> Env:
+async def read_env(env_id: int) -> "Env":
     """
     Reads an environment.
 
@@ -250,7 +250,7 @@ async def read_rocketpy_env(env_id: int) -> "Dict[str, Any]":
     return EnvController.get_rocketpy_env(env_id)
 
 @app.get("/env/simulation/")
-async def simulate_env(env_id: int) -> EnvSummary:
+async def simulate_env(env_id: int) -> "EnvSummary":
     """
     Simulates an environment.
 
@@ -264,6 +264,107 @@ async def simulate_env(env_id: int) -> EnvSummary:
         HTTP 404 Not Found: If env_id does not exist in database.
     """
     return EnvController.simulate(env_id)
+
+#Rocket routes
+@app.post("/rocket/")
+async def create_rocket(rocket: Rocket) -> "Dict[str, str]":
+    """
+    Creates a new rocket.
+
+    Args:
+        Pydantic rocket object as a JSON request according to API docs.
+    
+    Returns:
+        HTTP 200 { "message": "Rocket created successfully.", id: rocket_id_hash }
+      
+    Raises:
+        HTTP 422 Unprocessable Entity: If API is unable to parse rocket data, usually happens when some parameter is invalid, please attend to API docs request specifications.
+        HTTP 500 Internal Server Error: If API is either unable to create rocket in mongoDB or valid parameter type/structure provided but content is breaking the API. 
+    """
+    return RocketController(rocket).create_rocket()
+
+@app.get("/rocket/")
+async def read_rocket(rocket_id: int) -> Rocket:
+    """
+    Reads a rocket.
+
+    Args:
+        rocket_id: Rocket ID hash.
+
+    Returns:
+        Pydantic rocket object as JSON.
+
+    Raises:
+        HTTP 404 Not Found: If rocket_id does not exist in database.
+    """
+    return RocketController.get_rocket(rocket_id)
+
+@app.put("/rocket/")
+async def update_rocket(rocket_id: int, rocket: Rocket) -> "Dict[str, Any]":
+    """
+    Updates a rocket.
+
+    Args:
+        rocket_id: Rocket ID hash.
+        rocket: Pydantic rocket object as JSON request according to API docs.
+
+    Returns:
+        HTTP 200 { "message": "Rocket updated successfully.", new_rocket_id: new_rocket_id_hash }
+
+    Raises:
+        HTTP 404 Not Found: If rocket_id does not exist in database.
+        HTTP 422 Unprocessable Entity: If API is unable to parse rocket data, usually happens when some parameter is invalid, please attend to API docs request specifications.
+        HTTP 500 Internal Server Error: If API is either unable to update rocket in mongoDB or valid parameter type/structure provided but content is breaking the API.
+    """
+    return RocketController(rocket).update_rocket(rocket_id)
+
+@app.delete("/rocket/")
+async def delete_rocket(rocket_id: int) -> "Dict[str, str]":
+    """
+    Deletes a rocket.
+
+    Args:
+        rocket_id: Rocket ID hash.
+
+    Returns:
+        HTTP 200 { "message": "Rocket deleted successfully." }
+
+    Raises:
+        HTTP 404 Not Found: If rocket_id does not exist in database.
+    """
+    return RocketController.delete_rocket(rocket_id)
+
+@app.get("/rocket/rocketpy/")
+async def read_rocketpy_rocket(rocket_id: int) -> "Dict[str, Any]":
+    """
+    Reads a rocketpy rocket.
+
+    Args:
+        rocket_id: Rocket ID hash.
+
+    Returns:
+        Rocketpy Rocket object encoded as JSONPickle string.
+
+    Raises:
+        HTTP 404 Not Found: If rocket_id does not exist in database.
+    """
+    return RocketController.get_rocketpy_rocket(rocket_id)
+
+@app.get("/rocket/simulation/")
+async def simulate_rocket(rocket_id: int) -> "RocketSummary":
+    """
+    Simulates a rocket.
+
+    Args:
+        rocket_id: Rocket ID hash.
+
+    Returns:
+        HTTP 200 pydantic rocket summary object containig simulation numbers and plots as JSON.
+
+    Raises:
+        HTTP 404 Not Found: If rocket_id does not exist in database.
+    """
+    return RocketController.simulate(rocket_id)
 
 @app.get("/health", status_code=status.HTTP_200_OK)
 async def __perform_healthcheck():

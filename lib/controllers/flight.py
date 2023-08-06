@@ -42,7 +42,7 @@ class FlightController():
         self.rocketpy_flight = rocketpy_flight 
         self.flight = flight
 
-    def simulate(flight_id: int):
+    def simulate(flight_id: int) -> "FlightSummary":
         """
         Simulate a rocket flight.
 
