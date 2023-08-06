@@ -26,7 +26,7 @@ class EnvRepository(Repository):
     def __del__(self):
         super().__del__()
 
-    def create_env(self) -> InsertOneResult:
+    def create_env(self) -> "InsertOneResult":
         """
         Creates a environment in the database
 
@@ -83,7 +83,7 @@ class EnvRepository(Repository):
         except:
             raise Exception("Error getting environment")
         
-    def delete_env(self) -> DeleteResult: 
+    def delete_env(self) -> "DeleteResult": 
         """
         Deletes a environment from the database
 
