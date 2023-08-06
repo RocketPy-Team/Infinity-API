@@ -26,7 +26,7 @@ class FlightRepository(Repository):
     def __del__(self):
         super().__del__()
 
-    def create_flight(self) -> InsertOneResult:
+    def create_flight(self) -> "InsertOneResult":
         """
         Creates a flight in the database
 
@@ -83,7 +83,7 @@ class FlightRepository(Repository):
         except:
             raise Exception("Error getting flight")
 
-    def delete_flight(self) -> DeleteResult: 
+    def delete_flight(self) -> "DeleteResult": 
         """
         Deletes a flight from the database
 
