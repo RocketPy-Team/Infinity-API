@@ -26,7 +26,7 @@ class RocketRepository(Repository):
     def __del__(self):
         super().__del__()
 
-    def create_rocket(self) -> InsertOneResult:
+    def create_rocket(self) -> "InsertOneResult":
         """
         Creates a rocket in the database
 
@@ -83,7 +83,7 @@ class RocketRepository(Repository):
         except:
             raise Exception("Error getting rocket")
         
-    def delete_rocket(self) -> DeleteResult: 
+    def delete_rocket(self) -> "DeleteResult": 
         """
         Deletes a rocket from the database
 

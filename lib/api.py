@@ -5,10 +5,11 @@ This is the main API file for the RocketPy API.
 from fastapi import FastAPI, Response, status, Header
 from fastapi.middleware.cors import CORSMiddleware
 
-from lib.views import FlightSummary, EnvSummary, RocketSummary
+from lib.views import FlightSummary, EnvSummary, RocketSummary, MotorSummary
 from lib.models.environment import Env
 from lib.models.flight import Flight
 from lib.models.rocket import Rocket
+from lib.models.motor import Motor
 from lib.controllers.flight import FlightController
 from lib.controllers.environment import EnvController
 from lib.controllers.rocket import RocketController
@@ -264,6 +265,107 @@ async def simulate_env(env_id: int) -> "EnvSummary":
         HTTP 404 Not Found: If env_id does not exist in database.
     """
     return EnvController.simulate(env_id)
+
+#Motor routes
+@app.post("/motor/")
+async def create_motor(motor: Motor) -> "Dict[str, str]":
+    """
+    Creates a new motor.
+
+    Args:
+        Pydantic motor object as a JSON request according to API docs.
+    
+    Returns:
+        HTTP 200 { "message": "Motor created successfully.", id: motor_id_hash }
+      
+    Raises:
+        HTTP 422 Unprocessable Entity: If API is unable to parse motor data, usually happens when some parameter is invalid, please attend to API docs request specifications.
+        HTTP 500 Internal Server Error: If API is either unable to create motor in mongoDB or valid parameter type/structure provided but content is breaking the API. 
+    """
+    return MotorController(motor).create_motor()
+
+@app.get("/motor/")
+async def read_motor(motor_id: int) -> "Motor":
+    """
+    Reads a motor.
+
+    Args:
+        motor_id: Motor ID hash.
+
+    Returns:
+        Pydantic motor object as JSON.
+
+    Raises:
+        HTTP 404 Not Found: If motor_id does not exist in database.
+    """
+    return MotorController.get_motor(motor_id)
+
+@app.put("/motor/")
+async def update_motor(motor_id: int, motor: Motor) -> "Dict[str, Any]":
+    """
+    Updates a motor.
+
+    Args:
+        motor_id: Motor ID hash.
+        motor: Pydantic motor object as JSON request according to API docs.
+
+    Returns:
+        HTTP 200 { "message": "Motor updated successfully.", new_motor_id: new_motor_id_hash }
+
+    Raises:
+        HTTP 404 Not Found: If motor_id does not exist in database.
+        HTTP 422 Unprocessable Entity: If API is unable to parse motor data, usually happens when some parameter is invalid, please attend to API docs request specifications.
+        HTTP 500 Internal Server Error: If API is either unable to update motor in mongoDB or valid parameter type/structure provided but content is breaking the API.
+    """
+    return MotorController(motor).update_motor(motor_id)
+
+@app.delete("/motor/")
+async def delete_motor(motor_id: int) -> "Dict[str, str]":
+    """
+    Deletes a motor.
+
+    Args:
+        motor_id: Motor ID hash.
+
+    Returns:
+        HTTP 200 { "message": "Motor deleted successfully." }
+
+    Raises:
+        HTTP 404 Not Found: If motor_id does not exist in database.
+    """
+    return MotorController.delete_motor(motor_id)
+
+@app.get("/motor/rocketpy/")
+async def read_rocketpy_motor(motor_id: int) -> "Dict[str, Any]":
+    """
+    Reads a rocketpy motor.
+
+    Args:
+        motor_id: Motor ID hash.
+
+    Returns:
+        Rocketpy Motor object encoded as JSONPickle string.
+
+    Raises:
+        HTTP 404 Not Found: If motor_id does not exist in database.
+    """
+    return MotorController.get_rocketpy_motor(motor_id)
+
+@app.get("/motor/simulation/")
+async def simulate_motor(motor_id: int) -> "MotorSummary":
+    """
+    Simulates a motor.
+
+    Args:
+        motor_id: Motor ID hash.
+
+    Returns:
+        HTTP 200 pydantic motor summary object containig simulation numbers and plots as JSON.
+
+    Raises:
+        HTTP 404 Not Found: If motor_id does not exist in database.
+    """
+    return MotorController.simulate(motor_id)
 
 #Rocket routes
 @app.post("/rocket/")

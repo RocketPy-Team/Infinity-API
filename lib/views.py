@@ -82,3 +82,6 @@ class EnvSummary(BaseModel):
 
 class RocketSummary(BaseModel):
     pass
+
+class MotorSummary(BaseModel):
+    pass
