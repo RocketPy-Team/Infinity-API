@@ -30,12 +30,11 @@ class RocketController():
         rocketpy_rocket = rocketpy.Rocket(
                 radius=rocket.radius,
                 mass=rocket.mass,
-                inertiaI=rocket.inertiaI,
-                inertiaZ=rocket.inertiaZ,
-                powerOffDrag=rocket.powerOffDrag,
-                powerOnDrag=rocket.powerOnDrag,
-                centerOfDryMassPosition=rocket.centerOfDryMassPosition,
-                coordinateSystemOrientation=rocket.coordinateSystemOrientation
+                inertia=rocket.inertia,
+                power_off_drag=rocket.power_off_drag,
+                power_on_drag=rocket.power_on_drag,
+                center_of_mass_without_motor=rocket.center_of_mass_without_motor,
+                coordinate_system_orientation=rocket.coordinate_system_orientation
         )
 
         #RailButtons
@@ -43,7 +42,7 @@ class RocketController():
                                        lower_button_position=rocket.railButtons.lower_button_position,
                                        angular_position=rocket.railButtons.angularPosition)
         rocketpy_rocket.addMotor(MotorController(rocket.motor).rocketpy_motor,
-                                 rocket.motorPosition)
+                                 rocket.motor_position)
 
         #NoseCone
         nose = self.NoseConeController(rocket.nose).rocketpy_nose
@@ -343,12 +342,15 @@ class RocketController():
         if not successfully_read_rocket:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
-        #rocket = RocketController(successfully_read_rocket).rocketpy_rocket
+        rocket = RocketController(successfully_read_rocket).rocketpy_rocket
+
         #rocket_simulation_numbers = RocketData.parse_obj(rocket.allInfoReturned())
         #rocket_simulation_plots = RocketPlots.parse_obj(rocket.allPlotInfoReturned())
 
-        #rocket_summary = RocketSummary( data=rocket_simulation_numbers, plots=rocket_simulation_plots )
+        rocket_summary = RocketSummary(
+                rocket_data = rocket_simulation_numbers,
+                rocket_plots = rocket_simulation_plots
+        )
 
-        #return rocket_summary
-        pass
+        return rocket_summary
 

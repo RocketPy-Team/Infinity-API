@@ -1,0 +1,2 @@
+class MotorSummary(BaseModel):
+    pass

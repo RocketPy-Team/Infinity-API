@@ -6,14 +6,13 @@ curl --location --request POST 'http://127.0.0.1:3000/rocket/' \
 -d '{
     "radius": 0.0635,
     "mass": 16.241,
-    "inertiaI": 6.6,
-    "inertiaZ": 0.0351,
+    "inertia": [6.6, 0.0351],
     "powerOffDrag": "lib/data/calisto/powerOffDragCurve.csv",
     "powerOnDrag": "lib/data/calisto/powerOnDragCurve.csv",
-    "centerOfDryMassPosition": 0,
-    "coordinateSystemOrientation": "tailToNose",
-    "motorPosition": -1.255,
-    "railButtons": {
+    "center_of_mass_without_motor": 0,
+    "coordinate_system_orientation": "tail_to_nose",
+    "motor_position": -1.255,
+    "rail_buttons": {
       "distanceToCM": [
         0.2,
         -0.5
@@ -115,14 +114,13 @@ curl -X 'GET' \
 -d '{
     "radius": 0.0635,
     "mass": 17.241,
-    "inertiaI": 6.6,
-    "inertiaZ": 0.0351,
+    "inertia": [ 6.6, 0.0351 ],
     "powerOffDrag": "lib/data/calisto/powerOffDragCurve.csv",
     "powerOnDrag": "lib/data/calisto/powerOnDragCurve.csv",
-    "centerOfDryMassPosition": 0,
-    "coordinateSystemOrientation": "tailToNose",
-    "motorPosition": -1.255,
-    "railButtons": {
+    "center_of_mass_without_motor": 0,
+    "coordinate_system_orientation": "tail_to_nose",
+    "motor_position": -1.255,
+    "rail_buttons": {
       "distanceToCM": [
         0.2,
         -0.5
