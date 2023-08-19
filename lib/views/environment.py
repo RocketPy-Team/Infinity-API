@@ -32,5 +32,5 @@ class EnvPlots(BaseModel):
     temperature: "List[float]"
 
 class EnvSummary(BaseModel):
-    env_data: "EnvData"
-    env_plots: "EnvPlots"
+    env_data: EnvData
+    env_plots: EnvPlots

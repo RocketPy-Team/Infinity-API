@@ -5,7 +5,10 @@ This is the main API file for the RocketPy API.
 from fastapi import FastAPI, Response, status, Header
 from fastapi.middleware.cors import CORSMiddleware
 
-from lib.views import FlightSummary, EnvSummary, RocketSummary, MotorSummary
+from lib.views.flight import FlightSummary
+from lib.views.environment import EnvSummary
+from lib.views.rocket import RocketSummary
+from lib.views.motor import MotorSummary
 from lib.models.environment import Env
 from lib.models.flight import Flight
 from lib.models.rocket import Rocket

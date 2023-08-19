@@ -347,7 +347,7 @@ class RocketController():
 
         _inertia_details = InertiaDetails(
             rocket_mass_without_propellant = "Rocket Mass: {:.3f} kg (No Propellant)".format(rocket.mass),
-            rocket_mass_with_propellant = "Rocket Mass: {:.3f} kg (With Propellant)".format(rocket.total_mass(0),
+            rocket_mass_with_propellant = "Rocket Mass: {:.3f} kg (With Propellant)".format(rocket.total_mass(0)),
             rocket_inertia_with_motor_without_propellant = [
                 "Rocket Inertia (with motor, but without propellant) 11: {:.3f} kg*m2".format(rocket.dry_I_11),
                 "Rocket Inertia (with motor, but without propellant) 22: {:.3f} kg*m2".format(rocket.dry_I_22),

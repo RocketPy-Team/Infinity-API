@@ -2,7 +2,7 @@ from rocketpy import Environment
 
 from lib.models.environment import Env
 from lib.repositories.environment import EnvRepository
-from lib.views import EnvSummary, EnvData, EnvPlots
+from lib.views.environment import EnvSummary, EnvData, EnvPlots
 
 from fastapi import Response, status
 from typing import Dict, Any, Union
