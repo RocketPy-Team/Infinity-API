@@ -37,6 +37,6 @@ class RocketPlots(BaseModel):
     pass
 
 class RocketSummary(BaseModel):
-    data: "RocketData"
-    plots: "Optional[RocketPlots]"
+    data: RocketData
+    #plots: RocketPlots
 

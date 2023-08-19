@@ -1,7 +1,7 @@
 from lib.models.rocket import Rocket
 from lib.models.flight import Flight
 from lib.models.environment import Env
-from lib.views.flight import FlightSummary, SurfaceWindConditions, OutOfRailConditions, BurnoutConditions, ApogeeConditions, MaximumValues, InitialConditions, NumericalIntegrationSetting, ImpactConditions, EventsRegistered
+from lib.views.flight import FlightSummary, SurfaceWindConditions, OutOfRailConditions, BurnoutConditions, ApogeeConditions, MaximumValues, InitialConditions, NumericalIntegrationSettings, ImpactConditions, EventsRegistered
 from lib.repositories.flight import FlightRepository 
 from lib.controllers.environment import EnvController
 from lib.controllers.rocket import RocketController
@@ -135,7 +135,7 @@ class FlightController():
             maximum_lower_rail_button_shear_force = "{:.3f} N".format(flight.maxRailButton2ShearForce)
         )
 
-        if len(flight.impact_state) != 0
+        if len(flight.impact_state) != 0:
             _impact_conditions = ImpactConditions(
                 x_impact_position = "X Impact: {:.3f} m".format(self.flight.x_impact),
                 y_impact_position = "Y Impact: {:.3f} m".format(self.flight.y_impact),
@@ -143,8 +143,8 @@ class FlightController():
             )
         elif flight.terminate_on_apogee is False:
             _impact_conditions = ImpactConditions(
-                time = "Time: {:.3f} s".format(self.flight.solution[-1][0])
-                altitude = "Altitude: {:.3f} m".format(self.flight.solution[-1][3]),
+                time = "Time: {:.3f} s".format(self.flight.solution[-1][0]),
+                altitude = "Altitude: {:.3f} m".format(self.flight.solution[-1][3])
             )
 
         if len(flight.parachute_events) == 0:
