@@ -1,4 +1,3 @@
-from rocketpy import Flight
 from pydantic import BaseModel
 from typing import Optional, Any
 
@@ -75,20 +74,20 @@ class EventsRegistered(BaseModel):
     events_trace: "Optional[Any]"
 
 class FlightData(BaseModel):
-    initial_conditions: "InitialConditions"
-    numerical_integration_settings: "NumericalIntegrationSettings"
-    launch_rail_conditions: "LaunchRailConditions"
-    surface_wind_conditions: "SurfaceWindConditions"
-    out_of_rail_conditions: "RailDepartureState"
-    burnout_conditions: "BurnoutState"
-    apogee_conditions: "Apogee"
-    maximum_values: "MaximumValues"
-    impact_conditions: "ImpactConditions"
+    initial_conditions: InitialConditions
+    numerical_integration_settings: NumericalIntegrationSettings
+    launch_rail_conditions: LaunchRailConditions
+    surface_wind_conditions: SurfaceWindConditions
+    out_of_rail_conditions: OutOfRailConditions
+    burnout_conditions: BurnoutConditions
+    apogee_conditions: ApogeeConditions
+    maximum_values: MaximumValues
+    impact_conditions: ImpactConditions
     events_registered: "Optional[EventsRegistered]"
 
 class FlightPlots(BaseModel):
     pass
 
 class FlightSummary(BaseModel):
-    flight_data: "FlightData"
-    flight_plots: "Optional[FlightPlots]"
+    flight_data: FlightData
+    #flight_plots: FlightPlots
