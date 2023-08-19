@@ -3,6 +3,7 @@ from lib.models.rocket import Rocket
 from lib.models.aerosurfaces import NoseCone, TrapezoidalFins, Tail, RailButtons
 from lib.models.parachute import Parachute
 from lib.repositories.rocket import RocketRepository
+from lib.views.rocket import InertiaDetails, RocketGeometricalParameters, RocketAerodynamicsQuantities, ParachuteData, RocketData, RocketPlots, RocketSummary
 
 from rocketpy.AeroSurface import NoseCone as rocketpy_NoseCone
 from rocketpy.AeroSurface import TrapezoidalFins as rocketpy_TrapezoidalFins
@@ -344,12 +345,104 @@ class RocketController():
 
         rocket = RocketController(successfully_read_rocket).rocketpy_rocket
 
-        #rocket_simulation_numbers = RocketData.parse_obj(rocket.allInfoReturned())
-        #rocket_simulation_plots = RocketPlots.parse_obj(rocket.allPlotInfoReturned())
+        _inertia_details = InertiaDetails(
+            rocket_mass_without_propellant = "Rocket Mass: {:.3f} kg (No Propellant)".format(rocket.mass),
+            rocket_mass_with_propellant = "Rocket Mass: {:.3f} kg (With Propellant)".format(rocket.total_mass(0),
+            rocket_inertia_with_motor_without_propellant = [
+                "Rocket Inertia (with motor, but without propellant) 11: {:.3f} kg*m2".format(rocket.dry_I_11),
+                "Rocket Inertia (with motor, but without propellant) 22: {:.3f} kg*m2".format(rocket.dry_I_22),
+                "Rocket Inertia (with motor, but without propellant) 33: {:.3f} kg*m2".format(rocket.dry_I_33),
+                "Rocket Inertia (with motor, but without propellant) 12: {:.3f} kg*m2".format(rocket.dry_I_12),
+                "Rocket Inertia (with motor, but without propellant) 13: {:.3f} kg*m2".format(rocket.dry_I_13),
+                "Rocket Inertia (with motor, but without propellant) 23: {:.3f} kg*m2".format(rocket.dry_I_23)
+            ]
+        )
 
+        _rocket_geometrical_parameters = RocketGeometricalParameters(
+            rocket_maximum_radius = "Rocket Maximum Radius: " + str(rocket.radius) + " m",
+            rocket_frontal_area = "Rocket Frontal Area: " + "{:.6f}".format(rocket.area) + " m2",
+
+            rocket_codm_nozzle_exit_distance = "Rocket Center of Dry Mass - Nozzle Exit Distance: "
+            + "{:.3f} m".format(
+                abs(
+                    rocket.center_of_dry_mass_position - rocket.motor_position
+                )
+            ),
+
+            rocket_codm_center_of_propellant_mass = "Rocket Center of Dry Mass - Center of Propellant Mass: "
+            + "{:.3f} m".format(
+                abs(
+                    rocket.center_of_propellant_position(0)
+                    - rocket.center_of_dry_mass_position
+                )
+            ),
+
+            rocket_codm_loaded_center_of_mass = "Rocket Center of Mass - Rocket Loaded Center of Mass: "
+            + "{:.3f} m".format(
+                abs(
+                    rocket.center_of_mass(0)
+                    - rocket.center_of_dry_mass_position
+                )
+            )
+        )
+
+        _aerodynamics_lift_coefficient_derivatives = {} 
+        for surface, position in rocket.aerodynamic_surfaces:
+            name = surface.name
+            _aerodynamics_lift_coefficient_derivatives[name] = []
+            _aerodynamics_lift_coefficient_derivatives[name].append(
+                name + " Lift Coefficient Derivative: {:.3f}".format(surface.clalpha(0)) + "/rad"
+            )
+
+        _aerodynamics_center_of_pressure = {}
+        for surface, position in rocket.aerodynamic_surfaces:
+            name = surface.name
+            cpz = surface.cp[2]
+            _aerodynamics_center_of_pressure[name] = []
+            _aerodynamics_center_of_pressure[name].append(
+                name + " Center of Pressure to CM: {:.3f}".format(cpz) + " m"
+            )
+
+        _rocket_aerodynamic_quantities = RocketAerodynamicQuantities(
+            aerodynamics_lift_coefficient_derivatives = _aerodynamics_lift_coefficient_derivatives, 
+            aerodynamics_center_of_pressure = _aerodynamics_center_of_pressure,
+            distance_cop_to_codm = "Distance from Center of Pressure to Center of Dry Mass: " + "{:.3f}".format(rocket.center_of_mass(0) - rocket.cp_position) + " m",
+            initial_static_margin = "Initial Static Margin: " + "{:.3f}".format(rocket.static_margin(0)) + " c",
+            final_static_margin ="Final Static Margin: " + "{:.3f}".format(rocket.static_margin(rocket.motor.burn_out_time)) + " c"
+        )
+
+        _parachute_details = {} 
+        _parachute_ejection_signal_trigger = {}
+        _parachute_ejection_system_refresh_rate = {}
+        _parachute_lag = {}
+        for chute in rocket.parachutes:
+            _parachute_details[chute.name] = chute.__str__()
+
+            if chute.trigger.__name__ == "<lambda>":
+                line = rocket.getsourcelines(chute.trigger)[0][0]
+                _parachute_ejection_signal_trigger[chute.name] = "Ejection signal trigger: " + line.split("lambda ")[1].split(",")[0].split("\n")[0]
+
+            else:
+                _parachute_ejection_signal_trigger[chute.name] = "Ejection signal trigger: " + chute.trigger.__name__
+                _parachute_ejection_system_refresh_rate[chute.name] = "Ejection system refresh rate: {chute.sampling_rate:.3f} Hz"
+                _parachute_lag[chute.name] = "Time between ejection signal is triggered and the parachute is fully opened: {chute.lag:.1f} s\n"
+
+        _parachute_data = ParachuteData(
+            parachute_details = _parachute_details,
+            parachute_ejection_signal_trigger = _parachute_ejection_signal_trigger,
+            parachute_ejection_system_refresh_rate = _parachute_ejection_system_refresh_rate,
+            parachute_lag = _parachute_lag
+        )
+
+        _rocket_data = RocketData(
+            inertia_details = _inertia_details,
+            rocket_geometrical_parameters = _rocket_geometrical_parameters,
+            rocket_aerodynamic_quantities = _rocket_aerodynamic_quantities,
+            parachute_data = _parachute_data
+        )
+            
         rocket_summary = RocketSummary(
-                rocket_data = rocket_simulation_numbers,
-                rocket_plots = rocket_simulation_plots
+                rocket_data = _rocket_data
         )
 
         return rocket_summary
