@@ -1,6 +1,6 @@
 from rocketpy import Flight
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Any
 
 class InitialConditions(BaseModel):
     initial_position: str
@@ -72,7 +72,7 @@ class ImpactConditions(BaseModel):
     altitude: "Optional[str]" 
 
 class EventsRegistered(BaseModel):
-    events_trace: "Optional[str]"
+    events_trace: "Optional[Any]"
 
 class FlightData(BaseModel):
     initial_conditions: "InitialConditions"
