@@ -152,7 +152,7 @@ async def delete_flight(flight_id: int) -> "Dict[str, str]":
     """
     return FlightController.delete_flight(flight_id)
 
-@app.get("/flight/simulation/")
+@app.get("/flight/simulate/")
 async def simulate_flight(flight_id: int) -> "FlightSummary":
     """
     Simulates a flight.
@@ -253,7 +253,7 @@ async def read_rocketpy_env(env_id: int) -> "Dict[str, Any]":
     """
     return EnvController.get_rocketpy_env(env_id)
 
-@app.get("/env/simulation/")
+@app.get("/env/simulate/")
 async def simulate_env(env_id: int) -> "EnvSummary":
     """
     Simulates an environment.
@@ -354,7 +354,7 @@ async def read_rocketpy_motor(motor_id: int) -> "Dict[str, Any]":
     """
     return MotorController.get_rocketpy_motor(motor_id)
 
-@app.get("/motor/simulation/")
+@app.get("/motor/simulate/")
 async def simulate_motor(motor_id: int) -> "MotorSummary":
     """
     Simulates a motor.
@@ -455,7 +455,7 @@ async def read_rocketpy_rocket(rocket_id: int) -> "Dict[str, Any]":
     """
     return RocketController.get_rocketpy_rocket(rocket_id)
 
-@app.get("/rocket/simulation/")
+@app.get("/rocket/simulate/")
 async def simulate_rocket(rocket_id: int) -> "RocketSummary":
     """
     Simulates a rocket.
