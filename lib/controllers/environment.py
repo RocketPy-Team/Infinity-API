@@ -21,15 +21,14 @@ class EnvController():
     """
     def __init__(self, env: Env):
         rocketpy_env = Environment(
-                railLength=env.railLength,
                 latitude=env.latitude,
                 longitude=env.longitude,
                 elevation=env.elevation,
                 date=env.date
                 )
-        rocketpy_env.setAtmosphericModel(
-                type=env.atmosphericModelType, 
-                file=env.atmosphericModelFile
+        rocketpy_env.set_atmospheric_model(
+                type=env.atmospheric_model_type, 
+                file=env.atmospheric_model_file
                 )
         self.rocketpy_env = rocketpy_env 
         self.env = env
@@ -157,9 +156,9 @@ class EnvController():
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
         env = EnvController(successfully_read_env).rocketpy_env
-        env_simulation_numbers = EnvData.parse_obj(env.allInfoReturned())
-        env_simulation_plots = EnvPlots.parse_obj(env.allPlotInfoReturned())
+        env_simulation_numbers = EnvData.parse_obj(env.all_info_returned())
+        env_simulation_plots = EnvPlots.parse_obj(env.all_plot_info_returned())
 
-        env_summary = EnvSummary( data=env_simulation_numbers, plots=env_simulation_plots )
+        env_summary = EnvSummary( env_data=env_simulation_numbers, env_plots=env_simulation_plots )
 
         return env_summary
