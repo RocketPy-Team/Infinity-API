@@ -6,10 +6,9 @@ curl --location --request POST 'http://127.0.0.1:3000/env/' \
 -d '{
     "latitude": 0,
     "longitude": 0,
-    "railLength": 5.2,
     "elevation": 1400,
-    "atmosphericModelType": "StandardAtmosphere",
-    "atmosphericModelFile": "GFS",
+    "atmospheric_model_type": "standard_atmosphere",
+    "atmospheric_model_file": "GFS",
     "date": "2023-05-09T16:30:50.065992"
   }'
 ```
@@ -34,10 +33,9 @@ curl -X 'GET' \
 -d '{
     "latitude": 0,
     "longitude": 0,
-    "railLength": 5.2,
     "elevation": 1400,
-    "atmosphericModelType": "StandardAtmosphere",
-    "atmosphericModelFile": "GFS",
+    "atmospheric_model_type": "standard_atmosphere",
+    "atmospheric_model_file": "GFS",
     "date": "2023-05-09T16:30:50.065992"
   }'
 ```
@@ -50,6 +48,6 @@ curl -X 'DELETE' \
 ### Environment simulation
 ``` bash
 curl -X 'GET' \
-  'http://127.0.0.1:3000/env/simulation/?env_id=0' \
+  'http://127.0.0.1:3000/env/simulate/?env_id=0' \
   -H 'accept: application/json'
 ```
