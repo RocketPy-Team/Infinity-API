@@ -46,7 +46,7 @@ class MotorController():
         motor = MotorRepository(motor=self.motor)
         successfully_created_motor = motor.create_motor()
         if successfully_created_motor: 
-            return { "message": "motor created", "motor_id": motor.motor_id }
+            return { "message": "motor created", "motor_id": str(motor.motor_id) }
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -113,7 +113,7 @@ class MotorController():
         if successfully_updated_motor:
             return { 
                     "message": "motor updated successfully", 
-                    "new_motor_id": successfully_updated_motor
+                    "new_motor_id": str(successfully_updated_motor)
             }
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -137,7 +137,7 @@ class MotorController():
 
         successfully_deleted_motor = MotorRepository(motor_id=motor_id).delete_motor()
         if successfully_deleted_motor: 
-            return {"motor_id": motor_id, "message": "motor deleted successfully"}
+            return {"motor_id": str(motor_id), "message": "motor deleted successfully"}
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
