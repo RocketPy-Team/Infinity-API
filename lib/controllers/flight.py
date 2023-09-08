@@ -206,7 +206,7 @@ class FlightController():
         flight = FlightRepository(flight=self.flight)
         successfully_created_flight = flight.create_flight()
         if successfully_created_flight: 
-            return { "message": "Flight created", "flight_id": flight.flight_id }
+            return { "message": "Flight created", "flight_id": str(flight.flight_id) }
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -272,7 +272,7 @@ class FlightController():
         if successfully_updated_flight:
             return { 
                     "message": "Flight updated successfully", 
-                    "new_flight_id": successfully_updated_flight
+                    "new_flight_id": str(successfully_updated_flight)
             }
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -300,7 +300,7 @@ class FlightController():
         if successfully_updated_flight:
             return { 
                     "message": "Flight updated successfully", 
-                    "new_flight_id": successfully_updated_flight
+                    "new_flight_id": str(successfully_updated_flight)
             }
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -328,7 +328,7 @@ class FlightController():
         if successfully_updated_flight:
             return { 
                     "message": "Flight updated successfully", 
-                    "new_flight_id": successfully_updated_flight
+                    "new_flight_id": str(successfully_updated_flight)
             }
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -352,6 +352,6 @@ class FlightController():
 
         successfully_deleted_flight = FlightRepository(flight_id=flight_id).delete_flight()
         if successfully_deleted_flight: 
-            return {"flight_id": flight_id, "message": "Flight deleted successfully"}
+            return {"flight_id": str(flight_id), "message": "Flight deleted successfully"}
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
