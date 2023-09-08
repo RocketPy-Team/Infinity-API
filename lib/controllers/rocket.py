@@ -231,7 +231,7 @@ class RocketController():
         rocket = RocketRepository(rocket=self.rocket)
         successfully_created_rocket = rocket.create_rocket()
         if successfully_created_rocket: 
-            return { "message": "rocket created", "rocket_id": rocket.rocket_id }
+            return { "message": "rocket created", "rocket_id": str(rocket.rocket_id) }
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -298,7 +298,7 @@ class RocketController():
         if successfully_updated_rocket:
             return { 
                     "message": "rocket updated successfully", 
-                    "new_rocket_id": successfully_updated_rocket
+                    "new_rocket_id": str(successfully_updated_rocket)
             }
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -322,7 +322,7 @@ class RocketController():
 
         successfully_deleted_rocket = RocketRepository(rocket_id=rocket_id).delete_rocket()
         if successfully_deleted_rocket: 
-            return {"rocket_id": rocket_id, "message": "rocket deleted successfully"}
+            return {"rocket_id": str(rocket_id), "message": "rocket deleted successfully"}
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
