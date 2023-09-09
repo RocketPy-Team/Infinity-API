@@ -1,0 +1,2202 @@
+{
+	"info": {
+		"_postman_id": "fba21b4b-5715-4531-a3e5-d7e082b3356a",
+		"name": "Infinity-API",
+		"description": "# About this collection\n\nThe API under this collection includes four artifacts **{Environment, Flight, Motor and Rocket}** with 6 endpoints each covering artifact **creation, reading, editing, deleting, simulating and retrieving artifact as jsonpickle string.**\n\n- POST `api/artifact/{{artifact_id}}` --> { message, artifact_id }\n    \n- GET `api/artifact/{{artifact_id}}` --> { Artifact }\n    \n- GET `api/rocketpy/artifact/{{artifact_id}}` --> { json_pickle_string_artifact }\n    \n- GET `api/simulate/artifact/{{artifact_id}}` --> { ArtifactSimulationSummary }\n    \n- PUT `api/artifact/{{artifact_id}}` --> { message, new_artifact_id }\n    \n- DELETE `api/artifact/{{artifact_id}}` --> { deleted_artifact_id, message }\n    \n\n## **Using this collection**\n\n- Run this collection by clicking on \"Run\".\n    \n\n<img src=\"https://content.pstmn.io/84019b0f-69c8-4c5f-98b9-2c90a6f9a0b1/Y29sbGVjdGlvbi1ydW5uZXItYnV0dG9uLmpwZWc=\" width=\"266\" height=\"103\">\n\n## Additional resources\n\n[Scripting in Postman](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/)\n\n[Test script examples](https://learning.postman.com/docs/writing-scripts/script-references/test-examples/)\n\n[Postman Sandbox API reference](https://learning.postman.com/docs/sending-requests/grpc/postman-sandbox-api/#writing-assertions)\n\n[Using the Collection Runner](https://learning.postman.com/docs/collections/running-collections/intro-to-collection-runs/)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Environment",
+			"item": [
+				{
+					"name": "Create Environment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"var envRequest = JSON.parse(pm.request.body.raw);",
+									"",
+									"// reduce date for future assert",
+									"envRequest.date = envRequest.date.substring(0, envRequest.date.length - 7);",
+									"",
+									"// save environment parameters",
+									"pm.collectionVariables.set('env_id', apiRspn.env_id)        ",
+									"pm.collectionVariables.set('latitude', envRequest.latitude)",
+									"pm.collectionVariables.set('longitude', envRequest.longitude)",
+									"pm.collectionVariables.set('elevation', envRequest.elevation)      ",
+									"pm.collectionVariables.set('atmospheric_model_type', envRequest.atmospheric_model_type)    ",
+									"pm.collectionVariables.set('atmospheric_model_file', envRequest.atmospheric_model_file)            ",
+									"pm.collectionVariables.set('date', envRequest.date)        ",
+									"",
+									"//TEST",
+									"bdd = \"Given a valid environment POST request is made to the API\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
+									"        pm.expect(apiRspn.message).to.eql(\"Environment created\");",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid env_id\", function () {",
+									"        pm.expect(apiRspn.env_id).to.exist;        ",
+									"    });"
+								],
+								"type": "text/javascript",
+								"id": "47bd37ce-b102-47fc-bdf4-35386027bd0e"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"id": "c692d9c7-cdce-4a4d-b59d-d72e38b3c8b4"
+							}
+						}
+					],
+					"_postman_id": "3603f68a-9df8-45f2-9d99-1491fcce47e8",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"latitude\": 0,\n    \"longitude\": 0,\n    \"elevation\": 1400,\n    \"atmospheric_model_type\": \"standard_atmosphere\",\n    \"atmospheric_model_file\": \"GFS\",\n    \"date\": \"2023-05-09T16:30:50.065992\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{endpoint}}/env/",
+						"description": "This returns a `token` that you can use to retrieve information later on.\n\nWe have included a test to confirm if a token is returned. We have also added test scripts to copy the token to the `token` collection variable. This makes it easy for us to reuse this token in other requests in the collection."
+					},
+					"response": []
+				},
+				{
+					"name": "Read Environment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "2251b1df-4472-4b2c-8fa1-4b10dd5dc86c",
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"",
+									"var returned_date = apiRspn.date;",
+									"var reduced_returned_date = returned_date.substring(0, returned_date.length - 7);",
+									"",
+									"//TEST",
+									"bdd = \"Given a valid Environment GET request is made\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid environment\", function () {",
+									"        pm.expect(apiRspn.latitude).to.eql(pm.collectionVariables.get('latitude'), \"latitude not matching\");",
+									"        pm.expect(apiRspn.longitude).to.eql(pm.collectionVariables.get('longitude'), \"longitude not matching\");        ",
+									"        pm.expect(apiRspn.elevation).to.eql(pm.collectionVariables.get('elevation'), \"elevation not matching\");",
+									"        pm.expect(apiRspn.atmospheric_model_type).to.eql(pm.collectionVariables.get('atmospheric_model_type'), \"atmospheric_model_type not matching\");",
+									"        pm.expect(apiRspn.atmospheric_model_file).to.eql(pm.collectionVariables.get('atmospheric_model_file'), \"atmospheric_model_file not matching\");",
+									"        pm.expect(reduced_returned_date).to.eql(pm.collectionVariables.get('date'), \"date not matching\");",
+									"    });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"_postman_id": "95adaeea-0665-413f-b5b0-156943f92a1e",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{endpoint}}/env/{{env_id}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Read rocketpy Environment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "50d84ce5-283a-4a2f-a1ab-cd3de39a9764",
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"",
+									"//TEST",
+									"bdd = \"Given a valid rocketpy Environment GET request is made\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
+									"        pm.expect(apiRspn.jsonpickle_rocketpy_env).to.exist;        ",
+									"    });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"_postman_id": "c06c2cfc-ef70-4894-b8c8-92205cc2b197",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{endpoint}}/env/rocketpy/{{env_id}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Simulate Environment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "dd30a158-2a89-4b0a-98fd-912e1451e13d",
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"//TEST",
+									"bdd = \"Given a valid rocketpy Environment simulate GET request is made\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
+									"        pm.expect(apiRspn.env_data).to.exist;        ",
+									"        pm.expect(apiRspn.env_data.grav).to.exist;   ",
+									"        pm.expect(apiRspn.env_data.wind_speed).to.exist;",
+									"        pm.expect(apiRspn.env_data.model_type_max_expected_height).to.exist;",
+									"        pm.expect(apiRspn.env_data.wind_speed).to.exist;",
+									"        pm.expect(apiRspn.env_data.wind_direction).to.exist;",
+									"        pm.expect(apiRspn.env_data.wind_heading).to.exist;",
+									"        pm.expect(apiRspn.env_data.surface_pressure).to.exist;",
+									"        pm.expect(apiRspn.env_data.surface_temperature).to.exist;",
+									"        pm.expect(apiRspn.env_data.surface_air_density).to.exist;",
+									"        pm.expect(apiRspn.env_data.surface_speed_of_sound).to.exist;",
+									"        pm.expect(apiRspn.env_data.launch_date).to.exist;",
+									"        pm.expect(apiRspn.env_data.lat).to.eql(pm.collectionVariables.get('latitude'), \"latitude not matching\");",
+									"        pm.expect(apiRspn.env_data.lon).to.eql(pm.collectionVariables.get('longitude'), \"longitude not matching\");        ",
+									"        pm.expect(apiRspn.env_data.elevation).to.eql(pm.collectionVariables.get('elevation'), \"elevation not matching\");",
+									"        pm.expect(apiRspn.env_data.model_type).to.eql(pm.collectionVariables.get('atmospheric_model_type'), \"atmospheric_model_type not matching\");      ",
+									"",
+									"        pm.expect(apiRspn.env_plots).to.exist;     ",
+									"        pm.expect(apiRspn.env_plots.grid).to.exist;",
+									"        pm.expect(apiRspn.env_plots.wind_speed).to.exist;",
+									"        pm.expect(apiRspn.env_plots.wind_direction).to.exist;",
+									"        pm.expect(apiRspn.env_plots.speed_of_sound).to.exist;",
+									"        pm.expect(apiRspn.env_plots.density).to.exist;",
+									"        pm.expect(apiRspn.env_plots.wind_vel_x).to.exist;",
+									"        pm.expect(apiRspn.env_plots.wind_vel_y).to.exist;",
+									"        pm.expect(apiRspn.env_plots.pressure).to.exist;",
+									"        pm.expect(apiRspn.env_plots.temperature).to.exist;",
+									"    });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"_postman_id": "dfc9eaa2-3900-477d-9d80-87fe7ce7f229",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{endpoint}}/env/simulate/{{env_id}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Environment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c25c41b5-8419-46c8-ba7b-508c98f8b8db",
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"var envRequest = JSON.parse(pm.request.body.raw);",
+									"",
+									"// reduce date for future assert",
+									"envRequest.date = envRequest.date.substring(0, envRequest.date.length - 7);",
+									"",
+									"// save environment parameters",
+									"pm.collectionVariables.set('env_id', apiRspn.new_env_id)        ",
+									"pm.collectionVariables.set('latitude', envRequest.latitude)",
+									"pm.collectionVariables.set('longitude', envRequest.longitude)",
+									"pm.collectionVariables.set('elevation', envRequest.elevation)      ",
+									"pm.collectionVariables.set('atmospheric_model_type', envRequest.atmospheric_model_type)    ",
+									"pm.collectionVariables.set('atmospheric_model_file', envRequest.atmospheric_model_file)            ",
+									"pm.collectionVariables.set('date', envRequest.date)        ",
+									"",
+									"//TEST",
+									"bdd = \"Given a valid Environment PUT request is made to the API\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
+									"        pm.expect(apiRspn.message).to.eql(\"Environment successfully updated\");",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid new_env_id\", function () {",
+									"        pm.expect(apiRspn.new_env_id).to.exist;        ",
+									"    });"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "5b261016-41ea-4b28-b3b3-7a35c505e661",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"_postman_id": "b271645a-5677-4d4e-a967-392edcb63748",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"latitude\": 0,\n    \"longitude\": 0,\n    \"elevation\": 1400,\n    \"atmospheric_model_type\": \"standard_atmosphere\",\n    \"atmospheric_model_file\": \"GFS\",\n    \"date\": \"2023-05-09T16:30:50.065992\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{endpoint}}/env/{{env_id}}",
+						"description": "This returns a `token` that you can use to retrieve information later on.\n\nWe have included a test to confirm if a token is returned. We have also added test scripts to copy the token to the `token` collection variable. This makes it easy for us to reuse this token in other requests in the collection."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Environment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "671d8091-2ee6-4b8e-9960-5775c2e00992",
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"//TEST",
+									"bdd = \"Given a valid Environment DELETE request is made\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
+									"        pm.expect(apiRspn.message).to.eql(\"Environment successfully deleted\", \"message not matching\");",
+									"        pm.expect(apiRspn.deleted_env_id).to.eql(pm.collectionVariables.get('env_id'), \"env_id not matching\");                ",
+									"    });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"_postman_id": "1f5ae4d8-ff96-4487-9b7a-41f7c0ffa121",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{endpoint}}/env/{{env_id}}"
+					},
+					"response": []
+				}
+			],
+			"_postman_id": "5376d788-5d30-43a0-aa50-fb0b25acb34c"
+		},
+		{
+			"name": "Flight",
+			"item": [
+				{
+					"name": "Create Flight",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"var flightRequest = JSON.parse(pm.request.body.raw);",
+									"",
+									"// reduce environment date for future assertion",
+									"flightRequest.environment.date = flightRequest.environment.date.substring(0, flightRequest.environment.date.length - 7);",
+									"",
+									"// save flight parameters",
+									"pm.collectionVariables.set('rail_length', flightRequest.rail_length)        ",
+									"pm.collectionVariables.set('inclination', flightRequest.inclination)",
+									"pm.collectionVariables.set('heading', flightRequest.heading)",
+									"",
+									"// flight environment",
+									"pm.collectionVariables.set('flight_id', apiRspn.flight_id)        ",
+									"pm.collectionVariables.set('latitude', flightRequest.environment.latitude)",
+									"pm.collectionVariables.set('longitude', flightRequest.environment.longitude)",
+									"pm.collectionVariables.set('elevation', flightRequest.environment.elevation)      ",
+									"pm.collectionVariables.set('atmospheric_model_type', flightRequest.environment.atmospheric_model_type)    ",
+									"pm.collectionVariables.set('atmospheric_model_file', flightRequest.environment.atmospheric_model_file)            ",
+									"pm.collectionVariables.set('date', flightRequest.environment.date)        ",
+									"",
+									"// flight rocket",
+									"pm.collectionVariables.set('radius', flightRequest.rocket.radius)",
+									"pm.collectionVariables.set('mass', flightRequest.rocket.mass)",
+									"pm.collectionVariables.set('inertia', flightRequest.rocket.inertia)",
+									"pm.collectionVariables.set('power_off_drag', flightRequest.rocket.power_off_drag)",
+									"pm.collectionVariables.set('power_on_drag', flightRequest.rocket.power_on_drag)",
+									"pm.collectionVariables.set('center_of_mass_without_motor', flightRequest.rocket.center_of_mass_without_motor)",
+									"pm.collectionVariables.set('motor_position', flightRequest.rocket.motor_position)",
+									"pm.collectionVariables.set('rail_buttons', flightRequest.rocket.rail_buttons)",
+									"pm.collectionVariables.set('upper_button_position', flightRequest.rocket.rail_buttons.upper_button_position)",
+									"pm.collectionVariables.set('lower_button_position', flightRequest.rocket.rail_buttons.lower_button_position)",
+									"pm.collectionVariables.set('angular_position', flightRequest.rocket.rail_buttons.angular_position)",
+									"pm.collectionVariables.set('rocket_coordinate_system_orientation', flightRequest.rocket.coordinate_system_orientation)",
+									"",
+									"// flight rocket motor",
+									"pm.collectionVariables.set('burn_time', flightRequest.rocket.motor.burn_time)",
+									"pm.collectionVariables.set('dry_mass', flightRequest.rocket.motor.dry_mass)",
+									"pm.collectionVariables.set('dry_inertia', flightRequest.rocket.motor.dry_inertia)",
+									"pm.collectionVariables.set('center_of_dry_mass', flightRequest.rocket.motor.center_of_dry_mass)",
+									"pm.collectionVariables.set('grain_number', flightRequest.rocket.motor.grain_number)",
+									"pm.collectionVariables.set('grain_density', flightRequest.rocket.motor.grain_density)",
+									"pm.collectionVariables.set('grain_outer_radius', flightRequest.rocket.motor.grain_outer_radius)",
+									"pm.collectionVariables.set('grain_initial_inner_radius', flightRequest.rocket.motor.grain_initial_inner_radius)",
+									"pm.collectionVariables.set('grain_initial_height', flightRequest.rocket.motor.grain_initial_height)",
+									"pm.collectionVariables.set('grains_center_of_mass_position', flightRequest.rocket.motor.grains_center_of_mass_position)",
+									"pm.collectionVariables.set('grain_separation', flightRequest.rocket.motor.grain_separation)",
+									"pm.collectionVariables.set('thrust_source', flightRequest.rocket.motor.thrust_source)",
+									"pm.collectionVariables.set('nozzle_radius', flightRequest.rocket.motor.nozzle_radius)",
+									"pm.collectionVariables.set('throat_radius', flightRequest.rocket.motor.throat_radius)",
+									"pm.collectionVariables.set('interpolation_method', flightRequest.rocket.motor.interpolation_method)",
+									"pm.collectionVariables.set('motor_coordinate_system_orientation', flightRequest.rocket.motor.coordinate_system_orientation)",
+									"",
+									"// flight rocket nose",
+									"pm.collectionVariables.set('nose_length', flightRequest.rocket.nose.length)",
+									"pm.collectionVariables.set('kind', flightRequest.rocket.nose.kind)",
+									"pm.collectionVariables.set('nose_position', flightRequest.rocket.nose.position)",
+									"pm.collectionVariables.set('base_radius', flightRequest.rocket.nose.base_radius)",
+									"pm.collectionVariables.set('rocket_radius', flightRequest.rocket.nose.rocket_radius)",
+									"",
+									"// flight rocket fins",
+									"pm.collectionVariables.set('n', flightRequest.rocket.fins.n)",
+									"pm.collectionVariables.set('root_chord', flightRequest.rocket.fins.root_chord)",
+									"pm.collectionVariables.set('tip_chord', flightRequest.rocket.fins.tip_chord)",
+									"pm.collectionVariables.set('span', flightRequest.rocket.fins.span)",
+									"pm.collectionVariables.set('fin_position', flightRequest.rocket.fins.position)",
+									"pm.collectionVariables.set('cant_angle', flightRequest.rocket.fins.cant_angle)",
+									"pm.collectionVariables.set('fin_radius', flightRequest.rocket.fins.radius)",
+									"pm.collectionVariables.set('airfoil', flightRequest.rocket.fins.airfoil)",
+									"",
+									"// flight rocket tail",
+									"pm.collectionVariables.set('top_radius', flightRequest.rocket.tail.top_radius)",
+									"pm.collectionVariables.set('bottom_radius', flightRequest.rocket.tail.bottom_radius)",
+									"pm.collectionVariables.set('tail_length', flightRequest.rocket.tail.length)",
+									"pm.collectionVariables.set('tail_position', flightRequest.rocket.tail.position)",
+									"pm.collectionVariables.set('tail_radius', flightRequest.rocket.tail.radius)",
+									"",
+									"// flight rocket parachute",
+									"pm.collectionVariables.set('parachutes_names', flightRequest.rocket.parachutes.name)",
+									"pm.collectionVariables.set('parachutes_cds', flightRequest.rocket.parachutes.cd_s)",
+									"pm.collectionVariables.set('parachutes_sampling_rate', flightRequest.rocket.parachutes.sampling_rate)",
+									"pm.collectionVariables.set('parachutes_lags', flightRequest.rocket.parachutes.lag)",
+									"pm.collectionVariables.set('parachutes_noises', flightRequest.rocket.parachutes.noise)",
+									"pm.collectionVariables.set('parachutes_triggers', flightRequest.rocket.parachutes.triggers)",
+									"",
+									"//TEST",
+									"bdd = \"Given a valid Flight POST request is made to the API\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
+									"        pm.expect(apiRspn.message).to.eql(\"Flight created\");",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid flight_id\", function () {",
+									"        pm.expect(apiRspn.flight_id).to.exist;        ",
+									"    });"
+								],
+								"type": "text/javascript",
+								"id": "e9e0f53b-14de-4667-9bba-04df201ddaba"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"id": "d050be7a-bd84-4959-b952-f0046de4960d"
+							}
+						}
+					],
+					"_postman_id": "c7ade98a-c693-43a6-80b2-1cd1e5f9f34d",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"rail_length\": 5.2,\n    \"inclination\": 85,\n    \"heading\": 0,\n    \"environment\": {\n        \"latitude\": 0,\n        \"longitude\": 0,\n        \"elevation\": 1405,\n        \"atmospheric_model_type\": \"standard_atmosphere\",\n        \"atmospheric_model_file\": \"GFS\",\n        \"date\": \"2023-05-09T16:30:50.065992\"\n    },\n    \"rocket\": {\n        \"radius\": 0.0632,\n        \"mass\": 16.235,\n        \"inertia\": [\n            6.321, \n            6.321, \n            0.0346\n        ],\n        \"power_off_drag\": \"lib/data/calisto/powerOffDragCurve.csv\",\n        \"power_on_drag\": \"lib/data/calisto/powerOnDragCurve.csv\",\n        \"center_of_mass_without_motor\": 0,\n        \"coordinate_system_orientation\": \"tail_to_nose\",\n        \"motor_position\": -1.255,\n        \"rail_buttons\": {\n            \"upper_button_position\": -0.5,\n            \"lower_button_position\": 0.2,\n            \"angular_position\": 45\n        },\n        \"motor\": {\n            \"burn_time\": 3.9,\n            \"dry_mass\": 1.815,\n            \"dry_inertia\": [0.125, 0.125, 0.002],\n            \"center_of_dry_mass\": 0.317,\n            \"grain_number\": 5,\n            \"grain_density\": 1815,\n            \"grain_outer_radius\": 0.033,\n            \"grain_initial_inner_radius\": 0.015,\n            \"grain_initial_height\": 0.12,\n            \"grains_center_of_mass_position\": -0.85704,\n            \"grain_separation\": 0.005,\n            \"thrust_source\": \"lib/data/motors/Cesaroni_M1670.eng\",            \n            \"nozzle_radius\": 0.033,\n            \"throat_radius\": 0.011,\n            \"interpolation_method\": \"linear\",\n            \"coordinate_system_orientation\": \"nozzle_to_combustion_chamber\"\n        },\n        \"nose\": {\n            \"length\": 0.55829,\n            \"kind\": \"vonKarman\",\n            \"position\": 1.278,\n            \"base_radius\": 0.0635,\n            \"rocket_radius\": 0.0635\n        },\n        \"fins\": {\n            \"n\": 4,\n            \"root_chord\": 0.12,\n            \"tip_chord\": 0.04,\n            \"span\": 0.1,\n            \"position\": -1.04956,\n            \"cant_angle\": 0,\n            \"radius\": 0.0635,\n            \"airfoil\": \"\"\n        },\n        \"tail\": {\n            \"top_radius\": 0.0635,\n            \"bottom_radius\": 0.0435,\n            \"length\": 0.06,\n            \"position\": -1.194656,\n            \"radius\": 0.0635\n        },\n        \"parachutes\": {\n            \"name\": [\n                \"Main\",\n                \"Drogue\"\n            ],\n            \"cd_s\": [\n                10,\n                1\n            ],\n            \"sampling_rate\": [\n                105,\n                105\n            ],\n            \"lag\": [\n                1.5,\n                1.5\n            ],\n            \"noise\": [\n                [\n                    0,\n                    8.3,\n                    0.5\n                ],\n                [\n                    0,\n                    8.3,\n                    0.5\n                ]\n            ],\n            \"triggers\": [\n                \"lambda p, h, y: y[5] < 0 and h < 800\",\n                \"lambda p, h, y: y[5] < 0\"\n            ]\n        }\n    }    \n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{endpoint}}/flight/",
+						"description": "This returns a `token` that you can use to retrieve information later on.\n\nWe have included a test to confirm if a token is returned. We have also added test scripts to copy the token to the `token` collection variable. This makes it easy for us to reuse this token in other requests in the collection."
+					},
+					"response": []
+				},
+				{
+					"name": "Read Flight",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "eba23830-b51b-4d12-9f46-8df2b474b6e8",
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"",
+									"var returned_date = apiRspn.environment.date;",
+									"var reduced_returned_date = returned_date.substring(0, returned_date.length - 7);",
+									"",
+									"//TEST",
+									"bdd = \"Given a valid Flight GET request is made\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid flight \", function () {",
+									"        pm.expect(apiRspn.inclination).to.eql(pm.collectionVariables.get('inclination'), \"flight inclination not matching\");",
+									"        pm.expect(apiRspn.heading).to.eql(pm.collectionVariables.get('heading'), \"flight heading not matching\");",
+									"        pm.expect(apiRspn.rail_length).to.eql(pm.collectionVariables.get('rail_length'), \"flight rail_length not matching\");",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid flight environment\", function () {",
+									"        pm.expect(apiRspn.environment.longitude).to.eql(pm.collectionVariables.get('longitude'), \"environment longitude not matching\");        ",
+									"        pm.expect(apiRspn.environment.elevation).to.eql(pm.collectionVariables.get('elevation'), \"environment elevation not matching\");",
+									"        pm.expect(apiRspn.environment.atmospheric_model_type).to.eql(pm.collectionVariables.get('atmospheric_model_type'), \"environment atmospheric_model_type not matching\");",
+									"        pm.expect(apiRspn.environment.atmospheric_model_file).to.eql(pm.collectionVariables.get('atmospheric_model_file'), \"environment atmospheric_model_file not matching\");",
+									"        pm.expect(reduced_returned_date).to.eql(pm.collectionVariables.get('date'), \"date not matching\");",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid flight rocket\", function () {        ",
+									"        pm.expect(apiRspn.rocket.radius).to.eql(pm.collectionVariables.get('radius'), \"rocket radius not matching\");",
+									"        pm.expect(apiRspn.rocket.mass).to.eql(pm.collectionVariables.get('mass'), \"rocket mass not matching\");",
+									"        pm.expect(apiRspn.rocket.inertia).to.eql(pm.collectionVariables.get('inertia'), \"rocket inertia not matching\");",
+									"        pm.expect(apiRspn.rocket.power_off_drag).to.eql(pm.collectionVariables.get('power_off_drag'), \"rocket power_off_drag not matching\");",
+									"        pm.expect(apiRspn.rocket.power_on_drag).to.eql(pm.collectionVariables.get('power_on_drag'), \"rocket power_on_drag not matching\");",
+									"        pm.expect(apiRspn.rocket.center_of_mass_without_motor).to.eql(pm.collectionVariables.get('center_of_mass_without_motor'), \"rocket center_of_mass_without_motor not matching\");",
+									"        pm.expect(apiRspn.rocket.coordinate_system_orientation).to.eql(pm.collectionVariables.get('rocket_coordinate_system_orientation'), \"rocket coordinate_system_orientation not matching\");",
+									"        pm.expect(apiRspn.rocket.motor_position).to.eql(pm.collectionVariables.get('motor_position'), \"rocket motor_position not matching\");",
+									"        pm.expect(apiRspn.rocket.rail_buttons).to.eql(pm.collectionVariables.get('rail_buttons'), \"rocket rail_buttons not matching\");",
+									"        pm.expect(apiRspn.rocket.rail_buttons.upper_button_position).to.eql(pm.collectionVariables.get('upper_button_position'), \"rocket rail_buttons upper_button_position not matching\");",
+									"        pm.expect(apiRspn.rocket.rail_buttons.lower_button_position).to.eql(pm.collectionVariables.get('lower_button_position'), \"rocket rail_buttons lower_button_position not matching\");",
+									"        pm.expect(apiRspn.rocket.rail_buttons.angular_position).to.eql(pm.collectionVariables.get('angular_position'), \"rocket rail_buttons angular_position not matching\");",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid flight rocket motor\", function () {",
+									"        pm.expect(apiRspn.rocket.motor.burn_time).to.eql(pm.collectionVariables.get('burn_time'), \"rocket motor burn_time not matching\");",
+									"        pm.expect(apiRspn.rocket.motor.dry_mass).to.eql(pm.collectionVariables.get('dry_mass'), \"rocket motor dry_mass not matching\");",
+									"        pm.expect(apiRspn.rocket.motor.dry_inertia).to.eql(pm.collectionVariables.get('dry_inertia'), \"rocket motor dry_inertia not matching\");",
+									"        pm.expect(apiRspn.rocket.motor.center_of_dry_mass).to.eql(pm.collectionVariables.get('center_of_dry_mass'), \"rocket motor center_of_dry_mass not matching\");",
+									"        pm.expect(apiRspn.rocket.motor.grain_number).to.eql(pm.collectionVariables.get('grain_number'), \"rocket motor grain_number not matching\");",
+									"        pm.expect(apiRspn.rocket.motor.grain_density).to.eql(pm.collectionVariables.get('grain_density'), \"rocket motor grain_density not matching\");",
+									"        pm.expect(apiRspn.rocket.motor.grain_outer_radius).to.eql(pm.collectionVariables.get('grain_outer_radius'), \"rocket motor grain_outer_radius not matching\");",
+									"        pm.expect(apiRspn.rocket.motor.grain_initial_inner_radius).to.eql(pm.collectionVariables.get('grain_initial_inner_radius'), \"rocket motor grain_initial_inner_radius not matching\");",
+									"        pm.expect(apiRspn.rocket.motor.grain_initial_height).to.eql(pm.collectionVariables.get('grain_initial_height'), \"rocket motor grain_initial_height not matching\");",
+									"        pm.expect(apiRspn.rocket.motor.grains_center_of_mass_position).to.eql(pm.collectionVariables.get('grains_center_of_mass_position'), \"rocket motor grains_center_of_mass_position not matching\");",
+									"        pm.expect(apiRspn.rocket.motor.thrust_source).to.eql(pm.collectionVariables.get('thrust_source'), \"rocket motor thrust_source not matching\");",
+									"        pm.expect(apiRspn.rocket.motor.grain_separation).to.eql(pm.collectionVariables.get('grain_separation'), \"rocket motor grain_separation not matching\");",
+									"        pm.expect(apiRspn.rocket.motor.nozzle_radius).to.eql(pm.collectionVariables.get('nozzle_radius'), \"rocket motor nozzle_radius not matching\");",
+									"        pm.expect(apiRspn.rocket.motor.throat_radius).to.eql(pm.collectionVariables.get('throat_radius'), \"rocket motor throat_radius not matching\");",
+									"        pm.expect(apiRspn.rocket.motor.interpolation_method).to.eql(pm.collectionVariables.get('interpolation_method'), \"rocket motor interpolation_method not matching\");",
+									"        pm.expect(apiRspn.rocket.motor.coordinate_system_orientation).to.eql(pm.collectionVariables.get('motor_coordinate_system_orientation'), \"motor coordinate_system_orientation not matching\");",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid flight rocket nose\", function () {",
+									"        pm.expect(apiRspn.rocket.nose.length).to.eql(pm.collectionVariables.get('nose_length'), \"rocket nose length not matching\");",
+									"        pm.expect(apiRspn.rocket.nose.kind).to.eql(pm.collectionVariables.get('kind'), \"rocket nose kind not matching\");",
+									"        pm.expect(apiRspn.rocket.nose.position).to.eql(pm.collectionVariables.get('nose_position'), \"rocket nose position not matching\");",
+									"        pm.expect(apiRspn.rocket.nose.base_radius).to.eql(pm.collectionVariables.get('base_radius'), \"rocket nose base_radius not matching\");",
+									"        pm.expect(apiRspn.rocket.nose.rocket_radius).to.eql(pm.collectionVariables.get('rocket_radius'), \"rocket nose rocket_radius not matching\");",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid flight rocket fins\", function () {",
+									"        pm.expect(apiRspn.rocket.fins.n).to.eql(pm.collectionVariables.get('n'), \"rocket fins 'n' not matching\");",
+									"        pm.expect(apiRspn.rocket.fins.root_chord).to.eql(pm.collectionVariables.get('root_chord'), \"rocket fins root_chord not matching\");",
+									"        pm.expect(apiRspn.rocket.fins.tip_chord).to.eql(pm.collectionVariables.get('tip_chord'), \"rocket fins tip_chord not matching\");",
+									"        pm.expect(apiRspn.rocket.fins.span).to.eql(pm.collectionVariables.get('span'), \"rocket fins span not matching\");",
+									"        pm.expect(apiRspn.rocket.fins.position).to.eql(pm.collectionVariables.get('fin_position'), \"rocket fins position not matching\");",
+									"        pm.expect(apiRspn.rocket.fins.cant_angle).to.eql(pm.collectionVariables.get('cant_angle'), \"rocket fins cant_angle not matching\");",
+									"        pm.expect(apiRspn.rocket.fins.radius).to.eql(pm.collectionVariables.get('fin_radius'), \"rocket fins radius not matching\");",
+									"        pm.expect(apiRspn.rocket.fins.airfoil).to.eql(pm.collectionVariables.get('airfoil'), \"rocket fins airfoil not matching\");",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid flight rocket tail\", function () {",
+									"        pm.expect(apiRspn.rocket.tail.top_radius).to.eql(pm.collectionVariables.get('top_radius'), \"rocket tail top_radius not matching\");        ",
+									"        pm.expect(apiRspn.rocket.tail.bottom_radius).to.eql(pm.collectionVariables.get('bottom_radius'), \"rocket tail bottom_radius not matching\");        ",
+									"        pm.expect(apiRspn.rocket.tail.length).to.eql(pm.collectionVariables.get('tail_length'), \"rocket tail length not matching\");        ",
+									"        pm.expect(apiRspn.rocket.tail.position).to.eql(pm.collectionVariables.get('tail_position'), \"rocket tail position not matching\");        ",
+									"        pm.expect(apiRspn.rocket.tail.radius).to.eql(pm.collectionVariables.get('tail_radius'), \"rocket tail radius not matching\");        ",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid flight rocket parachutes\", function () {",
+									"        pm.expect(apiRspn.rocket.parachutes.name).to.eql(pm.collectionVariables.get('parachutes_names'), \"rocket parachutes names not matching\");                ",
+									"        pm.expect(apiRspn.rocket.parachutes.cd_s).to.eql(pm.collectionVariables.get('parachutes_cds'), \"rocket parachutes cd_s not matching\");                ",
+									"        pm.expect(apiRspn.rocket.parachutes.sampling_rate).to.eql(pm.collectionVariables.get('parachutes_sampling_rate'), \"rocket parachutes sampling_rate not matching\");                ",
+									"        pm.expect(apiRspn.rocket.parachutes.lag).to.eql(pm.collectionVariables.get('parachutes_lags'), \"rocket parachutes lags not matching\");                ",
+									"        pm.expect(apiRspn.rocket.parachutes.noise).to.eql(pm.collectionVariables.get('parachutes_noises'), \"rocket parachutes noises not matching\");",
+									"        pm.expect(apiRspn.rocket.parachutes.triggers).to.eql(pm.collectionVariables.get('parachutes_triggers'), \"rocket parachutes triggers not matching\");",
+									"    });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"_postman_id": "810df5b5-0de5-42c0-bacb-0efc8cf99eb2",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{endpoint}}/flight/{{flight_id}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Read rocketpy Flight",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "897c72b6-83e4-46cf-9dc7-1d970a3400c6",
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"",
+									"//TEST",
+									"bdd = \"Given a valid rocketpy Flight GET request is made\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
+									"        pm.expect(apiRspn.jsonpickle_rocketpy_flight).to.exist;        ",
+									"    });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"_postman_id": "62d4695f-a47d-43d2-a48d-21618d9d0c02",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{endpoint}}/flight/rocketpy/{{flight_id}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Simulate Flight",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "bc79dac5-4b4b-4fa2-ac08-1cdfc5c20a02",
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"//TEST",
+									"bdd = \"Given a valid rocketpy Flight simulate GET request is made\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
+									"        pm.expect(apiRspn.flight_data).to.exist;",
+									"        pm.expect(apiRspn.flight_data.initial_conditions).to.exist;",
+									"        pm.expect(apiRspn.flight_data.initial_conditions.initial_position).to.exist;",
+									"        pm.expect(apiRspn.flight_data.initial_conditions.initial_velocity).to.exist;",
+									"        pm.expect(apiRspn.flight_data.initial_conditions.initial_altitude).to.exist;",
+									"        pm.expect(apiRspn.flight_data.initial_conditions.initial_angular_position).to.exist;",
+									"        pm.expect(apiRspn.flight_data.initial_conditions.initial_angular_velocity).to.exist;",
+									"        pm.expect(apiRspn.flight_data.numerical_integration_settings).to.exist;",
+									"        pm.expect(apiRspn.flight_data.numerical_integration_settings.max_time).to.exist;",
+									"        pm.expect(apiRspn.flight_data.numerical_integration_settings.max_time_step).to.exist;",
+									"        pm.expect(apiRspn.flight_data.numerical_integration_settings.min_time_step).to.exist;",
+									"        pm.expect(apiRspn.flight_data.numerical_integration_settings.relative_error_tolerance).to.exist;",
+									"        pm.expect(apiRspn.flight_data.numerical_integration_settings.absolute_error_tolerance).to.exist;",
+									"        pm.expect(apiRspn.flight_data.numerical_integration_settings.time_overshoot).to.exist;",
+									"        pm.expect(apiRspn.flight_data.numerical_integration_settings.terminate_on_apogee).to.exist;",
+									"        pm.expect(apiRspn.flight_data.numerical_integration_settings.number_of_time_steps).to.exist;",
+									"        pm.expect(apiRspn.flight_data.numerical_integration_settings.function_evaluations_per_time_step).to.exist;",
+									"        pm.expect(apiRspn.flight_data.numerical_integration_settings.avg_function_evaluations_per_time_step).to.exist;",
+									"        pm.expect(apiRspn.flight_data.launch_rail_conditions).to.exist;",
+									"        pm.expect(apiRspn.flight_data.launch_rail_conditions.rail_length).to.exist;",
+									"        pm.expect(apiRspn.flight_data.launch_rail_conditions.flight_inclination).to.exist;",
+									"        pm.expect(apiRspn.flight_data.launch_rail_conditions.flight_heading).to.exist;",
+									"        pm.expect(apiRspn.flight_data.surface_wind_conditions).to.exist;",
+									"        pm.expect(apiRspn.flight_data.surface_wind_conditions.frontal_surface_wind_speed).to.exist;",
+									"        pm.expect(apiRspn.flight_data.surface_wind_conditions.lateral_surface_wind_speed).to.exist;",
+									"        pm.expect(apiRspn.flight_data.out_of_rail_conditions).to.exist;",
+									"        pm.expect(apiRspn.flight_data.out_of_rail_conditions.out_of_rail_time).to.exist;",
+									"        pm.expect(apiRspn.flight_data.out_of_rail_conditions.out_of_rail_velocity).to.exist;",
+									"        pm.expect(apiRspn.flight_data.out_of_rail_conditions.out_of_rail_static_margin).to.exist;",
+									"        pm.expect(apiRspn.flight_data.out_of_rail_conditions.out_of_rail_angle_of_attack).to.exist;",
+									"        pm.expect(apiRspn.flight_data.out_of_rail_conditions.out_of_rail_thrust_weight_ratio).to.exist;",
+									"        pm.expect(apiRspn.flight_data.out_of_rail_conditions.out_of_rail_reynolds_number).to.exist;",
+									"        pm.expect(apiRspn.flight_data.burnout_conditions).to.exist;",
+									"        pm.expect(apiRspn.flight_data.burnout_conditions.burnout_time).to.exist;",
+									"        pm.expect(apiRspn.flight_data.burnout_conditions.burnout_rocket_velocity).to.exist;",
+									"        pm.expect(apiRspn.flight_data.burnout_conditions.burnout_altitude).to.exist;",
+									"        pm.expect(apiRspn.flight_data.burnout_conditions.burnout_freestream_velocity).to.exist;",
+									"        pm.expect(apiRspn.flight_data.burnout_conditions.burnout_mach_number).to.exist;",
+									"        pm.expect(apiRspn.flight_data.burnout_conditions.burnout_kinetic_energy).to.exist;",
+									"        pm.expect(apiRspn.flight_data.apogee_conditions).to.exist;",
+									"        pm.expect(apiRspn.flight_data.apogee_conditions.apogee_time).to.exist;",
+									"        pm.expect(apiRspn.flight_data.apogee_conditions.apogee_altitude).to.exist;",
+									"        pm.expect(apiRspn.flight_data.apogee_conditions.apogee_freestream_speed).to.exist;",
+									"        pm.expect(apiRspn.flight_data.maximum_values).to.exist;",
+									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_speed).to.exist;",
+									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_mach_number).to.exist;",
+									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_reynolds_number).to.exist;",
+									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_dynamic_pressure).to.exist;",
+									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_acceleration_during_motor_burn).to.exist;",
+									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_acceleration_after_motor_burn).to.exist;",
+									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_gs_during_motor_burn).to.exist;",
+									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_gs_after_motor_burn).to.exist;",
+									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_upper_rail_button_normal_force).to.exist;",
+									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_upper_rail_button_shear_force).to.exist;",
+									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_lower_rail_button_normal_force).to.exist;",
+									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_lower_rail_button_shear_force).to.exist;",
+									"        pm.expect(apiRspn.flight_data.impact_conditions).to.exist;",
+									"        pm.expect(apiRspn.flight_data.impact_conditions.x_impact_position).to.exist;",
+									"        pm.expect(apiRspn.flight_data.impact_conditions.y_impact_position).to.exist;",
+									"        pm.expect(apiRspn.flight_data.impact_conditions.time_of_impact).to.exist;",
+									"        pm.expect(apiRspn.flight_data.impact_conditions.impact_velocity).to.exist;",
+									"        pm.expect(apiRspn.flight_data.events_registered).to.exist;",
+									"        pm.expect(apiRspn.flight_data.events_registered.events_trace).to.exist;",
+									"        pm.expect(apiRspn.flight_data.events_registered.events_trace.Drogue).to.exist;",
+									"        pm.expect(apiRspn.flight_data.events_registered.events_trace.Main).to.exist;        ",
+									"    });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"_postman_id": "2afb4d8e-1788-40da-a8c3-a4f5d93315e6",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{endpoint}}/flight/simulate/{{flight_id}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Flight",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ef52c1d9-e18c-42c6-b9e5-6e067d37d556",
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"var flightRequest = JSON.parse(pm.request.body.raw);",
+									"",
+									"// reduce environment date for future assertion",
+									"flightRequest.environment.date = flightRequest.environment.date.substring(0, flightRequest.environment.date.length - 7);",
+									"",
+									"// save flight parameters",
+									"pm.collectionVariables.set('flight_id', apiRspn.new_flight_id)        ",
+									"pm.collectionVariables.set('rail_length', flightRequest.rail_length)        ",
+									"pm.collectionVariables.set('inclination', flightRequest.inclination)",
+									"pm.collectionVariables.set('heading', flightRequest.heading)",
+									"",
+									"// flight environment",
+									"pm.collectionVariables.set('latitude', flightRequest.environment.latitude)",
+									"pm.collectionVariables.set('longitude', flightRequest.environment.longitude)",
+									"pm.collectionVariables.set('elevation', flightRequest.environment.elevation)      ",
+									"pm.collectionVariables.set('atmospheric_model_type', flightRequest.environment.atmospheric_model_type)    ",
+									"pm.collectionVariables.set('atmospheric_model_file', flightRequest.environment.atmospheric_model_file)            ",
+									"pm.collectionVariables.set('date', flightRequest.environment.date)        ",
+									"",
+									"// flight rocket",
+									"pm.collectionVariables.set('radius', flightRequest.rocket.radius)",
+									"pm.collectionVariables.set('mass', flightRequest.rocket.mass)",
+									"pm.collectionVariables.set('inertia', flightRequest.rocket.inertia)",
+									"pm.collectionVariables.set('power_off_drag', flightRequest.rocket.power_off_drag)",
+									"pm.collectionVariables.set('power_on_drag', flightRequest.rocket.power_on_drag)",
+									"pm.collectionVariables.set('center_of_mass_without_motor', flightRequest.rocket.center_of_mass_without_motor)",
+									"pm.collectionVariables.set('motor_position', flightRequest.rocket.motor_position)",
+									"pm.collectionVariables.set('rail_buttons', flightRequest.rocket.rail_buttons)",
+									"pm.collectionVariables.set('upper_button_position', flightRequest.rocket.rail_buttons.upper_button_position)",
+									"pm.collectionVariables.set('lower_button_position', flightRequest.rocket.rail_buttons.lower_button_position)",
+									"pm.collectionVariables.set('angular_position', flightRequest.rocket.rail_buttons.angular_position)",
+									"pm.collectionVariables.set('rocket_coordinate_system_orientation', flightRequest.rocket.coordinate_system_orientation)",
+									"",
+									"// flight rocket motor",
+									"pm.collectionVariables.set('burn_time', flightRequest.rocket.motor.burn_time)",
+									"pm.collectionVariables.set('dry_mass', flightRequest.rocket.motor.dry_mass)",
+									"pm.collectionVariables.set('dry_inertia', flightRequest.rocket.motor.dry_inertia)",
+									"pm.collectionVariables.set('center_of_dry_mass', flightRequest.rocket.motor.center_of_dry_mass)",
+									"pm.collectionVariables.set('grain_number', flightRequest.rocket.motor.grain_number)",
+									"pm.collectionVariables.set('grain_density', flightRequest.rocket.motor.grain_density)",
+									"pm.collectionVariables.set('grain_outer_radius', flightRequest.rocket.motor.grain_outer_radius)",
+									"pm.collectionVariables.set('grain_initial_inner_radius', flightRequest.rocket.motor.grain_initial_inner_radius)",
+									"pm.collectionVariables.set('grain_initial_height', flightRequest.rocket.motor.grain_initial_height)",
+									"pm.collectionVariables.set('grains_center_of_mass_position', flightRequest.rocket.motor.grains_center_of_mass_position)",
+									"pm.collectionVariables.set('grain_separation', flightRequest.rocket.motor.grain_separation)",
+									"pm.collectionVariables.set('thrust_source', flightRequest.rocket.motor.thrust_source)",
+									"pm.collectionVariables.set('nozzle_radius', flightRequest.rocket.motor.nozzle_radius)",
+									"pm.collectionVariables.set('throat_radius', flightRequest.rocket.motor.throat_radius)",
+									"pm.collectionVariables.set('interpolation_method', flightRequest.rocket.motor.interpolation_method)",
+									"pm.collectionVariables.set('motor_coordinate_system_orientation', flightRequest.rocket.motor.coordinate_system_orientation)",
+									"",
+									"// flight rocket nose",
+									"pm.collectionVariables.set('nose_length', flightRequest.rocket.nose.length)",
+									"pm.collectionVariables.set('kind', flightRequest.rocket.nose.kind)",
+									"pm.collectionVariables.set('nose_position', flightRequest.rocket.nose.position)",
+									"pm.collectionVariables.set('base_radius', flightRequest.rocket.nose.base_radius)",
+									"pm.collectionVariables.set('rocket_radius', flightRequest.rocket.nose.rocket_radius)",
+									"",
+									"// flight rocket fins",
+									"pm.collectionVariables.set('n', flightRequest.rocket.fins.n)",
+									"pm.collectionVariables.set('root_chord', flightRequest.rocket.fins.root_chord)",
+									"pm.collectionVariables.set('tip_chord', flightRequest.rocket.fins.tip_chord)",
+									"pm.collectionVariables.set('span', flightRequest.rocket.fins.span)",
+									"pm.collectionVariables.set('fin_position', flightRequest.rocket.fins.position)",
+									"pm.collectionVariables.set('cant_angle', flightRequest.rocket.fins.cant_angle)",
+									"pm.collectionVariables.set('fin_radius', flightRequest.rocket.fins.radius)",
+									"pm.collectionVariables.set('airfoil', flightRequest.rocket.fins.airfoil)",
+									"",
+									"// flight rocket tail",
+									"pm.collectionVariables.set('top_radius', flightRequest.rocket.tail.top_radius)",
+									"pm.collectionVariables.set('bottom_radius', flightRequest.rocket.tail.bottom_radius)",
+									"pm.collectionVariables.set('tail_length', flightRequest.rocket.tail.length)",
+									"pm.collectionVariables.set('tail_position', flightRequest.rocket.tail.position)",
+									"pm.collectionVariables.set('tail_radius', flightRequest.rocket.tail.radius)",
+									"",
+									"// flight rocket parachute",
+									"pm.collectionVariables.set('parachutes_names', flightRequest.rocket.parachutes.name)",
+									"pm.collectionVariables.set('parachutes_cds', flightRequest.rocket.parachutes.cd_s)",
+									"pm.collectionVariables.set('parachutes_sampling_rate', flightRequest.rocket.parachutes.sampling_rate)",
+									"pm.collectionVariables.set('parachutes_lags', flightRequest.rocket.parachutes.lag)",
+									"pm.collectionVariables.set('parachutes_noises', flightRequest.rocket.parachutes.noise)",
+									"pm.collectionVariables.set('parachutes_triggers', flightRequest.rocket.parachutes.triggers)",
+									"",
+									"//TEST",
+									"bdd = \"Given a valid Flight PUT request is made to the API\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
+									"        pm.expect(apiRspn.message).to.eql(\"Flight successfully updated\");",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid new_flight_id\", function () {",
+									"        pm.expect(apiRspn.new_flight_id).to.exist;        ",
+									"    });"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "fef9ffcd-2bea-47e1-a66f-6e87b93e90df",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"_postman_id": "af363968-a3c9-48b1-84ed-bbc333855a8b",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"rail_length\": 5.2,\n    \"inclination\": 85,\n    \"heading\": 0,\n    \"environment\": {\n        \"latitude\": 0,\n        \"longitude\": 0,\n        \"elevation\": 1405,\n        \"atmospheric_model_type\": \"standard_atmosphere\",\n        \"atmospheric_model_file\": \"GFS\",\n        \"date\": \"2023-05-09T16:30:50.065992\"\n    },\n    \"rocket\": {\n        \"radius\": 0.0632,\n        \"mass\": 16.235,\n        \"inertia\": [\n            6.321, \n            6.321, \n            0.0346\n        ],\n        \"power_off_drag\": \"lib/data/calisto/powerOffDragCurve.csv\",\n        \"power_on_drag\": \"lib/data/calisto/powerOnDragCurve.csv\",\n        \"center_of_mass_without_motor\": 0,\n        \"coordinate_system_orientation\": \"tail_to_nose\",\n        \"motor_position\": -1.255,\n        \"rail_buttons\": {\n            \"upper_button_position\": -0.5,\n            \"lower_button_position\": 0.2,\n            \"angular_position\": 45\n        },\n        \"motor\": {\n            \"burn_time\": 3.9,\n            \"dry_mass\": 1.815,\n            \"dry_inertia\": [0.125, 0.125, 0.002],\n            \"center_of_dry_mass\": 0.317,\n            \"grain_number\": 5,\n            \"grain_density\": 1815,\n            \"grain_outer_radius\": 0.033,\n            \"grain_initial_inner_radius\": 0.015,\n            \"grain_initial_height\": 0.12,\n            \"grains_center_of_mass_position\": -0.85704,\n            \"grain_separation\": 0.005,\n            \"thrust_source\": \"lib/data/motors/Cesaroni_M1670.eng\",            \n            \"nozzle_radius\": 0.033,\n            \"throat_radius\": 0.011,\n            \"interpolation_method\": \"linear\",\n            \"coordinate_system_orientation\": \"nozzle_to_combustion_chamber\"\n        },\n        \"nose\": {\n            \"length\": 0.55829,\n            \"kind\": \"vonKarman\",\n            \"position\": 1.278,\n            \"base_radius\": 0.0635,\n            \"rocket_radius\": 0.0635\n        },\n        \"fins\": {\n            \"n\": 4,\n            \"root_chord\": 0.12,\n            \"tip_chord\": 0.04,\n            \"span\": 0.1,\n            \"position\": -1.04956,\n            \"cant_angle\": 0,\n            \"radius\": 0.0635,\n            \"airfoil\": \"\"\n        },\n        \"tail\": {\n            \"top_radius\": 0.0635,\n            \"bottom_radius\": 0.0435,\n            \"length\": 0.06,\n            \"position\": -1.194656,\n            \"radius\": 0.0635\n        },\n        \"parachutes\": {\n            \"name\": [\n                \"Main\",\n                \"Drogue\"\n            ],\n            \"cd_s\": [\n                10,\n                1\n            ],\n            \"sampling_rate\": [\n                105,\n                105\n            ],\n            \"lag\": [\n                1.5,\n                1.5\n            ],\n            \"noise\": [\n                [\n                    0,\n                    8.3,\n                    0.5\n                ],\n                [\n                    0,\n                    8.3,\n                    0.5\n                ]\n            ],\n            \"triggers\": [\n                \"lambda p, h, y: y[5] < 0 and h < 800\",\n                \"lambda p, h, y: y[5] < 0\"\n            ]\n        }\n    }    \n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{endpoint}}/flight/{{flight_id}}",
+						"description": "This returns a `token` that you can use to retrieve information later on.\n\nWe have included a test to confirm if a token is returned. We have also added test scripts to copy the token to the `token` collection variable. This makes it easy for us to reuse this token in other requests in the collection."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Flight",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "d968db50-a1e7-42f5-a873-c7e053cc7980",
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"//TEST",
+									"bdd = \"Given a valid Flight DELETE request is made\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
+									"        pm.expect(apiRspn.message).to.eql(\"Flight successfully deleted\", \"message not matching\");",
+									"        pm.expect(apiRspn.deleted_flight_id).to.eql(pm.collectionVariables.get('flight_id'), \"flight_id not matching\");                ",
+									"    });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"_postman_id": "0043d68a-d984-4a7b-b6a4-f79433549e84",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{endpoint}}/flight/{{flight_id}}"
+					},
+					"response": []
+				}
+			],
+			"_postman_id": "cc74f04b-eac6-4b33-9daf-754e2204eeab"
+		},
+		{
+			"name": "Motor",
+			"item": [
+				{
+					"name": "Create Motor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"var motorRequest = JSON.parse(pm.request.body.raw);",
+									"",
+									"// save motor parameters",
+									"pm.collectionVariables.set('motor_id', apiRspn.motor_id)        ",
+									"pm.collectionVariables.set('burn_time', motorRequest.burn_time)",
+									"pm.collectionVariables.set('dry_mass', motorRequest.dry_mass)",
+									"pm.collectionVariables.set('dry_inertia', motorRequest.dry_inertia)",
+									"pm.collectionVariables.set('center_of_dry_mass', motorRequest.center_of_dry_mass)",
+									"pm.collectionVariables.set('grain_number', motorRequest.grain_number)",
+									"pm.collectionVariables.set('grain_density', motorRequest.grain_density)",
+									"pm.collectionVariables.set('grain_outer_radius', motorRequest.grain_outer_radius)",
+									"pm.collectionVariables.set('grain_initial_inner_radius', motorRequest.grain_initial_inner_radius)",
+									"pm.collectionVariables.set('grain_initial_height', motorRequest.grain_initial_height)",
+									"pm.collectionVariables.set('grains_center_of_mass_position', motorRequest.grains_center_of_mass_position)",
+									"pm.collectionVariables.set('grain_separation', motorRequest.grain_separation)",
+									"pm.collectionVariables.set('thrust_source', motorRequest.thrust_source)",
+									"pm.collectionVariables.set('nozzle_radius', motorRequest.nozzle_radius)",
+									"pm.collectionVariables.set('throat_radius', motorRequest.throat_radius)",
+									"pm.collectionVariables.set('interpolation_method', motorRequest.interpolation_method)",
+									"pm.collectionVariables.set('motor_coordinate_system_orientation', motorRequest.coordinate_system_orientation)",
+									"",
+									"//TEST",
+									"bdd = \"Given a valid Motor POST request is made to the API\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
+									"        pm.expect(apiRspn.message).to.eql(\"Motor created\");",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid motor_id\", function () {",
+									"        pm.expect(apiRspn.motor_id).to.exist;        ",
+									"    });"
+								],
+								"type": "text/javascript",
+								"id": "71b5f65c-9ba7-43bd-aa93-8ff1a3c99cc6"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"id": "1bf80fb6-4e96-4b77-ba94-5d23c96bf038"
+							}
+						}
+					],
+					"_postman_id": "ee777d0d-6301-4494-961b-c2c6c573facb",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"burn_time\": 3.9,\n    \"dry_mass\": 1.815,\n    \"dry_inertia\": [0.125, 0.125, 0.002],\n    \"center_of_dry_mass\": 0.317,\n    \"grain_number\": 5,\n    \"grain_density\": 1815,\n    \"grain_outer_radius\": 0.033,\n    \"grain_initial_inner_radius\": 0.015,\n    \"grain_initial_height\": 0.12,\n    \"grains_center_of_mass_position\": -0.85704,\n    \"grain_separation\": 0.005,\n    \"thrust_source\": \"lib/data/motors/Cesaroni_M1670.eng\",            \n    \"nozzle_radius\": 0.033,\n    \"throat_radius\": 0.011,\n    \"interpolation_method\": \"linear\",\n    \"coordinate_system_orientation\": \"nozzle_to_combustion_chamber\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{endpoint}}/motor/",
+						"description": "This returns a `token` that you can use to retrieve information later on.\n\nWe have included a test to confirm if a token is returned. We have also added test scripts to copy the token to the `token` collection variable. This makes it easy for us to reuse this token in other requests in the collection."
+					},
+					"response": []
+				},
+				{
+					"name": "Read Motor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "2ab9f13e-d3eb-4f45-b58a-1dde3f2bd415",
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"",
+									"//TEST",
+									"bdd = \"Given a valid Motor GET request is made\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });    ",
+									"    pm.test(bdd + \" then response must contain a valid motor\", function () {",
+									"        pm.expect(apiRspn.burn_time).to.eql(pm.collectionVariables.get('burn_time'), \"motor burn_time not matching\");",
+									"        pm.expect(apiRspn.dry_mass).to.eql(pm.collectionVariables.get('dry_mass'), \"motor dry_mass not matching\");",
+									"        pm.expect(apiRspn.dry_inertia).to.eql(pm.collectionVariables.get('dry_inertia'), \"motor dry_inertia not matching\");",
+									"        pm.expect(apiRspn.center_of_dry_mass).to.eql(pm.collectionVariables.get('center_of_dry_mass'), \"motor center_of_dry_mass not matching\");",
+									"        pm.expect(apiRspn.grain_number).to.eql(pm.collectionVariables.get('grain_number'), \"motor grain_number not matching\");",
+									"        pm.expect(apiRspn.grain_density).to.eql(pm.collectionVariables.get('grain_density'), \"motor grain_density not matching\");",
+									"        pm.expect(apiRspn.grain_outer_radius).to.eql(pm.collectionVariables.get('grain_outer_radius'), \"motor grain_outer_radius not matching\");",
+									"        pm.expect(apiRspn.grain_initial_inner_radius).to.eql(pm.collectionVariables.get('grain_initial_inner_radius'), \"motor grain_initial_inner_radius not matching\");",
+									"        pm.expect(apiRspn.grain_initial_height).to.eql(pm.collectionVariables.get('grain_initial_height'), \"motor grain_initial_height not matching\");",
+									"        pm.expect(apiRspn.grains_center_of_mass_position).to.eql(pm.collectionVariables.get('grains_center_of_mass_position'), \"motor grains_center_of_mass_position not matching\");",
+									"        pm.expect(apiRspn.thrust_source).to.eql(pm.collectionVariables.get('thrust_source'), \"motor thrust_source not matching\");",
+									"        pm.expect(apiRspn.grain_separation).to.eql(pm.collectionVariables.get('grain_separation'), \"motor grain_separation not matching\");",
+									"        pm.expect(apiRspn.nozzle_radius).to.eql(pm.collectionVariables.get('nozzle_radius'), \"motor nozzle_radius not matching\");",
+									"        pm.expect(apiRspn.throat_radius).to.eql(pm.collectionVariables.get('throat_radius'), \"motor throat_radius not matching\");",
+									"        pm.expect(apiRspn.interpolation_method).to.eql(pm.collectionVariables.get('interpolation_method'), \"motor interpolation_method not matching\");",
+									"        pm.expect(apiRspn.coordinate_system_orientation).to.eql(pm.collectionVariables.get('motor_coordinate_system_orientation'), \"motor coordinate_system_orientation not matching\");",
+									"    });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"_postman_id": "7208fdb8-b5ec-4ba3-a5da-267fbe12cd39",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{endpoint}}/motor/{{motor_id}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Read rocketpy Motor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "fcca1efd-5939-4ab5-bf8e-dae1beeface7",
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"",
+									"//TEST",
+									"bdd = \"Given a valid rocketpy Motor GET request is made\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
+									"        pm.expect(apiRspn.jsonpickle_rocketpy_motor).to.exist;        ",
+									"    });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"_postman_id": "7d41255d-2764-4f36-a677-7f1fb500ae47",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{endpoint}}/motor/rocketpy/{{motor_id}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Motor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "32e65786-a6e1-4dc3-a1df-b9fe879d17cc",
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"var motorRequest = JSON.parse(pm.request.body.raw);",
+									"",
+									"// save motor parameters",
+									"pm.collectionVariables.set('motor_id', apiRspn.new_motor_id)",
+									"pm.collectionVariables.set('burn_time', motorRequest.burn_time)",
+									"pm.collectionVariables.set('dry_mass', motorRequest.dry_mass)",
+									"pm.collectionVariables.set('dry_inertia', motorRequest.dry_inertia)",
+									"pm.collectionVariables.set('center_of_dry_mass', motorRequest.center_of_dry_mass)",
+									"pm.collectionVariables.set('grain_number', motorRequest.grain_number)",
+									"pm.collectionVariables.set('grain_density', motorRequest.grain_density)",
+									"pm.collectionVariables.set('grain_outer_radius', motorRequest.grain_outer_radius)",
+									"pm.collectionVariables.set('grain_initial_inner_radius', motorRequest.grain_initial_inner_radius)",
+									"pm.collectionVariables.set('grain_initial_height', motorRequest.grain_initial_height)",
+									"pm.collectionVariables.set('grains_center_of_mass_position', motorRequest.grains_center_of_mass_position)",
+									"pm.collectionVariables.set('grain_separation', motorRequest.grain_separation)",
+									"pm.collectionVariables.set('thrust_source', motorRequest.thrust_source)",
+									"pm.collectionVariables.set('nozzle_radius', motorRequest.nozzle_radius)",
+									"pm.collectionVariables.set('throat_radius', motorRequest.throat_radius)",
+									"pm.collectionVariables.set('interpolation_method', motorRequest.interpolation_method)",
+									"pm.collectionVariables.set('motor_coordinate_system_orientation', motorRequest.coordinate_system_orientation)",
+									"",
+									"//TEST",
+									"bdd = \"Given a valid Motor PUT request is made to the API\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
+									"        pm.expect(apiRspn.message).to.eql(\"Motor successfully updated\");",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid new_motor_id\", function () {",
+									"        pm.expect(apiRspn.new_motor_id).to.exist;        ",
+									"    });"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "6336bef0-e693-400a-826f-d1f2c2bd6a9b",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"_postman_id": "d7bdaec1-2a9e-42dd-bfa7-a8342e7d47c2",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"burn_time\": 3.9,\n    \"dry_mass\": 1.815,\n    \"dry_inertia\": [0.125, 0.125, 0.002],\n    \"center_of_dry_mass\": 0.317,\n    \"grain_number\": 5,\n    \"grain_density\": 1815,\n    \"grain_outer_radius\": 0.033,\n    \"grain_initial_inner_radius\": 0.015,\n    \"grain_initial_height\": 0.12,\n    \"grains_center_of_mass_position\": -0.85704,\n    \"grain_separation\": 0.005,\n    \"thrust_source\": \"lib/data/motors/Cesaroni_M1670.eng\",            \n    \"nozzle_radius\": 0.033,\n    \"throat_radius\": 0.011,\n    \"interpolation_method\": \"linear\",\n    \"coordinate_system_orientation\": \"nozzle_to_combustion_chamber\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{endpoint}}/motor/{{motor_id}}",
+						"description": "This returns a `token` that you can use to retrieve information later on.\n\nWe have included a test to confirm if a token is returned. We have also added test scripts to copy the token to the `token` collection variable. This makes it easy for us to reuse this token in other requests in the collection."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Motor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a1e587bc-91fa-4fa5-a836-8075de91ea33",
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"//TEST",
+									"bdd = \"Given a valid Motor DELETE request is made\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
+									"        pm.expect(apiRspn.message).to.eql(\"Motor successfully deleted\", \"message not matching\");",
+									"        pm.expect(apiRspn.deleted_motor_id).to.eql(pm.collectionVariables.get('motor_id'), \"motor_id not matching\");                ",
+									"    });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"_postman_id": "dd1b5d5f-ef2d-4b61-8cf6-de895792864e",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{endpoint}}/motor/{{motor_id}}"
+					},
+					"response": []
+				}
+			],
+			"_postman_id": "733fa55d-0a77-4a8d-b1d7-6fefc5a8211e"
+		},
+		{
+			"name": "Rocket",
+			"item": [
+				{
+					"name": "Create Rocket",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"var rocketRequest = JSON.parse(pm.request.body.raw);",
+									"",
+									"// save rocket parameters",
+									"pm.collectionVariables.set('rocket_id', apiRspn.rocket_id)",
+									"pm.collectionVariables.set('radius', rocketRequest.radius)",
+									"pm.collectionVariables.set('mass', rocketRequest.mass)",
+									"pm.collectionVariables.set('inertia', rocketRequest.inertia)",
+									"pm.collectionVariables.set('power_off_drag', rocketRequest.power_off_drag)",
+									"pm.collectionVariables.set('power_on_drag', rocketRequest.power_on_drag)",
+									"pm.collectionVariables.set('center_of_mass_without_motor', rocketRequest.center_of_mass_without_motor)",
+									"pm.collectionVariables.set('motor_position', rocketRequest.motor_position)",
+									"pm.collectionVariables.set('rail_buttons', rocketRequest.rail_buttons)",
+									"pm.collectionVariables.set('upper_button_position', rocketRequest.rail_buttons.upper_button_position)",
+									"pm.collectionVariables.set('lower_button_position', rocketRequest.rail_buttons.lower_button_position)",
+									"pm.collectionVariables.set('angular_position', rocketRequest.rail_buttons.angular_position)",
+									"pm.collectionVariables.set('rocket_coordinate_system_orientation', rocketRequest.coordinate_system_orientation)",
+									"",
+									"// rocket motor",
+									"pm.collectionVariables.set('burn_time', rocketRequest.motor.burn_time)",
+									"pm.collectionVariables.set('dry_mass', rocketRequest.motor.dry_mass)",
+									"pm.collectionVariables.set('dry_inertia', rocketRequest.motor.dry_inertia)",
+									"pm.collectionVariables.set('center_of_dry_mass', rocketRequest.motor.center_of_dry_mass)",
+									"pm.collectionVariables.set('grain_number', rocketRequest.motor.grain_number)",
+									"pm.collectionVariables.set('grain_density', rocketRequest.motor.grain_density)",
+									"pm.collectionVariables.set('grain_outer_radius', rocketRequest.motor.grain_outer_radius)",
+									"pm.collectionVariables.set('grain_initial_inner_radius', rocketRequest.motor.grain_initial_inner_radius)",
+									"pm.collectionVariables.set('grain_initial_height', rocketRequest.motor.grain_initial_height)",
+									"pm.collectionVariables.set('grains_center_of_mass_position', rocketRequest.motor.grains_center_of_mass_position)",
+									"pm.collectionVariables.set('grain_separation', rocketRequest.motor.grain_separation)",
+									"pm.collectionVariables.set('thrust_source', rocketRequest.motor.thrust_source)",
+									"pm.collectionVariables.set('nozzle_radius', rocketRequest.motor.nozzle_radius)",
+									"pm.collectionVariables.set('throat_radius', rocketRequest.motor.throat_radius)",
+									"pm.collectionVariables.set('interpolation_method', rocketRequest.motor.interpolation_method)",
+									"pm.collectionVariables.set('motor_coordinate_system_orientation', rocketRequest.motor.coordinate_system_orientation)",
+									"",
+									"// rocket nose",
+									"pm.collectionVariables.set('nose_length', rocketRequest.nose.length)",
+									"pm.collectionVariables.set('kind', rocketRequest.nose.kind)",
+									"pm.collectionVariables.set('nose_position', rocketRequest.nose.position)",
+									"pm.collectionVariables.set('base_radius', rocketRequest.nose.base_radius)",
+									"pm.collectionVariables.set('rocket_radius', rocketRequest.nose.rocket_radius)",
+									"",
+									"// rocket fins",
+									"pm.collectionVariables.set('n', rocketRequest.fins.n)",
+									"pm.collectionVariables.set('root_chord', rocketRequest.fins.root_chord)",
+									"pm.collectionVariables.set('tip_chord', rocketRequest.fins.tip_chord)",
+									"pm.collectionVariables.set('span', rocketRequest.fins.span)",
+									"pm.collectionVariables.set('fin_position', rocketRequest.fins.position)",
+									"pm.collectionVariables.set('cant_angle', rocketRequest.fins.cant_angle)",
+									"pm.collectionVariables.set('fin_radius', rocketRequest.fins.radius)",
+									"pm.collectionVariables.set('airfoil', rocketRequest.fins.airfoil)",
+									"",
+									"// rocket tail",
+									"pm.collectionVariables.set('top_radius', rocketRequest.tail.top_radius)",
+									"pm.collectionVariables.set('bottom_radius', rocketRequest.tail.bottom_radius)",
+									"pm.collectionVariables.set('tail_length', rocketRequest.tail.length)",
+									"pm.collectionVariables.set('tail_position', rocketRequest.tail.position)",
+									"pm.collectionVariables.set('tail_radius', rocketRequest.tail.radius)",
+									"",
+									"// rocket parachute",
+									"pm.collectionVariables.set('parachutes_names', rocketRequest.parachutes.name)",
+									"pm.collectionVariables.set('parachutes_cds', rocketRequest.parachutes.cd_s)",
+									"pm.collectionVariables.set('parachutes_sampling_rate', rocketRequest.parachutes.sampling_rate)",
+									"pm.collectionVariables.set('parachutes_lags', rocketRequest.parachutes.lag)",
+									"pm.collectionVariables.set('parachutes_noises', rocketRequest.parachutes.noise)",
+									"pm.collectionVariables.set('parachutes_triggers', rocketRequest.parachutes.triggers)",
+									"",
+									"//TEST",
+									"bdd = \"Given a valid Rocket POST request is made to the API\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
+									"        pm.expect(apiRspn.message).to.eql(\"Rocket created\");",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid rocket_id\", function () {",
+									"        pm.expect(apiRspn.rocket_id).to.exist;        ",
+									"    });"
+								],
+								"type": "text/javascript",
+								"id": "3d479eb5-238e-4d92-8b39-5ab18cf5159d"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"id": "e8a2a81b-6e39-43ef-b5b4-2ec855b71fcb"
+							}
+						}
+					],
+					"_postman_id": "5fa12dc7-1f53-411b-98c2-f924425def2f",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"radius\": 0.0632,\n    \"mass\": 16.235,\n    \"inertia\": [\n        6.321, \n        6.321, \n        0.0346\n    ],\n    \"power_off_drag\": \"lib/data/calisto/powerOffDragCurve.csv\",\n    \"power_on_drag\": \"lib/data/calisto/powerOnDragCurve.csv\",\n    \"center_of_mass_without_motor\": 0,\n    \"coordinate_system_orientation\": \"tail_to_nose\",\n    \"motor_position\": -1.255,\n    \"rail_buttons\": {\n        \"upper_button_position\": -0.5,\n        \"lower_button_position\": 0.2,\n        \"angular_position\": 45\n    },\n    \"motor\": {\n        \"burn_time\": 3.9,\n        \"dry_mass\": 1.815,\n        \"dry_inertia\": [0.125, 0.125, 0.002],\n        \"center_of_dry_mass\": 0.317,\n        \"grain_number\": 5,\n        \"grain_density\": 1815,\n        \"grain_outer_radius\": 0.033,\n        \"grain_initial_inner_radius\": 0.015,\n        \"grain_initial_height\": 0.12,\n        \"grains_center_of_mass_position\": -0.85704,\n        \"grain_separation\": 0.005,\n        \"thrust_source\": \"lib/data/motors/Cesaroni_M1670.eng\",            \n        \"nozzle_radius\": 0.033,\n        \"throat_radius\": 0.011,\n        \"interpolation_method\": \"linear\",\n        \"coordinate_system_orientation\": \"nozzle_to_combustion_chamber\"\n    },\n    \"nose\": {\n        \"length\": 0.55829,\n        \"kind\": \"vonKarman\",\n        \"position\": 1.278,\n        \"base_radius\": 0.0635,\n        \"rocket_radius\": 0.0635\n    },\n    \"fins\": {\n        \"n\": 4,\n        \"root_chord\": 0.12,\n        \"tip_chord\": 0.04,\n        \"span\": 0.1,\n        \"position\": -1.04956,\n        \"cant_angle\": 0,\n        \"radius\": 0.0635,\n        \"airfoil\": \"\"\n    },\n    \"tail\": {\n        \"top_radius\": 0.0635,\n        \"bottom_radius\": 0.0435,\n        \"length\": 0.06,\n        \"position\": -1.194656,\n        \"radius\": 0.0635\n    },\n    \"parachutes\": {\n        \"name\": [\n            \"Main\",\n            \"Drogue\"\n        ],\n        \"cd_s\": [\n            10,\n            1\n        ],\n        \"sampling_rate\": [\n            105,\n            105\n        ],\n        \"lag\": [\n            1.5,\n            1.5\n        ],\n        \"noise\": [\n            [\n                0,\n                8.3,\n                0.5\n            ],\n            [\n                0,\n                8.3,\n                0.5\n            ]\n        ],\n        \"triggers\": [\n            \"lambda p, h, y: y[5] < 0 and h < 800\",\n            \"lambda p, h, y: y[5] < 0\"\n        ]\n    }    \n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{endpoint}}/rocket/",
+						"description": "This returns a `token` that you can use to retrieve information later on.\n\nWe have included a test to confirm if a token is returned. We have also added test scripts to copy the token to the `token` collection variable. This makes it easy for us to reuse this token in other requests in the collection."
+					},
+					"response": []
+				},
+				{
+					"name": "Read Rocket",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f92d1f61-0a9d-4d20-9e19-86f7547ee31c",
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"",
+									"//TEST",
+									"bdd = \"Given a valid Rocket GET request is made\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });    ",
+									"    pm.test(bdd + \" then response must contain a valid rocket\", function () {        ",
+									"        pm.expect(apiRspn.radius).to.eql(pm.collectionVariables.get('radius'), \"rocket radius not matching\");",
+									"        pm.expect(apiRspn.mass).to.eql(pm.collectionVariables.get('mass'), \"rocket mass not matching\");",
+									"        pm.expect(apiRspn.inertia).to.eql(pm.collectionVariables.get('inertia'), \"rocket inertia not matching\");",
+									"        pm.expect(apiRspn.power_off_drag).to.eql(pm.collectionVariables.get('power_off_drag'), \"rocket power_off_drag not matching\");",
+									"        pm.expect(apiRspn.power_on_drag).to.eql(pm.collectionVariables.get('power_on_drag'), \"rocket power_on_drag not matching\");",
+									"        pm.expect(apiRspn.center_of_mass_without_motor).to.eql(pm.collectionVariables.get('center_of_mass_without_motor'), \"rocket center_of_mass_without_motor not matching\");",
+									"        pm.expect(apiRspn.coordinate_system_orientation).to.eql(pm.collectionVariables.get('rocket_coordinate_system_orientation'), \"rocket coordinate_system_orientation not matching\");",
+									"        pm.expect(apiRspn.motor_position).to.eql(pm.collectionVariables.get('motor_position'), \"rocket motor_position not matching\");",
+									"        pm.expect(apiRspn.rail_buttons).to.eql(pm.collectionVariables.get('rail_buttons'), \"rocket rail_buttons not matching\");",
+									"        pm.expect(apiRspn.rail_buttons.upper_button_position).to.eql(pm.collectionVariables.get('upper_button_position'), \"rocket rail_buttons upper_button_position not matching\");",
+									"        pm.expect(apiRspn.rail_buttons.lower_button_position).to.eql(pm.collectionVariables.get('lower_button_position'), \"rocket rail_buttons lower_button_position not matching\");",
+									"        pm.expect(apiRspn.rail_buttons.angular_position).to.eql(pm.collectionVariables.get('angular_position'), \"rocket rail_buttons angular_position not matching\");",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid flight rocket motor\", function () {",
+									"        pm.expect(apiRspn.motor.burn_time).to.eql(pm.collectionVariables.get('burn_time'), \"rocket motor burn_time not matching\");",
+									"        pm.expect(apiRspn.motor.dry_mass).to.eql(pm.collectionVariables.get('dry_mass'), \"rocket motor dry_mass not matching\");",
+									"        pm.expect(apiRspn.motor.dry_inertia).to.eql(pm.collectionVariables.get('dry_inertia'), \"rocket motor dry_inertia not matching\");",
+									"        pm.expect(apiRspn.motor.center_of_dry_mass).to.eql(pm.collectionVariables.get('center_of_dry_mass'), \"rocket motor center_of_dry_mass not matching\");",
+									"        pm.expect(apiRspn.motor.grain_number).to.eql(pm.collectionVariables.get('grain_number'), \"rocket motor grain_number not matching\");",
+									"        pm.expect(apiRspn.motor.grain_density).to.eql(pm.collectionVariables.get('grain_density'), \"rocket motor grain_density not matching\");",
+									"        pm.expect(apiRspn.motor.grain_outer_radius).to.eql(pm.collectionVariables.get('grain_outer_radius'), \"rocket motor grain_outer_radius not matching\");",
+									"        pm.expect(apiRspn.motor.grain_initial_inner_radius).to.eql(pm.collectionVariables.get('grain_initial_inner_radius'), \"rocket motor grain_initial_inner_radius not matching\");",
+									"        pm.expect(apiRspn.motor.grain_initial_height).to.eql(pm.collectionVariables.get('grain_initial_height'), \"rocket motor grain_initial_height not matching\");",
+									"        pm.expect(apiRspn.motor.grains_center_of_mass_position).to.eql(pm.collectionVariables.get('grains_center_of_mass_position'), \"rocket motor grains_center_of_mass_position not matching\");",
+									"        pm.expect(apiRspn.motor.thrust_source).to.eql(pm.collectionVariables.get('thrust_source'), \"rocket motor thrust_source not matching\");",
+									"        pm.expect(apiRspn.motor.grain_separation).to.eql(pm.collectionVariables.get('grain_separation'), \"rocket motor grain_separation not matching\");",
+									"        pm.expect(apiRspn.motor.nozzle_radius).to.eql(pm.collectionVariables.get('nozzle_radius'), \"rocket motor nozzle_radius not matching\");",
+									"        pm.expect(apiRspn.motor.throat_radius).to.eql(pm.collectionVariables.get('throat_radius'), \"rocket motor throat_radius not matching\");",
+									"        pm.expect(apiRspn.motor.interpolation_method).to.eql(pm.collectionVariables.get('interpolation_method'), \"rocket motor interpolation_method not matching\");",
+									"        pm.expect(apiRspn.motor.coordinate_system_orientation).to.eql(pm.collectionVariables.get('motor_coordinate_system_orientation'), \"motor coordinate_system_orientation not matching\");",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid flight rocket nose\", function () {",
+									"        pm.expect(apiRspn.nose.length).to.eql(pm.collectionVariables.get('nose_length'), \"rocket nose length not matching\");",
+									"        pm.expect(apiRspn.nose.kind).to.eql(pm.collectionVariables.get('kind'), \"rocket nose kind not matching\");",
+									"        pm.expect(apiRspn.nose.position).to.eql(pm.collectionVariables.get('nose_position'), \"rocket nose position not matching\");",
+									"        pm.expect(apiRspn.nose.base_radius).to.eql(pm.collectionVariables.get('base_radius'), \"rocket nose base_radius not matching\");",
+									"        pm.expect(apiRspn.nose.rocket_radius).to.eql(pm.collectionVariables.get('rocket_radius'), \"rocket nose rocket_radius not matching\");",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid flight rocket fins\", function () {",
+									"        pm.expect(apiRspn.fins.n).to.eql(pm.collectionVariables.get('n'), \"rocket fins 'n' not matching\");",
+									"        pm.expect(apiRspn.fins.root_chord).to.eql(pm.collectionVariables.get('root_chord'), \"rocket fins root_chord not matching\");",
+									"        pm.expect(apiRspn.fins.tip_chord).to.eql(pm.collectionVariables.get('tip_chord'), \"rocket fins tip_chord not matching\");",
+									"        pm.expect(apiRspn.fins.span).to.eql(pm.collectionVariables.get('span'), \"rocket fins span not matching\");",
+									"        pm.expect(apiRspn.fins.position).to.eql(pm.collectionVariables.get('fin_position'), \"rocket fins position not matching\");",
+									"        pm.expect(apiRspn.fins.cant_angle).to.eql(pm.collectionVariables.get('cant_angle'), \"rocket fins cant_angle not matching\");",
+									"        pm.expect(apiRspn.fins.radius).to.eql(pm.collectionVariables.get('fin_radius'), \"rocket fins radius not matching\");",
+									"        pm.expect(apiRspn.fins.airfoil).to.eql(pm.collectionVariables.get('airfoil'), \"rocket fins airfoil not matching\");",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid flight rocket tail\", function () {",
+									"        pm.expect(apiRspn.tail.top_radius).to.eql(pm.collectionVariables.get('top_radius'), \"rocket tail top_radius not matching\");        ",
+									"        pm.expect(apiRspn.tail.bottom_radius).to.eql(pm.collectionVariables.get('bottom_radius'), \"rocket tail bottom_radius not matching\");        ",
+									"        pm.expect(apiRspn.tail.length).to.eql(pm.collectionVariables.get('tail_length'), \"rocket tail length not matching\");        ",
+									"        pm.expect(apiRspn.tail.position).to.eql(pm.collectionVariables.get('tail_position'), \"rocket tail position not matching\");        ",
+									"        pm.expect(apiRspn.tail.radius).to.eql(pm.collectionVariables.get('tail_radius'), \"rocket tail radius not matching\");        ",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid flight rocket parachutes\", function () {",
+									"        pm.expect(apiRspn.parachutes.name).to.eql(pm.collectionVariables.get('parachutes_names'), \"rocket parachutes names not matching\");                ",
+									"        pm.expect(apiRspn.parachutes.cd_s).to.eql(pm.collectionVariables.get('parachutes_cds'), \"rocket parachutes cd_s not matching\");                ",
+									"        pm.expect(apiRspn.parachutes.sampling_rate).to.eql(pm.collectionVariables.get('parachutes_sampling_rate'), \"rocket parachutes sampling_rate not matching\");                ",
+									"        pm.expect(apiRspn.parachutes.lag).to.eql(pm.collectionVariables.get('parachutes_lags'), \"rocket parachutes lags not matching\");                ",
+									"        pm.expect(apiRspn.parachutes.noise).to.eql(pm.collectionVariables.get('parachutes_noises'), \"rocket parachutes noises not matching\");",
+									"        pm.expect(apiRspn.parachutes.triggers).to.eql(pm.collectionVariables.get('parachutes_triggers'), \"rocket parachutes triggers not matching\");",
+									"    });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"_postman_id": "d3c9e8bd-240f-44fb-bd66-ed1e7d51b4f1",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{endpoint}}/rocket/{{rocket_id}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Read rocketpy Rocket",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "424ba3d4-44fe-44db-997b-e0d80d5bcb80",
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"",
+									"//TEST",
+									"bdd = \"Given a valid rocketpy Rocket GET request is made\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
+									"        pm.expect(apiRspn.jsonpickle_rocketpy_rocket).to.exist;        ",
+									"    });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"_postman_id": "5d6d0210-eeb5-4f07-844d-fbe0ef3a7c5a",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{endpoint}}/rocket/rocketpy/{{rocket_id}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Rocket",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "418bbe76-830a-48c6-a75e-fd4473d737ee",
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"var rocketRequest = JSON.parse(pm.request.body.raw);",
+									"",
+									"// save rocket parameters",
+									"pm.collectionVariables.set('rocket_id', apiRspn.new_rocket_id)",
+									"pm.collectionVariables.set('radius', rocketRequest.radius)",
+									"pm.collectionVariables.set('mass', rocketRequest.mass)",
+									"pm.collectionVariables.set('inertia', rocketRequest.inertia)",
+									"pm.collectionVariables.set('power_off_drag', rocketRequest.power_off_drag)",
+									"pm.collectionVariables.set('power_on_drag', rocketRequest.power_on_drag)",
+									"pm.collectionVariables.set('center_of_mass_without_motor', rocketRequest.center_of_mass_without_motor)",
+									"pm.collectionVariables.set('motor_position', rocketRequest.motor_position)",
+									"pm.collectionVariables.set('rail_buttons', rocketRequest.rail_buttons)",
+									"pm.collectionVariables.set('upper_button_position', rocketRequest.rail_buttons.upper_button_position)",
+									"pm.collectionVariables.set('lower_button_position', rocketRequest.rail_buttons.lower_button_position)",
+									"pm.collectionVariables.set('angular_position', rocketRequest.rail_buttons.angular_position)",
+									"pm.collectionVariables.set('rocket_coordinate_system_orientation', rocketRequest.coordinate_system_orientation)",
+									"",
+									"// rocket motor",
+									"pm.collectionVariables.set('burn_time', rocketRequest.motor.burn_time)",
+									"pm.collectionVariables.set('dry_mass', rocketRequest.motor.dry_mass)",
+									"pm.collectionVariables.set('dry_inertia', rocketRequest.motor.dry_inertia)",
+									"pm.collectionVariables.set('center_of_dry_mass', rocketRequest.motor.center_of_dry_mass)",
+									"pm.collectionVariables.set('grain_number', rocketRequest.motor.grain_number)",
+									"pm.collectionVariables.set('grain_density', rocketRequest.motor.grain_density)",
+									"pm.collectionVariables.set('grain_outer_radius', rocketRequest.motor.grain_outer_radius)",
+									"pm.collectionVariables.set('grain_initial_inner_radius', rocketRequest.motor.grain_initial_inner_radius)",
+									"pm.collectionVariables.set('grain_initial_height', rocketRequest.motor.grain_initial_height)",
+									"pm.collectionVariables.set('grains_center_of_mass_position', rocketRequest.motor.grains_center_of_mass_position)",
+									"pm.collectionVariables.set('grain_separation', rocketRequest.motor.grain_separation)",
+									"pm.collectionVariables.set('thrust_source', rocketRequest.motor.thrust_source)",
+									"pm.collectionVariables.set('nozzle_radius', rocketRequest.motor.nozzle_radius)",
+									"pm.collectionVariables.set('throat_radius', rocketRequest.motor.throat_radius)",
+									"pm.collectionVariables.set('interpolation_method', rocketRequest.motor.interpolation_method)",
+									"pm.collectionVariables.set('motor_coordinate_system_orientation', rocketRequest.motor.coordinate_system_orientation)",
+									"",
+									"// rocket nose",
+									"pm.collectionVariables.set('nose_length', rocketRequest.nose.length)",
+									"pm.collectionVariables.set('kind', rocketRequest.nose.kind)",
+									"pm.collectionVariables.set('nose_position', rocketRequest.nose.position)",
+									"pm.collectionVariables.set('base_radius', rocketRequest.nose.base_radius)",
+									"pm.collectionVariables.set('rocket_radius', rocketRequest.nose.rocket_radius)",
+									"",
+									"// rocket fins",
+									"pm.collectionVariables.set('n', rocketRequest.fins.n)",
+									"pm.collectionVariables.set('root_chord', rocketRequest.fins.root_chord)",
+									"pm.collectionVariables.set('tip_chord', rocketRequest.fins.tip_chord)",
+									"pm.collectionVariables.set('span', rocketRequest.fins.span)",
+									"pm.collectionVariables.set('fin_position', rocketRequest.fins.position)",
+									"pm.collectionVariables.set('cant_angle', rocketRequest.fins.cant_angle)",
+									"pm.collectionVariables.set('fin_radius', rocketRequest.fins.radius)",
+									"pm.collectionVariables.set('airfoil', rocketRequest.fins.airfoil)",
+									"",
+									"// rocket tail",
+									"pm.collectionVariables.set('top_radius', rocketRequest.tail.top_radius)",
+									"pm.collectionVariables.set('bottom_radius', rocketRequest.tail.bottom_radius)",
+									"pm.collectionVariables.set('tail_length', rocketRequest.tail.length)",
+									"pm.collectionVariables.set('tail_position', rocketRequest.tail.position)",
+									"pm.collectionVariables.set('tail_radius', rocketRequest.tail.radius)",
+									"",
+									"// rocket parachute",
+									"pm.collectionVariables.set('parachutes_names', rocketRequest.parachutes.name)",
+									"pm.collectionVariables.set('parachutes_cds', rocketRequest.parachutes.cd_s)",
+									"pm.collectionVariables.set('parachutes_sampling_rate', rocketRequest.parachutes.sampling_rate)",
+									"pm.collectionVariables.set('parachutes_lags', rocketRequest.parachutes.lag)",
+									"pm.collectionVariables.set('parachutes_noises', rocketRequest.parachutes.noise)",
+									"pm.collectionVariables.set('parachutes_triggers', rocketRequest.parachutes.triggers)",
+									"",
+									"//TEST",
+									"bdd = \"Given a valid Rocket PUT request is made to the API\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
+									"        pm.expect(apiRspn.message).to.eql(\"Rocket successfully updated\");",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid rocket_id\", function () {",
+									"        pm.expect(apiRspn.new_rocket_id).to.exist;        ",
+									"    });"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "f9758f8e-7e29-4022-858f-86ce120bab6f",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"_postman_id": "f6ec6ee0-3ddd-4754-b25f-db9f75556a32",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"radius\": 0.0632,\n    \"mass\": 16.235,\n    \"inertia\": [\n        6.321, \n        6.321, \n        0.0346\n    ],\n    \"power_off_drag\": \"lib/data/calisto/powerOffDragCurve.csv\",\n    \"power_on_drag\": \"lib/data/calisto/powerOnDragCurve.csv\",\n    \"center_of_mass_without_motor\": 0,\n    \"coordinate_system_orientation\": \"tail_to_nose\",\n    \"motor_position\": -1.255,\n    \"rail_buttons\": {\n        \"upper_button_position\": -0.5,\n        \"lower_button_position\": 0.2,\n        \"angular_position\": 45\n    },\n    \"motor\": {\n        \"burn_time\": 3.9,\n        \"dry_mass\": 1.815,\n        \"dry_inertia\": [0.125, 0.125, 0.002],\n        \"center_of_dry_mass\": 0.317,\n        \"grain_number\": 5,\n        \"grain_density\": 1815,\n        \"grain_outer_radius\": 0.033,\n        \"grain_initial_inner_radius\": 0.015,\n        \"grain_initial_height\": 0.12,\n        \"grains_center_of_mass_position\": -0.85704,\n        \"grain_separation\": 0.005,\n        \"thrust_source\": \"lib/data/motors/Cesaroni_M1670.eng\",            \n        \"nozzle_radius\": 0.033,\n        \"throat_radius\": 0.011,\n        \"interpolation_method\": \"linear\",\n        \"coordinate_system_orientation\": \"nozzle_to_combustion_chamber\"\n    },\n    \"nose\": {\n        \"length\": 0.55829,\n        \"kind\": \"vonKarman\",\n        \"position\": 1.278,\n        \"base_radius\": 0.0635,\n        \"rocket_radius\": 0.0635\n    },\n    \"fins\": {\n        \"n\": 4,\n        \"root_chord\": 0.12,\n        \"tip_chord\": 0.04,\n        \"span\": 0.1,\n        \"position\": -1.04956,\n        \"cant_angle\": 0,\n        \"radius\": 0.0635,\n        \"airfoil\": \"\"\n    },\n    \"tail\": {\n        \"top_radius\": 0.0635,\n        \"bottom_radius\": 0.0435,\n        \"length\": 0.06,\n        \"position\": -1.194656,\n        \"radius\": 0.0635\n    },\n    \"parachutes\": {\n        \"name\": [\n            \"Main\",\n            \"Drogue\"\n        ],\n        \"cd_s\": [\n            10,\n            1\n        ],\n        \"sampling_rate\": [\n            105,\n            105\n        ],\n        \"lag\": [\n            1.5,\n            1.5\n        ],\n        \"noise\": [\n            [\n                0,\n                8.3,\n                0.5\n            ],\n            [\n                0,\n                8.3,\n                0.5\n            ]\n        ],\n        \"triggers\": [\n            \"lambda p, h, y: y[5] < 0 and h < 800\",\n            \"lambda p, h, y: y[5] < 0\"\n        ]\n    }    \n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{endpoint}}/rocket/{{rocket_id}}",
+						"description": "This returns a `token` that you can use to retrieve information later on.\n\nWe have included a test to confirm if a token is returned. We have also added test scripts to copy the token to the `token` collection variable. This makes it easy for us to reuse this token in other requests in the collection."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Rocket",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "69f2fce0-b400-433a-99c5-a3f9b23025d8",
+								"exec": [
+									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
+									"if (responseCode.code == 500) {",
+									"    pm.test(\"Given a request is made then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    return",
+									"}",
+									"",
+									"var apiRspn = pm.response.json();",
+									"//TEST",
+									"bdd = \"Given a valid Rocket DELETE request is made\";",
+									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
+									"        pm.expect(responseCode.code).to.eql(200);",
+									"    });",
+									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
+									"        pm.expect(apiRspn.message).to.eql(\"Rocket successfully deleted\", \"message not matching\");",
+									"        pm.expect(apiRspn.deleted_rocket_id).to.eql(pm.collectionVariables.get('rocket_id'), \"rocket_id not matching\");                ",
+									"    });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"_postman_id": "ef84a602-93c3-4269-a9bd-a053872ffc9f",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{endpoint}}/rocket/{{rocket_id}}"
+					},
+					"response": []
+				}
+			],
+			"_postman_id": "bc442c9e-2fe7-497a-97ef-9e7f81c81663"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				],
+				"id": "270edf4d-1921-42bd-9c80-17774c482c33"
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				],
+				"id": "3a9f30f4-d787-4cb3-a988-c102c2482a36"
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "89e1dfad-6dde-4d16-b1aa-716293cb1a5b",
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "26dd49af-265f-4689-a018-6587ab4557d7",
+			"key": "baseUrl",
+			"value": "https://postman-integration-testing.glitch.me/",
+			"type": "string"
+		},
+		{
+			"id": "4e3217e1-138b-4014-910d-26f775534ff4",
+			"key": "env_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "66a1a951-eb42-4585-8c0e-b5fb1b02ec48",
+			"key": "latitude",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "65dc061d-5ecd-4b98-a03c-8cbb6d809810",
+			"key": "longitude",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "d7ce124c-4ebd-421a-9df4-c216acbf8df4",
+			"key": "elevation",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "9cfcd0af-c4c8-4dbc-a2ed-023655c2b729",
+			"key": "standard_atmosphere",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "c2dcbe9a-b2e1-40b7-9293-824d067cebcf",
+			"key": "atmospheric_model_type",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "c83e669f-0c8c-4e5a-9ae6-f5ff063035ac",
+			"key": "atmospheric_model_file",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "f73809b2-f051-4ca7-b1f4-1f58040797d0",
+			"key": "date",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "74ff872f-34d8-482f-9b97-8a41e7cd1356",
+			"key": "rail_length",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "518c4223-ffd8-4d18-9562-2296eb4e48b6",
+			"key": "inclination",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "23a60632-f12a-4207-98f8-4a7d487e3466",
+			"key": "heading",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "040cef71-57ea-40c0-9047-ebc9f15fea38",
+			"key": "flight_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "4415c5f6-b58d-478c-aa36-e18a34b6d918",
+			"key": "radius",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "91a12b25-f6a4-4b4c-8b3e-e29d6e0d6761",
+			"key": "mass",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "89136455-c989-46eb-b393-e7ae98520123",
+			"key": "inertia",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "425045f6-acd6-48ad-892a-8fb68183376e",
+			"key": "power_off_drag",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "b33f8ab9-fe67-4ad8-88c1-8dd0cf6f588f",
+			"key": "power_on_drag",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "0fd712fa-11df-43e7-a654-1684add4431a",
+			"key": "center_of_mass_without_motor",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "0c8fd4f6-fad4-45bd-b6e1-14d8e0d7ee7f",
+			"key": "motor_position",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "fdff1161-d480-46cc-a9f3-f64ed33c340d",
+			"key": "rail_buttons",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "19a712cb-4521-47d2-a556-8c437b3665c1",
+			"key": "upper_button_position",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "8dfaf63f-7ecc-4234-aa4c-90d11ecb122e",
+			"key": "lower_button_position",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "3f07baa7-6ec6-4606-90ea-3daaf9ad92a2",
+			"key": "angular_position",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "92b72edc-fa23-40ac-ba0e-0bbae2fc8834",
+			"key": "burn_time",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "369c82f4-59b7-4cd7-89a5-a720717da436",
+			"key": "dry_mass",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "8d439f0d-4fe3-4344-8b90-fa7b6efa039a",
+			"key": "dry_inertia",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "3aaf992d-1849-44fd-a722-54cebeb03269",
+			"key": "center_of_dry_mass",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "d7e4d426-c13a-428e-bddd-e3cff34431e4",
+			"key": "grain_number",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "2954c7bc-be0d-462f-b73f-2c13b915ace9",
+			"key": "grain_density",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "0a34cd53-f1bf-4916-80de-9e9fff33ce85",
+			"key": "grain_outer_radius",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "9fa38d16-da29-48a2-979c-7ae226b1f046",
+			"key": "grain_initial_inner_radius",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "92f79e65-c03f-4bda-b95e-e9d159bed62f",
+			"key": "grain_initial_height",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "c634f41e-e260-4464-b0f6-6f8f71ea02f9",
+			"key": "grains_center_of_mass_position",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "798ecef2-9992-48b9-8dae-09f17247796b",
+			"key": "grain_separation",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "4d3b0d46-b150-44a1-b50f-4f8e7bb2388a",
+			"key": "thrust_source",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "3f4001f2-ff05-4ab6-ac1b-0b3d937cf3a1",
+			"key": "nozzle_radius",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "825f5689-0c1e-4500-9087-98c6376a3409",
+			"key": "throat_radius",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "e07f57ac-0b8d-4b19-8177-722e0cdbc7a0",
+			"key": "interpolation_method",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "54dfa07e-319f-4a15-97d7-03d798b16ea1",
+			"key": "coordinate_system_orientation",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "45e3b4c9-9ecd-40c5-9797-75c6fc2e53c8",
+			"key": "length",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "354baf51-8c4c-482a-b5de-cb7120db1ce4",
+			"key": "kind",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "32d39bf6-8e74-43a1-89c4-9075427b01e3",
+			"key": "position",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "d7b68e46-2be7-4222-8975-991c244d9204",
+			"key": "base_radius",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "471b7c51-a6fe-444d-b1a3-22cfaf2fb824",
+			"key": "rocket_radius",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "04dee9fe-a618-461a-98fd-07a99d167226",
+			"key": "n",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "3730d346-0bbd-4f10-86d6-600c33a72960",
+			"key": "root_chord",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "10020bf2-1411-40ef-a871-fa790a1591c4",
+			"key": "tip_chord",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "5d442cea-b9a0-4a37-bed1-c21a243d9989",
+			"key": "span",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "36453454-d437-4a2c-b001-1fbe99696ea2",
+			"key": "cant_angle",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "0477042c-f88e-4a81-8807-e6efeb81e64e",
+			"key": "airfoil",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "115709d9-56cf-45bd-b324-6e40932f0052",
+			"key": "top_radius",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "bb4e0d53-17de-4a45-83f4-feef244ace79",
+			"key": "bottom_radius",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "1f229046-b939-48cb-9713-02a7f631e69f",
+			"key": "parachutes_names",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "e805f948-ab7d-43ae-99ed-10f8a658e99f",
+			"key": "parachutes_cds",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "f6ae9c75-6021-4c25-84b4-3d6504fb00a3",
+			"key": "parachutes_sampling_rate",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "d19cd6a2-478d-4bcc-abed-a38812073898",
+			"key": "parachutes_lags",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "6ee606a8-751a-41c4-8412-001e939d1912",
+			"key": "parachutes_noises",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "3208b90b-ce03-4ea2-a4e7-6eae5f175f57",
+			"key": "parachutes_triggers",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "09e17dbb-7578-4400-9178-c0349ea98fe0",
+			"key": "nose_length",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "3dce083c-31c6-473f-8ca2-a101dddc655b",
+			"key": "nose_position",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "80ee7d32-b7c6-4c2c-b4e3-cfd690028646",
+			"key": "fin_position",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "484fdaec-f9d0-4f8f-9f38-6a91f2cb219d",
+			"key": "fin_radius",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "b4c5feda-fa55-4574-9116-b40491860cf5",
+			"key": "tail_length",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "ca1be29b-97d4-4e62-8ca4-48f673c6d5ca",
+			"key": "tail_position",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "679783c8-6e0d-40b3-9b30-8194197eba08",
+			"key": "tail_radius",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "d0571902-668d-4c7c-a176-6dbd40665e91",
+			"key": "rocket_coordinate_system_orientation",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "c57d4d39-feb4-44e5-9a1a-b24206e1c0b7",
+			"key": "motor_coordinate_system_orientation",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "9dd3352c-a285-4893-ad90-fbda462f622c",
+			"key": "motor_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "e4f3102c-fcb8-40a5-bf91-fa78bf975267",
+			"key": "rocket_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
