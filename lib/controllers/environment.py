@@ -160,5 +160,4 @@ class EnvController():
         env_simulation_plots = EnvPlots.parse_obj(env.all_plot_info_returned())
 
         env_summary = EnvSummary( env_data=env_simulation_numbers, env_plots=env_simulation_plots )
-
         return env_summary
