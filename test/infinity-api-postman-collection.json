@@ -362,7 +362,7 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
-						"url": "{{endpoint}}/env/{{env_id}}"
+						"url": "{{endpoint}}/environments/{{env_id}}"
 					},
 					"response": []
 				}
@@ -1855,347 +1855,347 @@
 	],
 	"variable": [
 		{
-			"id": "fc2c6844-32cb-4e4e-84d9-01e14508b730",
+			"id": "603f3660-996b-40a9-aeca-75bdcd865aa2",
 			"key": "env_id",
 			"value": ""
 		},
 		{
-			"id": "5fefafc1-c4c9-4817-be64-a4b404965bef",
+			"id": "c5dcbe42-a3c3-4558-a63a-4df95d5c1399",
 			"key": "latitude",
 			"value": ""
 		},
 		{
-			"id": "79c35910-06f4-4fa3-bc95-9d3179125ed4",
+			"id": "4247b7f7-65c5-48c6-a069-f27dea7aa83b",
 			"key": "longitude",
 			"value": ""
 		},
 		{
-			"id": "c0e4a6ae-6cfa-43ab-b646-214631921bf2",
+			"id": "6ffc56d2-030e-4280-9fa8-9b66460d04d1",
 			"key": "elevation",
 			"value": ""
 		},
 		{
-			"id": "37323989-a981-4aa1-9326-9e358aade464",
+			"id": "0e66821c-b9cf-49d4-93a5-c9469da66065",
 			"key": "standard_atmosphere",
 			"value": ""
 		},
 		{
-			"id": "65fa9557-fdbf-4f53-8014-98f52dbbf622",
+			"id": "bec77f34-693b-4400-95b8-1e844fb8c565",
 			"key": "atmospheric_model_type",
 			"value": ""
 		},
 		{
-			"id": "7ece6690-ee29-43c4-a07d-4613fef59083",
+			"id": "82798771-1c5a-48b8-93e7-70f354d94c96",
 			"key": "atmospheric_model_file",
 			"value": ""
 		},
 		{
-			"id": "453ff00d-355a-4936-9b0f-cc56939934ed",
+			"id": "1a294561-69cd-4fd8-84c5-19dab240beaa",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "430a2474-e420-4e3c-982c-378f8b9e38bb",
+			"id": "5210b118-53d7-4e0b-95d0-7a655e69891f",
 			"key": "rail_length",
 			"value": ""
 		},
 		{
-			"id": "47f5fd9e-6531-4a5d-98f1-3ebc163d4824",
+			"id": "a0c98ed4-74ac-441c-abcb-a6c6f100c1f5",
 			"key": "inclination",
 			"value": ""
 		},
 		{
-			"id": "f3cf017a-645f-463d-9619-350a6faef8c6",
+			"id": "0d662308-3ef5-4f96-acbc-4b44e43e400e",
 			"key": "heading",
 			"value": ""
 		},
 		{
-			"id": "5fb81417-c293-4867-8560-9e59af25e73d",
+			"id": "536de759-5542-49a6-ad5a-bb2b9bd6b973",
 			"key": "flight_id",
 			"value": ""
 		},
 		{
-			"id": "ac9da780-55d0-49d6-aef3-fb6370c640e6",
+			"id": "7c3c106a-3e76-4206-9f18-c15a2f043bf7",
 			"key": "radius",
 			"value": ""
 		},
 		{
-			"id": "ca79234f-c579-4fbc-bf5d-ccb3bbf94718",
+			"id": "2826f596-7bc5-4f4c-9cea-205e1ce1d44e",
 			"key": "mass",
 			"value": ""
 		},
 		{
-			"id": "c83ab5e8-bb9a-44d6-84aa-ccdc0710aa60",
+			"id": "100c4334-e591-4e4a-b4d9-095cac0655e5",
 			"key": "inertia",
 			"value": ""
 		},
 		{
-			"id": "9303b6e3-9579-4756-9d13-aaa6ef936495",
+			"id": "28ff6430-43bb-477e-925d-70d9aaed1773",
 			"key": "power_off_drag",
 			"value": ""
 		},
 		{
-			"id": "6b49de15-9339-4de6-bf79-c7d80739303d",
+			"id": "678f8479-8374-4fac-9f48-4414d92b8362",
 			"key": "power_on_drag",
 			"value": ""
 		},
 		{
-			"id": "4b53988f-6532-43aa-b4b9-62f0f4038bdb",
+			"id": "bcfc5248-e8cf-4b13-bb2c-8743aee8db4e",
 			"key": "center_of_mass_without_motor",
 			"value": ""
 		},
 		{
-			"id": "020f0bc3-49ba-4140-be53-5e80a4b64620",
+			"id": "0699eda5-0777-49cf-b9a6-2048e63b81d4",
 			"key": "motor_position",
 			"value": ""
 		},
 		{
-			"id": "c3a45b08-a27d-4169-ba82-3747cd44aeb3",
+			"id": "4d1bc36d-cab4-4c5e-b5c0-ab5377a7db3b",
 			"key": "rail_buttons",
 			"value": ""
 		},
 		{
-			"id": "66d75cee-1d41-4238-8d5e-7245812a3ca1",
+			"id": "53bcb50f-ddc5-4156-89b2-4b6926895686",
 			"key": "upper_button_position",
 			"value": ""
 		},
 		{
-			"id": "bc81765b-0eb0-4e2f-a631-4b38debe4653",
+			"id": "4590f64e-cd81-4ceb-9e18-43c6b120a38f",
 			"key": "lower_button_position",
 			"value": ""
 		},
 		{
-			"id": "108fccad-cd08-4ccf-a164-cc54d6b57eed",
+			"id": "7c6fa0ca-998e-4a9a-b017-000171aa795e",
 			"key": "angular_position",
 			"value": ""
 		},
 		{
-			"id": "e585c0ef-0ce3-40c7-a920-09ea448f8b86",
+			"id": "19f5a7c0-5479-499e-8ead-a44b91749663",
 			"key": "burn_time",
 			"value": ""
 		},
 		{
-			"id": "a31f9561-d5a3-46a3-a969-9226997935b7",
+			"id": "2412f58a-f8c8-457e-94e0-84e9de534563",
 			"key": "dry_mass",
 			"value": ""
 		},
 		{
-			"id": "8d0eab44-3434-4344-8ac3-a814569d3c0a",
+			"id": "27f92a1f-fa31-4271-928c-bc7d032c6bc4",
 			"key": "dry_inertia",
 			"value": ""
 		},
 		{
-			"id": "c0b1dc6a-a1b6-4610-8fa2-59ea32efa7f6",
+			"id": "40cdcaa1-7874-4a70-b126-7bc8be441847",
 			"key": "center_of_dry_mass",
 			"value": ""
 		},
 		{
-			"id": "0af8c0f2-2a17-4efe-ac12-0db88294d13e",
+			"id": "69d0806c-aadc-449c-921b-5f0835cb1bc4",
 			"key": "grain_number",
 			"value": ""
 		},
 		{
-			"id": "2012fbdc-4dd3-4fc9-9844-9d0fbb4839ec",
+			"id": "346fa625-9df8-4aef-9aa8-815b82d998b0",
 			"key": "grain_density",
 			"value": ""
 		},
 		{
-			"id": "927ecc93-de3b-40a2-ae29-611b4f6c4e9d",
+			"id": "7cac5e34-b75a-4152-9829-dd30f04dba53",
 			"key": "grain_outer_radius",
 			"value": ""
 		},
 		{
-			"id": "5befcb8f-0a76-4152-873f-ee5a9f2e0ebe",
+			"id": "9f30b91d-d7ce-4dd6-bd56-4e5a42ba9778",
 			"key": "grain_initial_inner_radius",
 			"value": ""
 		},
 		{
-			"id": "993a99c3-b612-4db0-a1f6-af3904bcf1f6",
+			"id": "95db8f42-19aa-413c-a4ba-90b5fe13b411",
 			"key": "grain_initial_height",
 			"value": ""
 		},
 		{
-			"id": "91c2a000-d560-4c81-8066-7e522969046a",
+			"id": "e5086c82-da2f-4c21-a65b-0fc08549aecd",
 			"key": "grains_center_of_mass_position",
 			"value": ""
 		},
 		{
-			"id": "75c205ea-1a38-4587-bfdd-149872f2be6d",
+			"id": "1c74ea5a-1efe-4df3-93bb-2f6b67ff94c4",
 			"key": "grain_separation",
 			"value": ""
 		},
 		{
-			"id": "258bbcd6-2859-4593-a0aa-aa35be20b28d",
+			"id": "9e40a7d8-3315-4d04-8be3-304d1226f451",
 			"key": "thrust_source",
 			"value": ""
 		},
 		{
-			"id": "9bc3e75b-5f98-4645-a283-8eb78be75321",
+			"id": "5c805845-36e6-4ab6-9365-4465a5c0a06b",
 			"key": "nozzle_radius",
 			"value": ""
 		},
 		{
-			"id": "83a8dc4f-50e0-4f77-95a0-6e00b52ec471",
+			"id": "bb1865da-ec7e-45dc-bb01-e660e28a3b66",
 			"key": "throat_radius",
 			"value": ""
 		},
 		{
-			"id": "b6584345-10e8-403c-ac25-104a989387a3",
+			"id": "c7f3ba50-d1dd-4fbd-bad4-ddee4609f6c5",
 			"key": "interpolation_method",
 			"value": ""
 		},
 		{
-			"id": "6acd5570-93ce-4de1-b858-306370cd8f66",
+			"id": "0e479b3f-5822-4415-bc78-dcb5dd68b975",
 			"key": "coordinate_system_orientation",
 			"value": ""
 		},
 		{
-			"id": "ae25bdc2-695d-42fc-98d7-1e3a340a19ef",
+			"id": "410947a7-341f-4e6b-9c2f-e9b39b8b9458",
 			"key": "length",
 			"value": ""
 		},
 		{
-			"id": "2c192a6f-c2a0-474b-9cd2-4ff3100a6b36",
+			"id": "77811130-891b-436a-90f4-63d919f2e343",
 			"key": "kind",
 			"value": ""
 		},
 		{
-			"id": "902f5d35-18e7-4863-9331-7e91e7c65fe3",
+			"id": "abd22033-c524-42ea-a298-2234a10e63f7",
 			"key": "position",
 			"value": ""
 		},
 		{
-			"id": "e021acf2-d906-4ebf-90e8-05e9817cd43d",
+			"id": "8d8a2d2a-5db0-4a67-ba45-040916be089a",
 			"key": "base_radius",
 			"value": ""
 		},
 		{
-			"id": "87a7ee5e-a586-484a-9326-b29034cde7ba",
+			"id": "074f23b1-fe4d-442c-8df8-d9d305fb09e7",
 			"key": "rocket_radius",
 			"value": ""
 		},
 		{
-			"id": "7f7429cc-d11c-43cb-a330-bf65feab7a8d",
+			"id": "3e5d6adb-1283-4914-ac6b-cb635bd7e228",
 			"key": "n",
 			"value": ""
 		},
 		{
-			"id": "e25e87f5-dd04-4d31-bac8-830ec93bdabb",
+			"id": "9ef0a839-6b4e-4bba-8e43-00aed3e79847",
 			"key": "root_chord",
 			"value": ""
 		},
 		{
-			"id": "445f1345-5e3a-4272-a809-6f1e2aa7983b",
+			"id": "500dc918-6261-4007-8675-cd821a7335c5",
 			"key": "tip_chord",
 			"value": ""
 		},
 		{
-			"id": "633a596b-29c5-45e9-a92b-bee4213f4bf3",
+			"id": "e238061d-2a0a-4154-b6d0-c4abc2d58f2f",
 			"key": "span",
 			"value": ""
 		},
 		{
-			"id": "4e6bb51a-9625-46af-8c2d-cb066bb3a7b8",
+			"id": "23e3b560-103a-45a9-a2b2-093925a2ce12",
 			"key": "cant_angle",
 			"value": ""
 		},
 		{
-			"id": "49c11d7c-6105-452b-825f-cd76b10b3f1f",
+			"id": "cf63a3b9-3c3d-42c8-af44-2b2934cddec3",
 			"key": "airfoil",
 			"value": ""
 		},
 		{
-			"id": "bbc21f26-2e78-4fd8-a33d-2752cac06d31",
+			"id": "18bc0557-3e3f-4c7b-8366-4884c74807a9",
 			"key": "top_radius",
 			"value": ""
 		},
 		{
-			"id": "09ab76dc-f5e0-4b6f-b0ff-602cd3fefa90",
+			"id": "84d3aaa0-e6f7-407c-90d2-b30d9edd3d39",
 			"key": "bottom_radius",
 			"value": ""
 		},
 		{
-			"id": "bdae406a-eede-41ef-8b21-cd02b6a0d2fd",
+			"id": "81101132-f35e-4d96-b387-f224bd416a1f",
 			"key": "parachutes_names",
 			"value": ""
 		},
 		{
-			"id": "5711e4df-ffb6-4d8f-87ab-0268a4d0e4fc",
+			"id": "44a482a9-d30c-4f4d-98eb-ebd9f4312598",
 			"key": "parachutes_cds",
 			"value": ""
 		},
 		{
-			"id": "68bc8d78-0d50-4971-90d6-f4a82a3ca249",
+			"id": "a712651b-d832-471e-bcd0-1c73b57c141e",
 			"key": "parachutes_sampling_rate",
 			"value": ""
 		},
 		{
-			"id": "da483a7f-4ba6-4d1a-81a1-4233da0b4f7c",
+			"id": "40b516f9-939a-4dd6-bc23-9bd0fff8ff10",
 			"key": "parachutes_lags",
 			"value": ""
 		},
 		{
-			"id": "4939c3d7-fd3b-4ef0-997b-87ee70ad4089",
+			"id": "e7d70fb3-f4fd-4c41-8dd5-2b16b75b5893",
 			"key": "parachutes_noises",
 			"value": ""
 		},
 		{
-			"id": "6294c76f-3a24-4fe1-bae1-1fec27d3ab1e",
+			"id": "25e0d23a-7d9e-431c-84b1-1cc8b4a18f0a",
 			"key": "parachutes_triggers",
 			"value": ""
 		},
 		{
-			"id": "c332c01c-f18d-427f-a86b-646ed6b77d29",
+			"id": "16a4a981-eecb-417f-b375-382fd3b0d638",
 			"key": "nose_length",
 			"value": ""
 		},
 		{
-			"id": "3588292e-18cc-4db6-91d2-57f56dab4a41",
+			"id": "ec284285-cfb7-403f-9233-0a89bd8036da",
 			"key": "nose_position",
 			"value": ""
 		},
 		{
-			"id": "660e3391-58b6-4649-b3f5-49bb6c7772e0",
+			"id": "9ec57cc6-2cb7-4ecb-b051-54fcd07a25ec",
 			"key": "fin_position",
 			"value": ""
 		},
 		{
-			"id": "e10e8aa5-0464-4bce-a516-ad7c8e813dba",
+			"id": "56ae66fe-f54f-4c5d-9864-17806ef82990",
 			"key": "fin_radius",
 			"value": ""
 		},
 		{
-			"id": "c342005d-f28d-4bf2-8b5e-040f9655164b",
+			"id": "a115e82d-31b5-4aa4-8eb1-55b95f3e6914",
 			"key": "tail_length",
 			"value": ""
 		},
 		{
-			"id": "73648fa0-e314-49bd-86be-2eacabb586ac",
+			"id": "09ad7144-2326-4888-bade-9868941dab97",
 			"key": "tail_position",
 			"value": ""
 		},
 		{
-			"id": "ff443a04-0ea5-4924-820d-93c8f696fb65",
+			"id": "9007a038-d849-4180-bdfc-c66dddd12578",
 			"key": "tail_radius",
 			"value": ""
 		},
 		{
-			"id": "16897953-09b1-4f04-8c9a-f03d83f3dffb",
+			"id": "a8f03e73-fe2e-4a7c-af1e-862601c1943d",
 			"key": "rocket_coordinate_system_orientation",
 			"value": ""
 		},
 		{
-			"id": "aec31e75-014a-4a38-a828-443a57a09c38",
+			"id": "43bbd0b1-3a43-43c3-81e3-8cd9360fd7bf",
 			"key": "motor_coordinate_system_orientation",
 			"value": ""
 		},
 		{
-			"id": "456a851e-cbdf-4bf2-8c9d-f4e300032300",
+			"id": "546a06e7-fcdb-45c3-9741-138e4e52522f",
 			"key": "motor_id",
 			"value": ""
 		},
 		{
-			"id": "193f3350-ada1-484c-981a-a7000ffd6afe",
+			"id": "6b70f5e4-b1cd-4948-80f4-bd225f0c019e",
 			"key": "rocket_id",
 			"value": ""
 		}
