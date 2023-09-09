@@ -10,7 +10,7 @@
 - Install dependencies `python3 -m pip install -r requirements.txt`
 
 ## Starting the server
-- Dev: `uvicorn lib:app --reload --port 3000`
+- Dev: `python3 -m uvicorn lib:app --reload --port 3000`
 - Prod: `gunicorn -k uvicorn.workers.UvicornWorker lib:app --reload -b 0.0.0.0:3000`
 
 ## Project structure
