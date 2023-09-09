@@ -60,9 +60,8 @@ class EnvRepository(Repository):
                 { "env_id": self.env_id }, 
                 { "$set": environment_to_dict }
             )
-
             self.env_id = environment_to_dict["env_id"]
-            return  self.env_id
+            return self.env_id 
         except:
             raise Exception("Error updating environment")
 

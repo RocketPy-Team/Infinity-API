@@ -39,8 +39,8 @@ class OutOfRailConditions(BaseModel):
 
 class BurnoutConditions(BaseModel):
     burnout_time: str
+    burnout_rocket_velocity: str
     burnout_altitude: str
-    burnout_velocity: str
     burnout_freestream_velocity: str
     burnout_mach_number: str
     burnout_kinetic_energy: str
@@ -55,8 +55,10 @@ class MaximumValues(BaseModel):
     maximum_mach_number: str
     maximum_reynolds_number: str 
     maximum_dynamic_pressure: str 
-    maximum_acceleration: str 
-    maximum_gs: str 
+    maximum_acceleration_during_motor_burn: str 
+    maximum_acceleration_after_motor_burn: str 
+    maximum_gs_during_motor_burn: str 
+    maximum_gs_after_motor_burn: str
     maximum_upper_rail_button_normal_force: str
     maximum_upper_rail_button_shear_force: str 
     maximum_lower_rail_button_normal_force: str 
@@ -66,9 +68,7 @@ class ImpactConditions(BaseModel):
     x_impact_position: "Optional[str]"
     y_impact_position: "Optional[str]" 
     time_of_impact: "Optional[str]" 
-    velocity_at_impact: "Optional[str]" 
-    time: "Optional[str]" 
-    altitude: "Optional[str]" 
+    impact_velocity: "Optional[str]" 
 
 class EventsRegistered(BaseModel):
     events_trace: "Optional[Any]"

@@ -4,22 +4,22 @@ from typing import Optional
 class RailButtons(BaseModel, frozen=True):
     upper_button_position: Optional[float] = -0.5
     lower_button_position: Optional[float] = 0.2
-    angularPosition: Optional[float] = 45 
+    angular_position: Optional[float] = 45 
     
 class NoseCone(BaseModel, frozen=True):
     length: float
     kind: str
     position: float
-    baseRadius: float
-    rocketRadius: float
+    base_radius: float
+    rocket_radius: float
 
 class Fins(BaseModel, frozen=True):
     n: int
-    rootChord: float
-    tipChord: float
+    root_chord: float
+    tip_chord: float
     span: float
     position: float
-    cantAngle: float
+    cant_angle: float
     radius: float
     airfoil: str
 
@@ -28,8 +28,8 @@ class TrapezoidalFins(Fins, frozen=True):
         super().__init__()
     
 class Tail(BaseModel, frozen=True):
-    topRadius: float
-    bottomRadius: float
+    top_radius: float
+    bottom_radius: float
     length: float
     position: float
     radius: float

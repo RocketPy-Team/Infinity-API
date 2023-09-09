@@ -43,7 +43,7 @@ class EnvController():
         env = EnvRepository(environment=self.env)
         successfully_created_env = env.create_env()
         if successfully_created_env: 
-            return { "message": "env created", "env_id": str(env.env_id) }
+            return { "message": "Environment created", "env_id": str(env.env_id) }
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -109,7 +109,7 @@ class EnvController():
 
         if successfully_updated_env:
             return { 
-                    "message": "env updated successfully", 
+                    "message": "Environment successfully updated ", 
                     "new_env_id": str(successfully_updated_env)
             }
         else:
@@ -134,7 +134,7 @@ class EnvController():
 
         successfully_deleted_env = EnvRepository(env_id=env_id).delete_env()
         if successfully_deleted_env: 
-            return {"env_id": str(env_id), "message": "env deleted successfully"}
+            return {"deleted_env_id": str(env_id), "message": "Environment successfully deleted "}
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

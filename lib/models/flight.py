@@ -7,3 +7,4 @@ class Flight(BaseModel, frozen=True):
     rocket: Rocket
     inclination: int
     heading: int
+    rail_length: float 

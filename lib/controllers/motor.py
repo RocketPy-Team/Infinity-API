@@ -20,19 +20,22 @@ class MotorController():
     """
     def __init__(self, motor: Motor):
         rocketpy_motor = SolidMotor(
-                burnOut=motor.burnOut,
-                grainNumber=motor.grainNumber,
-                grainDensity=motor.grainDensity,
-                grainOuterRadius=motor.grainOuterRadius,
-                grainInitialInnerRadius=motor.grainInitialInnerRadius,
-                grainInitialHeight=motor.grainInitialHeight,
-                grainsCenterOfMassPosition=-motor.grainsCenterOfMassPosition,
-                thrustSource=motor.thrustSource
+                burn_time=motor.burn_time,
+                grain_number=motor.grain_number,
+                grain_density=motor.grain_density,
+                grain_outer_radius=motor.grain_outer_radius,
+                grain_initial_inner_radius=motor.grain_initial_inner_radius,
+                grain_initial_height=motor.grain_initial_height,
+                grains_center_of_mass_position=-motor.grains_center_of_mass_position,
+                thrust_source=motor.thrust_source,
+                grain_separation=motor.grain_separation,
+                nozzle_radius=motor.nozzle_radius,
+                dry_mass=motor.dry_mass,
+                center_of_dry_mass=motor.center_of_dry_mass,
+                dry_inertia=motor.dry_inertia,
+                throat_radius=motor.throat_radius,
+                interpolation_method=motor.interpolation_method
         )
-        rocketpy_motor.grainSeparation = motor.grainSeparation
-        rocketpy_motor.nozzleRadius = motor.nozzleRadius
-        rocketpy_motor.throatRadius = motor.throatRadius
-        rocketpy_motor.interpolationMethod = motor.interpolationMethod
         self.rocketpy_motor = rocketpy_motor
         self.motor = motor
 
@@ -46,7 +49,7 @@ class MotorController():
         motor = MotorRepository(motor=self.motor)
         successfully_created_motor = motor.create_motor()
         if successfully_created_motor: 
-            return { "message": "motor created", "motor_id": str(motor.motor_id) }
+            return { "message": "Motor created", "motor_id": str(motor.motor_id) }
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -112,7 +115,7 @@ class MotorController():
 
         if successfully_updated_motor:
             return { 
-                    "message": "motor updated successfully", 
+                    "message": "Motor successfully updated", 
                     "new_motor_id": str(successfully_updated_motor)
             }
         else:
@@ -137,7 +140,7 @@ class MotorController():
 
         successfully_deleted_motor = MotorRepository(motor_id=motor_id).delete_motor()
         if successfully_deleted_motor: 
-            return {"motor_id": str(motor_id), "message": "motor deleted successfully"}
+            return {"deleted_motor_id": str(motor_id), "message": "Motor successfully deleted"}
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
