@@ -168,8 +168,8 @@ async def simulate_flight(flight_id: int) -> "FlightSummary":
     """
     return FlightController.simulate(flight_id)
 
-#Environment routes
-@app.post("/env/{env_id}")
+# Environment routes
+@app.post("/env/")
 async def create_env(env: Env) -> "Dict[str, str]":
     """
     Creates a new environment.
@@ -269,8 +269,8 @@ async def simulate_env(env_id: int) -> "EnvSummary":
     """
     return EnvController.simulate(env_id)
 
-#Motor routes
-@app.post("/motor/{motor_id}")
+# Motor routes
+@app.post("/motor/")
 async def create_motor(motor: Motor) -> "Dict[str, str]":
     """
     Creates a new motor.
@@ -370,8 +370,8 @@ async def simulate_motor(motor_id: int) -> "MotorSummary":
     """
     return MotorController.simulate(motor_id)
 
-#Rocket routes
-@app.post("/rocket/{rocket_id}")
+# Rocket routes
+@app.post("/rocket/")
 async def create_rocket(rocket: Rocket) -> "Dict[str, str]":
     """
     Creates a new rocket.
