@@ -1181,76 +1181,12 @@
 									"",
 									"var apiRspn = pm.response.json();",
 									"//TEST",
-									"bdd = \"Given a valid rocketpy Flight simulate GET request is made\";",
+									"bdd = \"Given a valid rocketpy Motor simulate GET request is made\";",
 									"    pm.test(bdd + \" then response must return a 200 status code\", function () {",
 									"        pm.expect(responseCode.code).to.eql(200);",
 									"    });",
 									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
-									"        pm.expect(apiRspn.flight_data).to.exist;",
-									"        pm.expect(apiRspn.flight_data.initial_conditions).to.exist;",
-									"        pm.expect(apiRspn.flight_data.initial_conditions.initial_position).to.exist;",
-									"        pm.expect(apiRspn.flight_data.initial_conditions.initial_velocity).to.exist;",
-									"        pm.expect(apiRspn.flight_data.initial_conditions.initial_altitude).to.exist;",
-									"        pm.expect(apiRspn.flight_data.initial_conditions.initial_angular_position).to.exist;",
-									"        pm.expect(apiRspn.flight_data.initial_conditions.initial_angular_velocity).to.exist;",
-									"        pm.expect(apiRspn.flight_data.numerical_integration_settings).to.exist;",
-									"        pm.expect(apiRspn.flight_data.numerical_integration_settings.max_time).to.exist;",
-									"        pm.expect(apiRspn.flight_data.numerical_integration_settings.max_time_step).to.exist;",
-									"        pm.expect(apiRspn.flight_data.numerical_integration_settings.min_time_step).to.exist;",
-									"        pm.expect(apiRspn.flight_data.numerical_integration_settings.relative_error_tolerance).to.exist;",
-									"        pm.expect(apiRspn.flight_data.numerical_integration_settings.absolute_error_tolerance).to.exist;",
-									"        pm.expect(apiRspn.flight_data.numerical_integration_settings.time_overshoot).to.exist;",
-									"        pm.expect(apiRspn.flight_data.numerical_integration_settings.terminate_on_apogee).to.exist;",
-									"        pm.expect(apiRspn.flight_data.numerical_integration_settings.number_of_time_steps).to.exist;",
-									"        pm.expect(apiRspn.flight_data.numerical_integration_settings.function_evaluations_per_time_step).to.exist;",
-									"        pm.expect(apiRspn.flight_data.numerical_integration_settings.avg_function_evaluations_per_time_step).to.exist;",
-									"        pm.expect(apiRspn.flight_data.launch_rail_conditions).to.exist;",
-									"        pm.expect(apiRspn.flight_data.launch_rail_conditions.rail_length).to.exist;",
-									"        pm.expect(apiRspn.flight_data.launch_rail_conditions.flight_inclination).to.exist;",
-									"        pm.expect(apiRspn.flight_data.launch_rail_conditions.flight_heading).to.exist;",
-									"        pm.expect(apiRspn.flight_data.surface_wind_conditions).to.exist;",
-									"        pm.expect(apiRspn.flight_data.surface_wind_conditions.frontal_surface_wind_speed).to.exist;",
-									"        pm.expect(apiRspn.flight_data.surface_wind_conditions.lateral_surface_wind_speed).to.exist;",
-									"        pm.expect(apiRspn.flight_data.out_of_rail_conditions).to.exist;",
-									"        pm.expect(apiRspn.flight_data.out_of_rail_conditions.out_of_rail_time).to.exist;",
-									"        pm.expect(apiRspn.flight_data.out_of_rail_conditions.out_of_rail_velocity).to.exist;",
-									"        pm.expect(apiRspn.flight_data.out_of_rail_conditions.out_of_rail_static_margin).to.exist;",
-									"        pm.expect(apiRspn.flight_data.out_of_rail_conditions.out_of_rail_angle_of_attack).to.exist;",
-									"        pm.expect(apiRspn.flight_data.out_of_rail_conditions.out_of_rail_thrust_weight_ratio).to.exist;",
-									"        pm.expect(apiRspn.flight_data.out_of_rail_conditions.out_of_rail_reynolds_number).to.exist;",
-									"        pm.expect(apiRspn.flight_data.burnout_conditions).to.exist;",
-									"        pm.expect(apiRspn.flight_data.burnout_conditions.burnout_time).to.exist;",
-									"        pm.expect(apiRspn.flight_data.burnout_conditions.burnout_rocket_velocity).to.exist;",
-									"        pm.expect(apiRspn.flight_data.burnout_conditions.burnout_altitude).to.exist;",
-									"        pm.expect(apiRspn.flight_data.burnout_conditions.burnout_freestream_velocity).to.exist;",
-									"        pm.expect(apiRspn.flight_data.burnout_conditions.burnout_mach_number).to.exist;",
-									"        pm.expect(apiRspn.flight_data.burnout_conditions.burnout_kinetic_energy).to.exist;",
-									"        pm.expect(apiRspn.flight_data.apogee_conditions).to.exist;",
-									"        pm.expect(apiRspn.flight_data.apogee_conditions.apogee_time).to.exist;",
-									"        pm.expect(apiRspn.flight_data.apogee_conditions.apogee_altitude).to.exist;",
-									"        pm.expect(apiRspn.flight_data.apogee_conditions.apogee_freestream_speed).to.exist;",
-									"        pm.expect(apiRspn.flight_data.maximum_values).to.exist;",
-									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_speed).to.exist;",
-									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_mach_number).to.exist;",
-									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_reynolds_number).to.exist;",
-									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_dynamic_pressure).to.exist;",
-									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_acceleration_during_motor_burn).to.exist;",
-									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_acceleration_after_motor_burn).to.exist;",
-									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_gs_during_motor_burn).to.exist;",
-									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_gs_after_motor_burn).to.exist;",
-									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_upper_rail_button_normal_force).to.exist;",
-									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_upper_rail_button_shear_force).to.exist;",
-									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_lower_rail_button_normal_force).to.exist;",
-									"        pm.expect(apiRspn.flight_data.maximum_values.maximum_lower_rail_button_shear_force).to.exist;",
-									"        pm.expect(apiRspn.flight_data.impact_conditions).to.exist;",
-									"        pm.expect(apiRspn.flight_data.impact_conditions.x_impact_position).to.exist;",
-									"        pm.expect(apiRspn.flight_data.impact_conditions.y_impact_position).to.exist;",
-									"        pm.expect(apiRspn.flight_data.impact_conditions.time_of_impact).to.exist;",
-									"        pm.expect(apiRspn.flight_data.impact_conditions.impact_velocity).to.exist;",
-									"        pm.expect(apiRspn.flight_data.events_registered).to.exist;",
-									"        pm.expect(apiRspn.flight_data.events_registered.events_trace).to.exist;",
-									"        pm.expect(apiRspn.flight_data.events_registered.events_trace.Drogue).to.exist;",
-									"        pm.expect(apiRspn.flight_data.events_registered.events_trace.Main).to.exist;        ",
+									"        pm.expect(apiRspn.flight_data).to.exist;        ",
 									"    });"
 								],
 								"type": "text/javascript"
@@ -1878,347 +1814,347 @@
 	],
 	"variable": [
 		{
-			"id": "8b4f78ce-f336-4fd4-a149-e710faee3126",
+			"id": "0ff651b8-e6da-4c21-81ba-f894018dd92c",
 			"key": "env_id",
 			"value": ""
 		},
 		{
-			"id": "f987730b-8a11-436a-8a27-e4baf02b479d",
+			"id": "058df9ad-f65a-4f2b-b494-f3c477bdd3fc",
 			"key": "latitude",
 			"value": ""
 		},
 		{
-			"id": "4214c87d-a6c8-404f-a5da-5eafd43762f8",
+			"id": "73de7bcb-202b-45f8-af5e-2efd20cd4a8c",
 			"key": "longitude",
 			"value": ""
 		},
 		{
-			"id": "2095a880-64ec-4521-91b1-acf5618f1bae",
+			"id": "dcf38663-50a7-47b1-89ec-37054d82292a",
 			"key": "elevation",
 			"value": ""
 		},
 		{
-			"id": "714ac3c5-4d9e-48ed-a88c-bf88218060b5",
+			"id": "741947f4-1716-44e0-bf4a-da5301f970f6",
 			"key": "standard_atmosphere",
 			"value": ""
 		},
 		{
-			"id": "cf5b0fe9-f5ee-49e0-b754-d205123508b5",
+			"id": "63791c08-7a71-42e6-9322-3af7048c01a8",
 			"key": "atmospheric_model_type",
 			"value": ""
 		},
 		{
-			"id": "38251ff8-8e41-475e-83e4-ba2e1009121e",
+			"id": "2618845d-1001-4a5d-8fc7-7ad508012f04",
 			"key": "atmospheric_model_file",
 			"value": ""
 		},
 		{
-			"id": "83aa030b-a01f-48d2-b880-4180c710fad1",
+			"id": "26dea99b-d788-4ecc-8731-1e82733f61ae",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "53689681-4c1e-4331-b2e7-d36ae9431f95",
+			"id": "f97843eb-a40c-4e72-97ad-3aa78d2ad262",
 			"key": "rail_length",
 			"value": ""
 		},
 		{
-			"id": "27f2f5a2-80a9-4ab7-9296-8875268152ed",
+			"id": "3006e8ad-38d5-4fd2-a49a-11d7743d5e6d",
 			"key": "inclination",
 			"value": ""
 		},
 		{
-			"id": "54103537-af25-4a56-8c4e-21a9c55c59ca",
+			"id": "9115f968-f1d4-4a82-80b1-192fee25ad59",
 			"key": "heading",
 			"value": ""
 		},
 		{
-			"id": "987808d6-4730-4c10-ad98-764e8c92df08",
+			"id": "ffdba839-ca84-481c-b5cf-5ab528ea530d",
 			"key": "flight_id",
 			"value": ""
 		},
 		{
-			"id": "10127ba6-4735-4ab7-b423-2a19fac298e1",
+			"id": "5941d1c1-216e-4791-943c-ad95faec9178",
 			"key": "radius",
 			"value": ""
 		},
 		{
-			"id": "eb1e920e-2641-4119-94c6-d1aa5c6bd62b",
+			"id": "cdfeee27-4267-4fbd-8bbb-0cd4e3e68629",
 			"key": "mass",
 			"value": ""
 		},
 		{
-			"id": "b3957047-8eaa-4fad-ae3e-c55985114b8f",
+			"id": "2774722b-3114-42c0-a822-09284b4aff2d",
 			"key": "inertia",
 			"value": ""
 		},
 		{
-			"id": "146fcd77-da38-456c-836e-be751c13b23d",
+			"id": "cde19d64-6d46-4079-ba32-2fff2d32aa86",
 			"key": "power_off_drag",
 			"value": ""
 		},
 		{
-			"id": "b47c22d7-4450-49b5-9266-a0e56c5dc85e",
+			"id": "81a3631b-2db0-492b-81a8-c3d6a60d7dd5",
 			"key": "power_on_drag",
 			"value": ""
 		},
 		{
-			"id": "8cfebe31-8ba8-4316-80b5-be068c51b7b1",
+			"id": "208235a8-32c3-44ae-b65e-646629111aac",
 			"key": "center_of_mass_without_motor",
 			"value": ""
 		},
 		{
-			"id": "5c6d1045-9445-456d-b017-befdd12f01b4",
+			"id": "8a05c7fe-8b8a-4061-a2ed-559e071a1b12",
 			"key": "motor_position",
 			"value": ""
 		},
 		{
-			"id": "6ca2a14e-cec7-4151-bdf0-e9e8b47a8b4c",
+			"id": "4f7b6479-175f-4be4-ac05-e750d154ddc5",
 			"key": "rail_buttons",
 			"value": ""
 		},
 		{
-			"id": "2347fbc7-65ae-46a8-8cfd-4d86efa63f5f",
+			"id": "d3359191-7013-4515-ae09-bd3f87af46db",
 			"key": "upper_button_position",
 			"value": ""
 		},
 		{
-			"id": "b99d53d3-7032-41d4-96a2-45efcb5e8eab",
+			"id": "33530fa0-d4b9-4c61-9f9b-a52b74e37059",
 			"key": "lower_button_position",
 			"value": ""
 		},
 		{
-			"id": "f52246fa-9d40-475f-9832-bec7e8c23f7d",
+			"id": "dcc937ad-9a93-4024-b016-0f7b96a3b656",
 			"key": "angular_position",
 			"value": ""
 		},
 		{
-			"id": "e1351446-dfea-4ebf-ade5-240dd6cf9b62",
+			"id": "40de69a3-a8b6-4e93-851b-c0a85a7b1fc7",
 			"key": "burn_time",
 			"value": ""
 		},
 		{
-			"id": "60a2a0d7-261e-4f6a-aaa7-b735b9b755a6",
+			"id": "3f23343a-39ac-4fc2-b35c-7863840842ea",
 			"key": "dry_mass",
 			"value": ""
 		},
 		{
-			"id": "c18e14df-0983-4495-b0e7-9ae618a2a9b1",
+			"id": "adff00c8-2c8c-440d-ba07-0b761567dbe0",
 			"key": "dry_inertia",
 			"value": ""
 		},
 		{
-			"id": "20c188f1-399f-416c-a323-8462c30f6905",
+			"id": "7159ae55-7208-47e8-b13f-46f8484ff32d",
 			"key": "center_of_dry_mass",
 			"value": ""
 		},
 		{
-			"id": "fdfa4e1c-7113-408e-94e5-8f9e53db4e1c",
+			"id": "275beece-fe27-45da-97f0-ae16ecfb895a",
 			"key": "grain_number",
 			"value": ""
 		},
 		{
-			"id": "5d4a2d14-253d-4d4b-a882-1e222c04a46e",
+			"id": "9eadf508-4d65-4965-9e8d-f8e292052c7f",
 			"key": "grain_density",
 			"value": ""
 		},
 		{
-			"id": "6566dfaa-baf1-4c2f-b33a-e96bb61cc0f7",
+			"id": "688efeb6-7399-4fa6-97bd-c32302e72673",
 			"key": "grain_outer_radius",
 			"value": ""
 		},
 		{
-			"id": "8c656747-490b-42ae-8fd8-9764036891ef",
+			"id": "1eca5695-9243-41f2-8e48-de6233fa5f8f",
 			"key": "grain_initial_inner_radius",
 			"value": ""
 		},
 		{
-			"id": "17b2e958-6a8a-4385-9e9f-3c8366efa941",
+			"id": "d453769e-9bb2-4a89-8ef4-a2d844727d27",
 			"key": "grain_initial_height",
 			"value": ""
 		},
 		{
-			"id": "bdd9726d-3834-4435-a2ee-e2a58c22a7b0",
+			"id": "a06d4efb-746f-43c9-b7cf-e7bc29cf9997",
 			"key": "grains_center_of_mass_position",
 			"value": ""
 		},
 		{
-			"id": "568c94e5-22f5-41ca-a421-b3746870a54c",
+			"id": "c249bfb0-4dac-434b-91d1-a45ba3ba09dd",
 			"key": "grain_separation",
 			"value": ""
 		},
 		{
-			"id": "547d4d73-04d2-4214-917c-b1e86ecddb75",
+			"id": "a017504e-4d5d-447a-a87f-6e31ffdefb63",
 			"key": "thrust_source",
 			"value": ""
 		},
 		{
-			"id": "5b0e01e8-c715-4bbb-927d-6c0c7f0c1ed3",
+			"id": "e904536a-3775-4e06-b856-a61ddb3e69e8",
 			"key": "nozzle_radius",
 			"value": ""
 		},
 		{
-			"id": "c242a3cc-aadb-4679-88c9-0ab3c5005c06",
+			"id": "94087161-011a-45fa-82b8-e308336263cd",
 			"key": "throat_radius",
 			"value": ""
 		},
 		{
-			"id": "118b2c06-0761-40bf-a189-bc2da97036f2",
+			"id": "88066949-8146-44d2-aa64-5fe91470f41a",
 			"key": "interpolation_method",
 			"value": ""
 		},
 		{
-			"id": "e7c7ac0a-309d-47b0-b39f-ad3798e2c16d",
+			"id": "fb4769ca-d2df-417f-a994-d7cb1f547ba3",
 			"key": "coordinate_system_orientation",
 			"value": ""
 		},
 		{
-			"id": "add257dd-2fa0-462e-8a12-500d51c8e620",
+			"id": "8d85049e-4d98-48e4-9d5b-d48ea477244d",
 			"key": "length",
 			"value": ""
 		},
 		{
-			"id": "f6dcb34e-a447-4bb5-b48f-ad6a671027a8",
+			"id": "5ed82a57-092c-44c6-a164-584d61e5af12",
 			"key": "kind",
 			"value": ""
 		},
 		{
-			"id": "c95b4baa-a47d-43e4-90ed-3b4819963359",
+			"id": "8a7eb70b-03be-4f6c-840b-72fed9267df4",
 			"key": "position",
 			"value": ""
 		},
 		{
-			"id": "4c08ca34-93ed-424d-8a05-0e8c26c264f2",
+			"id": "3767e6e1-4571-4660-a27b-a9c31474b1a9",
 			"key": "base_radius",
 			"value": ""
 		},
 		{
-			"id": "768427f9-b8cd-485a-a973-3ae069d5ffe8",
+			"id": "b0243665-ed4b-497f-abb2-4f9e2580d870",
 			"key": "rocket_radius",
 			"value": ""
 		},
 		{
-			"id": "a2671292-e198-4455-bea9-1d388a993216",
+			"id": "70501fd7-f763-4f29-ab6f-a71367655277",
 			"key": "n",
 			"value": ""
 		},
 		{
-			"id": "19f977db-452e-4820-b49b-f7feb15ebf5d",
+			"id": "0382ab6c-0299-4edb-b5eb-9e69c70729de",
 			"key": "root_chord",
 			"value": ""
 		},
 		{
-			"id": "81f82c13-d94f-48f6-a481-2b37679514a8",
+			"id": "0c3534f8-7700-400d-ab52-e6e9f926f0cf",
 			"key": "tip_chord",
 			"value": ""
 		},
 		{
-			"id": "8e1d6c7a-8540-4f79-b37f-bbcfbd3f8a04",
+			"id": "b97e02b4-4202-4493-9872-97c8ca4e7b4c",
 			"key": "span",
 			"value": ""
 		},
 		{
-			"id": "6df105ea-59a1-4ef1-9e91-0855d04baf39",
+			"id": "dfb41811-2ce7-49e4-b439-c3135704fbf2",
 			"key": "cant_angle",
 			"value": ""
 		},
 		{
-			"id": "74c1ceef-2c7f-4fd2-a3ee-c6fcacf28fd0",
+			"id": "573b2acf-a69b-4cb9-9000-6ca94259a5ef",
 			"key": "airfoil",
 			"value": ""
 		},
 		{
-			"id": "c6e591eb-63f2-4bad-8eba-a2a17928624f",
+			"id": "e4957490-ac21-4761-b099-902eac59918a",
 			"key": "top_radius",
 			"value": ""
 		},
 		{
-			"id": "b72c0479-98db-4eae-9c1d-d0dcfd6eac01",
+			"id": "96b54e00-dc3e-4bd1-84d0-b6df59112c03",
 			"key": "bottom_radius",
 			"value": ""
 		},
 		{
-			"id": "dfd31c2c-afbb-4e7a-953f-3aa5e2a58446",
+			"id": "400ce7ec-5c19-4b8a-a884-5378e252bdd1",
 			"key": "parachutes_names",
 			"value": ""
 		},
 		{
-			"id": "402d9838-9e34-4785-a50e-dffb69fe5ab1",
+			"id": "8ae29697-7467-4873-b9fd-93fd6222aa14",
 			"key": "parachutes_cds",
 			"value": ""
 		},
 		{
-			"id": "23fae127-f870-4409-bf25-e1f1a14ee933",
+			"id": "1a3dfa95-a09d-4967-b19d-bb3e3ed26204",
 			"key": "parachutes_sampling_rate",
 			"value": ""
 		},
 		{
-			"id": "5441bd50-eb97-45e5-89ca-63fb483ee3b8",
+			"id": "763ea669-8757-4e21-8ef2-67e53241d7db",
 			"key": "parachutes_lags",
 			"value": ""
 		},
 		{
-			"id": "6a53ad0a-f4b5-4d7a-b1d8-38ea071b0275",
+			"id": "e995f457-bf07-4af7-961d-d9d7b103e896",
 			"key": "parachutes_noises",
 			"value": ""
 		},
 		{
-			"id": "7f9931cb-699d-4e0c-994c-83c6f9693802",
+			"id": "cb2bc939-50fa-4581-ac47-e2040cbb4136",
 			"key": "parachutes_triggers",
 			"value": ""
 		},
 		{
-			"id": "f104fc23-f60f-4a8b-9680-59e6772ab5a6",
+			"id": "a8165dcc-16ac-493f-ae9b-afa72b57dab5",
 			"key": "nose_length",
 			"value": ""
 		},
 		{
-			"id": "ddfd7937-e1f7-4d0a-ae06-a0b0d11fe752",
+			"id": "2445f28d-7c4a-41e5-ad8b-93e9f7068012",
 			"key": "nose_position",
 			"value": ""
 		},
 		{
-			"id": "1fcc73a1-a829-4821-8521-f824a2e2de2b",
+			"id": "adc39553-d53e-48fc-8632-36d02ba41d49",
 			"key": "fin_position",
 			"value": ""
 		},
 		{
-			"id": "4e8a8b05-8c59-40e2-929f-40df7810cf0d",
+			"id": "9ac8b37c-2df4-4886-8a36-394ca22b8c71",
 			"key": "fin_radius",
 			"value": ""
 		},
 		{
-			"id": "4f2b8f62-2f3e-4be1-b660-3c98aa2c3348",
+			"id": "3cd6b07c-c318-4845-800d-3c859ef52a3b",
 			"key": "tail_length",
 			"value": ""
 		},
 		{
-			"id": "0a99f175-bca6-40c7-894a-395ba3b4c1a2",
+			"id": "7df93ce3-a1fc-4b47-a6f2-e68406ef391e",
 			"key": "tail_position",
 			"value": ""
 		},
 		{
-			"id": "6996edf7-d6db-4cf2-961e-87b2d00e7360",
+			"id": "c31aa2a3-0803-4ec8-ae34-270cef0d99ae",
 			"key": "tail_radius",
 			"value": ""
 		},
 		{
-			"id": "ef9d8756-de30-4f94-8612-a3a10d02f12e",
+			"id": "e0385448-1275-4811-834b-c28aea4dfc90",
 			"key": "rocket_coordinate_system_orientation",
 			"value": ""
 		},
 		{
-			"id": "a63ad232-b10f-44b9-89b7-da69dd1d1ee6",
+			"id": "a3913229-908c-43b1-8f4e-45ddadc8b4fb",
 			"key": "motor_coordinate_system_orientation",
 			"value": ""
 		},
 		{
-			"id": "31cc3d84-4088-4a22-adf4-b92ce479b573",
+			"id": "5047e8e1-39cf-4b82-85b5-c3d09c2d35d3",
 			"key": "motor_id",
 			"value": ""
 		},
 		{
-			"id": "06a1813d-afd1-4c53-bd50-395804c3f598",
+			"id": "82a48be2-e8bd-4180-9694-cb06cd171b72",
 			"key": "rocket_id",
 			"value": ""
 		}
