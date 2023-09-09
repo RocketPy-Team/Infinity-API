@@ -3,8 +3,8 @@ from pydantic import BaseModel
 
 class Parachute(BaseModel, frozen=True):
     name: "List[str]"
-    CdS: "List[float]"
-    samplingRate: "List[int]"
+    cd_s: "List[float]"
+    sampling_rate: "List[int]"
     lag: "List[float]"
     noise: "List[Tuple[float, float, float]]"
     triggers: "List[str]"
@@ -12,8 +12,8 @@ class Parachute(BaseModel, frozen=True):
     def __hash__(self):
         return hash((
             tuple(self.name),
-            tuple(self.CdS),
-            tuple(self.samplingRate),
+            tuple(self.cd_s),
+            tuple(self.sampling_rate),
             tuple(self.lag),
             tuple(self.noise),
             tuple(self.triggers),
@@ -25,9 +25,9 @@ class Parachute(BaseModel, frozen=True):
         else:
             return Parachute(
                 name=[self.name[idx]],
-                CdS=[self.CdS[idx]],
+                cd_s=[self.cd_s[idx]],
                 triggers=[self.triggers[idx]],
-                samplingRate=[self.samplingRate[idx]],
+                sampling_rate=[self.sampling_rate[idx]],
                 lag=[self.lag[idx]],
                 noise=[self.noise[idx]],
             )

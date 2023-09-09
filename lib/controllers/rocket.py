@@ -39,27 +39,27 @@ class RocketController():
         )
 
         #RailButtons
-        rocketpy_rocket.setRailButtons(upper_button_position=rocket.railButtons.upper_button_position,
-                                       lower_button_position=rocket.railButtons.lower_button_position,
-                                       angular_position=rocket.railButtons.angularPosition)
-        rocketpy_rocket.addMotor(MotorController(rocket.motor).rocketpy_motor,
+        rocketpy_rocket.set_rail_buttons(upper_button_position=rocket.rail_buttons.upper_button_position,
+                                       lower_button_position=rocket.rail_buttons.lower_button_position,
+                                       angular_position=rocket.rail_buttons.angular_position)
+        rocketpy_rocket.add_motor(MotorController(rocket.motor).rocketpy_motor,
                                  rocket.motor_position)
 
         #NoseCone
         nose = self.NoseConeController(rocket.nose).rocketpy_nose
-        rocketpy_rocket.aerodynamicSurfaces.add(nose, nose.position)
-        rocketpy_rocket.evaluateStaticMargin()
+        rocketpy_rocket.aerodynamic_surfaces.add(nose, nose.position)
+        rocketpy_rocket.evaluate_static_margin()
 
         #FinSet
         #TBD: re-write this to match overall fins not only TrapezoidalFins
         finset = self.TrapezoidalFinsController(rocket.fins).rocketpy_finset
-        rocketpy_rocket.aerodynamicSurfaces.add(finset, finset.position)
-        rocketpy_rocket.evaluateStaticMargin()
+        rocketpy_rocket.aerodynamic_surfaces.add(finset, finset.position)
+        rocketpy_rocket.evaluate_static_margin()
 
         #Tail
         tail = self.TailController(rocket.tail).rocketpy_tail 
-        rocketpy_rocket.aerodynamicSurfaces.add(tail, tail.position)
-        rocketpy_rocket.evaluateStaticMargin()
+        rocketpy_rocket.aerodynamic_surfaces.add(tail, tail.position)
+        rocketpy_rocket.evaluate_static_margin()
 
         #Parachutes
         for p in range(len(rocket.parachutes)):
@@ -89,8 +89,8 @@ class RocketController():
             rocketpy_nose = rocketpy_NoseCone(
                     length=nose.length,
                     kind=nose.kind,
-                    baseRadius=nose.baseRadius,
-                    rocketRadius=nose.rocketRadius
+                    base_radius=nose.base_radius,
+                    rocket_radius=nose.rocket_radius
             )
             rocketpy_nose.position = nose.position
             self.rocketpy_nose = rocketpy_nose
@@ -101,24 +101,24 @@ class RocketController():
         Controller for the TrapezoidalFins model.
 
         Init Attributes:
-            trapezoidalFins (models.TrapezoidalFins): TrapezoidalFins model object.
+            trapezoidal_fins (models.TrapezoidalFins): TrapezoidalFins model object.
 
         Enables:
             - Create a rocketpy.AeroSurface.TrapezoidalFins object from a TrapezoidalFins model object.
         """
-        def __init__(self, trapezoidalFins: TrapezoidalFins):
+        def __init__(self, trapezoidal_fins: TrapezoidalFins):
             rocketpy_finset = rocketpy_TrapezoidalFins(
-                    n=trapezoidalFins.n,
-                    rootChord=trapezoidalFins.rootChord,
-                    tipChord=trapezoidalFins.tipChord,
-                    span=trapezoidalFins.span,
-                    cantAngle=trapezoidalFins.cantAngle,
-                    rocketRadius=trapezoidalFins.radius,
-                    airfoil=trapezoidalFins.airfoil
+                    n=trapezoidal_fins.n,
+                    root_chord=trapezoidal_fins.root_chord,
+                    tip_chord=trapezoidal_fins.tip_chord,
+                    span=trapezoidal_fins.span,
+                    cant_angle=trapezoidal_fins.cant_angle,
+                    rocket_radius=trapezoidal_fins.radius,
+                    airfoil=trapezoidal_fins.airfoil
             )
-            rocketpy_finset.position = trapezoidalFins.position
+            rocketpy_finset.position = trapezoidal_fins.position
             self.rocketpy_finset = rocketpy_finset
-            self.trapezoidalFins = trapezoidalFins
+            self.trapezoidal_fins = trapezoidal_fins
 
     class TailController():
         """
@@ -132,10 +132,10 @@ class RocketController():
         """
         def __init__(self, tail: Tail):
             rocketpy_tail = rocketpy_Tail(
-                    topRadius=tail.topRadius,
-                    bottomRadius=tail.bottomRadius,
+                    top_radius=tail.top_radius,
+                    bottom_radius=tail.bottom_radius,
                     length=tail.length,
-                    rocketRadius=tail.radius
+                    rocket_radius=tail.radius
             )
             rocketpy_tail.position = tail.position
             self.rocketpy_tail = rocketpy_tail
@@ -152,11 +152,11 @@ class RocketController():
             - Create a rocketpy.Parachute.Parachute object from a Parachute model object.
         """
         def __init__(self, parachute: Parachute, p: int):
-            rocketpy_parachute = rocketpy.Parachute.Parachute(
+            rocketpy_parachute = rocketpy.Parachute(
                     name=parachute[p].name[0],
-                    CdS=parachute[p].CdS[0],
+                    cd_s=parachute[p].cd_s[0],
                     trigger=eval(parachute[p].triggers[0]),
-                    samplingRate=parachute[p].samplingRate[0],
+                    sampling_rate=parachute[p].sampling_rate[0],
                     lag=parachute[p].lag[0],
                     noise=parachute[p].noise[0]
             )
@@ -231,7 +231,7 @@ class RocketController():
         rocket = RocketRepository(rocket=self.rocket)
         successfully_created_rocket = rocket.create_rocket()
         if successfully_created_rocket: 
-            return { "message": "rocket created", "rocket_id": str(rocket.rocket_id) }
+            return { "message": "Rocket created", "rocket_id": str(rocket.rocket_id) }
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -297,7 +297,7 @@ class RocketController():
 
         if successfully_updated_rocket:
             return { 
-                    "message": "rocket updated successfully", 
+                    "message": "Rocket successfully updated", 
                     "new_rocket_id": str(successfully_updated_rocket)
             }
         else:
@@ -322,7 +322,7 @@ class RocketController():
 
         successfully_deleted_rocket = RocketRepository(rocket_id=rocket_id).delete_rocket()
         if successfully_deleted_rocket: 
-            return {"rocket_id": str(rocket_id), "message": "rocket deleted successfully"}
+            return {"deleted_rocket_id": str(rocket_id), "message": "Rocket successfully deleted"}
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
