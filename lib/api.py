@@ -47,7 +47,7 @@ async def create_flight(flight: Flight) -> "Dict[str, str]":
     """
     return FlightController(flight).create_flight()
 
-@app.get("/flight/")
+@app.get("/flight/{flight_id}")
 async def read_flight(flight_id: int) -> "Flight":
     """
     Reads a flight.
@@ -63,7 +63,7 @@ async def read_flight(flight_id: int) -> "Flight":
     """
     return FlightController.get_flight(flight_id)
 
-@app.get("/flight/rocketpy/")
+@app.get("/flight/rocketpy/{flight_id}")
 async def read_rocketpy_flight(flight_id: int) -> "Dict[str, Any]":
     """
     Reads a rocketpy flight object.
@@ -79,7 +79,7 @@ async def read_rocketpy_flight(flight_id: int) -> "Dict[str, Any]":
     """
     return FlightController.get_rocketpy_flight(flight_id)
 
-@app.put("/flight/env/")
+@app.put("/flight/env/{flight_id}")
 async def update_flight_env(flight_id: int, env: Env) -> "Dict[str, Any]":
     """
     Updates flight environment.
@@ -98,7 +98,7 @@ async def update_flight_env(flight_id: int, env: Env) -> "Dict[str, Any]":
     """
     return FlightController.update_env(flight_id, env)
 
-@app.put("/flight/rocket/")
+@app.put("/flight/rocket/{flight_id}")
 async def update_flight_rocket(flight_id: int, rocket: Rocket) -> "Dict[str, Any]":
     """
     Updates flight rocket.
@@ -117,7 +117,7 @@ async def update_flight_rocket(flight_id: int, rocket: Rocket) -> "Dict[str, Any
     """
     return FlightController.update_rocket(flight_id, rocket)
 
-@app.put("/flight/")
+@app.put("/flight/{flight_id}")
 async def update_flight(flight_id: int, flight: Flight) -> "Dict[str, Any]":
     """
     Updates whole flight.
@@ -136,7 +136,7 @@ async def update_flight(flight_id: int, flight: Flight) -> "Dict[str, Any]":
     """
     return FlightController(flight).update_flight(flight_id)
 
-@app.delete("/flight/")
+@app.delete("/flight/{flight_id}")
 async def delete_flight(flight_id: int) -> "Dict[str, str]":
     """
     Deletes a flight.
@@ -152,7 +152,7 @@ async def delete_flight(flight_id: int) -> "Dict[str, str]":
     """
     return FlightController.delete_flight(flight_id)
 
-@app.get("/flight/simulate/")
+@app.get("/flight/simulate/{flight_id}")
 async def simulate_flight(flight_id: int) -> "FlightSummary":
     """
     Simulates a flight.
@@ -169,7 +169,7 @@ async def simulate_flight(flight_id: int) -> "FlightSummary":
     return FlightController.simulate(flight_id)
 
 #Environment routes
-@app.post("/env/")
+@app.post("/env/{env_id}")
 async def create_env(env: Env) -> "Dict[str, str]":
     """
     Creates a new environment.
@@ -186,7 +186,7 @@ async def create_env(env: Env) -> "Dict[str, str]":
     """
     return EnvController(env).create_env()
 
-@app.get("/env/")
+@app.get("/env/{env_id}")
 async def read_env(env_id: int) -> "Env":
     """
     Reads an environment.
@@ -202,7 +202,7 @@ async def read_env(env_id: int) -> "Env":
     """
     return EnvController.get_env(env_id)
 
-@app.put("/env/")
+@app.put("/env/{env_id}")
 async def update_env(env_id: int, env: Env) -> "Dict[str, Any]":
     """
     Updates an environment.
@@ -221,7 +221,7 @@ async def update_env(env_id: int, env: Env) -> "Dict[str, Any]":
     """
     return EnvController(env).update_env(env_id)
 
-@app.delete("/env/")
+@app.delete("/env/{env_id}")
 async def delete_env(env_id: int) -> "Dict[str, str]":
     """
     Deletes an environment.
@@ -237,7 +237,7 @@ async def delete_env(env_id: int) -> "Dict[str, str]":
     """
     return EnvController.delete_env(env_id)
 
-@app.get("/env/rocketpy/")
+@app.get("/env/rocketpy/{env_id}")
 async def read_rocketpy_env(env_id: int) -> "Dict[str, Any]":
     """
     Reads a rocketpy environment.
@@ -253,7 +253,7 @@ async def read_rocketpy_env(env_id: int) -> "Dict[str, Any]":
     """
     return EnvController.get_rocketpy_env(env_id)
 
-@app.get("/env/simulate/")
+@app.get("/env/simulate/{env_id}")
 async def simulate_env(env_id: int) -> "EnvSummary":
     """
     Simulates an environment.
@@ -270,7 +270,7 @@ async def simulate_env(env_id: int) -> "EnvSummary":
     return EnvController.simulate(env_id)
 
 #Motor routes
-@app.post("/motor/")
+@app.post("/motor/{motor_id}")
 async def create_motor(motor: Motor) -> "Dict[str, str]":
     """
     Creates a new motor.
@@ -287,7 +287,7 @@ async def create_motor(motor: Motor) -> "Dict[str, str]":
     """
     return MotorController(motor).create_motor()
 
-@app.get("/motor/")
+@app.get("/motor/{motor_id}")
 async def read_motor(motor_id: int) -> "Motor":
     """
     Reads a motor.
@@ -303,7 +303,7 @@ async def read_motor(motor_id: int) -> "Motor":
     """
     return MotorController.get_motor(motor_id)
 
-@app.put("/motor/")
+@app.put("/motor/{motor_id}")
 async def update_motor(motor_id: int, motor: Motor) -> "Dict[str, Any]":
     """
     Updates a motor.
@@ -322,7 +322,7 @@ async def update_motor(motor_id: int, motor: Motor) -> "Dict[str, Any]":
     """
     return MotorController(motor).update_motor(motor_id)
 
-@app.delete("/motor/")
+@app.delete("/motor/{motor_id}")
 async def delete_motor(motor_id: int) -> "Dict[str, str]":
     """
     Deletes a motor.
@@ -338,7 +338,7 @@ async def delete_motor(motor_id: int) -> "Dict[str, str]":
     """
     return MotorController.delete_motor(motor_id)
 
-@app.get("/motor/rocketpy/")
+@app.get("/motor/rocketpy/{motor_id}")
 async def read_rocketpy_motor(motor_id: int) -> "Dict[str, Any]":
     """
     Reads a rocketpy motor.
@@ -354,7 +354,7 @@ async def read_rocketpy_motor(motor_id: int) -> "Dict[str, Any]":
     """
     return MotorController.get_rocketpy_motor(motor_id)
 
-@app.get("/motor/simulate/")
+@app.get("/motor/simulate/{motor_id}")
 async def simulate_motor(motor_id: int) -> "MotorSummary":
     """
     Simulates a motor.
@@ -371,7 +371,7 @@ async def simulate_motor(motor_id: int) -> "MotorSummary":
     return MotorController.simulate(motor_id)
 
 #Rocket routes
-@app.post("/rocket/")
+@app.post("/rocket/{rocket_id}")
 async def create_rocket(rocket: Rocket) -> "Dict[str, str]":
     """
     Creates a new rocket.
@@ -388,7 +388,7 @@ async def create_rocket(rocket: Rocket) -> "Dict[str, str]":
     """
     return RocketController(rocket).create_rocket()
 
-@app.get("/rocket/")
+@app.get("/rocket/{rocket_id}")
 async def read_rocket(rocket_id: int) -> Rocket:
     """
     Reads a rocket.
@@ -404,7 +404,7 @@ async def read_rocket(rocket_id: int) -> Rocket:
     """
     return RocketController.get_rocket(rocket_id)
 
-@app.put("/rocket/")
+@app.put("/rocket/{rocket_id}")
 async def update_rocket(rocket_id: int, rocket: Rocket) -> "Dict[str, Any]":
     """
     Updates a rocket.
@@ -423,7 +423,7 @@ async def update_rocket(rocket_id: int, rocket: Rocket) -> "Dict[str, Any]":
     """
     return RocketController(rocket).update_rocket(rocket_id)
 
-@app.delete("/rocket/")
+@app.delete("/rocket/{rocket_id}")
 async def delete_rocket(rocket_id: int) -> "Dict[str, str]":
     """
     Deletes a rocket.
@@ -439,7 +439,7 @@ async def delete_rocket(rocket_id: int) -> "Dict[str, str]":
     """
     return RocketController.delete_rocket(rocket_id)
 
-@app.get("/rocket/rocketpy/")
+@app.get("/rocket/rocketpy/{rocket_id}")
 async def read_rocketpy_rocket(rocket_id: int) -> "Dict[str, Any]":
     """
     Reads a rocketpy rocket.
@@ -455,7 +455,7 @@ async def read_rocketpy_rocket(rocket_id: int) -> "Dict[str, Any]":
     """
     return RocketController.get_rocketpy_rocket(rocket_id)
 
-@app.get("/rocket/simulate/")
+@app.get("/rocket/simulate/{rocket_id}")
 async def simulate_rocket(rocket_id: int) -> "RocketSummary":
     """
     Simulates a rocket.
