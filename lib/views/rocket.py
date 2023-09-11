@@ -1,6 +1,6 @@
 from rocketpy import Flight
 from pydantic import BaseModel
-from typing import List, Any
+from typing import List, Any, Optional
 
 class InertiaDetails(BaseModel):
     rocket_mass_without_propellant: str
@@ -23,8 +23,8 @@ class RocketAerodynamicsQuantities(BaseModel):
 
 class ParachuteData(BaseModel):
     parachute_details: "Any" 
-    ejection_signal_trigger: "Any" 
-    ejection_system_refresh_rate: "Any" 
+    # parachute_ejection_signal_trigger: "Any" 
+    parachute_ejection_system_refresh_rate: "Optional[Any]" 
     parachute_lag: "Any" 
 
 class RocketData(BaseModel):
@@ -37,6 +37,6 @@ class RocketPlots(BaseModel):
     pass
 
 class RocketSummary(BaseModel):
-    data: RocketData
-    #plots: RocketPlots
+    rocket_data: RocketData
+    #rocket_plots: RocketPlots
 
