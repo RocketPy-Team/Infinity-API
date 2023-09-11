@@ -1,5 +1,6 @@
 from lib.models.motor import Motor
 from lib.repositories.motor import MotorRepository
+from lib.views.motor import MotorSummary, MotorData, MotorPlots
 
 from rocketpy import SolidMotor
 
@@ -161,12 +162,34 @@ class MotorController():
         if not successfully_read_motor:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
-        #motor = MotorController(successfully_read_motor).rocketpy_motor
-        #motor_simulation_numbers = motorData.parse_obj(motor.allInfoReturned())
-        #motor_simulation_plots = motorPlots.parse_obj(motor.allPlotInfoReturned())
+        motor = MotorController(successfully_read_motor).rocketpy_motor
+        motor_simulation_numbers = MotorData(
+            total_burning_time="Total Burning Time: " + str(motor.burn_out_time) + " s",
 
-        #motor_summary = MotorSummary( data=motor_simulation_numbers, plots=motor_simulation_plots )
+            total_propellant_mass="Total Propellant Mass: "
+            + "{:.3f}".format(motor.propellant_initial_mass)
+            + " kg",
 
-        #return motor_summary
-        pass
+            average_propellant_exhaust_velocity="Average Propellant Exhaust Velocity: "
+            + "{:.3f}".format(
+                motor.exhaust_velocity.average(*motor.burn_time)
+            )
+            + " m/s",
+
+            average_thrust="Average Thrust: " + "{:.3f}".format(motor.average_thrust) + " N",
+
+            maximum_thrust="Maximum Thrust: "
+            + str(motor.max_thrust)
+            + " N at "
+            + str(motor.max_thrust_time)
+            + " s after ignition.",
+
+            total_impulse="Total Impulse: " + "{:.3f}".format(motor.total_impulse) + " Ns\n"
+        )
+        #motor_simulation_plots = MotorPlots(
+        #    motor.thrust.plot(lower=lower_limit, upper=upper_limit)
+        #)
+
+        motor_summary = MotorSummary( motor_data = motor_simulation_numbers ) #, plots=motor_simulation_plots )
+        return motor_summary
 

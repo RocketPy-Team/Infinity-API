@@ -403,7 +403,7 @@ class RocketController():
                 name + " Center of Pressure to CM: {:.3f}".format(cpz) + " m"
             )
 
-        _rocket_aerodynamic_quantities = RocketAerodynamicQuantities(
+        _rocket_aerodynamics_quantities = RocketAerodynamicsQuantities(
             aerodynamics_lift_coefficient_derivatives = _aerodynamics_lift_coefficient_derivatives, 
             aerodynamics_center_of_pressure = _aerodynamics_center_of_pressure,
             distance_cop_to_codm = "Distance from Center of Pressure to Center of Dry Mass: " + "{:.3f}".format(rocket.center_of_mass(0) - rocket.cp_position) + " m",
@@ -419,8 +419,9 @@ class RocketController():
             _parachute_details[chute.name] = chute.__str__()
 
             if chute.trigger.__name__ == "<lambda>":
-                line = rocket.getsourcelines(chute.trigger)[0][0]
-                _parachute_ejection_signal_trigger[chute.name] = "Ejection signal trigger: " + line.split("lambda ")[1].split(",")[0].split("\n")[0]
+                # line = rocket.getsourcelines(chute.trigger)[0][0]
+                # _parachute_ejection_signal_trigger[chute.name] = "Ejection signal trigger: " + line.split("lambda ")[1].split(",")[0].split("\n")[0]
+                pass
 
             else:
                 _parachute_ejection_signal_trigger[chute.name] = "Ejection signal trigger: " + chute.trigger.__name__
@@ -429,7 +430,7 @@ class RocketController():
 
         _parachute_data = ParachuteData(
             parachute_details = _parachute_details,
-            parachute_ejection_signal_trigger = _parachute_ejection_signal_trigger,
+            # parachute_ejection_signal_trigger = _parachute_ejection_signal_trigger,
             parachute_ejection_system_refresh_rate = _parachute_ejection_system_refresh_rate,
             parachute_lag = _parachute_lag
         )
@@ -437,13 +438,11 @@ class RocketController():
         _rocket_data = RocketData(
             inertia_details = _inertia_details,
             rocket_geometrical_parameters = _rocket_geometrical_parameters,
-            rocket_aerodynamic_quantities = _rocket_aerodynamic_quantities,
+            rocket_aerodynamics_quantities = _rocket_aerodynamics_quantities,
             parachute_data = _parachute_data
         )
             
-        rocket_summary = RocketSummary(
-                rocket_data = _rocket_data
-        )
+        rocket_summary = RocketSummary( rocket_data = _rocket_data )
 
         return rocket_summary
 
