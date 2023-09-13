@@ -11,6 +11,7 @@ from rocketpy.AeroSurface import Tail as rocketpy_Tail
 
 from fastapi import Response, status
 from typing import Dict, Any, Union
+from inspect import getsourcelines
 
 import rocketpy.Parachute
 import rocketpy.Rocket
@@ -419,8 +420,8 @@ class RocketController():
             _parachute_details[chute.name] = chute.__str__()
 
             if chute.trigger.__name__ == "<lambda>":
-                # line = rocket.getsourcelines(chute.trigger)[0][0]
-                # _parachute_ejection_signal_trigger[chute.name] = "Ejection signal trigger: " + line.split("lambda ")[1].split(",")[0].split("\n")[0]
+                #line = getsourcelines(chute.trigger)[0][0]
+                #_parachute_ejection_signal_trigger[chute.name] = "Ejection signal trigger: " + line.split("lambda ")[1].split(",")[0].split("\n")[0]
                 pass
 
             else:
@@ -430,7 +431,7 @@ class RocketController():
 
         _parachute_data = ParachuteData(
             parachute_details = _parachute_details,
-            # parachute_ejection_signal_trigger = _parachute_ejection_signal_trigger,
+            #parachute_ejection_signal_trigger = _parachute_ejection_signal_trigger,
             parachute_ejection_system_refresh_rate = _parachute_ejection_system_refresh_rate,
             parachute_lag = _parachute_lag
         )

@@ -4,7 +4,7 @@ from typing import List, Any
 
 class EnvData(BaseModel):
     #TBD: review grav type
-    grav: "Any"  
+    #grav: "Any"  
     elevation: int
     model_type: str
     model_type_max_expected_height: int
