@@ -15,17 +15,43 @@
 
 ## Project structure
 ```
-├── README.md
-├── apprunner.yaml    # AWS App runner config
+├── README.md    # this file
+├── apprunner.yaml
+├── requirements.txt
+│   
 ├── lib
-│   ├── __init__.py
-│   ├── __main__.py
-│   ├── api.py        # main app
-│   ├── controllers.py
-│   ├── models.py
-│   ├── views.py
-│   └── data          # extra simulation dependencies
-└── requirements.txt
+│   │   
+│   ├── api.py    # main app
+│   │   
+│   ├── controllers
+│   │   ├── environment.py
+│   │   ├── flight.py
+│   │   ├── motor.py
+│   │   └── rocket.py
+│   │   
+│   ├── models
+│   │   ├── aerosurfaces.py
+│   │   ├── environment.py
+│   │   ├── flight.py
+│   │   ├── motor.py
+│   │   ├── parachute.py
+│   │   └── rocket.py
+│   │   
+│   ├── repositories
+│   │   ├── environment.py
+│   │   ├── flight.py
+│   │   ├── motor.py
+│   │   ├── repo.py
+│   │   └── rocket.py
+│   │   
+│   └── views
+│       ├── environment.py
+│       ├── flight.py
+│       ├── motor.py
+│       └── rocket.py
+│   
+└── test
+    └── infinity-api-postman-collection.json
 ```
 
 ## DOCS
