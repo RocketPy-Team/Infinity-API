@@ -61,8 +61,8 @@
 ## API Flowchart
 General API workflow. Current available models are: Environment, Flight, Rocket and Motor.
 
-# CRUD
-```
+### CRUD
+```mermaid
 sequenceDiagram
     participant User
     participant API
@@ -91,8 +91,8 @@ sequenceDiagram
 
 ```
 
-# Simulating and extracting RocketPY native class 
-```
+### Simulating and extracting RocketPY native class 
+```mermaid
 sequenceDiagram
     participant User
     participant API
