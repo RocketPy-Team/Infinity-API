@@ -22,6 +22,7 @@
 ├── lib
 │   │   
 │   ├── api.py    # main app
+│   │── secrets.py
 │   │   
 │   ├── controllers
 │   │   ├── environment.py
