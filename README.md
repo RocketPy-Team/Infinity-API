@@ -67,7 +67,6 @@ sequenceDiagram
     participant User
     participant API
     participant MongoDB
-    participant Rocketpy lib
 
     User ->> API: POST /rocketpy-model    
     API ->> MongoDB: Persist Rocketpy Model
@@ -109,7 +108,7 @@ sequenceDiagram
     User ->> API: POST /rocketpy/rocketpy-model/:id
     API -->> MongoDB: Retrieve Rocketpy Model
     MongoDB -->> API: Rocketpy Model
-    API ->> Rocketpy lib: Instantiate Rocketpy native class from Model
+    API ->> Rocketpy lib: Rocketpy Model
     Rocketpy lib -->> API:  Rocketpy native class as json pickle string
     API -->> User: Rocketpy native class as json pickle string
 ```
