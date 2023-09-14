@@ -13,7 +13,6 @@ class Repository:
         return cls._self
 
     def __init__(self, collection: str):
-        secrets = dotenv_values(".env")
         self.connection_string = secrets_instance.get_secret("MONGODB_CONNECTION_STRING")
         self.client = MongoClient(self.connection_string)
         self.db = self.client.rocketpy
