@@ -57,3 +57,59 @@
 ## DOCS
 - OpenAPI standard: `http://127.0.0.1:3000/redoc`
 - Swagger UI: `http://127.0.0.1:3000/docs`
+
+## API Flowchart
+General API workflow. Current available models are: Environment, Flight, Rocket and Motor.
+
+# CRUD
+```
+sequenceDiagram
+    participant User
+    participant API
+    participant MongoDB
+    participant Rocketpy lib
+
+    User ->> API: POST /rocketpy-model    
+    API ->> MongoDB: Persist Rocketpy Model
+    MongoDB -->> API: Model ID
+    API -->> User: Model ID
+
+    User ->> API: GET /rocketpy-model/:id
+    API ->> MongoDB: Retrieve Rocketpy Model
+    MongoDB -->> API: Rocketpy Model
+    API -->> User: Rocketpy Model
+
+    User ->> API: PUT /rocketpy-model/:id
+    API ->> MongoDB: Update Rocketpy Model
+    MongoDB -->> API: Updated Model
+    API -->> User: Updated Model
+
+    User ->> API: DELETE /rocketpy-model/:id
+    API ->> MongoDB: Delete Rocketpy Model
+    MongoDB -->> API: Deletion Confirmation
+    API -->> User: Deletion Confirmation
+
+```
+
+# Simulating and extracting RocketPY native class 
+```
+sequenceDiagram
+    participant User
+    participant API
+    participant MongoDB
+    participant Rocketpy lib
+
+    User ->> API: POST /simulate/rocketpy-model/:id
+    API -->> MongoDB: Retrieve Rocketpy Model
+    MongoDB -->> API: Rocketpy Model
+    API ->> Rocketpy lib: Simulate Rocketpy Model
+    Rocketpy lib -->> API:  Simulation Results
+    API -->> User: Simulation Results
+
+    User ->> API: POST /rocketpy/rocketpy-model/:id
+    API -->> MongoDB: Retrieve Rocketpy Model
+    MongoDB -->> API: Rocketpy Model
+    API ->> Rocketpy lib: Instantiate Rocketpy native class from Model
+    Rocketpy lib -->> API:  Rocketpy native class as json pickle string
+    API -->> User: Rocketpy native class as json pickle string
+```
