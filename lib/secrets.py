@@ -1,5 +1,6 @@
 from dotenv import dotenv_values
 from pydantic import BaseModel
+import os
 
 class Secrets(BaseModel):
     """
@@ -7,8 +8,15 @@ class Secrets(BaseModel):
     """
     secrets: dict = dotenv_values(".env")
 
+    @staticmethod
+    def get_os_secret(key):
+        return os.environ.get(key)
+
     def get_secret(self, key):
-        return self.secrets[key]
+        dotenv_secret = self.secrets.get(key)
+        if not dotenv_secret:
+            return get_os_secret(key)
+        return dotenv_secret
 
 # global instance
 secrets_instance = Secrets()
