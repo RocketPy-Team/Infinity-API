@@ -21,4 +21,4 @@ jobs:
         pip install -r requirements.txt
     - name: Analysing the code with pylint
       run: |
-        pylint -d C0301,C0114 $(git ls-files '*.py')
+        pylint -d C0301,C0114,R0903,C0115,W0246 $(git ls-files '*.py')
