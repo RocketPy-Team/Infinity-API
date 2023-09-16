@@ -2,7 +2,7 @@
 
 ## Capabilities
 - Performs rocket simulations and returns simulation data
-- Stores simulation data in mongo-db
+- Stores simulation input data in mongo-db
 
 ## Setup
 - [Install python3](https://www.python.org/downloads/)
