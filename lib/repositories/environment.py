@@ -37,7 +37,7 @@ class EnvRepository(Repository):
             InsertOneResult: result of the insert operation
         """
         if not self.get_env():
-            try: 
+            try:
                 environment_to_dict = self.environment.dict()
                 environment_to_dict["env_id"] = self.env_id
                 return self.collection.insert_one(environment_to_dict)
@@ -57,11 +57,11 @@ class EnvRepository(Repository):
             environment_to_dict["env_id"] = self.environment.__hash__()
 
             updated_env = self.collection.update_one(
-                { "env_id": self.env_id }, 
+                { "env_id": self.env_id },
                 { "$set": environment_to_dict }
             )
             self.env_id = environment_to_dict["env_id"]
-            return self.env_id 
+            return self.env_id
         except:
             raise Exception("Error updating environment")
 
@@ -75,21 +75,21 @@ class EnvRepository(Repository):
         try:
             environment = self.collection.find_one({ "env_id": self.env_id })
             if environment is not None:
-                del environment["_id"] 
+                del environment["_id"]
                 return Env.parse_obj(environment)
             else:
                 return None
         except:
             raise Exception("Error getting environment")
 
-    def delete_env(self) -> "DeleteResult": 
+    def delete_env(self) -> "DeleteResult":
         """
         Deletes a environment from the database
 
         Returns:
             DeleteResult: result of the delete operation
         """
-        try: 
+        try:
             return self.collection.delete_one({ "env_id": self.env_id })
         except:
             raise Exception("Error deleting environment")

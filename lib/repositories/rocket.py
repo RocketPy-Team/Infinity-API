@@ -14,7 +14,7 @@ class RocketRepository(Repository):
 
     Enables CRUD operations on rocket objects
     """
-        
+
     def __init__(self, rocket: Rocket = None, rocket_id: str = None):
         super().__init__("rockets")
         self.rocket = rocket
@@ -37,7 +37,7 @@ class RocketRepository(Repository):
             InsertOneResult: result of the insert operation
         """
         if not self.get_rocket():
-            try: 
+            try:
                 rocket_to_dict = self.rocket.dict()
                 rocket_to_dict["rocket_id"] = self.rocket_id
                 return self.collection.insert_one(rocket_to_dict)
@@ -76,13 +76,13 @@ class RocketRepository(Repository):
         try:
             rocket = self.collection.find_one({ "rocket_id": self.rocket_id })
             if rocket is not None:
-                del rocket["_id"] 
+                del rocket["_id"]
                 return Rocket.parse_obj(rocket)
             else:
                 return None
         except:
             raise Exception("Error getting rocket")
-        
+
     def delete_rocket(self) -> "DeleteResult":
         """
         Deletes a rocket from the database
@@ -90,7 +90,7 @@ class RocketRepository(Repository):
         Returns:
             DeleteResult: result of the delete operation
         """
-        try: 
+        try:
             return self.collection.delete_one({ "rocket_id": self.rocket_id })
         except:
             raise Exception("Error deleting rocket")

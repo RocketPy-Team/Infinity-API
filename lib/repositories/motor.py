@@ -1,8 +1,8 @@
+from typing import Union
 from pymongo.results import InsertOneResult
 from pymongo.results import DeleteResult
 from lib.models.motor import Motor
 from lib.repositories.repo import Repository
-from typing import Union
 
 class MotorRepository(Repository):
     """
@@ -14,7 +14,7 @@ class MotorRepository(Repository):
 
     Enables CRUD operations on motor objects
     """
-        
+
     def __init__(self, motor: Motor = None, motor_id: str = None):
         super().__init__("motors")
         self.motor = motor
@@ -37,7 +37,7 @@ class MotorRepository(Repository):
             InsertOneResult: result of the insert operation
         """
         if not self.get_motor():
-            try: 
+            try:
                 motor_to_dict = self.motor.dict()
                 motor_to_dict["motor_id"] = self.motor_id
                 return self.collection.insert_one(motor_to_dict)
@@ -76,7 +76,7 @@ class MotorRepository(Repository):
         try:
             motor = self.collection.find_one({ "motor_id": self.motor_id })
             if motor is not None:
-                del motor["_id"] 
+                del motor["_id"]
                 return Motor.parse_obj(motor)
             else:
                 return None
@@ -90,7 +90,7 @@ class MotorRepository(Repository):
         Returns:
             DeleteResult: result of the delete operation
         """
-        try: 
+        try:
             return self.collection.delete_one({ "motor_id": self.motor_id })
         except:
             raise Exception("Error deleting motor")

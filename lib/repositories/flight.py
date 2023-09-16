@@ -1,8 +1,8 @@
+from typing import Union
 from pymongo.results import InsertOneResult
 from pymongo.results import DeleteResult
 from lib.models.flight import Flight
 from lib.repositories.repo import Repository
-from typing import Union
 
 class FlightRepository(Repository):
     """
@@ -14,7 +14,7 @@ class FlightRepository(Repository):
 
     Enables CRUD operations on flight objects
     """
-        
+
     def __init__(self, flight: Flight = None, flight_id: str = None):
         super().__init__("flights")
         self.flight = flight
@@ -76,10 +76,9 @@ class FlightRepository(Repository):
         try:
             flight = self.collection.find_one({ "flight_id": self.flight_id })
             if flight is not None:
-                del flight["_id"] 
+                del flight["_id"]
                 return Flight.parse_obj(flight)
-            else:
-                return None
+            return None
         except:
             raise Exception("Error getting flight")
 
@@ -90,7 +89,7 @@ class FlightRepository(Repository):
         Returns:
             DeleteResult: result of the delete operation
         """
-        try: 
+        try:
             return self.collection.delete_one({ "flight_id": self.flight_id })
         except:
             raise Exception("Error deleting flight")
