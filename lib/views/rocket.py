@@ -9,7 +9,7 @@ class InertiaDetails(BaseModel):
 class RocketGeometricalParameters(BaseModel):
     rocket_maximum_radius: str
     rocket_frontal_area: str
-    rocket_codm_nozzle_exit_distance: str 
+    rocket_codm_nozzle_exit_distance: str
     rocket_codm_center_of_propellant_mass: str
     rocket_codm_loaded_center_of_mass: str
 
@@ -24,13 +24,13 @@ class ParachuteData(BaseModel):
     parachute_details: "Any"
     # parachute_ejection_signal_trigger: "Any"
     parachute_ejection_system_refresh_rate: "Optional[Any]"
-    parachute_lag: "Any" 
+    parachute_lag: "Any"
 
 class RocketData(BaseModel):
-    inertia_details: InertiaDetails 
+    inertia_details: InertiaDetails
     rocket_geometrical_parameters: RocketGeometricalParameters
     rocket_aerodynamics_quantities: RocketAerodynamicsQuantities
-    parachute_data: ParachuteData 
+    parachute_data: ParachuteData
 
 class RocketPlots(BaseModel):
     pass
@@ -38,4 +38,3 @@ class RocketPlots(BaseModel):
 class RocketSummary(BaseModel):
     rocket_data: RocketData
     #rocket_plots: RocketPlots
-
