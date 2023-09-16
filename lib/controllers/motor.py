@@ -1,13 +1,11 @@
+from rocketpy import SolidMotor
+from fastapi import Response, status
+from typing import Any, Dict, Union
+import jsonpickle
+
 from lib.models.motor import Motor
 from lib.repositories.motor import MotorRepository
 from lib.views.motor import MotorSummary, MotorData, MotorPlots
-
-from rocketpy import SolidMotor
-
-from fastapi import Response, status
-from typing import Any, Dict, Union
-
-import jsonpickle
 
 class MotorController():
     """
@@ -32,7 +30,7 @@ class MotorController():
                 grain_separation=motor.grain_separation,
                 nozzle_radius=motor.nozzle_radius,
                 dry_mass=motor.dry_mass,
-                center_of_dry_mass=motor.center_of_dry_mass,
+                center_of_dry_mass_position=motor.center_of_dry_mass_position,
                 dry_inertia=motor.dry_inertia,
                 throat_radius=motor.throat_radius,
                 interpolation_method=motor.interpolation_method
@@ -49,10 +47,9 @@ class MotorController():
         """
         motor = MotorRepository(motor=self.motor)
         successfully_created_motor = motor.create_motor()
-        if successfully_created_motor: 
+        if successfully_created_motor:
             return { "message": "Motor created", "motor_id": str(motor.motor_id) }
-        else:
-            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
     def get_motor(motor_id: int) -> "Union[Motor, Response]":
@@ -98,7 +95,6 @@ class MotorController():
 
         return { "jsonpickle_rocketpy_motor": jsonpickle.encode(successfully_read_rocketpy_motor) }
 
-           
     def update_motor(self, motor_id: int) -> "Union[Dict[str, Any], Response]":
         """
         Update a motor in the database.
@@ -121,12 +117,11 @@ class MotorController():
             MotorRepository(motor=self.motor, motor_id=motor_id).update_motor()
 
         if successfully_updated_motor:
-            return { 
+            return {
                     "message": "Motor successfully updated",
                     "new_motor_id": str(successfully_updated_motor)
             }
-        else:
-            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
     def delete_motor(motor_id: int) -> "Union[Dict[str, str], Response]":
@@ -149,10 +144,9 @@ class MotorController():
 
         successfully_deleted_motor = \
             MotorRepository(motor_id=motor_id).delete_motor()
-        if successfully_deleted_motor: 
+        if successfully_deleted_motor:
             return {"deleted_motor_id": str(motor_id), "message": "Motor successfully deleted"}
-        else:
-            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
     def simulate(motor_id: int) -> "Union[MotorSummary, Response]":
@@ -203,4 +197,3 @@ class MotorController():
 
         motor_summary = MotorSummary( motor_data = motor_simulation_numbers ) #, plots=motor_simulation_plots )
         return motor_summary
-

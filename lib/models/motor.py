@@ -5,7 +5,7 @@ class Motor(BaseModel, frozen=True):
     burn_time: float
     dry_mass: float
     dry_inertia: "Tuple[float, float, float]"
-    center_of_dry_mass: float
+    center_of_dry_mass_position: float
     grain_number: int
     grain_density: float
     grain_outer_radius: float
