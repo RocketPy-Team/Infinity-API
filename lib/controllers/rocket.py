@@ -186,7 +186,7 @@ class RocketController():
             if isinstance(parsed_expression.body, ast.Constant):
                 return True
             # Name case (supported after beta v1)
-            else isinstance(parsed_expression.body, ast.Name) \
+            if isinstance(parsed_expression.body, ast.Name) \
             and parsed_expression.body.id == "apogee":
                 global apogee
                 apogee = "apogee"
