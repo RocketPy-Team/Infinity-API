@@ -6,7 +6,7 @@ class Parachute(BaseModel, frozen=True):
     cd_s: "List[float]"
     sampling_rate: "List[int]"
     lag: "List[float]"
-    noise: "List[Tuple[float, float, float]]"
+    noise: "List[Tuple[float, float, float]]" = [(0, 8.3, 0.5), (0, 8.3, 0.5)]
     triggers: "List[str]"
 
     def __hash__(self):

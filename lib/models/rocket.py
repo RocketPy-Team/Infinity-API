@@ -7,7 +7,7 @@ from lib.models.parachute import Parachute
 class Rocket(BaseModel, frozen=True):
     radius: float
     mass: float
-    inertia: "Tuple[float, float, float]"
+    inertia: "Tuple[float, float, float]" = (6.321, 6.321, 0.0346)
     #TBD: powerOffDrag an powerOnDrag need to be the id of previously uploaded .csv files and a list of "default" files must be provided in the api docs
     power_off_drag: Optional[str] = 'lib/data/calisto/powerOffDragCurve.csv'
     power_on_drag: Optional[str] = 'lib/data/calisto/powerOnDragCurve.csv'

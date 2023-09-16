@@ -4,7 +4,7 @@ from typing import Optional, Tuple
 class Motor(BaseModel, frozen=True):
     burn_time: float
     dry_mass: float
-    dry_inertia: "Tuple[float, float, float]"
+    dry_inertia: "Tuple[float, float, float]" = (0.125, 0.125, 0.002)
     center_of_dry_mass_position: float
     grain_number: int
     grain_density: float
