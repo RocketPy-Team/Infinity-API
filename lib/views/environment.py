@@ -1,6 +1,5 @@
-from rocketpy import Environment 
 from pydantic import BaseModel
-from typing import List, Any
+from typing import List
 
 class EnvData(BaseModel):
     #TBD: review grav type

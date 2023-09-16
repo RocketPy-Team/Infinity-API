@@ -1,6 +1,6 @@
 from pymongo.results import InsertOneResult
 from pymongo.results import DeleteResult
-from lib.models.motor import Motor 
+from lib.models.motor import Motor
 from lib.repositories.repo import Repository
 from typing import Union
 
@@ -39,7 +39,7 @@ class MotorRepository(Repository):
         if not self.get_motor():
             try: 
                 motor_to_dict = self.motor.dict()
-                motor_to_dict["motor_id"] = self.motor_id 
+                motor_to_dict["motor_id"] = self.motor_id
                 return self.collection.insert_one(motor_to_dict)
             except:
                 raise Exception("Error creating motor")
@@ -54,10 +54,10 @@ class MotorRepository(Repository):
         """
         try:
             motor_to_dict = self.motor.dict()
-            motor_to_dict["motor_id"] = self.motor.__hash__() 
+            motor_to_dict["motor_id"] = self.motor.__hash__()
 
             updated_motor = self.collection.update_one(
-                { "motor_id": self.motor_id }, 
+                { "motor_id": self.motor_id },
                 { "$set": motor_to_dict }
             )
 
@@ -82,8 +82,8 @@ class MotorRepository(Repository):
                 return None
         except:
             raise Exception("Error getting motor")
-        
-    def delete_motor(self) -> "DeleteResult": 
+
+    def delete_motor(self) -> "DeleteResult":
         """
         Deletes a motor from the database
 

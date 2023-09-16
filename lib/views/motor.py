@@ -1,4 +1,3 @@
-from rocketpy import Flight
 from pydantic import BaseModel
 from typing import List, Any
 

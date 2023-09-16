@@ -1,8 +1,8 @@
+from typing import Union
 from pymongo.results import InsertOneResult
 from pymongo.results import DeleteResult
-from lib.models.rocket import Rocket 
+from lib.models.rocket import Rocket
 from lib.repositories.repo import Repository
-from typing import Union
 
 class RocketRepository(Repository):
     """
@@ -39,7 +39,7 @@ class RocketRepository(Repository):
         if not self.get_rocket():
             try: 
                 rocket_to_dict = self.rocket.dict()
-                rocket_to_dict["rocket_id"] = self.rocket_id 
+                rocket_to_dict["rocket_id"] = self.rocket_id
                 return self.collection.insert_one(rocket_to_dict)
             except:
                 raise Exception("Error creating rocket")
@@ -54,10 +54,10 @@ class RocketRepository(Repository):
         """
         try:
             rocket_to_dict = self.rocket.dict()
-            rocket_to_dict["rocket_id"] = self.rocket.__hash__() 
+            rocket_to_dict["rocket_id"] = self.rocket.__hash__()
 
             updated_rocket = self.collection.update_one(
-                { "rocket_id": self.rocket_id }, 
+                { "rocket_id": self.rocket_id },
                 { "$set": rocket_to_dict }
             )
 
@@ -83,7 +83,7 @@ class RocketRepository(Repository):
         except:
             raise Exception("Error getting rocket")
         
-    def delete_rocket(self) -> "DeleteResult": 
+    def delete_rocket(self) -> "DeleteResult":
         """
         Deletes a rocket from the database
 

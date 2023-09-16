@@ -39,7 +39,7 @@ class FlightRepository(Repository):
         if not self.get_flight():
             try: 
                 flight_to_dict = self.flight.dict()
-                flight_to_dict["flight_id"] = self.flight_id 
+                flight_to_dict["flight_id"] = self.flight_id
                 return self.collection.insert_one(flight_to_dict)
             except:
                 raise Exception("Error creating flight")
@@ -54,10 +54,10 @@ class FlightRepository(Repository):
         """
         try:
             flight_to_dict = self.flight.dict()
-            flight_to_dict["flight_id"] = self.flight.__hash__() 
+            flight_to_dict["flight_id"] = self.flight.__hash__()
 
             updated_flight = self.collection.update_one(
-                { "flight_id": self.flight_id }, 
+                { "flight_id": self.flight_id },
                 { "$set": flight_to_dict }
             )
 
@@ -83,7 +83,7 @@ class FlightRepository(Repository):
         except:
             raise Exception("Error getting flight")
 
-    def delete_flight(self) -> "DeleteResult": 
+    def delete_flight(self) -> "DeleteResult":
         """
         Deletes a flight from the database
 
