@@ -37,7 +37,7 @@ class FlightRepository(Repository):
             InsertOneResult: result of the insert operation
         """
         if not self.get_flight():
-            try: 
+            try:
                 flight_to_dict = self.flight.dict()
                 flight_to_dict["flight_id"] = self.flight_id
                 return self.collection.insert_one(flight_to_dict)

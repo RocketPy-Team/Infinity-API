@@ -7,7 +7,7 @@ import jsonpickle
 from lib.models.rocket import Rocket
 from lib.models.flight import Flight
 from lib.models.environment import Env
-from lib.views.flight import FlightSummary, SurfaceWindConditions, OutOfRailConditions, BurnoutConditions, ApogeeConditions, MaximumValues, InitialConditions, NumericalIntegrationSettings, ImpactConditions, EventsRegistered, LaunchRailConditions, FlightData, FlightPlots
+from lib.views.flight import FlightSummary, SurfaceWindConditions, OutOfRailConditions, BurnoutConditions, ApogeeConditions, MaximumValues, InitialConditions, NumericalIntegrationSettings, ImpactConditions, EventsRegistered, LaunchRailConditions, FlightData
 from lib.repositories.flight import FlightRepository
 from lib.controllers.environment import EnvController
 from lib.controllers.rocket import RocketController
@@ -189,8 +189,7 @@ class FlightController():
                     "message": "Flight updated successfully",
                     "new_flight_id": str(successfully_updated_flight)
             }
-        else:
-            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
     def delete_flight(flight_id: int) -> "Union[Dict[str, str], Response]":

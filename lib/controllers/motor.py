@@ -1,11 +1,11 @@
-from rocketpy import SolidMotor
 from fastapi import Response, status
 from typing import Any, Dict, Union
+from rocketpy import SolidMotor
 import jsonpickle
 
 from lib.models.motor import Motor
 from lib.repositories.motor import MotorRepository
-from lib.views.motor import MotorSummary, MotorData, MotorPlots
+from lib.views.motor import MotorSummary, MotorData
 
 class MotorController():
     """
