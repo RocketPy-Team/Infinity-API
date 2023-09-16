@@ -13,7 +13,7 @@ class Rocket(BaseModel, frozen=True):
     power_on_drag: Optional[str] = 'lib/data/calisto/powerOnDragCurve.csv'
     center_of_mass_without_motor: int
     #TBD: a list of possible tailToNose values must be provided in the api docs
-    coordinate_system_orientation: Optional[str] = "tailToNose"
+    coordinate_system_orientation: Optional[str] = "tail_to_nose"
     motor_position: float
     rail_buttons: RailButtons
     motor: Motor
