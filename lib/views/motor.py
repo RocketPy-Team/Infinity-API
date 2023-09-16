@@ -1,5 +1,5 @@
-from pydantic import BaseModel
 from typing import List, Any
+from pydantic import BaseModel
 
 class MotorData(BaseModel):
     total_burning_time: str

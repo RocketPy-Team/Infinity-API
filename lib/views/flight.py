@@ -1,5 +1,5 @@
-from pydantic import BaseModel
 from typing import Optional, Any
+from pydantic import BaseModel
 
 class InitialConditions(BaseModel):
     initial_position: str

@@ -1,5 +1,5 @@
-from pydantic import BaseModel
 from typing import List
+from pydantic import BaseModel
 
 class EnvData(BaseModel):
     #TBD: review grav type

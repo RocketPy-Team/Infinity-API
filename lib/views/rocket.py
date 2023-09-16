@@ -1,6 +1,5 @@
-from rocketpy import Flight
-from pydantic import BaseModel
 from typing import List, Any, Optional
+from pydantic import BaseModel
 
 class InertiaDetails(BaseModel):
     rocket_mass_without_propellant: str
