@@ -60,7 +60,8 @@ class EnvController():
         Raises:
             HTTP 404 Not Found: If the env is not found in the database. 
         """
-        successfully_read_env = EnvRepository(env_id=env_id).get_env()
+        successfully_read_env = \
+            EnvRepository(env_id=env_id).get_env()
         if not successfully_read_env:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
         return successfully_read_env
@@ -78,11 +79,13 @@ class EnvController():
         Raises:
             HTTP 404 Not Found: If the env is not found in the database.
         """
-        successfully_read_env = EnvRepository(env_id=env_id).get_env()
+        successfully_read_env = \
+            EnvRepository(env_id=env_id).get_env()
         if not successfully_read_env:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
-        successfully_read_rocketpy_env  = EnvController( successfully_read_env ).rocketpy_env
+        successfully_read_rocketpy_env = \
+            EnvController( successfully_read_env ).rocketpy_env
 
         return { "jsonpickle_rocketpy_env": jsonpickle.encode(successfully_read_rocketpy_env) }
 
@@ -100,12 +103,13 @@ class EnvController():
         Raises:
             HTTP 404 Not Found: If the env is not found in the database.
         """
-        successfully_read_env = EnvRepository(env_id=env_id).get_env()
+        successfully_read_env = \
+            EnvRepository(env_id=env_id).get_env()
         if not successfully_read_env:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
         successfully_updated_env = \
-                EnvRepository(environment=self.env, env_id=env_id).update_env()
+            EnvRepository(environment=self.env, env_id=env_id).update_env()
 
         if successfully_updated_env:
             return { 
@@ -128,11 +132,13 @@ class EnvController():
         Raises:
             HTTP 404 Not Found: If the env is not found in the database.
         """
-        successfully_read_env = EnvRepository(env_id=env_id).get_env()
+        successfully_read_env = \
+            EnvRepository(env_id=env_id).get_env()
         if not successfully_read_env:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
-        successfully_deleted_env = EnvRepository(env_id=env_id).delete_env()
+        successfully_deleted_env = \
+            EnvRepository(env_id=env_id).delete_env()
         if successfully_deleted_env: 
             return {"deleted_env_id": str(env_id), "message": "Environment successfully deleted"}
         else:
@@ -151,7 +157,8 @@ class EnvController():
         Raises:
             HTTP 404 Not Found: If the env does not exist in the database.
         """
-        successfully_read_env = EnvRepository(env_id=env_id).get_env()
+        successfully_read_env = \
+            EnvRepository(env_id=env_id).get_env()
         if not successfully_read_env:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 

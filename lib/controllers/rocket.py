@@ -249,7 +249,8 @@ class RocketController():
         Raises:
             HTTP 404 Not Found: If the rocket is not found in the database. 
         """
-        successfully_read_rocket = RocketRepository(rocket_id=rocket_id).get_rocket()
+        successfully_read_rocket = \
+             RocketRepository(rocket_id=rocket_id).get_rocket()
         if not successfully_read_rocket:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
         return successfully_read_rocket
@@ -267,11 +268,13 @@ class RocketController():
         Raises:
             HTTP 404 Not Found: If the rocket is not found in the database.
         """
-        successfully_read_rocket = RocketRepository(rocket_id=rocket_id).get_rocket()
+        successfully_read_rocket = \
+            RocketRepository(rocket_id=rocket_id).get_rocket()
         if not successfully_read_rocket:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
-        successfully_read_rocketpy_rocket  = RocketController( successfully_read_rocket ).rocketpy_rocket
+        successfully_read_rocketpy_rocket = \
+            RocketController( successfully_read_rocket ).rocketpy_rocket
 
         return { "jsonpickle_rocketpy_rocket": jsonpickle.encode(successfully_read_rocketpy_rocket) }
 
@@ -289,12 +292,13 @@ class RocketController():
         Raises:
             HTTP 404 Not Found: If the rocket is not found in the database.
         """
-        successfully_read_rocket = RocketRepository(rocket_id=rocket_id).get_rocket()
+        successfully_read_rocket = \
+            RocketRepository(rocket_id=rocket_id).get_rocket()
         if not successfully_read_rocket:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
         successfully_updated_rocket = \
-                RocketRepository(rocket=self.rocket, rocket_id=rocket_id).update_rocket()
+            RocketRepository(rocket=self.rocket, rocket_id=rocket_id).update_rocket()
 
         if successfully_updated_rocket:
             return { 
@@ -317,11 +321,13 @@ class RocketController():
         Raises:
             HTTP 404 Not Found: If the rocket is not found in the database.
         """
-        successfully_read_rocket = RocketRepository(rocket_id=rocket_id).get_rocket()
+        successfully_read_rocket = \
+            RocketRepository(rocket_id=rocket_id).get_rocket()
         if not successfully_read_rocket:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
-        successfully_deleted_rocket = RocketRepository(rocket_id=rocket_id).delete_rocket()
+        successfully_deleted_rocket = \
+            RocketRepository(rocket_id=rocket_id).delete_rocket()
         if successfully_deleted_rocket: 
             return {"deleted_rocket_id": str(rocket_id), "message": "Rocket successfully deleted"}
         else:
@@ -340,7 +346,8 @@ class RocketController():
         Raises:
             HTTP 404 Not Found: If the rocket does not exist in the database.
         """
-        successfully_read_rocket = RocketRepository(rocket_id=rocket_id).get_rocket()
+        successfully_read_rocket = \
+            RocketRepository(rocket_id=rocket_id).get_rocket()
         if not successfully_read_rocket:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 

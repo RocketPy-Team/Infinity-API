@@ -56,7 +56,8 @@ class FlightController():
         Raises:
             HTTP 404 Not Found: If the flight does not exist in the database.
         """
-        successfully_read_flight = FlightRepository(flight_id=flight_id).get_flight()
+        successfully_read_flight = \
+            FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
@@ -238,7 +239,8 @@ class FlightController():
         Raises:
             HTTP 404 Not Found: If the flight is not found in the database. 
         """
-        successfully_read_flight = FlightRepository(flight_id=flight_id).get_flight()
+        successfully_read_flight = \
+            FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
         return successfully_read_flight
@@ -256,7 +258,8 @@ class FlightController():
         Raises:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
-        successfully_read_flight = FlightRepository(flight_id=flight_id).get_flight()
+        successfully_read_flight = \
+            FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
@@ -278,12 +281,13 @@ class FlightController():
         Raises:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
-        successfully_read_flight = FlightRepository(flight_id=flight_id).get_flight()
+        successfully_read_flight = \
+            FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
         successfully_updated_flight = \
-                FlightRepository(flight=self.flight, flight_id=flight_id).update_flight()
+            FlightRepository(flight=self.flight, flight_id=flight_id).update_flight()
 
         if successfully_updated_flight:
             return { 
@@ -307,12 +311,14 @@ class FlightController():
         Raises:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
-        successfully_read_flight = FlightRepository(flight_id=flight_id).get_flight()
+        successfully_read_flight = \
+            FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
         flight.env = env
-        successfully_updated_flight = FlightRepository(flight=flight).update_flight(flight_id)
+        successfully_updated_flight = \
+            FlightRepository(flight=flight).update_flight(flight_id)
         if successfully_updated_flight:
             return { 
                     "message": "Flight updated successfully", 
@@ -335,12 +341,14 @@ class FlightController():
         Raises:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
-        successfully_read_flight = FlightRepository(flight_id=flight_id).get_flight()
+        successfully_read_flight = \
+            FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
         flight.rocket = rocket 
-        successfully_updated_flight = FlightRepository(flight=flight).update_flight(flight_id) 
+        successfully_updated_flight = \
+            FlightRepository(flight=flight).update_flight(flight_id) 
         if successfully_updated_flight:
             return { 
                     "message": "Flight updated successfully", 
@@ -362,11 +370,13 @@ class FlightController():
         Raises:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
-        successfully_read_flight = FlightRepository(flight_id=flight_id).get_flight()
+        successfully_read_flight = \
+            FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
-        successfully_deleted_flight = FlightRepository(flight_id=flight_id).delete_flight()
+        successfully_deleted_flight = \
+            FlightRepository(flight_id=flight_id).delete_flight()
         if successfully_deleted_flight: 
             return {"deleted_flight_id": str(flight_id), "message": "Flight successfully deleted"}
         else:

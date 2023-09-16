@@ -67,7 +67,8 @@ class MotorController():
         Raises:
             HTTP 404 Not Found: If the motor is not found in the database. 
         """
-        successfully_read_motor = MotorRepository(motor_id=motor_id).get_motor()
+        successfully_read_motor = \
+            MotorRepository(motor_id=motor_id).get_motor()
         if not successfully_read_motor:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
         return successfully_read_motor
@@ -85,11 +86,13 @@ class MotorController():
         Raises:
             HTTP 404 Not Found: If the motor is not found in the database.
         """
-        successfully_read_motor = MotorRepository(motor_id=motor_id).get_motor()
+        successfully_read_motor = \
+            MotorRepository(motor_id=motor_id).get_motor()
         if not successfully_read_motor:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
-        successfully_read_rocketpy_motor  = MotorController( successfully_read_motor ).rocketpy_motor
+        successfully_read_rocketpy_motor = \
+            MotorController( successfully_read_motor ).rocketpy_motor
 
         return { "jsonpickle_rocketpy_motor": jsonpickle.encode(successfully_read_rocketpy_motor) }
 
@@ -107,12 +110,13 @@ class MotorController():
         Raises:
             HTTP 404 Not Found: If the motor is not found in the database.
         """
-        successfully_read_motor = MotorRepository(motor_id=motor_id).get_motor()
+        successfully_read_motor = \
+            MotorRepository(motor_id=motor_id).get_motor()
         if not successfully_read_motor:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
         successfully_updated_motor = \
-                MotorRepository(motor=self.motor, motor_id=motor_id).update_motor()
+            MotorRepository(motor=self.motor, motor_id=motor_id).update_motor()
 
         if successfully_updated_motor:
             return { 
@@ -135,11 +139,13 @@ class MotorController():
         Raises:
             HTTP 404 Not Found: If the motor is not found in the database.
         """
-        successfully_read_motor = MotorRepository(motor_id=motor_id).get_motor()
+        successfully_read_motor = \
+            MotorRepository(motor_id=motor_id).get_motor()
         if not successfully_read_motor:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
-        successfully_deleted_motor = MotorRepository(motor_id=motor_id).delete_motor()
+        successfully_deleted_motor = \
+            MotorRepository(motor_id=motor_id).delete_motor()
         if successfully_deleted_motor: 
             return {"deleted_motor_id": str(motor_id), "message": "Motor successfully deleted"}
         else:
@@ -158,7 +164,8 @@ class MotorController():
         Raises:
             HTTP 404 Not Found: If the motor does not exist in the database.
         """
-        successfully_read_motor = MotorRepository(motor_id=motor_id).get_motor()
+        successfully_read_motor = \
+            MotorRepository(motor_id=motor_id).get_motor()
         if not successfully_read_motor:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
