@@ -3,12 +3,12 @@ from typing import List
 
 class EnvData(BaseModel):
     #TBD: review grav type
-    #grav: "Any"  
+    #grav: "Any"
     elevation: int
     model_type: str
     model_type_max_expected_height: int
-    wind_speed: float 
-    wind_direction: float 
+    wind_speed: float
+    wind_direction: float
     wind_heading: float
     surface_pressure: float
     surface_temperature: float

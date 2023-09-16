@@ -22,15 +22,15 @@ class RocketAerodynamicsQuantities(BaseModel):
     final_static_margin: str
 
 class ParachuteData(BaseModel):
-    parachute_details: "Any" 
-    # parachute_ejection_signal_trigger: "Any" 
-    parachute_ejection_system_refresh_rate: "Optional[Any]" 
+    parachute_details: "Any"
+    # parachute_ejection_signal_trigger: "Any"
+    parachute_ejection_system_refresh_rate: "Optional[Any]"
     parachute_lag: "Any" 
 
 class RocketData(BaseModel):
     inertia_details: InertiaDetails 
-    rocket_geometrical_parameters: RocketGeometricalParameters 
-    rocket_aerodynamics_quantities: RocketAerodynamicsQuantities 
+    rocket_geometrical_parameters: RocketGeometricalParameters
+    rocket_aerodynamics_quantities: RocketAerodynamicsQuantities
     parachute_data: ParachuteData 
 
 class RocketPlots(BaseModel):

@@ -21,7 +21,7 @@ class NumericalIntegrationSettings(BaseModel):
     avg_function_evaluations_per_time_step: str
 
 class SurfaceWindConditions(BaseModel):
-    frontal_surface_wind_speed: str 
+    frontal_surface_wind_speed: str
     lateral_surface_wind_speed: str
 
 class LaunchRailConditions(BaseModel):
@@ -53,22 +53,22 @@ class ApogeeConditions(BaseModel):
 class MaximumValues(BaseModel):
     maximum_speed: str
     maximum_mach_number: str
-    maximum_reynolds_number: str 
-    maximum_dynamic_pressure: str 
-    maximum_acceleration_during_motor_burn: str 
-    maximum_acceleration_after_motor_burn: str 
-    maximum_gs_during_motor_burn: str 
+    maximum_reynolds_number: str
+    maximum_dynamic_pressure: str
+    maximum_acceleration_during_motor_burn: str
+    maximum_acceleration_after_motor_burn: str
+    maximum_gs_during_motor_burn: str
     maximum_gs_after_motor_burn: str
     maximum_upper_rail_button_normal_force: str
-    maximum_upper_rail_button_shear_force: str 
-    maximum_lower_rail_button_normal_force: str 
-    maximum_lower_rail_button_shear_force: str 
+    maximum_upper_rail_button_shear_force: str
+    maximum_lower_rail_button_normal_force: str
+    maximum_lower_rail_button_shear_force: str
 
 class ImpactConditions(BaseModel):
     x_impact_position: "Optional[str]"
-    y_impact_position: "Optional[str]" 
-    time_of_impact: "Optional[str]" 
-    impact_velocity: "Optional[str]" 
+    y_impact_position: "Optional[str]"
+    time_of_impact: "Optional[str]"
+    impact_velocity: "Optional[str]"
 
 class EventsRegistered(BaseModel):
     events_trace: "Optional[Any]"
