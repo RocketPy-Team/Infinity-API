@@ -179,6 +179,7 @@ class FlightController():
             FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
+        flight = successfully_read_flight
 
         flight.rocket = rocket
         successfully_updated_flight = \
