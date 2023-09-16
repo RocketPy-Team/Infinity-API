@@ -1,5 +1,5 @@
-from pydantic import BaseModel
 from typing import Optional, Tuple
+from pydantic import BaseModel
 
 class Motor(BaseModel, frozen=True):
     burn_time: float

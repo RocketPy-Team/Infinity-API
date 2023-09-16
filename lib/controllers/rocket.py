@@ -1,9 +1,10 @@
-from fastapi import Response, status
 from typing import Dict, Any, Union
+import jsonpickle
+import ast
+
+from fastapi import Response, status
 #from inspect import getsourcelines
 
-import ast
-import jsonpickle
 import rocketpy.Parachute
 import rocketpy.Rocket
 from rocketpy.AeroSurface import NoseCone as rocketpy_NoseCone

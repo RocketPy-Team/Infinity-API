@@ -78,8 +78,7 @@ class RocketRepository(Repository):
             if rocket is not None:
                 del rocket["_id"]
                 return Rocket.parse_obj(rocket)
-            else:
-                return None
+            return None
         except:
             raise Exception("Error getting rocket")
 

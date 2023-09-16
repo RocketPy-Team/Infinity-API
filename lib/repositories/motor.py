@@ -78,8 +78,7 @@ class MotorRepository(Repository):
             if motor is not None:
                 del motor["_id"]
                 return Motor.parse_obj(motor)
-            else:
-                return None
+            return None
         except:
             raise Exception("Error getting motor")
 

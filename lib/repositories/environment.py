@@ -56,10 +56,11 @@ class EnvRepository(Repository):
             environment_to_dict = self.environment.dict()
             environment_to_dict["env_id"] = self.environment.__hash__()
 
-            updated_env = self.collection.update_one(
+            self.collection.update_one(
                 { "env_id": self.env_id },
                 { "$set": environment_to_dict }
             )
+
             self.env_id = environment_to_dict["env_id"]
             return self.env_id
         except:
@@ -77,8 +78,7 @@ class EnvRepository(Repository):
             if environment is not None:
                 del environment["_id"]
                 return Env.parse_obj(environment)
-            else:
-                return None
+            return None
         except:
             raise Exception("Error getting environment")
 

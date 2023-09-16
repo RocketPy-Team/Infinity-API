@@ -1,5 +1,5 @@
-from pydantic import BaseModel
 from typing import Optional, Tuple
+from pydantic import BaseModel
 from lib.models.motor import Motor
 from lib.models.aerosurfaces import Fins, NoseCone, Tail, RailButtons
 from lib.models.parachute import Parachute
