@@ -260,10 +260,11 @@ class FlightController():
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
-        successfully_read_rocketpy_flight = FlightController(successfully_read_flight).rocketpy_flight
+        successfully_read_rocketpy_flight = \
+            FlightController(successfully_read_flight).rocketpy_flight
 
         return { "jsonpickle_rocketpy_flight": jsonpickle.encode(successfully_read_rocketpy_flight) }
-           
+
     def update_flight(self, flight_id: int) -> "Union[Dict[str, Any], Response]":
         """
         Update a flight in the database.
