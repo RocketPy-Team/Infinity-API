@@ -12,7 +12,7 @@ from rocketpy.AeroSurface import Tail as rocketpy_Tail
 
 from lib.controllers.motor import MotorController
 from lib.models.rocket import Rocket
-from lib.models.aerosurfaces import NoseCone, TrapezoidalFins, Tail, 
+from lib.models.aerosurfaces import NoseCone, TrapezoidalFins, Tail
 from lib.models.parachute import Parachute
 from lib.repositories.rocket import RocketRepository
 from lib.views.rocket import InertiaDetails, RocketGeometricalParameters, RocketAerodynamicsQuantities, ParachuteData, RocketData, RocketSummary
