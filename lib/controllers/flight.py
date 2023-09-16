@@ -2,7 +2,7 @@ from lib.models.rocket import Rocket
 from lib.models.flight import Flight
 from lib.models.environment import Env
 from lib.views.flight import FlightSummary, SurfaceWindConditions, OutOfRailConditions, BurnoutConditions, ApogeeConditions, MaximumValues, InitialConditions, NumericalIntegrationSettings, ImpactConditions, EventsRegistered, LaunchRailConditions, FlightData, FlightPlots
-from lib.repositories.flight import FlightRepository 
+from lib.repositories.flight import FlightRepository
 from lib.controllers.environment import EnvController
 from lib.controllers.rocket import RocketController
 
@@ -35,14 +35,190 @@ class FlightController():
 
         rocketpy_flight=rocketpy.Flight(
                 rocket=rocketpy_rocket,
-                inclination=flight.inclination, 
+                inclination=flight.inclination,
                 heading=flight.heading,
                 environment=rocketpy_env,
                 rail_length=flight.rail_length,
         )
-        self.rocketpy_flight = rocketpy_flight 
+        self.rocketpy_flight = rocketpy_flight
         self.flight = flight
 
+    def create_flight(self) -> "Dict[str, str]":
+        """
+        Create a flight in the database.
+
+        Returns:
+            Dict[str, str]: Flight id.
+        """
+        flight = FlightRepository(flight=self.flight)
+        successfully_created_flight = flight.create_flight()
+        if successfully_created_flight: 
+            return { "message": "Flight created", "flight_id": str(flight.flight_id) }
+        else:
+            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @staticmethod
+    def get_flight(flight_id: int) -> "Union[Flight, Response]":
+        """
+        Get a flight from the database.
+
+        Args:
+            flight_id (int): Flight id.
+
+        Returns:
+            Flight model object
+
+        Raises:
+            HTTP 404 Not Found: If the flight is not found in the database.
+        """
+        successfully_read_flight = \
+            FlightRepository(flight_id=flight_id).get_flight()
+        if not successfully_read_flight:
+            return Response(status_code=status.HTTP_404_NOT_FOUND)
+        return successfully_read_flight
+
+    @staticmethod
+    def get_rocketpy_flight(flight_id: int) -> "Union[Dict[str, Any], Response]":
+        """
+        Get a rocketpy flight object encoded as jsonpickle string from the database.
+
+        Args:
+            flight_id (int): Flight id.
+
+        Returns:
+            str: jsonpickle string of the rocketpy flight.
+
+        Raises:
+            HTTP 404 Not Found: If the flight is not found in the database.
+        """
+        successfully_read_flight = \
+            FlightRepository(flight_id=flight_id).get_flight()
+        if not successfully_read_flight:
+            return Response(status_code=status.HTTP_404_NOT_FOUND)
+
+        successfully_read_rocketpy_flight = \
+            FlightController(successfully_read_flight).rocketpy_flight
+
+        return { "jsonpickle_rocketpy_flight": jsonpickle.encode(successfully_read_rocketpy_flight) }
+
+    def update_flight(self, flight_id: int) -> "Union[Dict[str, Any], Response]":
+        """
+        Update a flight in the database.
+
+        Args:
+            flight_id (int): Flight id.
+
+        Returns:
+            Dict[str, Any]: Flight id and message.
+
+        Raises:
+            HTTP 404 Not Found: If the flight is not found in the database.
+        """
+        successfully_read_flight = \
+            FlightRepository(flight_id=flight_id).get_flight()
+        if not successfully_read_flight:
+            return Response(status_code=status.HTTP_404_NOT_FOUND)
+
+        successfully_updated_flight = \
+            FlightRepository(flight=self.flight, flight_id=flight_id).update_flight()
+
+        if successfully_updated_flight:
+            return { 
+                    "message": "Flight successfully updated",
+                    "new_flight_id": str(successfully_updated_flight)
+            }
+        else:
+            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @staticmethod
+    def update_env(flight_id: int, env: Env) -> "Union[Dict[str, Any], Response]":
+        """
+        Update the environment of a flight in the database.
+
+        Args:
+            flight_id (int): Flight id.
+            env (models.Env): Environment model object.
+
+        Returns:
+            Dict[str, Any]: Flight id and message.
+
+        Raises:
+            HTTP 404 Not Found: If the flight is not found in the database.
+        """
+        successfully_read_flight = \
+            FlightRepository(flight_id=flight_id).get_flight()
+        if not successfully_read_flight:
+            return Response(status_code=status.HTTP_404_NOT_FOUND)
+
+        flight.env = env
+        successfully_updated_flight = \
+            FlightRepository(flight=flight).update_flight(flight_id)
+        if successfully_updated_flight:
+            return { 
+                    "message": "Flight updated successfully",
+                    "new_flight_id": str(successfully_updated_flight)
+            }
+        else:
+            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @staticmethod
+    def update_rocket(flight_id: int, rocket: Rocket) -> "Union[Dict[str, Any], Response]":
+        """
+        Update the rocket of a flight in the database.
+
+        Args:
+            flight_id (int): Flight id.
+            rocket (models.Rocket): Rocket model object.
+
+        Returns:
+            Dict[str, Any]: Flight id and message.
+
+        Raises:
+            HTTP 404 Not Found: If the flight is not found in the database.
+        """
+        successfully_read_flight = \
+            FlightRepository(flight_id=flight_id).get_flight()
+        if not successfully_read_flight:
+            return Response(status_code=status.HTTP_404_NOT_FOUND)
+
+        flight.rocket = rocket 
+        successfully_updated_flight = \
+            FlightRepository(flight=flight).update_flight(flight_id)
+        if successfully_updated_flight:
+            return { 
+                    "message": "Flight updated successfully",
+                    "new_flight_id": str(successfully_updated_flight)
+            }
+        else:
+            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @staticmethod
+    def delete_flight(flight_id: int) -> "Union[Dict[str, str], Response]":
+        """
+        Delete a flight from the database.
+
+        Args:
+            flight_id (int): Flight id.
+
+        Returns:
+            Dict[str, str]: Flight id and message.
+
+        Raises:
+            HTTP 404 Not Found: If the flight is not found in the database.
+        """
+        successfully_read_flight = \
+            FlightRepository(flight_id=flight_id).get_flight()
+        if not successfully_read_flight:
+            return Response(status_code=status.HTTP_404_NOT_FOUND)
+
+        successfully_deleted_flight = \
+            FlightRepository(flight_id=flight_id).delete_flight()
+        if successfully_deleted_flight: 
+            return {"deleted_flight_id": str(flight_id), "message": "Flight successfully deleted"}
+        else:
+            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @staticmethod
     def simulate(flight_id: int) -> "Union[FlightSummary, Response]":
         """
         Simulate a rocket flight.
@@ -198,7 +374,7 @@ class FlightController():
         _flight_data = FlightData(
             initial_conditions = _initial_conditions,
             numerical_integration_settings = _numerical_integration_settings,
-            surface_wind_conditions = _surface_wind_conditions, 
+            surface_wind_conditions = _surface_wind_conditions,
             launch_rail_conditions = _launch_rail_conditions,
             out_of_rail_conditions= _out_of_rail_conditions,
             burnout_conditions = _burnout_conditions,
@@ -211,173 +387,3 @@ class FlightController():
         flight_summary = FlightSummary( flight_data = _flight_data )
 
         return flight_summary
-
-    def create_flight(self) -> "Dict[str, str]":
-        """
-        Create a flight in the database.
-
-        Returns:
-            Dict[str, str]: Flight id.
-        """
-        flight = FlightRepository(flight=self.flight)
-        successfully_created_flight = flight.create_flight()
-        if successfully_created_flight: 
-            return { "message": "Flight created", "flight_id": str(flight.flight_id) }
-        else:
-            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    def get_flight(flight_id: int) -> "Union[Flight, Response]":
-        """
-        Get a flight from the database.
-
-        Args:
-            flight_id (int): Flight id.
-
-        Returns:
-            Flight model object
-
-        Raises:
-            HTTP 404 Not Found: If the flight is not found in the database. 
-        """
-        successfully_read_flight = \
-            FlightRepository(flight_id=flight_id).get_flight()
-        if not successfully_read_flight:
-            return Response(status_code=status.HTTP_404_NOT_FOUND)
-        return successfully_read_flight
-
-    def get_rocketpy_flight(flight_id: int) -> "Union[Dict[str, Any], Response]":
-        """
-        Get a rocketpy flight object encoded as jsonpickle string from the database.
-
-        Args:
-            flight_id (int): Flight id.
-
-        Returns:
-            str: jsonpickle string of the rocketpy flight.
-
-        Raises:
-            HTTP 404 Not Found: If the flight is not found in the database.
-        """
-        successfully_read_flight = \
-            FlightRepository(flight_id=flight_id).get_flight()
-        if not successfully_read_flight:
-            return Response(status_code=status.HTTP_404_NOT_FOUND)
-
-        successfully_read_rocketpy_flight = \
-            FlightController(successfully_read_flight).rocketpy_flight
-
-        return { "jsonpickle_rocketpy_flight": jsonpickle.encode(successfully_read_rocketpy_flight) }
-
-    def update_flight(self, flight_id: int) -> "Union[Dict[str, Any], Response]":
-        """
-        Update a flight in the database.
-
-        Args:
-            flight_id (int): Flight id.
-
-        Returns:
-            Dict[str, Any]: Flight id and message.
-
-        Raises:
-            HTTP 404 Not Found: If the flight is not found in the database.
-        """
-        successfully_read_flight = \
-            FlightRepository(flight_id=flight_id).get_flight()
-        if not successfully_read_flight:
-            return Response(status_code=status.HTTP_404_NOT_FOUND)
-
-        successfully_updated_flight = \
-            FlightRepository(flight=self.flight, flight_id=flight_id).update_flight()
-
-        if successfully_updated_flight:
-            return { 
-                    "message": "Flight successfully updated", 
-                    "new_flight_id": str(successfully_updated_flight)
-            }
-        else:
-            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    def update_env(flight_id: int, env: Env) -> "Union[Dict[str, Any], Response]":
-        """
-        Update the environment of a flight in the database.
-
-        Args:
-            flight_id (int): Flight id.
-            env (models.Env): Environment model object.
-
-        Returns:
-            Dict[str, Any]: Flight id and message.
-
-        Raises:
-            HTTP 404 Not Found: If the flight is not found in the database.
-        """
-        successfully_read_flight = \
-            FlightRepository(flight_id=flight_id).get_flight()
-        if not successfully_read_flight:
-            return Response(status_code=status.HTTP_404_NOT_FOUND)
-
-        flight.env = env
-        successfully_updated_flight = \
-            FlightRepository(flight=flight).update_flight(flight_id)
-        if successfully_updated_flight:
-            return { 
-                    "message": "Flight updated successfully", 
-                    "new_flight_id": str(successfully_updated_flight)
-            }
-        else:
-            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    def update_rocket(flight_id: int, rocket: Rocket) -> "Union[Dict[str, Any], Response]":
-        """
-        Update the rocket of a flight in the database.
-
-        Args:
-            flight_id (int): Flight id.
-            rocket (models.Rocket): Rocket model object.
-
-        Returns:
-            Dict[str, Any]: Flight id and message.
-
-        Raises:
-            HTTP 404 Not Found: If the flight is not found in the database.
-        """
-        successfully_read_flight = \
-            FlightRepository(flight_id=flight_id).get_flight()
-        if not successfully_read_flight:
-            return Response(status_code=status.HTTP_404_NOT_FOUND)
-
-        flight.rocket = rocket 
-        successfully_updated_flight = \
-            FlightRepository(flight=flight).update_flight(flight_id) 
-        if successfully_updated_flight:
-            return { 
-                    "message": "Flight updated successfully", 
-                    "new_flight_id": str(successfully_updated_flight)
-            }
-        else:
-            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    def delete_flight(flight_id: int) -> "Union[Dict[str, str], Response]":
-        """
-        Delete a flight from the database.
-
-        Args:
-            flight_id (int): Flight id.
-
-        Returns:
-            Dict[str, str]: Flight id and message.
-
-        Raises:
-            HTTP 404 Not Found: If the flight is not found in the database.
-        """
-        successfully_read_flight = \
-            FlightRepository(flight_id=flight_id).get_flight()
-        if not successfully_read_flight:
-            return Response(status_code=status.HTTP_404_NOT_FOUND)
-
-        successfully_deleted_flight = \
-            FlightRepository(flight_id=flight_id).delete_flight()
-        if successfully_deleted_flight: 
-            return {"deleted_flight_id": str(flight_id), "message": "Flight successfully deleted"}
-        else:
-            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)

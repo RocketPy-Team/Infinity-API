@@ -58,7 +58,7 @@ class RocketController():
         rocketpy_rocket.evaluate_static_margin()
 
         #Tail
-        tail = self.TailController(rocket.tail).rocketpy_tail 
+        tail = self.TailController(rocket.tail).rocketpy_tail
         rocketpy_rocket.aerodynamic_surfaces.add(tail, tail.position)
         rocketpy_rocket.evaluate_static_margin()
 
@@ -164,6 +164,7 @@ class RocketController():
             self.rocketpy_parachute = rocketpy_parachute
             self.parachute = parachute
 
+        @staticmethod
         def check_trigger(expression: str) -> bool:
             """
             Check if the trigger expression is valid.
@@ -236,6 +237,7 @@ class RocketController():
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @staticmethod
     def get_rocket(rocket_id: int) -> "Union[Rocket, Response]":
         """
         Get a rocket from the database.
@@ -247,7 +249,7 @@ class RocketController():
             rocket model object
 
         Raises:
-            HTTP 404 Not Found: If the rocket is not found in the database. 
+            HTTP 404 Not Found: If the rocket is not found in the database.
         """
         successfully_read_rocket = \
              RocketRepository(rocket_id=rocket_id).get_rocket()
@@ -255,6 +257,7 @@ class RocketController():
             return Response(status_code=status.HTTP_404_NOT_FOUND)
         return successfully_read_rocket
 
+    @staticmethod
     def get_rocketpy_rocket(rocket_id: int) -> "Union[Dict[str, Any], Response]":
         """
         Get a rocketpy rocket object encoded as jsonpickle string from the database.
@@ -302,12 +305,13 @@ class RocketController():
 
         if successfully_updated_rocket:
             return { 
-                    "message": "Rocket successfully updated", 
+                    "message": "Rocket successfully updated",
                     "new_rocket_id": str(successfully_updated_rocket)
             }
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @staticmethod
     def delete_rocket(rocket_id: int) -> "Union[Dict[str, str], Response]":
         """
         Delete a rocket from the database.
@@ -333,6 +337,7 @@ class RocketController():
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @staticmethod
     def simulate(rocket_id: int) -> "Union[RocketSummary, Response]":
         """
         Simulate a rocket rocket.
@@ -394,7 +399,7 @@ class RocketController():
             )
         )
 
-        _aerodynamics_lift_coefficient_derivatives = {} 
+        _aerodynamics_lift_coefficient_derivatives = {}
         for surface, position in rocket.aerodynamic_surfaces:
             name = surface.name
             _aerodynamics_lift_coefficient_derivatives[name] = []
@@ -412,7 +417,7 @@ class RocketController():
             )
 
         _rocket_aerodynamics_quantities = RocketAerodynamicsQuantities(
-            aerodynamics_lift_coefficient_derivatives = _aerodynamics_lift_coefficient_derivatives, 
+            aerodynamics_lift_coefficient_derivatives = _aerodynamics_lift_coefficient_derivatives,
             aerodynamics_center_of_pressure = _aerodynamics_center_of_pressure,
             distance_cop_to_codm = "Distance from Center of Pressure to Center of Dry Mass: " + "{:.3f}".format(rocket.center_of_mass(0) - rocket.cp_position) + " m",
             initial_static_margin = "Initial Static Margin: " + "{:.3f}".format(rocket.static_margin(0)) + " c",

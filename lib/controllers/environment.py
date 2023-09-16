@@ -1,15 +1,14 @@
 from rocketpy import Environment
+from fastapi import Response, status
+from typing import Dict, Any, Union
 
 from lib.models.environment import Env
 from lib.repositories.environment import EnvRepository
 from lib.views.environment import EnvSummary, EnvData, EnvPlots
 
-from fastapi import Response, status
-from typing import Dict, Any, Union
-
 import jsonpickle
 
-class EnvController(): 
+class EnvController():
     """ 
     Controller for the Environment model.
 
@@ -27,10 +26,10 @@ class EnvController():
                 date=env.date
                 )
         rocketpy_env.set_atmospheric_model(
-                type=env.atmospheric_model_type, 
+                type=env.atmospheric_model_type,
                 file=env.atmospheric_model_file
                 )
-        self.rocketpy_env = rocketpy_env 
+        self.rocketpy_env = rocketpy_env
         self.env = env
 
     def create_env(self) -> "Dict[str, str]":
@@ -47,6 +46,7 @@ class EnvController():
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @staticmethod
     def get_env(env_id: int) -> "Union[Env, Response]":
         """
         Get a env from the database.
@@ -58,7 +58,7 @@ class EnvController():
             env model object
 
         Raises:
-            HTTP 404 Not Found: If the env is not found in the database. 
+            HTTP 404 Not Found: If the env is not found in the database.
         """
         successfully_read_env = \
             EnvRepository(env_id=env_id).get_env()
@@ -66,6 +66,7 @@ class EnvController():
             return Response(status_code=status.HTTP_404_NOT_FOUND)
         return successfully_read_env
 
+    @staticmethod
     def get_rocketpy_env(env_id: int) -> "Union[Dict[str, Any], Response]":
         """
         Get a rocketpy env object encoded as jsonpickle string from the database.
@@ -113,12 +114,13 @@ class EnvController():
 
         if successfully_updated_env:
             return { 
-                    "message": "Environment successfully updated", 
+                    "message": "Environment successfully updated",
                     "new_env_id": str(successfully_updated_env)
             }
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @staticmethod
     def delete_env(env_id: int) -> "Union[Dict[str, str], Response]":
         """
         Delete a env from the database.
@@ -144,6 +146,7 @@ class EnvController():
         else:
             return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @staticmethod
     def simulate(env_id: int) -> "Union[EnvSummary, Response]":
         """
         Simulate a rocket environment.
