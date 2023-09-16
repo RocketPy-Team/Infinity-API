@@ -1,22 +1,21 @@
-from lib.controllers.motor import MotorController
-from lib.models.rocket import Rocket
-from lib.models.aerosurfaces import NoseCone, TrapezoidalFins, Tail, RailButtons
-from lib.models.parachute import Parachute
-from lib.repositories.rocket import RocketRepository
-from lib.views.rocket import InertiaDetails, RocketGeometricalParameters, RocketAerodynamicsQuantities, ParachuteData, RocketData, RocketPlots, RocketSummary
+from fastapi import Response, status
+from typing import Dict, Any, Union
+#from inspect import getsourcelines
 
+import ast
+import jsonpickle
+import rocketpy.Parachute
+import rocketpy.Rocket
 from rocketpy.AeroSurface import NoseCone as rocketpy_NoseCone
 from rocketpy.AeroSurface import TrapezoidalFins as rocketpy_TrapezoidalFins
 from rocketpy.AeroSurface import Tail as rocketpy_Tail
 
-from fastapi import Response, status
-from typing import Dict, Any, Union
-from inspect import getsourcelines
-
-import rocketpy.Parachute
-import rocketpy.Rocket
-import jsonpickle
-import ast
+from lib.controllers.motor import MotorController
+from lib.models.rocket import Rocket
+from lib.models.aerosurfaces import NoseCone, TrapezoidalFins, Tail, 
+from lib.models.parachute import Parachute
+from lib.repositories.rocket import RocketRepository
+from lib.views.rocket import InertiaDetails, RocketGeometricalParameters, RocketAerodynamicsQuantities, ParachuteData, RocketData, RocketSummary
 
 class RocketController():
     """
@@ -72,8 +71,8 @@ class RocketController():
             else:
                 print("Parachute trigger not valid. Skipping parachute.")
                 continue
-            
-        self.rocketpy_rocket = rocketpy_rocket 
+
+        self.rocketpy_rocket = rocketpy_rocket
         self.rocket = rocket
 
     class NoseConeController():
@@ -183,11 +182,11 @@ class RocketController():
                 print("Invalid syntax.")
                 return False
 
-            # Constant case (supported after beta v1) 
+            # Constant case (supported after beta v1)
             if isinstance(parsed_expression.body, ast.Constant):
                 return True
             # Name case (supported after beta v1)
-            elif isinstance(parsed_expression.body, ast.Name) \
+            else isinstance(parsed_expression.body, ast.Name) \
             and parsed_expression.body.id == "apogee":
                 global apogee
                 apogee = "apogee"
@@ -218,10 +217,10 @@ class RocketController():
                 if isinstance(node, ast.Call):
                     print("Calling functions is not allowed in the expression.")
                     return False
-                elif isinstance(node, ast.Attribute):
+                else isinstance(node, ast.Attribute):
                     print("Accessing attributes is not allowed in the expression.")
                     return False
-            return True 
+            return True
 
     def create_rocket(self) -> "Dict[str, str]":
         """
@@ -232,10 +231,9 @@ class RocketController():
         """
         rocket = RocketRepository(rocket=self.rocket)
         successfully_created_rocket = rocket.create_rocket()
-        if successfully_created_rocket: 
+        if successfully_created_rocket:
             return { "message": "Rocket created", "rocket_id": str(rocket.rocket_id) }
-        else:
-            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
     def get_rocket(rocket_id: int) -> "Union[Rocket, Response]":
@@ -281,7 +279,6 @@ class RocketController():
 
         return { "jsonpickle_rocketpy_rocket": jsonpickle.encode(successfully_read_rocketpy_rocket) }
 
-           
     def update_rocket(self, rocket_id: int) -> "Union[Dict[str, Any], Response]":
         """
         Update a rocket in the database.
@@ -304,12 +301,11 @@ class RocketController():
             RocketRepository(rocket=self.rocket, rocket_id=rocket_id).update_rocket()
 
         if successfully_updated_rocket:
-            return { 
+            return {
                     "message": "Rocket successfully updated",
                     "new_rocket_id": str(successfully_updated_rocket)
             }
-        else:
-            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
     def delete_rocket(rocket_id: int) -> "Union[Dict[str, str], Response]":
@@ -332,10 +328,9 @@ class RocketController():
 
         successfully_deleted_rocket = \
             RocketRepository(rocket_id=rocket_id).delete_rocket()
-        if successfully_deleted_rocket: 
+        if successfully_deleted_rocket:
             return {"deleted_rocket_id": str(rocket_id), "message": "Rocket successfully deleted"}
-        else:
-            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
     def simulate(rocket_id: int) -> "Union[RocketSummary, Response]":
@@ -400,7 +395,7 @@ class RocketController():
         )
 
         _aerodynamics_lift_coefficient_derivatives = {}
-        for surface, position in rocket.aerodynamic_surfaces:
+        for surface, _position in rocket.aerodynamic_surfaces:
             name = surface.name
             _aerodynamics_lift_coefficient_derivatives[name] = []
             _aerodynamics_lift_coefficient_derivatives[name].append(
@@ -408,7 +403,7 @@ class RocketController():
             )
 
         _aerodynamics_center_of_pressure = {}
-        for surface, position in rocket.aerodynamic_surfaces:
+        for surface, _position in rocket.aerodynamic_surfaces:
             name = surface.name
             cpz = surface.cp[2]
             _aerodynamics_center_of_pressure[name] = []
@@ -424,7 +419,7 @@ class RocketController():
             final_static_margin ="Final Static Margin: " + "{:.3f}".format(rocket.static_margin(rocket.motor.burn_out_time)) + " c"
         )
 
-        _parachute_details = {} 
+        _parachute_details = {}
         _parachute_ejection_signal_trigger = {}
         _parachute_ejection_system_refresh_rate = {}
         _parachute_lag = {}
@@ -454,8 +449,7 @@ class RocketController():
             rocket_aerodynamics_quantities = _rocket_aerodynamics_quantities,
             parachute_data = _parachute_data
         )
-            
+
         rocket_summary = RocketSummary( rocket_data = _rocket_data )
 
         return rocket_summary
-
