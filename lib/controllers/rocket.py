@@ -217,7 +217,7 @@ class RocketController():
                 if isinstance(node, ast.Call):
                     print("Calling functions is not allowed in the expression.")
                     return False
-                else isinstance(node, ast.Attribute):
+                if isinstance(node, ast.Attribute):
                     print("Accessing attributes is not allowed in the expression.")
                     return False
             return True
