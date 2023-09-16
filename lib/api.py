@@ -1,11 +1,11 @@
 """
 This is the main API file for the RocketPy API.
 """
+from typing import Any, Dict
 
-from fastapi import FastAPI, Response, status, Header
+from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from lib.secrets import Secrets
 from lib.views.flight import FlightSummary
 from lib.views.environment import EnvSummary
 from lib.views.rocket import RocketSummary
@@ -18,8 +18,6 @@ from lib.controllers.flight import FlightController
 from lib.controllers.environment import EnvController
 from lib.controllers.rocket import RocketController
 from lib.controllers.motor import MotorController
-
-from typing import Any, Dict
 
 app = FastAPI()
 app.add_middleware(
