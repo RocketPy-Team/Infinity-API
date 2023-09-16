@@ -1,3 +1,9 @@
+from typing import Dict, Any, Union
+from fastapi import Response, status
+
+import rocketpy.Flight
+import jsonpickle
+
 from lib.models.rocket import Rocket
 from lib.models.flight import Flight
 from lib.models.environment import Env
@@ -6,11 +12,6 @@ from lib.repositories.flight import FlightRepository
 from lib.controllers.environment import EnvController
 from lib.controllers.rocket import RocketController
 
-from typing import Dict, Any, Union
-from fastapi import Response, status
-
-import rocketpy.Flight
-import jsonpickle
 
 class FlightController():
     """
@@ -52,10 +53,9 @@ class FlightController():
         """
         flight = FlightRepository(flight=self.flight)
         successfully_created_flight = flight.create_flight()
-        if successfully_created_flight: 
+        if successfully_created_flight:
             return { "message": "Flight created", "flight_id": str(flight.flight_id) }
-        else:
-            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
     def get_flight(flight_id: int) -> "Union[Flight, Response]":
@@ -123,12 +123,11 @@ class FlightController():
             FlightRepository(flight=self.flight, flight_id=flight_id).update_flight()
 
         if successfully_updated_flight:
-            return { 
+            return {
                     "message": "Flight successfully updated",
                     "new_flight_id": str(successfully_updated_flight)
             }
-        else:
-            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
     def update_env(flight_id: int, env: Env) -> "Union[Dict[str, Any], Response]":
@@ -149,17 +148,17 @@ class FlightController():
             FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
+        flight = successfully_read_flight
 
         flight.env = env
         successfully_updated_flight = \
             FlightRepository(flight=flight).update_flight(flight_id)
         if successfully_updated_flight:
-            return { 
+            return {
                     "message": "Flight updated successfully",
                     "new_flight_id": str(successfully_updated_flight)
             }
-        else:
-            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
     def update_rocket(flight_id: int, rocket: Rocket) -> "Union[Dict[str, Any], Response]":
@@ -181,11 +180,11 @@ class FlightController():
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
-        flight.rocket = rocket 
+        flight.rocket = rocket
         successfully_updated_flight = \
             FlightRepository(flight=flight).update_flight(flight_id)
         if successfully_updated_flight:
-            return { 
+            return {
                     "message": "Flight updated successfully",
                     "new_flight_id": str(successfully_updated_flight)
             }
@@ -213,10 +212,9 @@ class FlightController():
 
         successfully_deleted_flight = \
             FlightRepository(flight_id=flight_id).delete_flight()
-        if successfully_deleted_flight: 
+        if successfully_deleted_flight:
             return {"deleted_flight_id": str(flight_id), "message": "Flight successfully deleted"}
-        else:
-            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
     def simulate(flight_id: int) -> "Union[FlightSummary, Response]":
@@ -259,7 +257,7 @@ class FlightController():
             function_evaluations_per_time_step = f"Number of Derivative Functions Evaluation: {sum(flight.function_evaluations_per_time_step)}",
             avg_function_evaluations_per_time_step = "Average Function Evaluations per Time Step: {:3f}".format(sum(flight.function_evaluations_per_time_step) / len(flight.time_steps))
         )
-        
+
         _launch_rail_conditions = LaunchRailConditions(
             rail_length = "Launch Rail Length: {:.2f} m".format(flight.rail_length),
             flight_inclination = "Launch Rail Inclination: {:.2f}°".format(flight.inclination),
