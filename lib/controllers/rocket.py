@@ -1,5 +1,4 @@
 from typing import Dict, Any, Union
-from pydantic import BaseModel
 import jsonpickle
 import ast
 
@@ -17,7 +16,7 @@ from lib.models.rocket import Rocket
 from lib.models.aerosurfaces import NoseCone, TrapezoidalFins, Tail
 from lib.models.parachute import Parachute
 from lib.repositories.rocket import RocketRepository
-from lib.views.rocket import InertiaDetails, RocketGeometricalParameters, RocketAerodynamicsQuantities, ParachuteData, RocketData, RocketSummary, RocketCreated, RocketUpdated, RocketDeleted
+from lib.views.rocket import InertiaDetails, RocketGeometricalParameters, RocketAerodynamicsQuantities, ParachuteData, RocketData, RocketSummary, RocketCreated, RocketUpdated, RocketDeleted, RocketPickle
 
 class RocketController():
     """
@@ -279,7 +278,7 @@ class RocketController():
         successfully_read_rocketpy_rocket = \
             RocketController( successfully_read_rocket ).rocketpy_rocket
 
-        return BaseModel(jsonpickle_rocketpy_rocket=jsonpickle.encode(successfully_read_rocketpy_rocket))
+        return RocketPickle(jsonpickle_rocketpy_rocket=jsonpickle.encode(successfully_read_rocketpy_rocket))
 
     def update_rocket(self, rocket_id: int) -> "Union[Dict[str, Any], Response]":
         """

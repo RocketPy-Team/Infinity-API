@@ -1,5 +1,4 @@
 from typing import Dict, Any, Union
-from pydantic import BaseModel
 from fastapi import Response, status
 
 import rocketpy.Flight
@@ -8,7 +7,7 @@ import jsonpickle
 from lib.models.rocket import Rocket
 from lib.models.flight import Flight
 from lib.models.environment import Env
-from lib.views.flight import FlightSummary, SurfaceWindConditions, OutOfRailConditions, BurnoutConditions, ApogeeConditions, MaximumValues, InitialConditions, NumericalIntegrationSettings, ImpactConditions, EventsRegistered, LaunchRailConditions, FlightData, FlightCreated, FlightUpdated, FlightDeleted
+from lib.views.flight import FlightSummary, SurfaceWindConditions, OutOfRailConditions, BurnoutConditions, ApogeeConditions, MaximumValues, InitialConditions, NumericalIntegrationSettings, ImpactConditions, EventsRegistered, LaunchRailConditions, FlightData, FlightCreated, FlightUpdated, FlightDeleted, FlightPickle
 from lib.repositories.flight import FlightRepository
 from lib.controllers.environment import EnvController
 from lib.controllers.rocket import RocketController
@@ -100,7 +99,7 @@ class FlightController():
         successfully_read_rocketpy_flight = \
             FlightController(successfully_read_flight).rocketpy_flight
 
-        return BaseModel(jsonpickle_rocketpy_flight=jsonpickle.encode(successfully_read_rocketpy_flight))
+        return FlightPickle(jsonpickle_rocketpy_flight=jsonpickle.encode(successfully_read_rocketpy_flight))
 
     def update_flight(self, flight_id: int) -> "Union[Dict[str, Any], Response]":
         """

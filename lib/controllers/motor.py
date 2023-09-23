@@ -1,12 +1,11 @@
 from fastapi import Response, status
-from pydantic import BaseModel
 from typing import Any, Dict, Union
 from rocketpy import SolidMotor
 import jsonpickle
 
 from lib.models.motor import Motor
 from lib.repositories.motor import MotorRepository
-from lib.views.motor import MotorSummary, MotorData, MotorCreated, MotorUpdated, MotorDeleted
+from lib.views.motor import MotorSummary, MotorData, MotorCreated, MotorUpdated, MotorDeleted, MotorPickle
 
 class MotorController():
     """
@@ -94,7 +93,7 @@ class MotorController():
         successfully_read_rocketpy_motor = \
             MotorController( successfully_read_motor ).rocketpy_motor
 
-        return BaseModel(jsonpickle_rocketpy_motor=jsonpickle.encode(successfully_read_rocketpy_motor))
+        return MotorPickle(jsonpickle_rocketpy_motor=jsonpickle.encode(successfully_read_rocketpy_motor))
 
     def update_motor(self, motor_id: int) -> "Union[Dict[str, Any], Response]":
         """

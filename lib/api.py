@@ -7,10 +7,10 @@ from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 
-from lib.views.flight import FlightSummary, FlightCreated, FlightUpdated, FlightDeleted
-from lib.views.environment import EnvSummary, EnvCreated, EnvUpdated, EnvDeleted
-from lib.views.rocket import RocketSummary, RocketCreated, RocketUpdated, RocketDeleted
-from lib.views.motor import MotorSummary, MotorCreated, MotorUpdated, MotorDeleted
+from lib.views.flight import FlightSummary, FlightCreated, FlightUpdated, FlightDeleted, FlightPickle
+from lib.views.environment import EnvSummary, EnvCreated, EnvUpdated, EnvDeleted, EnvPickle
+from lib.views.rocket import RocketSummary, RocketCreated, RocketUpdated, RocketDeleted, RocketPickle
+from lib.views.motor import MotorSummary, MotorCreated, MotorUpdated, MotorDeleted, MotorPickle
 from lib.models.environment import Env
 from lib.models.flight import Flight
 from lib.models.rocket import Rocket
@@ -20,7 +20,7 @@ from lib.controllers.environment import EnvController
 from lib.controllers.rocket import RocketController
 from lib.controllers.motor import MotorController
 
-app = FastAPI()
+app = FastAPI(swagger_ui_parameters={"defaultModelsExpandDepth": 0})
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -81,7 +81,7 @@ async def read_flight(flight_id: int) -> "Flight":
     return FlightController.get_flight(flight_id)
 
 @app.get("/flights/rocketpy/{flight_id}", tags=["FLIGHT"])
-async def read_rocketpy_flight(flight_id: int) -> "BaseModel":
+async def read_rocketpy_flight(flight_id: int) -> "FlightPickle":
     """
     Reads a rocketpy flight object.
 
@@ -255,7 +255,7 @@ async def delete_env(env_id: int) -> "EnvDeleted":
     return EnvController.delete_env(env_id)
 
 @app.get("/environments/rocketpy/{env_id}", tags=["ENVIRONMENT"])
-async def read_rocketpy_env(env_id: int) -> "Dict[str, Any]":
+async def read_rocketpy_env(env_id: int) -> "EnvPickle":
     """
     Reads a rocketpy environment.
 
@@ -356,7 +356,7 @@ async def delete_motor(motor_id: int) -> "MotorDeleted":
     return MotorController.delete_motor(motor_id)
 
 @app.get("/motors/rocketpy/{motor_id}", tags=["MOTOR"])
-async def read_rocketpy_motor(motor_id: int) -> "Dict[str, Any]":
+async def read_rocketpy_motor(motor_id: int) -> "MotorPickle":
     """
     Reads a rocketpy motor.
 
@@ -457,7 +457,7 @@ async def delete_rocket(rocket_id: int) -> "RocketDeleted":
     return RocketController.delete_rocket(rocket_id)
 
 @app.get("/rockets/rocketpy/{rocket_id}", tags=["ROCKET"])
-async def read_rocketpy_rocket(rocket_id: int) -> "Dict[str, Any]":
+async def read_rocketpy_rocket(rocket_id: int) -> "RocketPickle":
     """
     Reads a rocketpy rocket.
 

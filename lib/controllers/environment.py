@@ -1,5 +1,4 @@
 from typing import Dict, Any, Union
-from pydantic import BaseModel
 
 import jsonpickle
 from rocketpy import Environment
@@ -7,7 +6,7 @@ from fastapi import Response, status
 
 from lib.models.environment import Env
 from lib.repositories.environment import EnvRepository
-from lib.views.environment import EnvSummary, EnvData, EnvPlots, EnvCreated, EnvDeleted, EnvUpdated
+from lib.views.environment import EnvSummary, EnvData, EnvPlots, EnvCreated, EnvDeleted, EnvUpdated, EnvPickle
 
 class EnvController():
     """ 
@@ -88,7 +87,7 @@ class EnvController():
         successfully_read_rocketpy_env = \
             EnvController( successfully_read_env ).rocketpy_env
 
-        return BaseModel(jsonpickle_rocketpy_env=jsonpickle.encode(successfully_read_rocketpy_env))
+        return EnvPickle(jsonpickle_rocketpy_env=jsonpickle.encode(successfully_read_rocketpy_env))
 
     def update_env(self, env_id: int) -> "Union[Dict[str, Any], Response]":
         """

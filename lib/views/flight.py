@@ -103,3 +103,6 @@ class FlightUpdated(BaseModel):
 class FlightDeleted(BaseModel):
     deleted_flight_id: str 
     message: str = "Flight successfully deleted"
+
+class FlightPickle(BaseModel):
+    jsonpickle_rocketpy_flight: str

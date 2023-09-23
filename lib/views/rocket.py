@@ -50,3 +50,6 @@ class RocketUpdated(BaseModel):
 class RocketDeleted(BaseModel):
     deleted_rocket_id: str 
     message: str = "Rocket successfully deleted"
+
+class RocketPickle(BaseModel):
+    jsonpickle_rocketpy_rocket: str

@@ -35,3 +35,6 @@ class MotorUpdated(BaseModel):
 class MotorDeleted(BaseModel):
     deleted_motor_id: str 
     message: str = "Motor successfully deleted"
+
+class MotorPickle(BaseModel):
+    jsonpickle_rocketpy_motor: str

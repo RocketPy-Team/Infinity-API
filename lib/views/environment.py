@@ -44,3 +44,6 @@ class EnvUpdated(BaseModel):
 class EnvDeleted(BaseModel):
     deleted_env_id: str 
     message: str = "Environment successfully deleted"
+
+class EnvPickle(BaseModel):
+    jsonpickle_rocketpy_env: str
