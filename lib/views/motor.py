@@ -23,3 +23,15 @@ class MotorPlots(BaseModel):
 class MotorSummary(BaseModel):
     motor_data: MotorData
     #motor_plots: MotorPlots
+
+class MotorCreated(BaseModel):
+    motor_id: str 
+    message: str = "Motor successfully created "
+
+class MotorUpdated(BaseModel):
+    new_motor_id: str 
+    message: str = "Motor successfull updated"
+
+class MotorDeleted(BaseModel):
+    deleted_motor_id: str 
+    message: str = "Motor successfully deleted"

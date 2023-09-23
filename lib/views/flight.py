@@ -91,3 +91,15 @@ class FlightPlots(BaseModel):
 class FlightSummary(BaseModel):
     flight_data: FlightData
     #flight_plots: FlightPlots
+
+class FlightCreated(BaseModel):
+    flight_id: str 
+    message: str = "Flight successfully created"
+
+class FlightUpdated(BaseModel):
+    new_flight_id: str 
+    message: str = "Flight successfully updated"
+
+class FlightDeleted(BaseModel):
+    deleted_flight_id: str 
+    message: str = "Flight successfully deleted"

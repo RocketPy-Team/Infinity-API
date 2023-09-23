@@ -32,3 +32,15 @@ class EnvPlots(BaseModel):
 class EnvSummary(BaseModel):
     env_data: EnvData
     env_plots: EnvPlots
+
+class EnvCreated(BaseModel):
+    env_id: str 
+    message: str = "Environment successfully created"
+
+class EnvUpdated(BaseModel):
+    new_env_id: str 
+    message: str = "Environment successfully updated"
+
+class EnvDeleted(BaseModel):
+    deleted_env_id: str 
+    message: str = "Environment successfully deleted"

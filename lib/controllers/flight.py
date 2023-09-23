@@ -1,4 +1,5 @@
 from typing import Dict, Any, Union
+from pydantic import BaseModel
 from fastapi import Response, status
 
 import rocketpy.Flight
@@ -7,7 +8,7 @@ import jsonpickle
 from lib.models.rocket import Rocket
 from lib.models.flight import Flight
 from lib.models.environment import Env
-from lib.views.flight import FlightSummary, SurfaceWindConditions, OutOfRailConditions, BurnoutConditions, ApogeeConditions, MaximumValues, InitialConditions, NumericalIntegrationSettings, ImpactConditions, EventsRegistered, LaunchRailConditions, FlightData
+from lib.views.flight import FlightSummary, SurfaceWindConditions, OutOfRailConditions, BurnoutConditions, ApogeeConditions, MaximumValues, InitialConditions, NumericalIntegrationSettings, ImpactConditions, EventsRegistered, LaunchRailConditions, FlightData, FlightCreated, FlightUpdated, FlightDeleted
 from lib.repositories.flight import FlightRepository
 from lib.controllers.environment import EnvController
 from lib.controllers.rocket import RocketController
@@ -54,7 +55,7 @@ class FlightController():
         flight = FlightRepository(flight=self.flight)
         successfully_created_flight = flight.create_flight()
         if successfully_created_flight:
-            return { "message": "Flight created", "flight_id": str(flight.flight_id) }
+            return FlightCreated(flight_id=str(flight.flight_id))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
@@ -99,7 +100,7 @@ class FlightController():
         successfully_read_rocketpy_flight = \
             FlightController(successfully_read_flight).rocketpy_flight
 
-        return { "jsonpickle_rocketpy_flight": jsonpickle.encode(successfully_read_rocketpy_flight) }
+        return BaseModel(jsonpickle_rocketpy_flight=jsonpickle.encode(successfully_read_rocketpy_flight))
 
     def update_flight(self, flight_id: int) -> "Union[Dict[str, Any], Response]":
         """
@@ -123,10 +124,7 @@ class FlightController():
             FlightRepository(flight=self.flight, flight_id=flight_id).update_flight()
 
         if successfully_updated_flight:
-            return {
-                    "message": "Flight successfully updated",
-                    "new_flight_id": str(successfully_updated_flight)
-            }
+            return FlightUpdated(new_flight_id=str(successfully_updated_flight))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
@@ -213,7 +211,7 @@ class FlightController():
         successfully_deleted_flight = \
             FlightRepository(flight_id=flight_id).delete_flight()
         if successfully_deleted_flight:
-            return {"deleted_flight_id": str(flight_id), "message": "Flight successfully deleted"}
+            return FlightDeleted(deleted_flight_id=str(flight_id))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod

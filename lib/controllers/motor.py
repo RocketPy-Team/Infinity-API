@@ -1,11 +1,12 @@
 from fastapi import Response, status
+from pydantic import BaseModel
 from typing import Any, Dict, Union
 from rocketpy import SolidMotor
 import jsonpickle
 
 from lib.models.motor import Motor
 from lib.repositories.motor import MotorRepository
-from lib.views.motor import MotorSummary, MotorData
+from lib.views.motor import MotorSummary, MotorData, MotorCreated, MotorUpdated, MotorDeleted
 
 class MotorController():
     """
@@ -48,7 +49,7 @@ class MotorController():
         motor = MotorRepository(motor=self.motor)
         successfully_created_motor = motor.create_motor()
         if successfully_created_motor:
-            return { "message": "Motor created", "motor_id": str(motor.motor_id) }
+            return MotorCreated(motor_id=str(motor.motor_id))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
@@ -93,7 +94,7 @@ class MotorController():
         successfully_read_rocketpy_motor = \
             MotorController( successfully_read_motor ).rocketpy_motor
 
-        return { "jsonpickle_rocketpy_motor": jsonpickle.encode(successfully_read_rocketpy_motor) }
+        return BaseModel(jsonpickle_rocketpy_motor=jsonpickle.encode(successfully_read_rocketpy_motor))
 
     def update_motor(self, motor_id: int) -> "Union[Dict[str, Any], Response]":
         """
@@ -117,10 +118,7 @@ class MotorController():
             MotorRepository(motor=self.motor, motor_id=motor_id).update_motor()
 
         if successfully_updated_motor:
-            return {
-                    "message": "Motor successfully updated",
-                    "new_motor_id": str(successfully_updated_motor)
-            }
+            return MotorUpdated(new_motor_id=str(successfully_updated_motor))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
@@ -145,7 +143,7 @@ class MotorController():
         successfully_deleted_motor = \
             MotorRepository(motor_id=motor_id).delete_motor()
         if successfully_deleted_motor:
-            return {"deleted_motor_id": str(motor_id), "message": "Motor successfully deleted"}
+            return MotorDeleted(deleted_motor_id=str(motor_id))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod

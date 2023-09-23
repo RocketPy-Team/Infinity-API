@@ -1,4 +1,5 @@
 from typing import Dict, Any, Union
+from pydantic import BaseModel
 import jsonpickle
 import ast
 
@@ -16,7 +17,7 @@ from lib.models.rocket import Rocket
 from lib.models.aerosurfaces import NoseCone, TrapezoidalFins, Tail
 from lib.models.parachute import Parachute
 from lib.repositories.rocket import RocketRepository
-from lib.views.rocket import InertiaDetails, RocketGeometricalParameters, RocketAerodynamicsQuantities, ParachuteData, RocketData, RocketSummary
+from lib.views.rocket import InertiaDetails, RocketGeometricalParameters, RocketAerodynamicsQuantities, ParachuteData, RocketData, RocketSummary, RocketCreated, RocketUpdated, RocketDeleted
 
 class RocketController():
     """
@@ -233,7 +234,7 @@ class RocketController():
         rocket = RocketRepository(rocket=self.rocket)
         successfully_created_rocket = rocket.create_rocket()
         if successfully_created_rocket:
-            return { "message": "Rocket created", "rocket_id": str(rocket.rocket_id) }
+            return RocketCreated(rocket_id=str(rocket.rocket_id))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
@@ -278,7 +279,7 @@ class RocketController():
         successfully_read_rocketpy_rocket = \
             RocketController( successfully_read_rocket ).rocketpy_rocket
 
-        return { "jsonpickle_rocketpy_rocket": jsonpickle.encode(successfully_read_rocketpy_rocket) }
+        return BaseModel(jsonpickle_rocketpy_rocket=jsonpickle.encode(successfully_read_rocketpy_rocket))
 
     def update_rocket(self, rocket_id: int) -> "Union[Dict[str, Any], Response]":
         """
@@ -302,10 +303,7 @@ class RocketController():
             RocketRepository(rocket=self.rocket, rocket_id=rocket_id).update_rocket()
 
         if successfully_updated_rocket:
-            return {
-                    "message": "Rocket successfully updated",
-                    "new_rocket_id": str(successfully_updated_rocket)
-            }
+            return RocketUpdated(new_rocket_id=str(successfully_updated_rocket))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
@@ -330,7 +328,7 @@ class RocketController():
         successfully_deleted_rocket = \
             RocketRepository(rocket_id=rocket_id).delete_rocket()
         if successfully_deleted_rocket:
-            return {"deleted_rocket_id": str(rocket_id), "message": "Rocket successfully deleted"}
+            return RocketDeleted(deleted_rocket_id=str(rocket_id))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod

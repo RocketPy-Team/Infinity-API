@@ -1,4 +1,5 @@
 from typing import Dict, Any, Union
+from pydantic import BaseModel
 
 import jsonpickle
 from rocketpy import Environment
@@ -6,7 +7,7 @@ from fastapi import Response, status
 
 from lib.models.environment import Env
 from lib.repositories.environment import EnvRepository
-from lib.views.environment import EnvSummary, EnvData, EnvPlots
+from lib.views.environment import EnvSummary, EnvData, EnvPlots, EnvCreated, EnvDeleted, EnvUpdated
 
 class EnvController():
     """ 
@@ -42,7 +43,7 @@ class EnvController():
         env = EnvRepository(environment=self.env)
         successfully_created_env = env.create_env()
         if successfully_created_env:
-            return { "message": "Environment created", "env_id": str(env.env_id) }
+            return EnvCreated(env_id=str(env.env_id))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
@@ -87,7 +88,7 @@ class EnvController():
         successfully_read_rocketpy_env = \
             EnvController( successfully_read_env ).rocketpy_env
 
-        return { "jsonpickle_rocketpy_env": jsonpickle.encode(successfully_read_rocketpy_env) }
+        return BaseModel(jsonpickle_rocketpy_env=jsonpickle.encode(successfully_read_rocketpy_env))
 
     def update_env(self, env_id: int) -> "Union[Dict[str, Any], Response]":
         """
@@ -111,10 +112,7 @@ class EnvController():
             EnvRepository(environment=self.env, env_id=env_id).update_env()
 
         if successfully_updated_env:
-            return {
-                    "message": "Environment successfully updated",
-                    "new_env_id": str(successfully_updated_env)
-            }
+             return EnvUpdated(new_env_id=str(successfully_updated_env))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
@@ -139,7 +137,7 @@ class EnvController():
         successfully_deleted_env = \
             EnvRepository(env_id=env_id).delete_env()
         if successfully_deleted_env:
-            return {"deleted_env_id": str(env_id), "message": "Environment successfully deleted"}
+            return EnvDeleted(deleted_env_id = str(env_id))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod

@@ -38,3 +38,15 @@ class RocketPlots(BaseModel):
 class RocketSummary(BaseModel):
     rocket_data: RocketData
     #rocket_plots: RocketPlots
+
+class RocketCreated(BaseModel):
+    rocket_id: str
+    message: str = "Rocket successfully created"
+
+class RocketUpdated(BaseModel):
+    new_rocket_id: str 
+    message: str = "Rocket successfully updated"
+
+class RocketDeleted(BaseModel):
+    deleted_rocket_id: str 
+    message: str = "Rocket successfully deleted"
