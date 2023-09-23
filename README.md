@@ -56,8 +56,8 @@
 ```
 
 ## DOCS
-- OpenAPI standard: `[https://api.rocketpy.org/redoc](https://api.rocketpy.org/redoc)`
-- Swagger UI: `[https://api.rocketpy.org/docs](https://api.rocketpy.org/docs)`
+- OpenAPI standard: [https://api.rocketpy.org/redoc](https://api.rocketpy.org/redoc)
+- Swagger UI: [https://api.rocketpy.org/docs](https://api.rocketpy.org/docs)
 
 ## API Flowchart
 General API workflow. Current available models are: Environment, Flight, Rocket and Motor.
