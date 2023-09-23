@@ -34,9 +34,9 @@ def custom_openapi():
         return app.openapi_schema
     openapi_schema = get_openapi(
         title="RocketPy Infinity-API",
-        version="1.0.0 (BETA)",
+        version="1.0.0 ALPHA",
         summary="RocketPy Infinity-API is a RESTful API for RocketPy, a rocket flight simulator.",
-        description="Create, manage and simulate rocket flights, environments, rockets and motors.",
+        description="Create, manage and simulate rocket flights, environments, rockets and motors. Currently on ALPHA, so just a few functionalities are included (only SolidMotors for instance) please report any bugs to gabrielbarberinirc@gmail.com",
         routes=app.routes,
     )
     openapi_schema["info"]["x-logo"] = {

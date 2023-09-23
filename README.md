@@ -11,7 +11,7 @@
 
 ## Starting the server
 - Dev: `python3 -m uvicorn lib:app --reload --port 3000`
-- Prod: `gunicorn -k uvicorn.workers.UvicornWorker lib:app --reload -b 0.0.0.0:3000`
+- Prod: `gunicorn -k uvicorn.workers.UvicornWorker lib:app -b 0.0.0.0:3000`
 
 ## Project structure
 ```

@@ -1,7 +1,8 @@
 from typing import Dict, Any, Union
 from fastapi import Response, status
 
-import rocketpy.Flight
+from rocketpy.simulation.flight import Flight as RocketpyFlight
+
 import jsonpickle
 
 from lib.models.rocket import Rocket
@@ -21,20 +22,20 @@ class FlightController():
         flight (models.Flight): Flight model object.
 
     Enables:
-        - Create a rocketpy.Flight object from a Flight model object.
-        - Generate trajectory simulation from a rocketpy.Flight object.
-        - Create both Flight model and rocketpy.Flight objects in the database.
-        - Update both Flight model and rocketpy.Flight objects in the database.
-        - Delete both Flight model and rocketpy.Flight objects from the database.
+        - Create a RocketpyFlight object from a Flight model object.
+        - Generate trajectory simulation from a RocketpyFlight object.
+        - Create both Flight model and RocketpyFlight objects in the database.
+        - Update both Flight model and RocketpyFlight objects in the database.
+        - Delete both Flight model and RocketpyFlight objects from the database.
         - Read a Flight model from the database.
-        - Read a rocketpy.Flight object from the database.
+        - Read a RocketpyFlight object from the database.
 
     """
     def __init__(self, flight: Flight):
         rocketpy_rocket = RocketController(flight.rocket).rocketpy_rocket
         rocketpy_env = EnvController(flight.environment).rocketpy_env
 
-        rocketpy_flight=rocketpy.Flight(
+        rocketpy_flight=RocketpyFlight(
                 rocket=rocketpy_rocket,
                 inclination=flight.inclination,
                 heading=flight.heading,

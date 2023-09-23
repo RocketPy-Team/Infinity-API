@@ -1,6 +1,6 @@
 from fastapi import Response, status
 from typing import Any, Dict, Union
-from rocketpy import SolidMotor
+from rocketpy.motors.solid_motor import SolidMotor
 import jsonpickle
 
 from lib.models.motor import Motor

@@ -1,7 +1,7 @@
 from typing import Dict, Any, Union
 
 import jsonpickle
-from rocketpy import Environment
+from rocketpy.environment.environment import Environment
 from fastapi import Response, status
 
 from lib.models.environment import Env

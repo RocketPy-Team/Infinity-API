@@ -5,11 +5,11 @@ import ast
 from fastapi import Response, status
 #from inspect import getsourcelines
 
-import rocketpy.Parachute
-import rocketpy.Rocket
-from rocketpy.AeroSurface import NoseCone as rocketpy_NoseCone
-from rocketpy.AeroSurface import TrapezoidalFins as rocketpy_TrapezoidalFins
-from rocketpy.AeroSurface import Tail as rocketpy_Tail
+from rocketpy.rocket.parachute import Parachute as RocketpyParachute
+from rocketpy.rocket.rocket import Rocket as RocketpyRocket
+from rocketpy.rocket.aero_surface import NoseCone as RocketpyNoseCone
+from rocketpy.rocket.aero_surface import TrapezoidalFins as RocketpyTrapezoidalFins
+from rocketpy.rocket.aero_surface import Tail as RocketpyTail
 
 from lib.controllers.motor import MotorController
 from lib.models.rocket import Rocket
@@ -26,10 +26,10 @@ class RocketController():
         rocket (models.Rocket): Rocket model object.
 
     Enables:
-       create a rocketpy.Rocket object from a Rocket model object.
+       create a RocketpyRocket object from a Rocket model object.
     """
     def __init__(self, rocket: Rocket):
-        rocketpy_rocket = rocketpy.Rocket(
+        rocketpy_rocket = RocketpyRocket(
                 radius=rocket.radius,
                 mass=rocket.mass,
                 inertia=rocket.inertia,
@@ -87,7 +87,7 @@ class RocketController():
             - Create a rocketpy.AeroSurface.NoseCone object from a NoseCone model object.
         """
         def __init__(self, nose: NoseCone):
-            rocketpy_nose = rocketpy_NoseCone(
+            rocketpy_nose = RocketpyNoseCone(
                     length=nose.length,
                     kind=nose.kind,
                     base_radius=nose.base_radius,
@@ -108,7 +108,7 @@ class RocketController():
             - Create a rocketpy.AeroSurface.TrapezoidalFins object from a TrapezoidalFins model object.
         """
         def __init__(self, trapezoidal_fins: TrapezoidalFins):
-            rocketpy_finset = rocketpy_TrapezoidalFins(
+            rocketpy_finset = RocketpyTrapezoidalFins(
                     n=trapezoidal_fins.n,
                     root_chord=trapezoidal_fins.root_chord,
                     tip_chord=trapezoidal_fins.tip_chord,
@@ -132,7 +132,7 @@ class RocketController():
             - Create a rocketpy.AeroSurface.Tail object from a Tail model object.
         """
         def __init__(self, tail: Tail):
-            rocketpy_tail = rocketpy_Tail(
+            rocketpy_tail = RocketpyTail(
                     top_radius=tail.top_radius,
                     bottom_radius=tail.bottom_radius,
                     length=tail.length,
@@ -150,10 +150,10 @@ class RocketController():
             parachute (models.Parachute): Parachute model object.
 
         Enables:
-            - Create a rocketpy.Parachute.Parachute object from a Parachute model object.
+            - Create a RocketpyParachute.Parachute object from a Parachute model object.
         """
         def __init__(self, parachute: Parachute, p: int):
-            rocketpy_parachute = rocketpy.Parachute(
+            rocketpy_parachute = RocketpyParachute(
                     name=parachute[p].name[0],
                     cd_s=parachute[p].cd_s[0],
                     trigger=eval(parachute[p].triggers[0]),
