@@ -26,11 +26,11 @@ class MotorSummary(BaseModel):
 
 class MotorCreated(BaseModel):
     motor_id: str 
-    message: str = "Motor successfully created "
+    message: str = "Motor successfully created"
 
 class MotorUpdated(BaseModel):
     new_motor_id: str 
-    message: str = "Motor successfull updated"
+    message: str = "Motor successfully updated"
 
 class MotorDeleted(BaseModel):
     deleted_motor_id: str 
