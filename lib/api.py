@@ -62,7 +62,7 @@ async def create_flight(flight: Flight) -> "FlightCreated":
         HTTP 422 Unprocessable Entity: If API is unable to parse flight data, usually happens when some parameter is invalid, please attend to API docs request specifications.
         HTTP 500 Internal Server Error: If API is either unable to create flight in mongoDB or valid parameter type/structure provided but content is breaking the API. 
     """
-    return FlightController(flight).create_flight()
+    return await FlightController(flight).create_flight()
 
 @app.get("/flights/{flight_id}", tags=["FLIGHT"])
 async def read_flight(flight_id: int) -> "Flight":
@@ -78,7 +78,7 @@ async def read_flight(flight_id: int) -> "Flight":
     Raises:
         HTTP 404 Not Found: If flight_id does not exist in database.
     """
-    return FlightController.get_flight(flight_id)
+    return await FlightController.get_flight(flight_id)
 
 @app.get("/flights/rocketpy/{flight_id}", tags=["FLIGHT"])
 async def read_rocketpy_flight(flight_id: int) -> "FlightPickle":
@@ -94,7 +94,7 @@ async def read_rocketpy_flight(flight_id: int) -> "FlightPickle":
     Raises:
         HTTP 404 Not Found: If flight_id does not exist in database.
     """
-    return FlightController.get_rocketpy_flight(flight_id)
+    return await FlightController.get_rocketpy_flight(flight_id)
 
 @app.put("/flights/{flight_id}/env", tags=["FLIGHT"])
 async def update_flight_env(flight_id: int, env: Env) -> "Dict[str, Any]":
@@ -113,7 +113,7 @@ async def update_flight_env(flight_id: int, env: Env) -> "Dict[str, Any]":
         HTTP 422 Unprocessable Entity: If API is unable to parse env data, usually happens when some parameter is invalid, please attend to API docs request specifications.
         HTTP 500 Internal Server Error: If API is either unable to update flight in mongoDB or valid parameter type/structure provided but content is breaking the API.
     """
-    return FlightController.update_env(flight_id, env)
+    return await FlightController.update_env(flight_id, env)
 
 @app.put("/flights/{flight_id}/rocket", tags=["FLIGHT"])
 async def update_flight_rocket(flight_id: int, rocket: Rocket) -> "Dict[str, Any]":
@@ -132,7 +132,7 @@ async def update_flight_rocket(flight_id: int, rocket: Rocket) -> "Dict[str, Any
         HTTP 422 Unprocessable Entity: If API is unable to parse rocket data, usually happens when some parameter is invalid, please attend to API docs request specifications.
         HTTP 500 Internal Server Error: If API is either unable to update flight in mongoDB or valid parameter type/structure provided but content is breaking the API.
     """
-    return FlightController.update_rocket(flight_id, rocket)
+    return await FlightController.update_rocket(flight_id, rocket)
 
 @app.put("/flights/{flight_id}", tags=["FLIGHT"])
 async def update_flight(flight_id: int, flight: Flight) -> "FlightUpdated":
@@ -151,7 +151,7 @@ async def update_flight(flight_id: int, flight: Flight) -> "FlightUpdated":
         HTTP 422 Unprocessable Entity: If API is unable to parse flight data, usually happens when some parameter is invalid, please attend to API docs request specifications.
         HTTP 500 Internal Server Error: If API is either unable to update flight in mongoDB or valid parameter type/structure provided but content is breaking the API.
     """
-    return FlightController(flight).update_flight(flight_id)
+    return await FlightController(flight).update_flight(flight_id)
 
 @app.delete("/flights/{flight_id}", tags=["FLIGHT"])
 async def delete_flight(flight_id: int) -> "FlightDeleted":
@@ -167,7 +167,7 @@ async def delete_flight(flight_id: int) -> "FlightDeleted":
     Raises:
         HTTP 404 Not Found: If flight_id does not exist in database.
     """
-    return FlightController.delete_flight(flight_id)
+    return await FlightController.delete_flight(flight_id)
 
 @app.get("/flights/{flight_id}/simulate", tags=["FLIGHT"])
 async def simulate_flight(flight_id: int) -> "FlightSummary":
@@ -183,7 +183,7 @@ async def simulate_flight(flight_id: int) -> "FlightSummary":
     Raises:
         HTTP 404 Not Found: If flight_id does not exist in database.
     """
-    return FlightController.simulate(flight_id)
+    return await FlightController.simulate(flight_id)
 
 # Environment routes
 @app.post("/environments/", tags=["ENVIRONMENT"])
@@ -302,7 +302,7 @@ async def create_motor(motor: Motor) -> "MotorCreated":
         HTTP 422 Unprocessable Entity: If API is unable to parse motor data, usually happens when some parameter is invalid, please attend to API docs request specifications.
         HTTP 500 Internal Server Error: If API is either unable to create motor in mongoDB or valid parameter type/structure provided but content is breaking the API. 
     """
-    return MotorController(motor).create_motor()
+    return await MotorController(motor).create_motor()
 
 @app.get("/motors/{motor_id}", tags=["MOTOR"])
 async def read_motor(motor_id: int) -> "Motor":
@@ -318,7 +318,7 @@ async def read_motor(motor_id: int) -> "Motor":
     Raises:
         HTTP 404 Not Found: If motor_id does not exist in database.
     """
-    return MotorController.get_motor(motor_id)
+    return await MotorController.get_motor(motor_id)
 
 @app.put("/motors/{motor_id}", tags=["MOTOR"])
 async def update_motor(motor_id: int, motor: Motor) -> "MotorUpdated":
@@ -337,7 +337,7 @@ async def update_motor(motor_id: int, motor: Motor) -> "MotorUpdated":
         HTTP 422 Unprocessable Entity: If API is unable to parse motor data, usually happens when some parameter is invalid, please attend to API docs request specifications.
         HTTP 500 Internal Server Error: If API is either unable to update motor in mongoDB or valid parameter type/structure provided but content is breaking the API.
     """
-    return MotorController(motor).update_motor(motor_id)
+    return await MotorController(motor).update_motor(motor_id)
 
 @app.delete("/motors/{motor_id}", tags=["MOTOR"])
 async def delete_motor(motor_id: int) -> "MotorDeleted":
@@ -353,7 +353,7 @@ async def delete_motor(motor_id: int) -> "MotorDeleted":
     Raises:
         HTTP 404 Not Found: If motor_id does not exist in database.
     """
-    return MotorController.delete_motor(motor_id)
+    return await MotorController.delete_motor(motor_id)
 
 @app.get("/motors/rocketpy/{motor_id}", tags=["MOTOR"])
 async def read_rocketpy_motor(motor_id: int) -> "MotorPickle":
@@ -369,7 +369,7 @@ async def read_rocketpy_motor(motor_id: int) -> "MotorPickle":
     Raises:
         HTTP 404 Not Found: If motor_id does not exist in database.
     """
-    return MotorController.get_rocketpy_motor(motor_id)
+    return await MotorController.get_rocketpy_motor(motor_id)
 
 @app.get("/motors/{motor_id}/simulate", tags=["MOTOR"])
 async def simulate_motor(motor_id: int) -> "MotorSummary":
@@ -385,7 +385,7 @@ async def simulate_motor(motor_id: int) -> "MotorSummary":
     Raises:
         HTTP 404 Not Found: If motor_id does not exist in database.
     """
-    return MotorController.simulate(motor_id)
+    return await MotorController.simulate(motor_id)
 
 # Rocket routes
 @app.post("/rockets/", tags=["ROCKET"])
@@ -403,7 +403,7 @@ async def create_rocket(rocket: Rocket) -> "RocketCreated":
         HTTP 422 Unprocessable Entity: If API is unable to parse rocket data, usually happens when some parameter is invalid, please attend to API docs request specifications.
         HTTP 500 Internal Server Error: If API is either unable to create rocket in mongoDB or valid parameter type/structure provided but content is breaking the API. 
     """
-    return RocketController(rocket).create_rocket()
+    return await RocketController(rocket).create_rocket()
 
 @app.get("/rockets/{rocket_id}", tags=["ROCKET"])
 async def read_rocket(rocket_id: int) -> Rocket:
@@ -419,7 +419,7 @@ async def read_rocket(rocket_id: int) -> Rocket:
     Raises:
         HTTP 404 Not Found: If rocket_id does not exist in database.
     """
-    return RocketController.get_rocket(rocket_id)
+    return await RocketController.get_rocket(rocket_id)
 
 @app.put("/rockets/{rocket_id}", tags=["ROCKET"])
 async def update_rocket(rocket_id: int, rocket: Rocket) -> "RocketUpdated":
@@ -438,7 +438,7 @@ async def update_rocket(rocket_id: int, rocket: Rocket) -> "RocketUpdated":
         HTTP 422 Unprocessable Entity: If API is unable to parse rocket data, usually happens when some parameter is invalid, please attend to API docs request specifications.
         HTTP 500 Internal Server Error: If API is either unable to update rocket in mongoDB or valid parameter type/structure provided but content is breaking the API.
     """
-    return RocketController(rocket).update_rocket(rocket_id)
+    return await RocketController(rocket).update_rocket(rocket_id)
 
 @app.delete("/rockets/{rocket_id}", tags=["ROCKET"])
 async def delete_rocket(rocket_id: int) -> "RocketDeleted":
@@ -454,7 +454,7 @@ async def delete_rocket(rocket_id: int) -> "RocketDeleted":
     Raises:
         HTTP 404 Not Found: If rocket_id does not exist in database.
     """
-    return RocketController.delete_rocket(rocket_id)
+    return await RocketController.delete_rocket(rocket_id)
 
 @app.get("/rockets/rocketpy/{rocket_id}", tags=["ROCKET"])
 async def read_rocketpy_rocket(rocket_id: int) -> "RocketPickle":
@@ -470,7 +470,7 @@ async def read_rocketpy_rocket(rocket_id: int) -> "RocketPickle":
     Raises:
         HTTP 404 Not Found: If rocket_id does not exist in database.
     """
-    return RocketController.get_rocketpy_rocket(rocket_id)
+    return await RocketController.get_rocketpy_rocket(rocket_id)
 
 @app.get("/rockets/{rocket_id}/simulate", tags=["ROCKET"])
 async def simulate_rocket(rocket_id: int) -> "RocketSummary":
@@ -486,7 +486,7 @@ async def simulate_rocket(rocket_id: int) -> "RocketSummary":
     Raises:
         HTTP 404 Not Found: If rocket_id does not exist in database.
     """
-    return RocketController.simulate(rocket_id)
+    return await RocketController.simulate(rocket_id)
 
 @app.get("/health", status_code=status.HTTP_200_OK, include_in_schema=False)
 async def __perform_healthcheck():
