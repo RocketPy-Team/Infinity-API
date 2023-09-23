@@ -1,8 +1,8 @@
 {
 	"info": {
-		"_postman_id": "fba21b4b-5715-4531-a3e5-d7e082b3356a",
+		"_postman_id": "00c970b2-c429-4ecd-a1f7-de23aa286d10",
 		"name": "Infinity-API",
-		"description": "# About this collection\n\nThe API under this collection includes four artifacts **{Environment, Flight, Motor and Rocket}** with 6 endpoints each covering artifact **creation, reading, editing, deleting, simulating and retrieving artifact as jsonpickle string.**\n\n- POST `api/artifact/{{artifact_id}}` { message, artifact_id }\n- GET `api/artifact/{{artifact_id}}` { Artifact }\n- GET `api/rocketpy/artifact/{{artifact_id}}` { json_pickle_string_artifact }\n- GET `api/simulate/artifact/{{artifact_id}}` { ArtifactSimulationSummary }\n- PUT `api/artifact/{{artifact_id}}` { message, new_artifact_id }\n- DELETE `api/artifact/{{artifact_id}}` { deleted_artifact_id, message }\n    \n\n**Flight artifact** have also additional routes that allows to update its own artifacts.\n\n- POST `api/flight/{{flight_id}}/artifact/` { message, flight_id }\n    \n\n## **Using this collection**\n\n- Run this collection by clicking on \"Run\".\n    \n\n<img src=\"https://content.pstmn.io/84019b0f-69c8-4c5f-98b9-2c90a6f9a0b1/Y29sbGVjdGlvbi1ydW5uZXItYnV0dG9uLmpwZWc=\" width=\"266\" height=\"103\">\n\n## Additional resources\n\n[Scripting in Postman](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/)\n\n[Test script examples](https://learning.postman.com/docs/writing-scripts/script-references/test-examples/)\n\n[Postman Sandbox API reference](https://learning.postman.com/docs/sending-requests/grpc/postman-sandbox-api/#writing-assertions)\n\n[Using the Collection Runner](https://learning.postman.com/docs/collections/running-collections/intro-to-collection-runs/)",
+		"description": "# About this collection\n\nThe API under this collection includes four artifacts **{Environment, Flight, Motor and Rocket}** with 6 endpoints each covering artifact **creation, reading, editing, deleting, simulating and retrieving artifact as jsonpickle string.**\n\n- POST `api/artifact/{{artifact_id}}` --> { message, artifact_id }\n    \n- GET `api/artifact/{{artifact_id}}` --> { Artifact }\n    \n- GET `api/rocketpy/artifact/{{artifact_id}}` --> { json_pickle_string_artifact }\n    \n- GET `api/simulate/artifact/{{artifact_id}}` --> { ArtifactSimulationSummary }\n    \n- PUT `api/artifact/{{artifact_id}}` --> { message, new_artifact_id }\n    \n- DELETE `api/artifact/{{artifact_id}}` --> { deleted_artifact_id, message }\n    \n\n**Flight artifact** have also additional routes that allows to update its own artifacts.\n\n- POST `api/flight/{{flight_id}}/artifact/` --> { message, flight_id }\n    \n\n## **Disclaimer**\n\nCurrently the API only supports Solid motors, sorry for that, we are working to expand its capabilities soon.\n\n## **Using this collection**\n\n- Run this collection by clicking on \"Run\".\n    \n\n<img src=\"https://content.pstmn.io/84019b0f-69c8-4c5f-98b9-2c90a6f9a0b1/Y29sbGVjdGlvbi1ydW5uZXItYnV0dG9uLmpwZWc=\" width=\"266\" height=\"103\">\n\n## Additional resources\n\n[Scripting in Postman](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/)\n\n[Test script examples](https://learning.postman.com/docs/writing-scripts/script-references/test-examples/)\n\n[Postman Sandbox API reference](https://learning.postman.com/docs/sending-requests/grpc/postman-sandbox-api/#writing-assertions)\n\n[Using the Collection Runner](https://learning.postman.com/docs/collections/running-collections/intro-to-collection-runs/)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
 	},
 	"item": [
@@ -15,7 +15,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "47bd37ce-b102-47fc-bdf4-35386027bd0e",
+								"id": "b8c2babe-0bd8-4615-8c53-3fb459b61eea",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -46,7 +46,7 @@
 									"        pm.expect(responseCode.code).to.eql(200);",
 									"    });",
 									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
-									"        pm.expect(apiRspn.message).to.eql(\"Environment created\");",
+									"        pm.expect(apiRspn.message).to.eql(\"Environment successfully created\");",
 									"    });",
 									"    pm.test(bdd + \" then response must contain a valid env_id\", function () {",
 									"        pm.expect(apiRspn.env_id).to.exist;        ",
@@ -58,7 +58,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "c692d9c7-cdce-4a4d-b59d-d72e38b3c8b4",
+								"id": "7fa4f532-684a-4524-a972-8b0efdf3509c",
 								"exec": [
 									""
 								],
@@ -66,7 +66,7 @@
 							}
 						}
 					],
-					"id": "3603f68a-9df8-45f2-9d99-1491fcce47e8",
+					"id": "58dba9a8-4d10-446a-89c2-17c20f1e3c61",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -93,7 +93,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "2251b1df-4472-4b2c-8fa1-4b10dd5dc86c",
+								"id": "e3a96f07-1fbf-4b8b-973f-198d4b3009ec",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -126,7 +126,7 @@
 							}
 						}
 					],
-					"id": "95adaeea-0665-413f-b5b0-156943f92a1e",
+					"id": "7bb4dc60-b0de-4e62-9dd5-43fc4ee8df7d",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -143,7 +143,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "50d84ce5-283a-4a2f-a1ab-cd3de39a9764",
+								"id": "1de55e1b-9f5e-4b61-a3dc-0cbefaaeca9b",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -168,7 +168,7 @@
 							}
 						}
 					],
-					"id": "c06c2cfc-ef70-4894-b8c8-92205cc2b197",
+					"id": "dbd3269d-2918-43fc-b73f-95b2e71a051c",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -185,7 +185,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "dd30a158-2a89-4b0a-98fd-912e1451e13d",
+								"id": "bcb96b2e-115d-4dad-aa36-3d81e3b43271",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -235,7 +235,7 @@
 							}
 						}
 					],
-					"id": "dfc9eaa2-3900-477d-9d80-87fe7ce7f229",
+					"id": "f309af57-9ee8-46b5-85de-26638bac2f01",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -252,7 +252,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "c25c41b5-8419-46c8-ba7b-508c98f8b8db",
+								"id": "97efc8e5-c15c-45d8-bd51-7326fbf558d9",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -295,7 +295,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "5b261016-41ea-4b28-b3b3-7a35c505e661",
+								"id": "446e5696-b0d0-42c0-9cc8-c98cc4365e48",
 								"exec": [
 									""
 								],
@@ -303,7 +303,7 @@
 							}
 						}
 					],
-					"id": "b271645a-5677-4d4e-a967-392edcb63748",
+					"id": "7a1c30aa-68d0-4333-99d6-521544a4ce96",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -330,7 +330,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "671d8091-2ee6-4b8e-9960-5775c2e00992",
+								"id": "27379dc0-69c0-4b12-9913-dda6dfb2b7b9",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -355,7 +355,7 @@
 							}
 						}
 					],
-					"id": "1f5ae4d8-ff96-4487-9b7a-41f7c0ffa121",
+					"id": "1acea9b8-2a1c-4951-9a86-b7b74a4975b2",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -367,7 +367,7 @@
 					"response": []
 				}
 			],
-			"id": "5376d788-5d30-43a0-aa50-fb0b25acb34c"
+			"id": "8d5169f4-689a-46a4-add6-e09686d53349"
 		},
 		{
 			"name": "Flight",
@@ -378,7 +378,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "e9e0f53b-14de-4667-9bba-04df201ddaba",
+								"id": "e3663b86-aed1-49a4-bb2e-262d5fba3970",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -478,7 +478,7 @@
 									"        pm.expect(responseCode.code).to.eql(200);",
 									"    });",
 									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
-									"        pm.expect(apiRspn.message).to.eql(\"Flight created\");",
+									"        pm.expect(apiRspn.message).to.eql(\"Flight successfully created\");",
 									"    });",
 									"    pm.test(bdd + \" then response must contain a valid flight_id\", function () {",
 									"        pm.expect(apiRspn.flight_id).to.exist;        ",
@@ -490,7 +490,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "d050be7a-bd84-4959-b952-f0046de4960d",
+								"id": "1fd947d4-211a-4d05-83f1-5c520945bb66",
 								"exec": [
 									""
 								],
@@ -498,7 +498,7 @@
 							}
 						}
 					],
-					"id": "c7ade98a-c693-43a6-80b2-1cd1e5f9f34d",
+					"id": "99e56989-4c92-4245-a4b7-59cd5d73e1f9",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -525,7 +525,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "eba23830-b51b-4d12-9f46-8df2b474b6e8",
+								"id": "6ce85536-515d-4c87-b6eb-c7952e8c9dfe",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -626,7 +626,7 @@
 							}
 						}
 					],
-					"id": "810df5b5-0de5-42c0-bacb-0efc8cf99eb2",
+					"id": "3f237345-757f-44c2-87cb-ec825aaef134",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -643,7 +643,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "897c72b6-83e4-46cf-9dc7-1d970a3400c6",
+								"id": "d7281700-d640-47e5-a76b-94ee473bc5b1",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -668,7 +668,7 @@
 							}
 						}
 					],
-					"id": "62d4695f-a47d-43d2-a48d-21618d9d0c02",
+					"id": "5d8906f8-9d62-4b94-b5e3-c6daa0fe5074",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -685,7 +685,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "bc79dac5-4b4b-4fa2-ac08-1cdfc5c20a02",
+								"id": "7ab40eac-3961-47a2-bd03-0fc9746f8203",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -773,7 +773,7 @@
 							}
 						}
 					],
-					"id": "2afb4d8e-1788-40da-a8c3-a4f5d93315e6",
+					"id": "4264e691-b0fe-4d6b-a88e-dcdd09dccb9c",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -790,7 +790,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "ef52c1d9-e18c-42c6-b9e5-6e067d37d556",
+								"id": "faf35bda-1c3b-4478-a523-8f801c2f8a11",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -902,7 +902,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "fef9ffcd-2bea-47e1-a66f-6e87b93e90df",
+								"id": "c39c5aee-cdfc-4304-ae91-3a722d0fac98",
 								"exec": [
 									""
 								],
@@ -910,7 +910,7 @@
 							}
 						}
 					],
-					"id": "af363968-a3c9-48b1-84ed-bbc333855a8b",
+					"id": "9db43e15-4423-4cf6-8fbe-2d75ad16fea6",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -937,7 +937,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "d968db50-a1e7-42f5-a873-c7e053cc7980",
+								"id": "34d957cb-43f8-4459-96da-0b57d0d51bb8",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -962,7 +962,7 @@
 							}
 						}
 					],
-					"id": "0043d68a-d984-4a7b-b6a4-f79433549e84",
+					"id": "70497555-1ce8-4131-ad01-1b4a9b69ad5e",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -974,7 +974,7 @@
 					"response": []
 				}
 			],
-			"id": "cc74f04b-eac6-4b33-9daf-754e2204eeab"
+			"id": "9ff921fc-87b9-446e-8e9a-6965a984d343"
 		},
 		{
 			"name": "Motor",
@@ -985,7 +985,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "71b5f65c-9ba7-43bd-aa93-8ff1a3c99cc6",
+								"id": "b2f7ecb2-097c-416f-80ce-d7ac3481f51a",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -1023,7 +1023,7 @@
 									"        pm.expect(responseCode.code).to.eql(200);",
 									"    });",
 									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
-									"        pm.expect(apiRspn.message).to.eql(\"Motor created\");",
+									"        pm.expect(apiRspn.message).to.eql(\"Motor successfully created\");",
 									"    });",
 									"    pm.test(bdd + \" then response must contain a valid motor_id\", function () {",
 									"        pm.expect(apiRspn.motor_id).to.exist;        ",
@@ -1035,7 +1035,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "1bf80fb6-4e96-4b77-ba94-5d23c96bf038",
+								"id": "4dc44462-5577-42b3-9a9a-33359b0c0857",
 								"exec": [
 									""
 								],
@@ -1043,7 +1043,7 @@
 							}
 						}
 					],
-					"id": "ee777d0d-6301-4494-961b-c2c6c573facb",
+					"id": "f6da4c1e-21d4-4c5d-8861-b9d57c97cfc6",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -1070,7 +1070,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "2ab9f13e-d3eb-4f45-b58a-1dde3f2bd415",
+								"id": "6cb6e953-6be6-4c08-80fc-12e2f8356e21",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -1110,7 +1110,7 @@
 							}
 						}
 					],
-					"id": "7208fdb8-b5ec-4ba3-a5da-267fbe12cd39",
+					"id": "45157046-8d07-445a-968f-db626c0773c4",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -1127,7 +1127,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "fcca1efd-5939-4ab5-bf8e-dae1beeface7",
+								"id": "2b7a88fe-5b90-4ba3-a7a1-40e6f0b9c363",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -1152,7 +1152,7 @@
 							}
 						}
 					],
-					"id": "7d41255d-2764-4f36-a677-7f1fb500ae47",
+					"id": "706e0a88-ffdf-409e-9d0c-debd119f734f",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -1169,7 +1169,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "bc79dac5-4b4b-4fa2-ac08-1cdfc5c20a02",
+								"id": "2a35de6a-c957-42c2-a40e-81f5e102c90b",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -1199,7 +1199,7 @@
 							}
 						}
 					],
-					"id": "46f4f239-b459-475f-9ca3-873baf50e690",
+					"id": "e0b28e4d-a487-4d14-933c-8244188ef45e",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -1216,7 +1216,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "32e65786-a6e1-4dc3-a1df-b9fe879d17cc",
+								"id": "53048249-d34d-4ea3-b262-b0db4edfa408",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -1266,7 +1266,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "6336bef0-e693-400a-826f-d1f2c2bd6a9b",
+								"id": "6794ae0e-2040-4327-88c5-008850deaa76",
 								"exec": [
 									""
 								],
@@ -1274,7 +1274,7 @@
 							}
 						}
 					],
-					"id": "d7bdaec1-2a9e-42dd-bfa7-a8342e7d47c2",
+					"id": "400dec63-44cc-4b05-8624-c566c7795ec2",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -1301,7 +1301,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "a1e587bc-91fa-4fa5-a836-8075de91ea33",
+								"id": "8f9d5d37-e4ee-47ff-a4cf-e618185aaf54",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -1326,7 +1326,7 @@
 							}
 						}
 					],
-					"id": "dd1b5d5f-ef2d-4b61-8cf6-de895792864e",
+					"id": "8227c275-a39d-443e-918a-f9fc0ef923ad",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -1338,7 +1338,7 @@
 					"response": []
 				}
 			],
-			"id": "733fa55d-0a77-4a8d-b1d7-6fefc5a8211e"
+			"id": "e81ed732-6e7f-4412-830e-ce1dc322ef5c"
 		},
 		{
 			"name": "Rocket",
@@ -1349,7 +1349,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "3d479eb5-238e-4d92-8b39-5ab18cf5159d",
+								"id": "7fafbca0-4516-4e4f-93dd-1081bfafa790",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -1433,7 +1433,7 @@
 									"        pm.expect(responseCode.code).to.eql(200);",
 									"    });",
 									"    pm.test(bdd + \" then response must contain a valid message\", function () {",
-									"        pm.expect(apiRspn.message).to.eql(\"Rocket created\");",
+									"        pm.expect(apiRspn.message).to.eql(\"Rocket successfully created\");",
 									"    });",
 									"    pm.test(bdd + \" then response must contain a valid rocket_id\", function () {",
 									"        pm.expect(apiRspn.rocket_id).to.exist;        ",
@@ -1445,7 +1445,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "e8a2a81b-6e39-43ef-b5b4-2ec855b71fcb",
+								"id": "68a3d4d7-1c93-4f53-9161-91148d83811e",
 								"exec": [
 									""
 								],
@@ -1453,7 +1453,7 @@
 							}
 						}
 					],
-					"id": "5fa12dc7-1f53-411b-98c2-f924425def2f",
+					"id": "19aa0642-f83f-46f9-bf4d-e5f6d343bdad",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -1480,7 +1480,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "f92d1f61-0a9d-4d20-9e19-86f7547ee31c",
+								"id": "b7b38b3b-44e6-4cea-8a86-ddb1ace14d04",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -1566,7 +1566,7 @@
 							}
 						}
 					],
-					"id": "d3c9e8bd-240f-44fb-bd66-ed1e7d51b4f1",
+					"id": "7caae40c-c974-40dc-803b-cbcb3944f935",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -1583,7 +1583,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "424ba3d4-44fe-44db-997b-e0d80d5bcb80",
+								"id": "407e37d9-e54f-4362-a11c-27a3eddb4fa9",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -1608,7 +1608,7 @@
 							}
 						}
 					],
-					"id": "5d6d0210-eeb5-4f07-844d-fbe0ef3a7c5a",
+					"id": "122a82f4-624d-4017-bd55-6ea0ed176465",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -1625,7 +1625,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "bc79dac5-4b4b-4fa2-ac08-1cdfc5c20a02",
+								"id": "ffe2d0a5-17b9-4c3e-9711-ec6db6b1164f",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -1669,7 +1669,7 @@
 							}
 						}
 					],
-					"id": "252fe8f7-6f1d-4d6a-96f9-bc55e33edfe4",
+					"id": "0a4fb190-7be7-4f84-90e0-df14c6dfa55e",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -1686,7 +1686,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "418bbe76-830a-48c6-a75e-fd4473d737ee",
+								"id": "b9f7524e-3ea0-4172-8fbd-27854ce7c542",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -1782,7 +1782,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "f9758f8e-7e29-4022-858f-86ce120bab6f",
+								"id": "853decf0-3e5e-4786-b9e8-97c53590ef44",
 								"exec": [
 									""
 								],
@@ -1790,7 +1790,7 @@
 							}
 						}
 					],
-					"id": "f6ec6ee0-3ddd-4754-b25f-db9f75556a32",
+					"id": "5322fc32-9d1a-4d30-94d9-a29ffa58cc1b",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -1817,7 +1817,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "69f2fce0-b400-433a-99c5-a3f9b23025d8",
+								"id": "5e8c0250-b7b9-46d0-beed-300c8b6e90a9",
 								"exec": [
 									"//Fixes the issue of breaking the collection runner whenever an http 500 is received",
 									"if (responseCode.code == 500) {",
@@ -1842,7 +1842,7 @@
 							}
 						}
 					],
-					"id": "ef84a602-93c3-4269-a9bd-a053872ffc9f",
+					"id": "d522ed4b-2c05-4d82-90c4-e7f86495e502",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -1854,14 +1854,14 @@
 					"response": []
 				}
 			],
-			"id": "bc442c9e-2fe7-497a-97ef-9e7f81c81663"
+			"id": "de99d86c-c3ee-4590-a0e2-eddff4594023"
 		}
 	],
 	"event": [
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "40d67019-ac44-434c-92b0-e0ecff25d2ef",
+				"id": "fee80996-5ead-4e76-a099-ef0206e436f9",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1871,7 +1871,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "b2384886-ce3d-4275-ad7f-247bfdc63f23",
+				"id": "edd30d7a-90b0-45c5-8491-178d18175aec",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1881,347 +1881,278 @@
 	],
 	"variable": [
 		{
-			"id": "9037c0e4-8d84-4254-8eeb-6c9a126a159b",
 			"key": "env_id",
 			"value": ""
 		},
 		{
-			"id": "2a909b79-0872-414f-8dd4-6fc8827280c7",
 			"key": "latitude",
 			"value": ""
 		},
 		{
-			"id": "fe36b93e-d6e9-4672-86fe-76db80d6fb61",
 			"key": "longitude",
 			"value": ""
 		},
 		{
-			"id": "f19d6a2f-b45a-44be-8c41-720cceba95cb",
 			"key": "elevation",
 			"value": ""
 		},
 		{
-			"id": "0563156c-3c08-447d-99e5-db0a68497f50",
 			"key": "standard_atmosphere",
 			"value": ""
 		},
 		{
-			"id": "10d07b72-06d3-4747-8458-6acbcc3f5878",
 			"key": "atmospheric_model_type",
 			"value": ""
 		},
 		{
-			"id": "7fdabcec-f20f-46e6-a926-4da02332692e",
 			"key": "atmospheric_model_file",
 			"value": ""
 		},
 		{
-			"id": "5aa95002-0437-4be4-a7db-ad91db2c76f7",
 			"key": "date",
 			"value": ""
 		},
 		{
-			"id": "deabb574-2ae8-46fc-b07b-4696785a0e35",
 			"key": "rail_length",
 			"value": ""
 		},
 		{
-			"id": "31613974-11d4-40d1-8573-0a63c6d4267c",
 			"key": "inclination",
 			"value": ""
 		},
 		{
-			"id": "ba97be43-9a1c-4101-8899-56a4e60286dc",
 			"key": "heading",
 			"value": ""
 		},
 		{
-			"id": "d9d69b11-1c74-4055-a263-156726b918d2",
 			"key": "flight_id",
 			"value": ""
 		},
 		{
-			"id": "59cb97c9-135c-4bea-bd02-f4132e02d7fb",
 			"key": "radius",
 			"value": ""
 		},
 		{
-			"id": "e6f2884e-9017-4d66-994a-0d20bb8d81f7",
 			"key": "mass",
 			"value": ""
 		},
 		{
-			"id": "5b01881d-dda0-46ee-af05-554341a63754",
 			"key": "inertia",
 			"value": ""
 		},
 		{
-			"id": "deba6279-e7f1-4b49-8b26-8b1cb685d65b",
 			"key": "power_off_drag",
 			"value": ""
 		},
 		{
-			"id": "5e03c405-135a-4b52-b0d8-fb9670c1c836",
 			"key": "power_on_drag",
 			"value": ""
 		},
 		{
-			"id": "075aa6b6-0fcb-4916-b035-fe84b2a2ffd2",
 			"key": "center_of_mass_without_motor",
 			"value": ""
 		},
 		{
-			"id": "0aa74b1c-0492-4424-916e-67cb56b20ee3",
 			"key": "motor_position",
 			"value": ""
 		},
 		{
-			"id": "23731761-d8bd-47a8-9412-75fdd59d40c7",
 			"key": "rail_buttons",
 			"value": ""
 		},
 		{
-			"id": "c62ac9d8-1626-419f-a1bb-e015443afcb8",
 			"key": "upper_button_position",
 			"value": ""
 		},
 		{
-			"id": "c20f0b5b-04d2-4b59-b5e4-a185957cce53",
 			"key": "lower_button_position",
 			"value": ""
 		},
 		{
-			"id": "175f3e13-07b6-41c9-855d-e2f17156d11e",
 			"key": "angular_position",
 			"value": ""
 		},
 		{
-			"id": "d9e6d061-5cb0-44d7-967e-ff783899cf40",
 			"key": "burn_time",
 			"value": ""
 		},
 		{
-			"id": "bdc64173-1282-4f89-be11-ee8166d750f4",
 			"key": "dry_mass",
 			"value": ""
 		},
 		{
-			"id": "05237ab6-ca4c-49d3-88a5-a32071e18471",
 			"key": "dry_inertia",
 			"value": ""
 		},
 		{
-			"id": "324466b8-22ce-48da-bf6a-c596f3943967",
 			"key": "center_of_dry_mass_position",
 			"value": ""
 		},
 		{
-			"id": "5dd22b19-7868-4ddd-be49-9e71301ba3ad",
 			"key": "grain_number",
 			"value": ""
 		},
 		{
-			"id": "7ab7c739-e840-4ece-941c-c3c24afd8c63",
 			"key": "grain_density",
 			"value": ""
 		},
 		{
-			"id": "6f56be8b-a052-416a-b39f-0facdc43cbaf",
 			"key": "grain_outer_radius",
 			"value": ""
 		},
 		{
-			"id": "32190c59-ab8c-4702-803c-f8399f96b454",
 			"key": "grain_initial_inner_radius",
 			"value": ""
 		},
 		{
-			"id": "32b8f7ea-1a49-4b9f-9251-5d385ce79ff9",
 			"key": "grain_initial_height",
 			"value": ""
 		},
 		{
-			"id": "5fb3b397-ae5e-4037-9d10-fb1c8b1366ec",
 			"key": "grains_center_of_mass_position",
 			"value": ""
 		},
 		{
-			"id": "ba575065-c8ee-4a5c-9f8e-28e3b67c150e",
 			"key": "grain_separation",
 			"value": ""
 		},
 		{
-			"id": "e9366839-7ffc-41be-9fbb-7d4f8c55a35c",
 			"key": "thrust_source",
 			"value": ""
 		},
 		{
-			"id": "fd3e0236-430d-4aac-8302-e3148407ac16",
 			"key": "nozzle_radius",
 			"value": ""
 		},
 		{
-			"id": "49c7c933-7e9e-4ce3-b1cd-d14882a595cf",
 			"key": "throat_radius",
 			"value": ""
 		},
 		{
-			"id": "ff6a006d-6694-4b40-9b00-0d4e4ce82fca",
 			"key": "interpolation_method",
 			"value": ""
 		},
 		{
-			"id": "9e350d9f-f039-4e15-b9d1-2ddadce13d8b",
 			"key": "coordinate_system_orientation",
 			"value": ""
 		},
 		{
-			"id": "76ac92ef-2fcd-49cb-b523-2395e996795f",
 			"key": "length",
 			"value": ""
 		},
 		{
-			"id": "2739ce8a-d95b-4427-bbf3-971162ab4b31",
 			"key": "kind",
 			"value": ""
 		},
 		{
-			"id": "47a75d89-d6a3-420c-8ee1-0eb8be08f5e6",
 			"key": "position",
 			"value": ""
 		},
 		{
-			"id": "daeba5ed-bfef-49c1-bea3-14142622c0a7",
 			"key": "base_radius",
 			"value": ""
 		},
 		{
-			"id": "bbe8058f-2603-487d-9db8-bca09d770f89",
 			"key": "rocket_radius",
 			"value": ""
 		},
 		{
-			"id": "e56fd5d6-59e6-4298-8756-f85343b19051",
 			"key": "n",
 			"value": ""
 		},
 		{
-			"id": "282edf54-a6dc-4df6-87c3-313f617a09ba",
 			"key": "root_chord",
 			"value": ""
 		},
 		{
-			"id": "6e7d5339-16c6-4441-9505-c78bc624f79e",
 			"key": "tip_chord",
 			"value": ""
 		},
 		{
-			"id": "96c5b88d-10cd-4ca7-b5c0-e798086a87d3",
 			"key": "span",
 			"value": ""
 		},
 		{
-			"id": "9164fc9b-195c-48fa-afb5-be571a3374e6",
 			"key": "cant_angle",
 			"value": ""
 		},
 		{
-			"id": "03f053c5-ea01-4e7b-9374-89be12a4b2ce",
 			"key": "airfoil",
 			"value": ""
 		},
 		{
-			"id": "348528dd-120c-41d6-9da2-7a88b4b16f4b",
 			"key": "top_radius",
 			"value": ""
 		},
 		{
-			"id": "68dfa558-1717-4e21-ba5e-0554c8a33732",
 			"key": "bottom_radius",
 			"value": ""
 		},
 		{
-			"id": "7eaf50c7-74c2-48b8-b604-4f1b6e105863",
 			"key": "parachutes_names",
 			"value": ""
 		},
 		{
-			"id": "1fb5a44c-c001-48d4-a112-07215b0f76c7",
 			"key": "parachutes_cds",
 			"value": ""
 		},
 		{
-			"id": "fe3fc78b-1830-49ad-b094-4dac155f1de3",
 			"key": "parachutes_sampling_rate",
 			"value": ""
 		},
 		{
-			"id": "8e844a31-3672-4832-b448-af56a295c443",
 			"key": "parachutes_lags",
 			"value": ""
 		},
 		{
-			"id": "d76ff8ab-85f5-436a-b759-083ac7288913",
 			"key": "parachutes_noises",
 			"value": ""
 		},
 		{
-			"id": "3d4d8d92-5dc5-4fa8-bec5-717f56031c61",
 			"key": "parachutes_triggers",
 			"value": ""
 		},
 		{
-			"id": "ffeb4cc4-ab71-4bc5-8c07-1b71637a49c1",
 			"key": "nose_length",
 			"value": ""
 		},
 		{
-			"id": "eb6d5520-c2ae-47f7-a92b-179b1c97bf0f",
 			"key": "nose_position",
 			"value": ""
 		},
 		{
-			"id": "cf428aaa-e871-47e0-9cc6-2f60947c06f3",
 			"key": "fin_position",
 			"value": ""
 		},
 		{
-			"id": "bfdc180c-c081-4c2f-8fce-caca01a034bc",
 			"key": "fin_radius",
 			"value": ""
 		},
 		{
-			"id": "db65d7e6-8e9f-483c-962b-b8de2bdccdff",
 			"key": "tail_length",
 			"value": ""
 		},
 		{
-			"id": "c025df76-d936-44c9-893e-ab069908bb6c",
 			"key": "tail_position",
 			"value": ""
 		},
 		{
-			"id": "81168f3b-ca4e-478a-ad15-bdc3a23902f0",
 			"key": "tail_radius",
 			"value": ""
 		},
 		{
-			"id": "b1984d3e-f55a-4678-b0b7-6c4d4d56b73c",
 			"key": "rocket_coordinate_system_orientation",
 			"value": ""
 		},
 		{
-			"id": "b3e82af7-cd71-4cd0-8042-0e7d1f469c31",
 			"key": "motor_coordinate_system_orientation",
 			"value": ""
 		},
 		{
-			"id": "810a0f36-dba0-4d15-802d-f84c27c13dec",
 			"key": "motor_id",
 			"value": ""
 		},
 		{
-			"id": "f4af5801-1f25-44dc-a7ad-886045612ba7",
 			"key": "rocket_id",
 			"value": ""
 		}
