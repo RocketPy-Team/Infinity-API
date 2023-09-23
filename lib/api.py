@@ -5,6 +5,7 @@ from typing import Any, Dict
 
 from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.utils import get_openapi
 
 from lib.views.flight import FlightSummary, FlightCreated, FlightUpdated, FlightDeleted
 from lib.views.environment import EnvSummary, EnvCreated, EnvUpdated, EnvDeleted
@@ -27,6 +28,23 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="RocketPy Infinity-API",
+        version="1.0.0",
+        summary="RocketPy Infinity-API is a RESTful API for RocketPy, a rocket flight simulator.",
+        description="Create, manage and simulate rocket flights, environments, rockets and motors.",
+        routes=app.routes,
+    )
+    openapi_schema["info"]["x-logo"] = {
+        "url": "https://raw.githubusercontent.com/RocketPy-Team/RocketPy/master/docs/static/RocketPy_Logo_Black.svg"
+    }
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+app.openapi = custom_openapi
 
 # Flight routes
 @app.post("/flights/", tags=["FLIGHT"])
