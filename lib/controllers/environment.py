@@ -32,7 +32,7 @@ class EnvController():
         self.rocketpy_env = rocketpy_env
         self.env = env
 
-    def create_env(self) -> "Dict[str, str]":
+    async def create_env(self) -> "Dict[str, str]":
         """
         Create a env in the database.
 
@@ -40,13 +40,13 @@ class EnvController():
             Dict[str, str]: Environment id.
         """
         env = EnvRepository(environment=self.env)
-        successfully_created_env = env.create_env()
+        successfully_created_env = await env.create_env()
         if successfully_created_env:
             return EnvCreated(env_id=str(env.env_id))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
-    def get_env(env_id: int) -> "Union[Env, Response]":
+    async def get_env(env_id: int) -> "Union[Env, Response]":
         """
         Get a env from the database.
 
@@ -60,13 +60,13 @@ class EnvController():
             HTTP 404 Not Found: If the env is not found in the database.
         """
         successfully_read_env = \
-            EnvRepository(env_id=env_id).get_env()
+            await EnvRepository(env_id=env_id).get_env()
         if not successfully_read_env:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
         return successfully_read_env
 
     @staticmethod
-    def get_rocketpy_env(env_id: int) -> "Union[Dict[str, Any], Response]":
+    async def get_rocketpy_env(env_id: int) -> "Union[Dict[str, Any], Response]":
         """
         Get a rocketpy env object encoded as jsonpickle string from the database.
 
@@ -80,7 +80,7 @@ class EnvController():
             HTTP 404 Not Found: If the env is not found in the database.
         """
         successfully_read_env = \
-            EnvRepository(env_id=env_id).get_env()
+            await EnvRepository(env_id=env_id).get_env()
         if not successfully_read_env:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
@@ -89,7 +89,7 @@ class EnvController():
 
         return EnvPickle(jsonpickle_rocketpy_env=jsonpickle.encode(successfully_read_rocketpy_env))
 
-    def update_env(self, env_id: int) -> "Union[Dict[str, Any], Response]":
+    async def update_env(self, env_id: int) -> "Union[Dict[str, Any], Response]":
         """
         Update a env in the database.
 
@@ -103,19 +103,19 @@ class EnvController():
             HTTP 404 Not Found: If the env is not found in the database.
         """
         successfully_read_env = \
-            EnvRepository(env_id=env_id).get_env()
+            await EnvRepository(env_id=env_id).get_env()
         if not successfully_read_env:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
         successfully_updated_env = \
-            EnvRepository(environment=self.env, env_id=env_id).update_env()
+            await EnvRepository(environment=self.env, env_id=env_id).update_env()
 
         if successfully_updated_env:
              return EnvUpdated(new_env_id=str(successfully_updated_env))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
-    def delete_env(env_id: int) -> "Union[Dict[str, str], Response]":
+    async def delete_env(env_id: int) -> "Union[Dict[str, str], Response]":
         """
         Delete a env from the database.
 
@@ -129,18 +129,18 @@ class EnvController():
             HTTP 404 Not Found: If the env is not found in the database.
         """
         successfully_read_env = \
-            EnvRepository(env_id=env_id).get_env()
+            await EnvRepository(env_id=env_id).get_env()
         if not successfully_read_env:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
         successfully_deleted_env = \
-            EnvRepository(env_id=env_id).delete_env()
+            await EnvRepository(env_id=env_id).delete_env()
         if successfully_deleted_env:
             return EnvDeleted(deleted_env_id = str(env_id))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
-    def simulate(env_id: int) -> "Union[EnvSummary, Response]":
+    async def simulate(env_id: int) -> "Union[EnvSummary, Response]":
         """
         Simulate a rocket environment.
 
@@ -154,7 +154,7 @@ class EnvController():
             HTTP 404 Not Found: If the env does not exist in the database.
         """
         successfully_read_env = \
-            EnvRepository(env_id=env_id).get_env()
+            await EnvRepository(env_id=env_id).get_env()
         if not successfully_read_env:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 

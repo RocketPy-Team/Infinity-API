@@ -1,3 +1,4 @@
+motor
 python-dotenv
 cdsapi
 fastapi

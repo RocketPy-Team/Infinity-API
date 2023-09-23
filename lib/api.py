@@ -34,7 +34,7 @@ def custom_openapi():
         return app.openapi_schema
     openapi_schema = get_openapi(
         title="RocketPy Infinity-API",
-        version="1.0.0",
+        version="1.0.0 (BETA)",
         summary="RocketPy Infinity-API is a RESTful API for RocketPy, a rocket flight simulator.",
         description="Create, manage and simulate rocket flights, environments, rockets and motors.",
         routes=app.routes,
@@ -201,7 +201,7 @@ async def create_env(env: Env) -> "EnvCreated":
         HTTP 422 Unprocessable Entity: If API is unable to parse env data, usually happens when some parameter is invalid, please attend to API docs request specifications.
         HTTP 500 Internal Server Error: If API is either unable to create env in mongoDB or valid parameter type/structure provided but content is breaking the API. 
     """
-    return EnvController(env).create_env()
+    return await EnvController(env).create_env()
 
 @app.get("/environments/{env_id}", tags=["ENVIRONMENT"])
 async def read_env(env_id: int) -> "Env":
@@ -217,7 +217,7 @@ async def read_env(env_id: int) -> "Env":
     Raises:
         HTTP 404 Not Found: If env_id does not exist in database.
     """
-    return EnvController.get_env(env_id)
+    return await EnvController.get_env(env_id)
 
 @app.put("/environments/{env_id}", tags=["ENVIRONMENT"])
 async def update_env(env_id: int, env: Env) -> "EnvUpdated":
@@ -236,7 +236,7 @@ async def update_env(env_id: int, env: Env) -> "EnvUpdated":
         HTTP 422 Unprocessable Entity: If API is unable to parse env data, usually happens when some parameter is invalid, please attend to API docs request specifications.
         HTTP 500 Internal Server Error: If API is either unable to update env in mongoDB or valid parameter type/structure provided but content is breaking the API.
     """
-    return EnvController(env).update_env(env_id)
+    return await EnvController(env).update_env(env_id)
 
 @app.delete("/environments/{env_id}", tags=["ENVIRONMENT"])
 async def delete_env(env_id: int) -> "EnvDeleted":
@@ -252,7 +252,7 @@ async def delete_env(env_id: int) -> "EnvDeleted":
     Raises:
         HTTP 404 Not Found: If env_id does not exist in database.
     """
-    return EnvController.delete_env(env_id)
+    return await EnvController.delete_env(env_id)
 
 @app.get("/environments/rocketpy/{env_id}", tags=["ENVIRONMENT"])
 async def read_rocketpy_env(env_id: int) -> "EnvPickle":
@@ -268,7 +268,7 @@ async def read_rocketpy_env(env_id: int) -> "EnvPickle":
     Raises:
         HTTP 404 Not Found: If env_id does not exist in database.
     """
-    return EnvController.get_rocketpy_env(env_id)
+    return await EnvController.get_rocketpy_env(env_id)
 
 @app.get("/environments/{env_id}/simulate", tags=["ENVIRONMENT"])
 async def simulate_env(env_id: int) -> "EnvSummary":
@@ -284,7 +284,7 @@ async def simulate_env(env_id: int) -> "EnvSummary":
     Raises:
         HTTP 404 Not Found: If env_id does not exist in database.
     """
-    return EnvController.simulate(env_id)
+    return await EnvController.simulate(env_id)
 
 # Motor routes
 @app.post("/motors/", tags=["MOTOR"])

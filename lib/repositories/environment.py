@@ -26,7 +26,7 @@ class EnvRepository(Repository):
     def __del__(self):
         super().__del__()
 
-    def create_env(self) -> "InsertOneResult":
+    async def create_env(self) -> "InsertOneResult":
         """
         Creates a environment in the database
 
@@ -36,16 +36,16 @@ class EnvRepository(Repository):
         Returns:
             InsertOneResult: result of the insert operation
         """
-        if not self.get_env():
+        if not await self.get_env():
             try:
                 environment_to_dict = self.environment.dict()
                 environment_to_dict["env_id"] = self.env_id
-                return self.collection.insert_one(environment_to_dict)
+                return await self.collection.insert_one(environment_to_dict)
             except:
                 raise Exception("Error creating environment")
         return InsertOneResult( acknowledged=True, inserted_id=None )
 
-    def update_env(self) -> "Union[int, None]":
+    async def update_env(self) -> "Union[int, None]":
         """
         Updates a environment in the database
 
@@ -56,7 +56,7 @@ class EnvRepository(Repository):
             environment_to_dict = self.environment.dict()
             environment_to_dict["env_id"] = self.environment.__hash__()
 
-            self.collection.update_one(
+            await self.collection.update_one(
                 { "env_id": self.env_id },
                 { "$set": environment_to_dict }
             )
@@ -66,7 +66,7 @@ class EnvRepository(Repository):
         except:
             raise Exception("Error updating environment")
 
-    def get_env(self) -> "Union[Env, None]":
+    async def get_env(self) -> "Union[Env, None]":
         """
         Gets a environment from the database
         
@@ -74,7 +74,7 @@ class EnvRepository(Repository):
             models.Env: Model environment object
         """
         try:
-            environment = self.collection.find_one({ "env_id": self.env_id })
+            environment = await self.collection.find_one({ "env_id": self.env_id })
             if environment is not None:
                 del environment["_id"]
                 return Env.parse_obj(environment)
@@ -82,7 +82,7 @@ class EnvRepository(Repository):
         except:
             raise Exception("Error getting environment")
 
-    def delete_env(self) -> "DeleteResult":
+    async def delete_env(self) -> "DeleteResult":
         """
         Deletes a environment from the database
 
@@ -90,6 +90,6 @@ class EnvRepository(Repository):
             DeleteResult: result of the delete operation
         """
         try:
-            return self.collection.delete_one({ "env_id": self.env_id })
+            return await self.collection.delete_one({ "env_id": self.env_id })
         except:
             raise Exception("Error deleting environment")
