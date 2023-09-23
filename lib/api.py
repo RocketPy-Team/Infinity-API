@@ -470,6 +470,6 @@ async def simulate_rocket(rocket_id: int) -> "RocketSummary":
     """
     return RocketController.simulate(rocket_id)
 
-@app.get("/health", status_code=status.HTTP_200_OK)
+@app.get("/health", status_code=status.HTTP_200_OK, include_in_schema=False)
 async def __perform_healthcheck():
     return {'health': 'Everything OK!'}
