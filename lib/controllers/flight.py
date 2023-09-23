@@ -44,7 +44,7 @@ class FlightController():
         self.rocketpy_flight = rocketpy_flight
         self.flight = flight
 
-    def create_flight(self) -> "Dict[str, str]":
+    async def create_flight(self) -> "Dict[str, str]":
         """
         Create a flight in the database.
 
@@ -52,13 +52,13 @@ class FlightController():
             Dict[str, str]: Flight id.
         """
         flight = FlightRepository(flight=self.flight)
-        successfully_created_flight = flight.create_flight()
+        successfully_created_flight = await flight.create_flight()
         if successfully_created_flight:
             return FlightCreated(flight_id=str(flight.flight_id))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
-    def get_flight(flight_id: int) -> "Union[Flight, Response]":
+    async def get_flight(flight_id: int) -> "Union[Flight, Response]":
         """
         Get a flight from the database.
 
@@ -72,13 +72,13 @@ class FlightController():
             HTTP 404 Not Found: If the flight is not found in the database.
         """
         successfully_read_flight = \
-            FlightRepository(flight_id=flight_id).get_flight()
+            await FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
         return successfully_read_flight
 
     @staticmethod
-    def get_rocketpy_flight(flight_id: int) -> "Union[Dict[str, Any], Response]":
+    async def get_rocketpy_flight(flight_id: int) -> "Union[Dict[str, Any], Response]":
         """
         Get a rocketpy flight object encoded as jsonpickle string from the database.
 
@@ -92,7 +92,7 @@ class FlightController():
             HTTP 404 Not Found: If the flight is not found in the database.
         """
         successfully_read_flight = \
-            FlightRepository(flight_id=flight_id).get_flight()
+            await FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
@@ -101,7 +101,7 @@ class FlightController():
 
         return FlightPickle(jsonpickle_rocketpy_flight=jsonpickle.encode(successfully_read_rocketpy_flight))
 
-    def update_flight(self, flight_id: int) -> "Union[Dict[str, Any], Response]":
+    async def update_flight(self, flight_id: int) -> "Union[Dict[str, Any], Response]":
         """
         Update a flight in the database.
 
@@ -115,19 +115,19 @@ class FlightController():
             HTTP 404 Not Found: If the flight is not found in the database.
         """
         successfully_read_flight = \
-            FlightRepository(flight_id=flight_id).get_flight()
+            await FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
         successfully_updated_flight = \
-            FlightRepository(flight=self.flight, flight_id=flight_id).update_flight()
+            await FlightRepository(flight=self.flight, flight_id=flight_id).update_flight()
 
         if successfully_updated_flight:
             return FlightUpdated(new_flight_id=str(successfully_updated_flight))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
-    def update_env(flight_id: int, env: Env) -> "Union[Dict[str, Any], Response]":
+    async def update_env(flight_id: int, env: Env) -> "Union[Dict[str, Any], Response]":
         """
         Update the environment of a flight in the database.
 
@@ -142,23 +142,21 @@ class FlightController():
             HTTP 404 Not Found: If the flight is not found in the database.
         """
         successfully_read_flight = \
-            FlightRepository(flight_id=flight_id).get_flight()
+            await FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
         flight = successfully_read_flight
 
         flight.env = env
         successfully_updated_flight = \
-            FlightRepository(flight=flight).update_flight(flight_id)
+            await FlightRepository(flight=flight).update_flight(flight_id)
+
         if successfully_updated_flight:
-            return {
-                    "message": "Flight updated successfully",
-                    "new_flight_id": str(successfully_updated_flight)
-            }
+            return FlightUpdated(new_flight_id=str(successfully_updated_flight)) 
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
-    def update_rocket(flight_id: int, rocket: Rocket) -> "Union[Dict[str, Any], Response]":
+    async def update_rocket(flight_id: int, rocket: Rocket) -> "Union[Dict[str, Any], Response]":
         """
         Update the rocket of a flight in the database.
 
@@ -173,23 +171,21 @@ class FlightController():
             HTTP 404 Not Found: If the flight is not found in the database.
         """
         successfully_read_flight = \
-            FlightRepository(flight_id=flight_id).get_flight()
+            await FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
         flight = successfully_read_flight
 
         flight.rocket = rocket
         successfully_updated_flight = \
-            FlightRepository(flight=flight).update_flight(flight_id)
+            await FlightRepository(flight=flight).update_flight(flight_id)
+
         if successfully_updated_flight:
-            return {
-                    "message": "Flight updated successfully",
-                    "new_flight_id": str(successfully_updated_flight)
-            }
+            return FlightUpdated(new_flight_id=str(successfully_updated_flight)) 
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
-    def delete_flight(flight_id: int) -> "Union[Dict[str, str], Response]":
+    async def delete_flight(flight_id: int) -> "Union[Dict[str, str], Response]":
         """
         Delete a flight from the database.
 
@@ -203,18 +199,18 @@ class FlightController():
             HTTP 404 Not Found: If the flight is not found in the database.
         """
         successfully_read_flight = \
-            FlightRepository(flight_id=flight_id).get_flight()
+            await FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
         successfully_deleted_flight = \
-            FlightRepository(flight_id=flight_id).delete_flight()
+            await FlightRepository(flight_id=flight_id).delete_flight()
         if successfully_deleted_flight:
             return FlightDeleted(deleted_flight_id=str(flight_id))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
-    def simulate(flight_id: int) -> "Union[FlightSummary, Response]":
+    async def simulate(flight_id: int) -> "Union[FlightSummary, Response]":
         """
         Simulate a rocket flight.
 
@@ -228,7 +224,7 @@ class FlightController():
             HTTP 404 Not Found: If the flight does not exist in the database.
         """
         successfully_read_flight = \
-            FlightRepository(flight_id=flight_id).get_flight()
+            await FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 

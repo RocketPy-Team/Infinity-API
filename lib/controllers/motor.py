@@ -38,7 +38,7 @@ class MotorController():
         self.rocketpy_motor = rocketpy_motor
         self.motor = motor
 
-    def create_motor(self) -> "Dict[str, str]":
+    async def create_motor(self) -> "Dict[str, str]":
         """
         Create a motor in the database.
 
@@ -46,13 +46,13 @@ class MotorController():
             Dict[str, str]: motor id.
         """
         motor = MotorRepository(motor=self.motor)
-        successfully_created_motor = motor.create_motor()
+        successfully_created_motor = await motor.create_motor()
         if successfully_created_motor:
             return MotorCreated(motor_id=str(motor.motor_id))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
-    def get_motor(motor_id: int) -> "Union[Motor, Response]":
+    async def get_motor(motor_id: int) -> "Union[Motor, Response]":
         """
         Get a motor from the database.
 
@@ -66,13 +66,13 @@ class MotorController():
             HTTP 404 Not Found: If the motor is not found in the database.
         """
         successfully_read_motor = \
-            MotorRepository(motor_id=motor_id).get_motor()
+            await MotorRepository(motor_id=motor_id).get_motor()
         if not successfully_read_motor:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
         return successfully_read_motor
 
     @staticmethod
-    def get_rocketpy_motor(motor_id: int) -> "Union[Dict[str, Any], Response]":
+    async def get_rocketpy_motor(motor_id: int) -> "Union[Dict[str, Any], Response]":
         """
         Get a rocketpy motor object encoded as jsonpickle string from the database.
 
@@ -86,7 +86,7 @@ class MotorController():
             HTTP 404 Not Found: If the motor is not found in the database.
         """
         successfully_read_motor = \
-            MotorRepository(motor_id=motor_id).get_motor()
+            await MotorRepository(motor_id=motor_id).get_motor()
         if not successfully_read_motor:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
@@ -95,7 +95,7 @@ class MotorController():
 
         return MotorPickle(jsonpickle_rocketpy_motor=jsonpickle.encode(successfully_read_rocketpy_motor))
 
-    def update_motor(self, motor_id: int) -> "Union[Dict[str, Any], Response]":
+    async def update_motor(self, motor_id: int) -> "Union[Dict[str, Any], Response]":
         """
         Update a motor in the database.
 
@@ -109,19 +109,19 @@ class MotorController():
             HTTP 404 Not Found: If the motor is not found in the database.
         """
         successfully_read_motor = \
-            MotorRepository(motor_id=motor_id).get_motor()
+            await MotorRepository(motor_id=motor_id).get_motor()
         if not successfully_read_motor:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
         successfully_updated_motor = \
-            MotorRepository(motor=self.motor, motor_id=motor_id).update_motor()
+            await MotorRepository(motor=self.motor, motor_id=motor_id).update_motor()
 
         if successfully_updated_motor:
             return MotorUpdated(new_motor_id=str(successfully_updated_motor))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
-    def delete_motor(motor_id: int) -> "Union[Dict[str, str], Response]":
+    async def delete_motor(motor_id: int) -> "Union[Dict[str, str], Response]":
         """
         Delete a motor from the database.
 
@@ -135,18 +135,18 @@ class MotorController():
             HTTP 404 Not Found: If the motor is not found in the database.
         """
         successfully_read_motor = \
-            MotorRepository(motor_id=motor_id).get_motor()
+            await MotorRepository(motor_id=motor_id).get_motor()
         if not successfully_read_motor:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
         successfully_deleted_motor = \
-            MotorRepository(motor_id=motor_id).delete_motor()
+            await MotorRepository(motor_id=motor_id).delete_motor()
         if successfully_deleted_motor:
             return MotorDeleted(deleted_motor_id=str(motor_id))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
-    def simulate(motor_id: int) -> "Union[MotorSummary, Response]":
+    async def simulate(motor_id: int) -> "Union[MotorSummary, Response]":
         """
         Simulate a rocketpy motor.
 
@@ -160,7 +160,7 @@ class MotorController():
             HTTP 404 Not Found: If the motor does not exist in the database.
         """
         successfully_read_motor = \
-            MotorRepository(motor_id=motor_id).get_motor()
+            await MotorRepository(motor_id=motor_id).get_motor()
         if not successfully_read_motor:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 

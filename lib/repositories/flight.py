@@ -26,7 +26,7 @@ class FlightRepository(Repository):
     def __del__(self):
         super().__del__()
 
-    def create_flight(self) -> "InsertOneResult":
+    async def create_flight(self) -> "InsertOneResult":
         """
         Creates a flight in the database
 
@@ -36,16 +36,16 @@ class FlightRepository(Repository):
         Returns:
             InsertOneResult: result of the insert operation
         """
-        if not self.get_flight():
+        if not await self.get_flight():
             try:
                 flight_to_dict = self.flight.dict()
                 flight_to_dict["flight_id"] = self.flight_id
-                return self.collection.insert_one(flight_to_dict)
+                return await self.collection.insert_one(flight_to_dict)
             except:
                 raise Exception("Error creating flight")
         return InsertOneResult( acknowledged=True, inserted_id=None )
 
-    def update_flight(self) -> "Union[int, None]":
+    async def update_flight(self) -> "Union[int, None]":
         """
         Updates a flight in the database
 
@@ -56,7 +56,7 @@ class FlightRepository(Repository):
             flight_to_dict = self.flight.dict()
             flight_to_dict["flight_id"] = self.flight.__hash__()
 
-            updated_flight = self.collection.update_one(
+            updated_flight = await self.collection.update_one(
                 { "flight_id": self.flight_id },
                 { "$set": flight_to_dict }
             )
@@ -66,7 +66,7 @@ class FlightRepository(Repository):
         except:
             raise Exception("Error updating flight")
 
-    def get_flight(self) -> "Union[Flight, None]":
+    async def get_flight(self) -> "Union[Flight, None]":
         """
         Gets a flight from the database
         
@@ -74,7 +74,7 @@ class FlightRepository(Repository):
             models.Flight: Model flight object
         """
         try:
-            flight = self.collection.find_one({ "flight_id": self.flight_id })
+            flight = await self.collection.find_one({ "flight_id": self.flight_id })
             if flight is not None:
                 del flight["_id"]
                 return Flight.parse_obj(flight)
@@ -82,7 +82,7 @@ class FlightRepository(Repository):
         except:
             raise Exception("Error getting flight")
 
-    def delete_flight(self) -> "DeleteResult":
+    async def delete_flight(self) -> "DeleteResult":
         """
         Deletes a flight from the database
 
@@ -90,6 +90,6 @@ class FlightRepository(Repository):
             DeleteResult: result of the delete operation
         """
         try:
-            return self.collection.delete_one({ "flight_id": self.flight_id })
+            return await self.collection.delete_one({ "flight_id": self.flight_id })
         except:
             raise Exception("Error deleting flight")

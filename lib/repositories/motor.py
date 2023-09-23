@@ -26,7 +26,7 @@ class MotorRepository(Repository):
     def __del__(self):
         super().__del__()
 
-    def create_motor(self) -> "InsertOneResult":
+    async def create_motor(self) -> "InsertOneResult":
         """
         Creates a motor in the database
 
@@ -36,16 +36,16 @@ class MotorRepository(Repository):
         Returns:
             InsertOneResult: result of the insert operation
         """
-        if not self.get_motor():
+        if not await self.get_motor():
             try:
                 motor_to_dict = self.motor.dict()
                 motor_to_dict["motor_id"] = self.motor_id
-                return self.collection.insert_one(motor_to_dict)
+                return await self.collection.insert_one(motor_to_dict)
             except:
                 raise Exception("Error creating motor")
         return InsertOneResult( acknowledged=True, inserted_id=None )
 
-    def update_motor(self) -> "Union[int, None]":
+    async def update_motor(self) -> "Union[int, None]":
         """
         Updates a motor in the database
 
@@ -56,7 +56,7 @@ class MotorRepository(Repository):
             motor_to_dict = self.motor.dict()
             motor_to_dict["motor_id"] = self.motor.__hash__()
 
-            updated_motor = self.collection.update_one(
+            updated_motor = await self.collection.update_one(
                 { "motor_id": self.motor_id },
                 { "$set": motor_to_dict }
             )
@@ -66,7 +66,7 @@ class MotorRepository(Repository):
         except:
             raise Exception("Error updating motor")
 
-    def get_motor(self) -> "Union[motor, None]":
+    async def get_motor(self) -> "Union[motor, None]":
         """
         Gets a motor from the database
         
@@ -74,7 +74,7 @@ class MotorRepository(Repository):
             models.motor: Model motor object
         """
         try:
-            motor = self.collection.find_one({ "motor_id": self.motor_id })
+            motor = await self.collection.find_one({ "motor_id": self.motor_id })
             if motor is not None:
                 del motor["_id"]
                 return Motor.parse_obj(motor)
@@ -82,7 +82,7 @@ class MotorRepository(Repository):
         except:
             raise Exception("Error getting motor")
 
-    def delete_motor(self) -> "DeleteResult":
+    async def delete_motor(self) -> "DeleteResult":
         """
         Deletes a motor from the database
 
@@ -90,6 +90,6 @@ class MotorRepository(Repository):
             DeleteResult: result of the delete operation
         """
         try:
-            return self.collection.delete_one({ "motor_id": self.motor_id })
+            return await self.collection.delete_one({ "motor_id": self.motor_id })
         except:
             raise Exception("Error deleting motor")
