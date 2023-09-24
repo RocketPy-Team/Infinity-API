@@ -47,7 +47,7 @@ def custom_openapi():
         "<a href='https://api.rocketpy.org/redoc' style='color: white; text-decoration: none;'>ReDoc</a>"
         "</button>"
         "<p>Create, manage, and simulate rocket flights, environments, rockets, and motors.</p>"
-        "<p>Currently, the API only supports SolidMotors and TrapezoidalFins. We apologize for the limitation, but we are actively working to expand its capabilities soon.</p>"
+        "<p>Currently, the API only supports SolidMotor (calisto as power_off/on_drag and Cesaroni as thrust_source) and TrapezoidalFins. We apologize for the limitation, but we are actively working to expand its capabilities soon.</p>"
         "<p>Please report any bugs at <a href='https://github.com/RocketPy-Team/infinity-api/issues/new/choose' style='text-decoration: none; color: #008CBA;'>GitHub Issues</a></p>"
         ),
         routes=app.routes,
