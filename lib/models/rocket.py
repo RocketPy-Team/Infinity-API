@@ -9,8 +9,8 @@ class Rocket(BaseModel, frozen=True):
     mass: float
     inertia: "Tuple[float, float, float]" = (6.321, 6.321, 0.0346)
     #TBD: powerOffDrag an powerOnDrag need to be the id of previously uploaded .csv files and a list of "default" files must be provided in the api docs
-    power_off_drag: Optional[str] = 'lib/data/calisto/powerOffDragCurve.csv'
-    power_on_drag: Optional[str] = 'lib/data/calisto/powerOnDragCurve.csv'
+    power_off_drag: Optional[str] = 'calisto'
+    power_on_drag: Optional[str] = 'calisto'
     center_of_mass_without_motor: int
     #TBD: a list of possible tailToNose values must be provided in the api docs
     coordinate_system_orientation: Optional[str] = "tail_to_nose"

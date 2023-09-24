@@ -33,8 +33,8 @@ class RocketController():
                 radius=rocket.radius,
                 mass=rocket.mass,
                 inertia=rocket.inertia,
-                power_off_drag=rocket.power_off_drag,
-                power_on_drag=rocket.power_on_drag,
+                power_off_drag=f"lib/data/{rocket.power_off_drag}/powerOffDragCurve.csv",
+                power_on_drag=f"lib/data/{rocket.power_on_drag}/powerOnDragCurve.csv",
                 center_of_mass_without_motor=rocket.center_of_mass_without_motor,
                 coordinate_system_orientation=rocket.coordinate_system_orientation
         )

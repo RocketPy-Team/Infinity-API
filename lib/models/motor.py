@@ -13,7 +13,7 @@ class Motor(BaseModel, frozen=True):
     grain_initial_height: float
     grains_center_of_mass_position: float
     #TBD: thrust_source must be the id of a previously uploaded .eng file and a list of "default" files must be provided in the api docs
-    thrust_source: Optional[str] = "lib/data/motors/Cesaroni_M1670.eng"
+    thrust_source: Optional[str] = "Cesaroni_M1670"
     grain_separation: float
     nozzle_radius: float
     throat_radius: float
