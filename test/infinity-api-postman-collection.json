@@ -1264,7 +1264,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"burn_time\": 3.9,\n    \"dry_mass\": 1.815,\n    \"dry_inertia\": [0.125, 0.125, 0.002],\n    \"center_of_dry_mass_position\": 0.317,\n    \"grain_number\": 5,\n    \"grain_density\": 1815,\n    \"grain_outer_radius\": 0.033,\n    \"grain_initial_inner_radius\": 0.015,\n    \"grain_initial_height\": 0.12,\n    \"grains_center_of_mass_position\": -0.85704,\n    \"grain_separation\": 0.005,\n    \"thrust_source\": \"lib/data/motors/Cesaroni_M1670.eng\",            \n    \"nozzle_radius\": 0.033,\n    \"throat_radius\": 0.011,\n    \"interpolation_method\": \"linear\",\n    \"coordinate_system_orientation\": \"nozzle_to_combustion_chamber\"\n}",
+							"raw": "{\n    \"burn_time\": 3.9,\n    \"dry_mass\": 1.815,\n    \"dry_inertia\": [0.125, 0.125, 0.002],\n    \"center_of_dry_mass_position\": 0.317,\n    \"grain_number\": 5,\n    \"grain_density\": 1815,\n    \"grain_outer_radius\": 0.033,\n    \"grain_initial_inner_radius\": 0.015,\n    \"grain_initial_height\": 0.12,\n    \"grains_center_of_mass_position\": -0.85704,\n    \"grain_separation\": 0.005,\n    \"thrust_source\": \"Cesaroni_M1670\",            \n    \"nozzle_radius\": 0.033,\n    \"throat_radius\": 0.011,\n    \"interpolation_method\": \"linear\",\n    \"coordinate_system_orientation\": \"nozzle_to_combustion_chamber\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1495,7 +1495,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"burn_time\": 3.9,\n    \"dry_mass\": 1.815,\n    \"dry_inertia\": [0.125, 0.125, 0.002],\n    \"center_of_dry_mass_position\": 0.317,\n    \"grain_number\": 5,\n    \"grain_density\": 1815,\n    \"grain_outer_radius\": 0.033,\n    \"grain_initial_inner_radius\": 0.015,\n    \"grain_initial_height\": 0.12,\n    \"grains_center_of_mass_position\": -0.85704,\n    \"grain_separation\": 0.005,\n    \"thrust_source\": \"lib/data/motors/Cesaroni_M1670.eng\",            \n    \"nozzle_radius\": 0.033,\n    \"throat_radius\": 0.011,\n    \"interpolation_method\": \"linear\",\n    \"coordinate_system_orientation\": \"nozzle_to_combustion_chamber\"\n}",
+							"raw": "{\n    \"burn_time\": 3.9,\n    \"dry_mass\": 1.815,\n    \"dry_inertia\": [0.125, 0.125, 0.002],\n    \"center_of_dry_mass_position\": 0.317,\n    \"grain_number\": 5,\n    \"grain_density\": 1815,\n    \"grain_outer_radius\": 0.033,\n    \"grain_initial_inner_radius\": 0.015,\n    \"grain_initial_height\": 0.12,\n    \"grains_center_of_mass_position\": -0.85704,\n    \"grain_separation\": 0.005,\n    \"thrust_source\": \"Cesaroni_M1670\",            \n    \"nozzle_radius\": 0.033,\n    \"throat_radius\": 0.011,\n    \"interpolation_method\": \"linear\",\n    \"coordinate_system_orientation\": \"nozzle_to_combustion_chamber\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
