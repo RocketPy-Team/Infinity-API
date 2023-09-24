@@ -932,7 +932,7 @@
 					"response": []
 				},
 				{
-					"name": "Update Flight Env",
+					"name": "Update Flight Environment",
 					"event": [
 						{
 							"listen": "test",
@@ -949,9 +949,6 @@
 									"",
 									"var apiRspn = pm.response.json();",
 									"var flightRequest = JSON.parse(pm.request.body.raw);",
-									"",
-									"// reduce environment date for future assertion",
-									"flightRequest.environment.date = flightRequest.environment.date.substring(0, flightRequest.environment.date.length - 7);",
 									"",
 									"// save new flight id",
 									"pm.environment.set('flight_id', apiRspn.new_flight_id)        ",
@@ -1030,9 +1027,6 @@
 									"",
 									"var apiRspn = pm.response.json();",
 									"var flightRequest = JSON.parse(pm.request.body.raw);",
-									"",
-									"// reduce environment date for future assertion",
-									"flightRequest.environment.date = flightRequest.environment.date.substring(0, flightRequest.environment.date.length - 7);",
 									"",
 									"// save new flight id",
 									"pm.environment.set('flight_id', apiRspn.new_flight_id)        ",
