@@ -146,9 +146,10 @@ class FlightController():
             await FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
-        flight = successfully_read_flight
+        flight = successfully_read_flight.dict()
 
-        flight.environment = env
+        flight["environment"] = env
+        flight = Flight(**flight)
         successfully_updated_flight = \
             await FlightRepository(flight=flight, flight_id=flight_id).update_flight()
 
@@ -175,9 +176,10 @@ class FlightController():
             await FlightRepository(flight_id=flight_id).get_flight()
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
-        flight = successfully_read_flight
+        flight = successfully_read_flight.dict()
 
-        flight.rocket = rocket
+        flight["rocket"] = rocket 
+        flight = Flight(**flight)
         successfully_updated_flight = \
             await FlightRepository(flight=flight, flight_id=flight_id).update_flight()
 
