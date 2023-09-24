@@ -1,5 +1,10 @@
 from typing import Optional, Tuple
+from enum import Enum
 from pydantic import BaseModel
+
+class MotorOptions(str, Enum):
+    cesaroni = "Cesaroni_M1670"
+    custom = "Custom (Coming soon)"
 
 class Motor(BaseModel, frozen=True):
     burn_time: float
@@ -13,7 +18,7 @@ class Motor(BaseModel, frozen=True):
     grain_initial_height: float
     grains_center_of_mass_position: float
     #TBD: thrust_source must be the id of a previously uploaded .eng file and a list of "default" files must be provided in the api docs
-    thrust_source: Optional[str] = "Cesaroni_M1670"
+    thrust_source: MotorOptions = MotorOptions.cesaroni
     grain_separation: float
     nozzle_radius: float
     throat_radius: float
