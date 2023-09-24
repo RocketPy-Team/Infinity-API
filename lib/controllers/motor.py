@@ -26,7 +26,7 @@ class MotorController():
                 grain_initial_inner_radius=motor.grain_initial_inner_radius,
                 grain_initial_height=motor.grain_initial_height,
                 grains_center_of_mass_position=-motor.grains_center_of_mass_position,
-                thrust_source=f"lib/data/motors/{motor.thrust_source}.eng",
+                thrust_source=f"lib/data/motors/{motor.thrust_source.value}.eng",
                 grain_separation=motor.grain_separation,
                 nozzle_radius=motor.nozzle_radius,
                 dry_mass=motor.dry_mass,
