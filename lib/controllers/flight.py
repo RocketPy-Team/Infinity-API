@@ -45,7 +45,7 @@ class FlightController():
         self.rocketpy_flight = rocketpy_flight
         self.flight = flight
 
-    async def create_flight(self) -> "Dict[str, str]":
+    async def create_flight(self) -> "Union[FlightCreated, Response]":
         """
         Create a flight in the database.
 
@@ -79,7 +79,7 @@ class FlightController():
         return successfully_read_flight
 
     @staticmethod
-    async def get_rocketpy_flight(flight_id: int) -> "Union[Dict[str, Any], Response]":
+    async def get_rocketpy_flight(flight_id: int) -> "Union[FlightPickle, Response]":
         """
         Get a rocketpy flight object encoded as jsonpickle string from the database.
 
@@ -102,7 +102,7 @@ class FlightController():
 
         return FlightPickle(jsonpickle_rocketpy_flight=jsonpickle.encode(successfully_read_rocketpy_flight))
 
-    async def update_flight(self, flight_id: int) -> "Union[Dict[str, Any], Response]":
+    async def update_flight(self, flight_id: int) -> "Union[FlightUpdated, Response]":
         """
         Update a flight in the database.
 
@@ -128,7 +128,7 @@ class FlightController():
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
-    async def update_env(flight_id: int, env: Env) -> "Union[Dict[str, Any], Response]":
+    async def update_env(flight_id: int, env: Env) -> "Union[FlightUpdated, Response]":
         """
         Update the environment of a flight in the database.
 
@@ -148,16 +148,16 @@ class FlightController():
             return Response(status_code=status.HTTP_404_NOT_FOUND)
         flight = successfully_read_flight
 
-        flight.env = env
+        flight.environment = env
         successfully_updated_flight = \
-            await FlightRepository(flight=flight).update_flight(flight_id)
+            await FlightRepository(flight=flight, flight_id=flight_id).update_flight()
 
         if successfully_updated_flight:
             return FlightUpdated(new_flight_id=str(successfully_updated_flight)) 
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
-    async def update_rocket(flight_id: int, rocket: Rocket) -> "Union[Dict[str, Any], Response]":
+    async def update_rocket(flight_id: int, rocket: Rocket) -> "Union[FlightUpdated, Response]":
         """
         Update the rocket of a flight in the database.
 
@@ -179,14 +179,14 @@ class FlightController():
 
         flight.rocket = rocket
         successfully_updated_flight = \
-            await FlightRepository(flight=flight).update_flight(flight_id)
+            await FlightRepository(flight=flight, flight_id=flight_id).update_flight()
 
         if successfully_updated_flight:
             return FlightUpdated(new_flight_id=str(successfully_updated_flight)) 
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
-    async def delete_flight(flight_id: int) -> "Union[Dict[str, str], Response]":
+    async def delete_flight(flight_id: int) -> "Union[FlightDeleted, Response]":
         """
         Delete a flight from the database.
 

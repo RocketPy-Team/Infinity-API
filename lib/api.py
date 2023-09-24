@@ -6,6 +6,7 @@ from typing import Any, Dict
 from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
+from fastapi.responses import RedirectResponse
 
 from lib.views.flight import FlightSummary, FlightCreated, FlightUpdated, FlightDeleted, FlightPickle
 from lib.views.environment import EnvSummary, EnvCreated, EnvUpdated, EnvDeleted, EnvPickle
@@ -20,7 +21,7 @@ from lib.controllers.environment import EnvController
 from lib.controllers.rocket import RocketController
 from lib.controllers.motor import MotorController
 
-app = FastAPI(swagger_ui_parameters={"defaultModelsExpandDepth": 0})
+app = FastAPI(swagger_ui_parameters={"defaultModelsExpandDepth": 0, "syntaxHighlight.theme": "obsidian"})
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -35,16 +36,37 @@ def custom_openapi():
     openapi_schema = get_openapi(
         title="RocketPy Infinity-API",
         version="1.0.0 ALPHA",
-        summary="RocketPy Infinity-API is a RESTful API for RocketPy, a rocket flight simulator.",
-        description="Create, manage and simulate rocket flights, environments, rockets and motors. Currently on ALPHA, so just a few functionalities are included (only SolidMotors for instance) please report any bugs to gabrielbarberinirc@gmail.com",
+        description=(
+        "<p style='font-size: 18px;'>RocketPy Infinity-API is a RESTful API for RocketPy, a rocket flight simulator.</p>"
+        "<br/>"
+        "<button style='background-color: #4CAF50; color: white; border: none; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer;'>"
+        "<a href='https://api.rocketpy.org/docs' style='color: white; text-decoration: none;'>Swagger UI</a>"
+        "</button>"
+        "<br/>"
+        "<button style='background-color: #008CBA; color: white; border: none; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer;'>"
+        "<a href='https://api.rocketpy.org/redoc' style='color: white; text-decoration: none;'>ReDoc</a>"
+        "</button>"
+        "<p>Create, manage, and simulate rocket flights, environments, rockets, and motors.</p>"
+        "<p>Currently, the API only supports SolidMotors and TrapezoidalFins. We apologize for the limitation, but we are actively working to expand its capabilities soon.</p>"
+        "<p>Please report any bugs at <a href='https://github.com/RocketPy-Team/infinity-api/issues/new/choose' style='text-decoration: none; color: #008CBA;'>GitHub Issues</a></p>"
+        ),
         routes=app.routes,
     )
     openapi_schema["info"]["x-logo"] = {
-        "url": "https://raw.githubusercontent.com/RocketPy-Team/RocketPy/master/docs/static/RocketPy_Logo_Black.svg"
+        "url": "https://drive.google.com/uc?id=1xKt6u5mI8x8ZuA5IZvIFDolg2_0iQUf-"
     }
+    x_swagger={"visible": False}  # Hide the summary in Swagger UI
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 app.openapi = custom_openapi
+
+# Main
+@app.get("/", include_in_schema=False)
+async def main_page():
+    """
+    Redirects to API docs.
+    """
+    return RedirectResponse(url="/redoc")
 
 # Flight routes
 @app.post("/flights/", tags=["FLIGHT"])
@@ -97,7 +119,7 @@ async def read_rocketpy_flight(flight_id: int) -> "FlightPickle":
     return await FlightController.get_rocketpy_flight(flight_id)
 
 @app.put("/flights/{flight_id}/env", tags=["FLIGHT"])
-async def update_flight_env(flight_id: int, env: Env) -> "Dict[str, Any]":
+async def update_flight_env(flight_id: int, env: Env) -> "FlightUpdated":
     """
     Updates flight environment.
 
@@ -116,7 +138,7 @@ async def update_flight_env(flight_id: int, env: Env) -> "Dict[str, Any]":
     return await FlightController.update_env(flight_id, env)
 
 @app.put("/flights/{flight_id}/rocket", tags=["FLIGHT"])
-async def update_flight_rocket(flight_id: int, rocket: Rocket) -> "Dict[str, Any]":
+async def update_flight_rocket(flight_id: int, rocket: Rocket) -> "FlightUpdated":
     """
     Updates flight rocket.
 

@@ -223,7 +223,7 @@ class RocketController():
                     return False
             return True
 
-    async def create_rocket(self) -> "Dict[str, str]":
+    async def create_rocket(self) -> "Union[RocketCreated, Response]":
         """
         Create a rocket in the database.
 
@@ -257,7 +257,7 @@ class RocketController():
         return successfully_read_rocket
 
     @staticmethod
-    async def get_rocketpy_rocket(rocket_id: int) -> "Union[Dict[str, Any], Response]":
+    async def get_rocketpy_rocket(rocket_id: int) -> "Union[RocketPickle, Response]":
         """
         Get a rocketpy rocket object encoded as jsonpickle string from the database.
 
@@ -280,7 +280,7 @@ class RocketController():
 
         return RocketPickle(jsonpickle_rocketpy_rocket=jsonpickle.encode(successfully_read_rocketpy_rocket))
 
-    async def update_rocket(self, rocket_id: int) -> "Union[Dict[str, Any], Response]":
+    async def update_rocket(self, rocket_id: int) -> "Union[RocketUpdated, Response]":
         """
         Update a rocket in the database.
 
@@ -306,7 +306,7 @@ class RocketController():
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
-    async def delete_rocket(rocket_id: int) -> "Union[Dict[str, str], Response]":
+    async def delete_rocket(rocket_id: int) -> "Union[RocketDeleted, Response]":
         """
         Delete a rocket from the database.
 

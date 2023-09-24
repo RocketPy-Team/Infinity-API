@@ -38,7 +38,7 @@ class MotorController():
         self.rocketpy_motor = rocketpy_motor
         self.motor = motor
 
-    async def create_motor(self) -> "Dict[str, str]":
+    async def create_motor(self) -> "Union[MotorCreated, Response]":
         """
         Create a motor in the database.
 
@@ -72,7 +72,7 @@ class MotorController():
         return successfully_read_motor
 
     @staticmethod
-    async def get_rocketpy_motor(motor_id: int) -> "Union[Dict[str, Any], Response]":
+    async def get_rocketpy_motor(motor_id: int) -> "Union[MotorPickle, Response]":
         """
         Get a rocketpy motor object encoded as jsonpickle string from the database.
 
@@ -95,7 +95,7 @@ class MotorController():
 
         return MotorPickle(jsonpickle_rocketpy_motor=jsonpickle.encode(successfully_read_rocketpy_motor))
 
-    async def update_motor(self, motor_id: int) -> "Union[Dict[str, Any], Response]":
+    async def update_motor(self, motor_id: int) -> "Union[MotorUpdated, Response]":
         """
         Update a motor in the database.
 
@@ -121,7 +121,7 @@ class MotorController():
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
-    async def delete_motor(motor_id: int) -> "Union[Dict[str, str], Response]":
+    async def delete_motor(motor_id: int) -> "Union[MotorDeleted, Response]":
         """
         Delete a motor from the database.
 

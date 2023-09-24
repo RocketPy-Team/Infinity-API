@@ -32,7 +32,7 @@ class EnvController():
         self.rocketpy_env = rocketpy_env
         self.env = env
 
-    async def create_env(self) -> "Dict[str, str]":
+    async def create_env(self) -> "Union[EnvCreated, Response]":
         """
         Create a env in the database.
 
@@ -66,7 +66,7 @@ class EnvController():
         return successfully_read_env
 
     @staticmethod
-    async def get_rocketpy_env(env_id: int) -> "Union[Dict[str, Any], Response]":
+    async def get_rocketpy_env(env_id: int) -> "Union[EnvPickle, Response]":
         """
         Get a rocketpy env object encoded as jsonpickle string from the database.
 
@@ -89,7 +89,7 @@ class EnvController():
 
         return EnvPickle(jsonpickle_rocketpy_env=jsonpickle.encode(successfully_read_rocketpy_env))
 
-    async def update_env(self, env_id: int) -> "Union[Dict[str, Any], Response]":
+    async def update_env(self, env_id: int) -> "Union[EnvUpdated, Response]":
         """
         Update a env in the database.
 
@@ -115,7 +115,7 @@ class EnvController():
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
-    async def delete_env(env_id: int) -> "Union[Dict[str, str], Response]":
+    async def delete_env(env_id: int) -> "Union[EnvDeleted, Response]":
         """
         Delete a env from the database.
 
