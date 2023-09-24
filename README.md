@@ -1,4 +1,4 @@
-# RocketPy Infinity-API 
+# Infinity-API
 
 ## Capabilities
 - Performs rocket simulations and returns simulation data
