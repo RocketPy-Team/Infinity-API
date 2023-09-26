@@ -3,8 +3,8 @@ from typing import Optional
 from pydantic import BaseModel
 
 class Env(BaseModel, frozen=True):
-    latitude: float
-    longitude: float
+    latitude: float = 0
+    longitude: float = 0
     rail_length: Optional[float] = 5.2
     elevation: Optional[int] = 1400
     atmospheric_model_type: Optional[str] = 'standard_atmosphere'
