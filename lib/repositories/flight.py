@@ -26,7 +26,7 @@ class FlightRepository(Repository):
     def __del__(self):
         super().__del__()
 
-    async def create_flight(self) -> "InsertOneResult":
+    async def create_flight(self, motor_kind: str = "Solid", rocket_option: str = "Calisto") -> "InsertOneResult":
         """
         Creates a flight in the database
 
@@ -40,12 +40,14 @@ class FlightRepository(Repository):
             try:
                 flight_to_dict = self.flight.dict()
                 flight_to_dict["flight_id"] = self.flight_id
+                flight_to_dict["rocket"]["rocket_option"] = rocket_option
+                flight_to_dict["rocket"]["motor"]["motor_kind"] = motor_kind
                 return await self.collection.insert_one(flight_to_dict)
             except:
                 raise Exception("Error creating flight")
         return InsertOneResult( acknowledged=True, inserted_id=None )
 
-    async def update_flight(self) -> "Union[int, None]":
+    async def update_flight(self, motor_kind: str = "Solid", rocket_option: str = "Calisto") -> "Union[int, None]":
         """
         Updates a flight in the database
 
@@ -55,6 +57,8 @@ class FlightRepository(Repository):
         try:
             flight_to_dict = self.flight.dict()
             flight_to_dict["flight_id"] = self.flight.__hash__()
+            flight_to_dict["rocket"]["rocket_option"] = rocket_option
+            flight_to_dict["rocket"]["motor"]["motor_kind"] = motor_kind
 
             updated_flight = await self.collection.update_one(
                 { "flight_id": self.flight_id },
@@ -76,7 +80,6 @@ class FlightRepository(Repository):
         try:
             flight = await self.collection.find_one({ "flight_id": self.flight_id })
             if flight is not None:
-                del flight["_id"]
                 return Flight.parse_obj(flight)
             return None
         except:

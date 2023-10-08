@@ -12,7 +12,8 @@ from rocketpy.rocket.aero_surface import TrapezoidalFins as RocketpyTrapezoidalF
 from rocketpy.rocket.aero_surface import Tail as RocketpyTail
 
 from lib.controllers.motor import MotorController
-from lib.models.rocket import Rocket
+from lib.models.rocket import Rocket, RocketOptions
+from lib.models.motor import MotorKinds 
 from lib.models.aerosurfaces import NoseCone, TrapezoidalFins, Tail
 from lib.models.parachute import Parachute
 from lib.repositories.rocket import RocketRepository
@@ -28,13 +29,13 @@ class RocketController():
     Enables:
        create a RocketpyRocket object from a Rocket model object.
     """
-    def __init__(self, rocket: Rocket):
+    def __init__(self, rocket: Rocket, rocket_option, motor_kind):
         rocketpy_rocket = RocketpyRocket(
                 radius=rocket.radius,
                 mass=rocket.mass,
                 inertia=rocket.inertia,
-                power_off_drag=f"lib/data/{rocket.power_off_drag.value}/powerOffDragCurve.csv",
-                power_on_drag=f"lib/data/{rocket.power_on_drag.value}/powerOnDragCurve.csv",
+                power_off_drag=f"lib/data/{rocket_option.value.lower()}/powerOffDragCurve.csv",
+                power_on_drag=f"lib/data/{rocket_option.value.lower()}/powerOnDragCurve.csv",
                 center_of_mass_without_motor=rocket.center_of_mass_without_motor,
                 coordinate_system_orientation=rocket.coordinate_system_orientation
         )
@@ -43,7 +44,7 @@ class RocketController():
         rocketpy_rocket.set_rail_buttons(upper_button_position=rocket.rail_buttons.upper_button_position,
                                        lower_button_position=rocket.rail_buttons.lower_button_position,
                                        angular_position=rocket.rail_buttons.angular_position)
-        rocketpy_rocket.add_motor(MotorController(rocket.motor).rocketpy_motor,
+        rocketpy_rocket.add_motor(MotorController(rocket.motor, motor_kind).rocketpy_motor,
                                  rocket.motor_position)
 
         #NoseCone
@@ -73,6 +74,7 @@ class RocketController():
                 print("Parachute trigger not valid. Skipping parachute.")
                 continue
 
+        self.rocket_option = rocket_option #tracks rocket option state
         self.rocketpy_rocket = rocketpy_rocket
         self.rocket = rocket
 
@@ -231,7 +233,7 @@ class RocketController():
             Dict[str, str]: Rocket id.
         """
         rocket = RocketRepository(rocket=self.rocket)
-        successfully_created_rocket = await rocket.create_rocket()
+        successfully_created_rocket = await rocket.create_rocket(rocket_option = self.rocket_option)
         if successfully_created_rocket:
             return RocketCreated(rocket_id=str(rocket.rocket_id))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -276,7 +278,9 @@ class RocketController():
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
         successfully_read_rocketpy_rocket = \
-            RocketController( successfully_read_rocket ).rocketpy_rocket
+            RocketController(rocket=successfully_read_rocket,
+                             rocket_option = RocketOptions(successfully_read_rocket._rocket_option),
+                             motor_kind = MotorKinds(successfully_read_rocket.motor._motor_kind)).rocketpy_rocket
 
         return RocketPickle(jsonpickle_rocketpy_rocket=jsonpickle.encode(successfully_read_rocketpy_rocket))
 
@@ -299,7 +303,7 @@ class RocketController():
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
         successfully_updated_rocket = \
-            await RocketRepository(rocket=self.rocket, rocket_id=rocket_id).update_rocket()
+            await RocketRepository(rocket=self.rocket, rocket_id=rocket_id).update_rocket(rocket_option = self.rocket_option)
 
         if successfully_updated_rocket:
             return RocketUpdated(new_rocket_id=str(successfully_updated_rocket))
@@ -349,7 +353,9 @@ class RocketController():
         if not successfully_read_rocket:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
-        rocket = RocketController(successfully_read_rocket).rocketpy_rocket
+        rocket = RocketController(rocket=successfully_read_rocket,
+                rocket_option = RocketOptions(successfully_read_rocket._rocket_option),
+                motor_kind = MotorKinds(successfully_read_rocket.motor._motor_kind)).rocketpy_rocket
 
         _inertia_details = InertiaDetails(
             rocket_mass_without_propellant = "Rocket Mass: {:.3f} kg (No Propellant)".format(rocket.mass),

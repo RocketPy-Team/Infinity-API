@@ -15,7 +15,7 @@ class MotorRepository(Repository):
     Enables CRUD operations on motor objects
     """
 
-    def __init__(self, motor: Motor = None, motor_id: str = None):
+    def __init__(self, motor: Motor = None, motor_id: str = None) -> None:
         super().__init__("motors")
         self.motor = motor
         if motor_id:
@@ -26,7 +26,7 @@ class MotorRepository(Repository):
     def __del__(self):
         super().__del__()
 
-    async def create_motor(self) -> "InsertOneResult":
+    async def create_motor(self, motor_kind: str = "solid") -> "InsertOneResult":
         """
         Creates a motor in the database
 
@@ -40,12 +40,13 @@ class MotorRepository(Repository):
             try:
                 motor_to_dict = self.motor.dict()
                 motor_to_dict["motor_id"] = self.motor_id
+                motor_to_dict["motor_kind"] = motor_kind
                 return await self.collection.insert_one(motor_to_dict)
             except:
                 raise Exception("Error creating motor")
         return InsertOneResult( acknowledged=True, inserted_id=None )
 
-    async def update_motor(self) -> "Union[int, None]":
+    async def update_motor(self, motor_kind: str = "solid") -> "Union[int, None]":
         """
         Updates a motor in the database
 
@@ -55,6 +56,7 @@ class MotorRepository(Repository):
         try:
             motor_to_dict = self.motor.dict()
             motor_to_dict["motor_id"] = self.motor.__hash__()
+            motor_to_dict["motor_kind"] = motor_kind
 
             updated_motor = await self.collection.update_one(
                 { "motor_id": self.motor_id },
@@ -76,7 +78,6 @@ class MotorRepository(Repository):
         try:
             motor = await self.collection.find_one({ "motor_id": self.motor_id })
             if motor is not None:
-                del motor["_id"]
                 return Motor.parse_obj(motor)
             return None
         except:
