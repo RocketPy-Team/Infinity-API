@@ -4,8 +4,8 @@ from pydantic import BaseModel
 class Parachute(BaseModel, frozen=True):
     name: "List[str]" = ["Main","Drogue"]
     cd_s: "List[float]" = [10, 1]
-    sampling_rate: "List[int]" = [105, 105]
     lag: "List[float]" = [1.5, 1.5]
+    sampling_rate: "List[int]" = [105, 105]
     noise: "List[Tuple[float, float, float]]" = [(0, 8.3, 0.5), (0, 8.3, 0.5)]
     triggers: "List[str]" = ["lambda p, h, y: y[5] < 0 and h < 800", "lambda p, h, y: y[5] < 0"]
 

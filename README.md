@@ -5,7 +5,7 @@
 - Stores simulation input data in mongo-db
 
 ## Setup
-- [Install python3](https://www.python.org/downloads/)
+- [Install python3](https://www.python.org/downloads/) 3.11.5 or above
 - [install mongodb-atlas](https://www.mongodb.com/try/download/community)
 - Install dependencies `python3 -m pip install -r requirements.txt`
 

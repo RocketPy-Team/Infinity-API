@@ -76,7 +76,6 @@ class EnvRepository(Repository):
         try:
             environment = await self.collection.find_one({ "env_id": self.env_id })
             if environment is not None:
-                del environment["_id"]
                 return Env.parse_obj(environment)
             return None
         except:

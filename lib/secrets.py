@@ -15,7 +15,6 @@ class Secrets(BaseModel):
     def get_secret(self, key):
         dotenv_secret = self.secrets.get(key)
         if not dotenv_secret:
-            print("cheguei")
             return self.get_os_secret(key)
         return dotenv_secret
 

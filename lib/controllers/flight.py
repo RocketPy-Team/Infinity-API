@@ -5,10 +5,15 @@ from rocketpy.simulation.flight import Flight as RocketpyFlight
 
 import jsonpickle
 
-from lib.models.rocket import Rocket
+from lib.models.rocket import Rocket, RocketOptions
+from lib.models.motor import Motor, MotorEngines, MotorKinds
 from lib.models.flight import Flight
 from lib.models.environment import Env
-from lib.views.flight import FlightSummary, SurfaceWindConditions, OutOfRailConditions, BurnoutConditions, ApogeeConditions, MaximumValues, InitialConditions, NumericalIntegrationSettings, ImpactConditions, EventsRegistered, LaunchRailConditions, FlightData, FlightCreated, FlightUpdated, FlightDeleted, FlightPickle
+from lib.views.flight import ( 
+    FlightSummary, SurfaceWindConditions, OutOfRailConditions, BurnoutConditions, ApogeeConditions, MaximumValues, 
+    InitialConditions, NumericalIntegrationSettings, ImpactConditions, EventsRegistered, LaunchRailConditions, FlightData,
+    FlightCreated, FlightUpdated, FlightDeleted, FlightPickle
+)
 from lib.repositories.flight import FlightRepository
 from lib.controllers.environment import EnvController
 from lib.controllers.rocket import RocketController
@@ -31,17 +36,20 @@ class FlightController():
         - Read a RocketpyFlight object from the database.
 
     """
-    def __init__(self, flight: Flight):
-        rocketpy_rocket = RocketController(flight.rocket).rocketpy_rocket
+    def __init__(self, flight: Flight, rocket_option: RocketOptions, motor_kind: MotorKinds):
+        rocketpy_rocket = RocketController(flight.rocket, rocket_option=rocket_option, motor_kind=motor_kind).rocketpy_rocket
         rocketpy_env = EnvController(flight.environment).rocketpy_env
 
-        rocketpy_flight=RocketpyFlight(
-                rocket=rocketpy_rocket,
-                inclination=flight.inclination,
-                heading=flight.heading,
-                environment=rocketpy_env,
-                rail_length=flight.rail_length,
+        rocketpy_flight = RocketpyFlight(
+            rocket=rocketpy_rocket,
+            inclination=flight.inclination,
+            heading=flight.heading,
+            environment=rocketpy_env,
+            rail_length=flight.rail_length
         )
+
+        self.rocket_option = rocket_option
+        self.motor_kind = motor_kind
         self.rocketpy_flight = rocketpy_flight
         self.flight = flight
 
@@ -53,7 +61,12 @@ class FlightController():
             Dict[str, str]: Flight id.
         """
         flight = FlightRepository(flight=self.flight)
-        successfully_created_flight = await flight.create_flight()
+        successfully_created_flight = \
+                await flight.create_flight(
+                        motor_kind = self.motor_kind, 
+                        rocket_option = self.rocket_option
+                    )
+
         if successfully_created_flight:
             return FlightCreated(flight_id=str(flight.flight_id))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -98,7 +111,9 @@ class FlightController():
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
         successfully_read_rocketpy_flight = \
-            FlightController(successfully_read_flight).rocketpy_flight
+            FlightController(flight = successfully_read_flight, 
+                             rocket_option = RocketOptions(successfully_read_flight.rocket._rocket_option),
+                             motor_kind = MotorKinds(successfully_read_flight.rocket.motor._motor_kind)).rocketpy_flight
 
         return FlightPickle(jsonpickle_rocketpy_flight=jsonpickle.encode(successfully_read_rocketpy_flight))
 
@@ -121,7 +136,10 @@ class FlightController():
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
         successfully_updated_flight = \
-            await FlightRepository(flight=self.flight, flight_id=flight_id).update_flight()
+            await FlightRepository(flight=self.flight, flight_id=flight_id).update_flight(
+                    rocket_option = self.rocket_option, 
+                    motor_kind = self.motor_kind
+                )
 
         if successfully_updated_flight:
             return FlightUpdated(new_flight_id=str(successfully_updated_flight))
@@ -158,7 +176,7 @@ class FlightController():
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
-    async def update_rocket(flight_id: int, rocket: Rocket) -> "Union[FlightUpdated, Response]":
+    async def update_rocket(flight_id: int, rocket: Rocket, rocket_option, motor_kind) -> "Union[FlightUpdated, Response]":
         """
         Update the rocket of a flight in the database.
 
@@ -178,7 +196,11 @@ class FlightController():
             return Response(status_code=status.HTTP_404_NOT_FOUND)
         flight = successfully_read_flight.dict()
 
-        flight["rocket"] = rocket 
+        updated_rocket = rocket.dict()
+        updated_rocket["rocket_option"] = rocket_option
+        updated_rocket["motor"]["motor_kind"] = motor_kind
+        flight["rocket"] = Rocket(**updated_rocket)
+
         flight = Flight(**flight)
         successfully_updated_flight = \
             await FlightRepository(flight=flight, flight_id=flight_id).update_flight()
@@ -231,7 +253,9 @@ class FlightController():
         if not successfully_read_flight:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
-        flight = FlightController(successfully_read_flight).rocketpy_flight
+        flight = FlightController(flight = successfully_read_flight,
+                                  rocket_option = RocketOptions(successfully_read_flight.rocket._rocket_option),
+                                  motor_kind = MotorKinds(successfully_read_flight.rocket.motor._motor_kind)).rocketpy_flight
 
         _initial_conditions = InitialConditions(
             initial_altitude = "Attitude - e0: {:.3f} | e1: {:.3f} | e2: {:.3f} | e3: {:.3f}".format(flight.e0(0), flight.e1(0), flight.e2(0), flight.e3(0)),

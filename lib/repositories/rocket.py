@@ -26,7 +26,7 @@ class RocketRepository(Repository):
     def __del__(self):
         super().__del__()
 
-    async def create_rocket(self) -> "InsertOneResult":
+    async def create_rocket(self, rocket_option: str = "Calisto") -> "InsertOneResult":
         """
         Creates a rocket in the database
 
@@ -40,12 +40,13 @@ class RocketRepository(Repository):
             try:
                 rocket_to_dict = self.rocket.dict()
                 rocket_to_dict["rocket_id"] = self.rocket_id
+                rocket_to_dict["rocket_option"] = rocket_option
                 return await self.collection.insert_one(rocket_to_dict)
             except:
                 raise Exception("Error creating rocket")
         return InsertOneResult( acknowledged=True, inserted_id=None )
 
-    async def update_rocket(self) -> "Union[int, None]":
+    async def update_rocket(self, rocket_option: str = "Calisto") -> "Union[int, None]":
         """
         Updates a rocket in the database
 
@@ -55,6 +56,7 @@ class RocketRepository(Repository):
         try:
             rocket_to_dict = self.rocket.dict()
             rocket_to_dict["rocket_id"] = self.rocket.__hash__()
+            rocket_to_dict["rocket_option"] = rocket_option
 
             updated_rocket = await self.collection.update_one(
                 { "rocket_id": self.rocket_id },
@@ -76,7 +78,6 @@ class RocketRepository(Repository):
         try:
             rocket = await self.collection.find_one({ "rocket_id": self.rocket_id })
             if rocket is not None:
-                del rocket["_id"]
                 return Rocket.parse_obj(rocket)
             return None
         except:

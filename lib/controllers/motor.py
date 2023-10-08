@@ -1,9 +1,12 @@
 from fastapi import Response, status
 from typing import Any, Dict, Union
 from rocketpy.motors.solid_motor import SolidMotor
+from rocketpy.motors.liquid_motor import LiquidMotor
+from rocketpy.motors.hybrid_motor import HybridMotor
+from rocketpy import TankGeometry, Fluid
 import jsonpickle
 
-from lib.models.motor import Motor
+from lib.models.motor import Motor, MotorKinds
 from lib.repositories.motor import MotorRepository
 from lib.views.motor import MotorSummary, MotorData, MotorCreated, MotorUpdated, MotorDeleted, MotorPickle
 
@@ -17,26 +20,55 @@ class MotorController():
     Enables:
         - Create a rocketpy.Motor object from a Motor model object.
     """
-    def __init__(self, motor: Motor):
-        rocketpy_motor = SolidMotor(
-                burn_time=motor.burn_time,
-                grain_number=motor.grain_number,
-                grain_density=motor.grain_density,
-                grain_outer_radius=motor.grain_outer_radius,
-                grain_initial_inner_radius=motor.grain_initial_inner_radius,
-                grain_initial_height=motor.grain_initial_height,
-                grains_center_of_mass_position=-motor.grains_center_of_mass_position,
-                thrust_source=f"lib/data/motors/{motor.thrust_source.value}.eng",
-                grain_separation=motor.grain_separation,
-                nozzle_radius=motor.nozzle_radius,
-                dry_mass=motor.dry_mass,
-                center_of_dry_mass_position=motor.center_of_dry_mass_position,
-                dry_inertia=motor.dry_inertia,
-                throat_radius=motor.throat_radius,
-                interpolation_method=motor.interpolation_method
-        )
+    def __init__(self, motor: Motor, motor_kind):
+        self.guard(motor, motor_kind)
+        motor_core = {
+            "thrust_source": f"lib/data/motors/{motor.thrust_source.value}.eng",
+            "burn_time": motor.burn_time,
+            "nozzle_radius": motor.nozzle_radius,
+            "dry_mass": motor.dry_mass,
+            "dry_inertia": motor.dry_inertia,
+            "center_of_dry_mass_position": motor.center_of_dry_mass_position
+        }
+
+        match motor_kind:
+            case MotorKinds.liquid:
+                rocketpy_motor = LiquidMotor(**motor_core)
+            case MotorKinds.hybrid:
+                rocketpy_motor = HybridMotor(**motor_core,
+                    throat_radius=motor.throat_radius,
+                    grain_number=motor.grain_number,
+                    grain_density=motor.grain_density,
+                    grain_outer_radius=motor.grain_outer_radius,
+                    grain_initial_inner_radius=motor.grain_initial_inner_radius,
+                    grain_initial_height=motor.grain_initial_height,
+                    grain_separation=motor.grain_separation,
+                    grains_center_of_mass_position=motor.grains_center_of_mass_position
+                )
+            case _:
+                rocketpy_motor = SolidMotor(**motor_core,
+                    grain_number=motor.grain_number,
+                    grain_density=motor.grain_density,
+                    grain_outer_radius=motor.grain_outer_radius,
+                    grain_initial_inner_radius=motor.grain_initial_inner_radius,
+                    grain_initial_height=motor.grain_initial_height,
+                    grains_center_of_mass_position=motor.grains_center_of_mass_position,
+                    grain_separation=motor.grain_separation,
+                    throat_radius=motor.throat_radius,
+                    interpolation_method=motor.interpolation_method
+                )
+
+        if motor_kind != MotorKinds.solid:
+            for tank in motor.tanks:
+                rocketpy_motor.add_tank(tank.tank, tank.position)
+        
+        self.motor_kind = motor_kind #tracks motor kind state
         self.rocketpy_motor = rocketpy_motor
         self.motor = motor
+        
+    def guard(self, motor: Motor, motor_kind):
+        if motor_kind != MotorKinds.solid and motor.tanks is None:
+            return Response(status_code=status.HTTP_400_BAD_REQUEST, content="Tanks must be provided for liquid and hybrid motors.")
 
     async def create_motor(self) -> "Union[MotorCreated, Response]":
         """
@@ -46,7 +78,7 @@ class MotorController():
             Dict[str, str]: motor id.
         """
         motor = MotorRepository(motor=self.motor)
-        successfully_created_motor = await motor.create_motor()
+        successfully_created_motor = await motor.create_motor(motor_kind = self.motor_kind)
         if successfully_created_motor:
             return MotorCreated(motor_id=str(motor.motor_id))
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -91,7 +123,8 @@ class MotorController():
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
         successfully_read_rocketpy_motor = \
-            MotorController( successfully_read_motor ).rocketpy_motor
+            MotorController(motor = successfully_read_motor,
+                            motor_kind = MotorKinds(successfully_read_motor._motor_kind)).rocketpy_motor
 
         return MotorPickle(jsonpickle_rocketpy_motor=jsonpickle.encode(successfully_read_rocketpy_motor))
 
@@ -114,7 +147,7 @@ class MotorController():
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
         successfully_updated_motor = \
-            await MotorRepository(motor=self.motor, motor_id=motor_id).update_motor()
+            await MotorRepository(motor=self.motor, motor_id=motor_id).update_motor(motor_kind = self.motor_kind)
 
         if successfully_updated_motor:
             return MotorUpdated(new_motor_id=str(successfully_updated_motor))
@@ -164,7 +197,8 @@ class MotorController():
         if not successfully_read_motor:
             return Response(status_code=status.HTTP_404_NOT_FOUND)
 
-        motor = MotorController(successfully_read_motor).rocketpy_motor
+        motor = MotorController(motor=successfully_read_motor,
+                motor_kind = MotorKinds(successfully_read_motor._motor_kind)).rocketpy_motor
         motor_simulation_numbers = MotorData(
             total_burning_time="Total Burning Time: " + str(motor.burn_out_time) + " s",
 
