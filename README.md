@@ -4,6 +4,9 @@
 - Performs rocket simulations and returns simulation data
 - Stores simulation input data in mongo-db
 
+## Docker
+- docker-compose up --build -d
+
 ## Setup
 - [Install python3](https://www.python.org/downloads/) 3.11.5 or above
 - [install mongodb-atlas](https://www.mongodb.com/try/download/community)

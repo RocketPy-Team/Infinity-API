@@ -1,0 +1,12 @@
+version: '1'
+
+services:
+  fastapi-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: infinity-api:latest
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env

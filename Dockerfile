@@ -2,8 +2,6 @@ FROM python:3.11-slim-bookworm
 
 EXPOSE 3000
 
-USER api
-
 WORKDIR /code
 
 COPY ./requirements.txt /code/requirements.txt
