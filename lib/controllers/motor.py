@@ -23,7 +23,7 @@ class MotorController():
     def __init__(self, motor: Motor, motor_kind):
         self.guard(motor, motor_kind)
         motor_core = {
-            "thrust_source": f"lib/data/motors/{motor.thrust_source.value}.eng",
+            "thrust_source": f"lib/data/engines/{motor.thrust_source.value}.eng",
             "burn_time": motor.burn_time,
             "nozzle_radius": motor.nozzle_radius,
             "dry_mass": motor.dry_mass,
