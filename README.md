@@ -5,6 +5,7 @@
 - Stores simulation input data in mongo-db
 
 ## Docker
+- touch .env
 - docker-compose up --build -d
 
 ## Setup
