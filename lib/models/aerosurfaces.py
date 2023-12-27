@@ -1,10 +1,12 @@
 from typing import Optional
 from pydantic import BaseModel
 
+
 class RailButtons(BaseModel, frozen=True):
     upper_button_position: Optional[float] = -0.5
     lower_button_position: Optional[float] = 0.2
     angular_position: Optional[float] = 45
+
 
 class NoseCone(BaseModel, frozen=True):
     length: float = 0.55829
@@ -12,6 +14,7 @@ class NoseCone(BaseModel, frozen=True):
     position: float = 1.278
     base_radius: float = 0.0635
     rocket_radius: float = 0.0635
+
 
 class Fins(BaseModel, frozen=True):
     n: int = 4
@@ -23,9 +26,11 @@ class Fins(BaseModel, frozen=True):
     radius: float = 0.0635
     airfoil: str = ""
 
+
 class TrapezoidalFins(Fins, frozen=True):
     def __init__(self):
         super().__init__()
+
 
 class Tail(BaseModel, frozen=True):
     top_radius: float = 0.0635

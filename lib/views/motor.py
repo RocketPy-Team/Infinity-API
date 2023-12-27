@@ -1,6 +1,7 @@
 from typing import List, Any
 from pydantic import BaseModel
 
+
 class MotorData(BaseModel):
     total_burning_time: str
     total_propellant_mass: str
@@ -8,6 +9,7 @@ class MotorData(BaseModel):
     average_thrust: str
     maximum_thrust: str
     total_impulse: str
+
 
 class MotorPlots(BaseModel):
     thrust: List[Any]
@@ -20,21 +22,26 @@ class MotorPlots(BaseModel):
     i_13: List[Any]
     i_23: List[Any]
 
+
 class MotorSummary(BaseModel):
     motor_data: MotorData
-    #motor_plots: MotorPlots
+    # motor_plots: MotorPlots
+
 
 class MotorCreated(BaseModel):
-    motor_id: str 
+    motor_id: str
     message: str = "Motor successfully created"
 
+
 class MotorUpdated(BaseModel):
-    new_motor_id: str 
+    new_motor_id: str
     message: str = "Motor successfully updated"
 
+
 class MotorDeleted(BaseModel):
-    deleted_motor_id: str 
+    deleted_motor_id: str
     message: str = "Motor successfully deleted"
+
 
 class MotorPickle(BaseModel):
     jsonpickle_rocketpy_motor: str

@@ -1,23 +1,29 @@
 from typing import List, Tuple
 from pydantic import BaseModel
 
+
 class Parachute(BaseModel, frozen=True):
-    name: "List[str]" = ["Main","Drogue"]
+    name: "List[str]" = ["Main", "Drogue"]
     cd_s: "List[float]" = [10, 1]
     lag: "List[float]" = [1.5, 1.5]
     sampling_rate: "List[int]" = [105, 105]
     noise: "List[Tuple[float, float, float]]" = [(0, 8.3, 0.5), (0, 8.3, 0.5)]
-    triggers: "List[str]" = ["lambda p, h, y: y[5] < 0 and h < 800", "lambda p, h, y: y[5] < 0"]
+    triggers: "List[str]" = [
+        "lambda p, h, y: y[5] < 0 and h < 800",
+        "lambda p, h, y: y[5] < 0",
+    ]
 
     def __hash__(self):
-        return hash((
-            tuple(self.name),
-            tuple(self.cd_s),
-            tuple(self.sampling_rate),
-            tuple(self.lag),
-            tuple(self.noise),
-            tuple(self.triggers),
-        ))
+        return hash(
+            (
+                tuple(self.name),
+                tuple(self.cd_s),
+                tuple(self.sampling_rate),
+                tuple(self.lag),
+                tuple(self.noise),
+                tuple(self.triggers),
+            )
+        )
 
     def __getitem__(self, idx):
         if isinstance(idx, slice):

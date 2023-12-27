@@ -4,6 +4,7 @@ from pymongo.results import DeleteResult
 from lib.models.rocket import Rocket
 from lib.repositories.repo import Repository
 
+
 class RocketRepository(Repository):
     """
     Rocket repository
@@ -42,9 +43,12 @@ class RocketRepository(Repository):
                 rocket_to_dict["rocket_id"] = self.rocket_id
                 rocket_to_dict["rocket_option"] = rocket_option
                 return await self.collection.insert_one(rocket_to_dict)
-            except:
-                raise Exception("Error creating rocket")
-        return InsertOneResult( acknowledged=True, inserted_id=None )
+            except Exception as e:
+                raise Exception(f"Error creating rocket: {str(e)}") from e
+            finally:
+                self.__del__()
+        else:
+            return InsertOneResult(acknowledged=True, inserted_id=None)
 
     async def update_rocket(self, rocket_option: str = "Calisto") -> "Union[int, None]":
         """
@@ -58,30 +62,31 @@ class RocketRepository(Repository):
             rocket_to_dict["rocket_id"] = self.rocket.__hash__()
             rocket_to_dict["rocket_option"] = rocket_option
 
-            updated_rocket = await self.collection.update_one(
-                { "rocket_id": self.rocket_id },
-                { "$set": rocket_to_dict }
+            await self.collection.update_one(
+                {"rocket_id": self.rocket_id}, {"$set": rocket_to_dict}
             )
 
             self.rocket_id = rocket_to_dict["rocket_id"]
-            return  self.rocket_id
-        except:
-            raise Exception("Error updating rocket")
+            return self.rocket_id
+        except Exception as e:
+            raise Exception(f"Error updating rocket: {str(e)}") from e
+        finally:
+            self.__del__()
 
     async def get_rocket(self) -> "Union[Rocket, None]":
         """
         Gets a rocket from the database
-        
+
         Returns:
             models.Rocket: Model rocket object
         """
         try:
-            rocket = await self.collection.find_one({ "rocket_id": self.rocket_id })
+            rocket = await self.collection.find_one({"rocket_id": self.rocket_id})
             if rocket is not None:
                 return Rocket.parse_obj(rocket)
             return None
-        except:
-            raise Exception("Error getting rocket")
+        except Exception as e:
+            raise Exception(f"Error getting rocket: {str(e)}") from e
 
     async def delete_rocket(self) -> "DeleteResult":
         """
@@ -91,6 +96,8 @@ class RocketRepository(Repository):
             DeleteResult: result of the delete operation
         """
         try:
-            return await self.collection.delete_one({ "rocket_id": self.rocket_id })
-        except:
-            raise Exception("Error deleting rocket")
+            return await self.collection.delete_one({"rocket_id": self.rocket_id})
+        except Exception as e:
+            raise Exception(f"Error deleting rocket: {str(e)}") from e
+        finally:
+            self.__del__()
