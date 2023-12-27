@@ -1,10 +1,12 @@
 from typing import List, Any, Optional
 from pydantic import BaseModel
 
+
 class InertiaDetails(BaseModel):
     rocket_mass_without_propellant: str
     rocket_mass_with_propellant: str
     rocket_inertia_with_motor_without_propellant: "List[str]"
+
 
 class RocketGeometricalParameters(BaseModel):
     rocket_maximum_radius: str
@@ -13,6 +15,7 @@ class RocketGeometricalParameters(BaseModel):
     rocket_codm_center_of_propellant_mass: str
     rocket_codm_loaded_center_of_mass: str
 
+
 class RocketAerodynamicsQuantities(BaseModel):
     aerodynamics_lift_coefficient_derivatives: "Any"
     aerodynamics_center_of_pressure: "Any"
@@ -20,11 +23,13 @@ class RocketAerodynamicsQuantities(BaseModel):
     initial_static_margin: str
     final_static_margin: str
 
+
 class ParachuteData(BaseModel):
     parachute_details: "Any"
     # parachute_ejection_signal_trigger: "Any"
     parachute_ejection_system_refresh_rate: "Optional[Any]"
     parachute_lag: "Any"
+
 
 class RocketData(BaseModel):
     inertia_details: InertiaDetails
@@ -32,24 +37,30 @@ class RocketData(BaseModel):
     rocket_aerodynamics_quantities: RocketAerodynamicsQuantities
     parachute_data: ParachuteData
 
+
 class RocketPlots(BaseModel):
     pass
 
+
 class RocketSummary(BaseModel):
     rocket_data: RocketData
-    #rocket_plots: RocketPlots
+    # rocket_plots: RocketPlots
+
 
 class RocketCreated(BaseModel):
     rocket_id: str
     message: str = "Rocket successfully created"
 
+
 class RocketUpdated(BaseModel):
-    new_rocket_id: str 
+    new_rocket_id: str
     message: str = "Rocket successfully updated"
 
+
 class RocketDeleted(BaseModel):
-    deleted_rocket_id: str 
+    deleted_rocket_id: str
     message: str = "Rocket successfully deleted"
+
 
 class RocketPickle(BaseModel):
     jsonpickle_rocketpy_rocket: str

@@ -5,8 +5,8 @@
 - Stores simulation input data in mongo-db
 
 ## Docker
-- touch .env
-- docker-compose up --build -d
+- set MONGODB_CONNECTION_STRING: `touch .env && echo MONGODB_CONNECTION_STRING="$ConnectionString" > .env`
+- run docker compose: `docker-compose up --build -d`
 
 ## Setup
 - [Install python3](https://www.python.org/downloads/) 3.11.5 or above
@@ -34,19 +34,25 @@
 │   │   ├── motor.py
 │   │   └── rocket.py
 │   │   
+│   ├── routes 
+│   │   ├── environment.py
+│   │   ├── flight.py
+│   │   ├── motor.py
+│   │   └── rocket.py
+│   │   
+│   ├── repositories
+│   │   ├── repo.py
+│   │   ├── environment.py
+│   │   ├── flight.py
+│   │   ├── motor.py
+│   │   └── rocket.py
+│   │   
 │   ├── models
 │   │   ├── aerosurfaces.py
 │   │   ├── environment.py
 │   │   ├── flight.py
 │   │   ├── motor.py
 │   │   ├── parachute.py
-│   │   └── rocket.py
-│   │   
-│   ├── repositories
-│   │   ├── environment.py
-│   │   ├── flight.py
-│   │   ├── motor.py
-│   │   ├── repo.py
 │   │   └── rocket.py
 │   │   
 │   └── views

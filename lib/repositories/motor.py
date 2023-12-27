@@ -4,6 +4,7 @@ from pymongo.results import DeleteResult
 from lib.models.motor import Motor
 from lib.repositories.repo import Repository
 
+
 class MotorRepository(Repository):
     """
     Motor repository
@@ -42,9 +43,12 @@ class MotorRepository(Repository):
                 motor_to_dict["motor_id"] = self.motor_id
                 motor_to_dict["motor_kind"] = motor_kind
                 return await self.collection.insert_one(motor_to_dict)
-            except:
-                raise Exception("Error creating motor")
-        return InsertOneResult( acknowledged=True, inserted_id=None )
+            except Exception as e:
+                raise Exception(f"Error creating motor: {str(e)}") from e
+            finally:
+                self.__del__()
+        else:
+            return InsertOneResult(acknowledged=True, inserted_id=None)
 
     async def update_motor(self, motor_kind: str = "solid") -> "Union[int, None]":
         """
@@ -58,30 +62,31 @@ class MotorRepository(Repository):
             motor_to_dict["motor_id"] = self.motor.__hash__()
             motor_to_dict["motor_kind"] = motor_kind
 
-            updated_motor = await self.collection.update_one(
-                { "motor_id": self.motor_id },
-                { "$set": motor_to_dict }
+            await self.collection.update_one(
+                {"motor_id": self.motor_id}, {"$set": motor_to_dict}
             )
 
             self.motor_id = motor_to_dict["motor_id"]
-            return  self.motor_id
-        except:
-            raise Exception("Error updating motor")
+            return self.motor_id
+        except Exception as e:
+            raise Exception(f"Error updating motor: {str(e)}") from e
+        finally:
+            self.__del__()
 
     async def get_motor(self) -> "Union[motor, None]":
         """
         Gets a motor from the database
-        
+
         Returns:
             models.motor: Model motor object
         """
         try:
-            motor = await self.collection.find_one({ "motor_id": self.motor_id })
+            motor = await self.collection.find_one({"motor_id": self.motor_id})
             if motor is not None:
                 return Motor.parse_obj(motor)
             return None
-        except:
-            raise Exception("Error getting motor")
+        except Exception as e:
+            raise Exception(f"Error getting motor: {str(e)}") from e
 
     async def delete_motor(self) -> "DeleteResult":
         """
@@ -91,6 +96,8 @@ class MotorRepository(Repository):
             DeleteResult: result of the delete operation
         """
         try:
-            return await self.collection.delete_one({ "motor_id": self.motor_id })
-        except:
-            raise Exception("Error deleting motor")
+            return await self.collection.delete_one({"motor_id": self.motor_id})
+        except Exception as e:
+            raise Exception(f"Error deleting motor: {str(e)}") from e
+        finally:
+            self.__del__()

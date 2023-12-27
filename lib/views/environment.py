@@ -1,9 +1,10 @@
 from typing import List
 from pydantic import BaseModel
 
+
 class EnvData(BaseModel):
-    #TBD: review grav type
-    #grav: "Any"
+    # TBD: review grav type
+    # grav: "Any"
     elevation: int
     model_type: str
     model_type_max_expected_height: int
@@ -18,6 +19,7 @@ class EnvData(BaseModel):
     lat: float
     lon: float
 
+
 class EnvPlots(BaseModel):
     grid: "List[float]"
     wind_speed: "List[float]"
@@ -29,21 +31,26 @@ class EnvPlots(BaseModel):
     pressure: "List[float]"
     temperature: "List[float]"
 
+
 class EnvSummary(BaseModel):
     env_data: EnvData
     env_plots: EnvPlots
 
+
 class EnvCreated(BaseModel):
-    env_id: str 
+    env_id: str
     message: str = "Environment successfully created"
 
+
 class EnvUpdated(BaseModel):
-    new_env_id: str 
+    new_env_id: str
     message: str = "Environment successfully updated"
 
+
 class EnvDeleted(BaseModel):
-    deleted_env_id: str 
+    deleted_env_id: str
     message: str = "Environment successfully deleted"
+
 
 class EnvPickle(BaseModel):
     jsonpickle_rocketpy_env: str

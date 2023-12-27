@@ -1,16 +1,18 @@
+from enum import Enum
 from typing import Optional, Tuple, List
 from pydantic import BaseModel, PrivateAttr
-from enum import Enum
 from lib.models.motor import Motor
 from lib.models.aerosurfaces import Fins, NoseCone, Tail, RailButtons
 from lib.models.parachute import Parachute
+
 
 class RocketOptions(str, Enum):
     calisto: str = "Calisto"
     custom: str = "Custom"
 
+
 class Rocket(BaseModel, frozen=True):
-    #Required parameters
+    # Required parameters
     rail_buttons: RailButtons = RailButtons()
     motor: Motor = Motor()
     nose: NoseCone = NoseCone()
@@ -22,23 +24,23 @@ class Rocket(BaseModel, frozen=True):
     radius: float = 0.0632
     mass: float = 16.235
     motor_position: float = -1.255
-    power_off_drag: "List[Tuple[float, float]]" = [ 
-        (0.01,0.333865758),
-        (0.02,0.394981721),
-        (0.03,0.407756063)
+    power_off_drag: "List[Tuple[float, float]]" = [
+        (0.01, 0.333865758),
+        (0.02, 0.394981721),
+        (0.03, 0.407756063),
     ]
-    power_on_drag: "List[Tuple[float, float]]" = [ 
-        (0.01,0.333865758),
-        (0.02,0.394981721),
-        (0.03,0.407756063)
+    power_on_drag: "List[Tuple[float, float]]" = [
+        (0.01, 0.333865758),
+        (0.02, 0.394981721),
+        (0.03, 0.407756063),
     ]
     _rocket_option: RocketOptions = PrivateAttr()
 
-    #Optional parameters
-    #TBD: a list of possible tailToNose values must be provided in the api docs
+    # Optional parameters
+    # TBD: a list of possible tailToNose values must be provided in the api docs
     coordinate_system_orientation: Optional[str] = "tail_to_nose"
 
-    def __init__(self, rocket_option = RocketOptions.calisto, **kwargs):
+    def __init__(self, rocket_option=RocketOptions.calisto, **kwargs):
         super().__init__(**kwargs)
         self._rocket_option = rocket_option
 

@@ -1,8 +1,9 @@
+from typing import Union
 from pymongo.results import InsertOneResult
 from pymongo.results import DeleteResult
 from lib.models.environment import Env
 from lib.repositories.repo import Repository
-from typing import Union
+
 
 class EnvRepository(Repository):
     """
@@ -41,9 +42,12 @@ class EnvRepository(Repository):
                 environment_to_dict = self.environment.dict()
                 environment_to_dict["env_id"] = self.env_id
                 return await self.collection.insert_one(environment_to_dict)
-            except:
-                raise Exception("Error creating environment")
-        return InsertOneResult( acknowledged=True, inserted_id=None )
+            except Exception as e:
+                raise Exception(f"Error creating environment: {str(e)}") from e
+            finally:
+                self.__del__()
+        else:
+            return InsertOneResult(acknowledged=True, inserted_id=None)
 
     async def update_env(self) -> "Union[int, None]":
         """
@@ -57,29 +61,30 @@ class EnvRepository(Repository):
             environment_to_dict["env_id"] = self.environment.__hash__()
 
             await self.collection.update_one(
-                { "env_id": self.env_id },
-                { "$set": environment_to_dict }
+                {"env_id": self.env_id}, {"$set": environment_to_dict}
             )
 
             self.env_id = environment_to_dict["env_id"]
             return self.env_id
-        except:
-            raise Exception("Error updating environment")
+        except Exception as e:
+            raise Exception(f"Error updating environment: {str(e)}") from e
+        finally:
+            self.__del__()
 
     async def get_env(self) -> "Union[Env, None]":
         """
         Gets a environment from the database
-        
+
         Returns:
             models.Env: Model environment object
         """
         try:
-            environment = await self.collection.find_one({ "env_id": self.env_id })
+            environment = await self.collection.find_one({"env_id": self.env_id})
             if environment is not None:
                 return Env.parse_obj(environment)
             return None
-        except:
-            raise Exception("Error getting environment")
+        except Exception as e:
+            raise Exception(f"Error getting environment: {str(e)}") from e
 
     async def delete_env(self) -> "DeleteResult":
         """
@@ -89,6 +94,8 @@ class EnvRepository(Repository):
             DeleteResult: result of the delete operation
         """
         try:
-            return await self.collection.delete_one({ "env_id": self.env_id })
-        except:
-            raise Exception("Error deleting environment")
+            return await self.collection.delete_one({"env_id": self.env_id})
+        except Exception as e:
+            raise Exception(f"Error deleting environment: {str(e)}") from e
+        finally:
+            self.__del__()

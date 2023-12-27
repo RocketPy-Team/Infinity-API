@@ -2,10 +2,12 @@ import os
 from dotenv import dotenv_values
 from pydantic import BaseModel
 
+
 class Secrets(BaseModel):
     """
-        Secrets class to load secrets from .env file
+    Secrets class to load secrets from .env file
     """
+
     secrets: dict = dotenv_values(".env")
 
     @staticmethod
@@ -17,6 +19,7 @@ class Secrets(BaseModel):
         if not dotenv_secret:
             return self.get_os_secret(key)
         return dotenv_secret
+
 
 # global instance
 secrets_instance = Secrets()
