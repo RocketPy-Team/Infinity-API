@@ -37,7 +37,7 @@ class Rocket(BaseModel, frozen=True):
     _rocket_option: RocketOptions = PrivateAttr()
 
     # Optional parameters
-    # TBD: a list of possible tailToNose values must be provided in the api docs
+    # TODO: a list of possible tailToNose values must be provided in the api docs
     coordinate_system_orientation: Optional[str] = "tail_to_nose"
 
     def __init__(self, rocket_option=RocketOptions.calisto, **kwargs):

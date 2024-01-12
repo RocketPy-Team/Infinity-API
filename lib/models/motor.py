@@ -95,7 +95,7 @@ class MotorTank(BaseModel, frozen=True):
 
 
 class Motor(BaseModel, frozen=True):
-    # TBD: thrust_source must be the id of a previously uploaded .eng file and a list of "default" files must be provided in the api docs
+    # TODO: thrust_source must be the id of a previously uploaded .eng file and a list of "default" files must be provided in the api docs
 
     # Required parameters
     thrust_source: MotorEngines = MotorEngines.cesaroni
