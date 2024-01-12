@@ -71,7 +71,7 @@ class RocketController:
         rocketpy_rocket.evaluate_static_margin()
 
         # FinSet
-        # TBD: re-write this to match overall fins not only TrapezoidalFins
+        # TODO: re-write this to match overall fins not only TrapezoidalFins
         finset = self.TrapezoidalFinsController(rocket.fins).rocketpy_finset
         rocketpy_rocket.aerodynamic_surfaces.add(finset, finset.position)
         rocketpy_rocket.evaluate_static_margin()

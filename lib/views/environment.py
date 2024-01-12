@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 
 class EnvData(BaseModel):
-    # TBD: review grav type
+    # TODO: review grav type
     # grav: "Any"
     elevation: int
     model_type: str
