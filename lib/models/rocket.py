@@ -7,8 +7,8 @@ from lib.models.parachute import Parachute
 
 
 class RocketOptions(str, Enum):
-    calisto: str = "Calisto"
-    custom: str = "Custom"
+    CALISTO: str = "Calisto"
+    CUSTOM: str = "Custom"
 
 
 class Rocket(BaseModel, frozen=True):
@@ -40,7 +40,7 @@ class Rocket(BaseModel, frozen=True):
     # TODO: a list of possible tailToNose values must be provided in the api docs
     coordinate_system_orientation: Optional[str] = "tail_to_nose"
 
-    def __init__(self, rocket_option=RocketOptions.calisto, **kwargs):
+    def __init__(self, rocket_option=RocketOptions.CALISTO, **kwargs):
         super().__init__(**kwargs)
         self._rocket_option = rocket_option
 
