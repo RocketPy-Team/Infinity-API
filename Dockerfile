@@ -16,4 +16,4 @@ RUN apt-get update && \
 
 COPY ./lib /app/lib
 
-CMD ["gunicorn", "-w 2", "-k", "uvicorn.workers.UvicornWorker", "lib:app", "--log-level", "Debug", "-b", "0.0.0.0:3000", "--timeout", "120"]
+CMD ["gunicorn", "-w 1", "-k", "uvicorn.workers.UvicornWorker", "lib:app", "--log-level", "Debug", "-b", "0.0.0.0:3000", "--timeout", "120"]
