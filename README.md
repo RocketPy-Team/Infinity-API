@@ -4,16 +4,21 @@
 - Performs rocket simulations and returns simulation data
 - Stores simulation input data in mongo-db
 
-## Docker
-- set MONGODB_CONNECTION_STRING: `touch .env && echo MONGODB_CONNECTION_STRING="$ConnectionString" > .env`
-- run docker compose: `docker-compose up --build -d`
-
 ## Setup
 - [Install python3](https://www.python.org/downloads/) 3.11.5 or above
 - [install mongodb-atlas](https://www.mongodb.com/try/download/community)
 - Install dependencies `python3 -m pip install -r requirements.txt`
 
 ## Starting the server
+- Setup MONGODB_CONNECTION_STRING:
+```
+$ touch .env && echo MONGODB_CONNECTION_STRING="$ConnectionString" > .env
+```
+
+### Docker
+- run docker compose: `docker-compose up --build -d`
+
+### Standard
 - Dev: `python3 -m uvicorn lib:app --reload --port 3000`
 - Prod: `gunicorn -k uvicorn.workers.UvicornWorker lib:app -b 0.0.0.0:3000`
 
