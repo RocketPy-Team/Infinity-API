@@ -25,7 +25,6 @@ $ touch .env && echo MONGODB_CONNECTION_STRING="$ConnectionString" > .env
 ## Project structure
 ```
 ├── README.md    # this file
-├── apprunner.yaml
 ├── requirements.txt
 │   
 ├── lib
@@ -66,8 +65,44 @@ $ touch .env && echo MONGODB_CONNECTION_STRING="$ConnectionString" > .env
 │       ├── motor.py
 │       └── rocket.py
 │   
-└── test
-    └── infinity-api-postman-collection.json
+└── tests
+    ├── infinity-api-postman-collection.json
+    │   
+    ├── integration 
+    │   
+    └── unit
+        ├── test_secrets.py
+        ├── test_api.py
+        │   
+        ├── test_controllers
+        │   ├── test_environment.py
+        │   ├── test_flight.py
+        │   ├── test_motor.py
+        │   └── test_rocket.py
+        │
+        ├── test_routes
+        │   ├── test_environment.py
+        │   ├── test_flight.py
+        │   ├── test_motor.py
+        │   └── test_rocket.py
+        │
+        ├── test_repositories
+        │   ├── test_environment.py
+        │   ├── test_flight.py
+        │   ├── test_motor.py
+        │   └── test_rocket.py
+        │
+        ├── test_models
+        │   ├── test_environment.py
+        │   ├── test_flight.py
+        │   ├── test_motor.py
+        │   └── test_rocket.py
+        │   
+        └── test_views
+            ├── test_environment.py
+            ├── test_flight.py
+            ├── test_motor.py
+            └── test_rocket.py
 ```
 
 ## DOCS
