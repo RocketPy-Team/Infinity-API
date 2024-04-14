@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[project]
+name = "Infinity-API"
+version = "1.1.0"
+description = "RESTFULL open API for rocketpy"
+dynamic = ["dependencies"]
+requires-python = ">=3.12"
+authors = [
+  {name = "Gabriel Barberini", email = "gabrielbarberinirc@gmail.com"}
+]
+maintainers = [
+  {name = "Aasit", email = "aasitvora1999@gmail.com"},
+  {name = "Luiz Mota", email = "luiz.mota1999@usp.br"}
+]
+readme = "README.md"
+keywords = ["rocketpy", "rocket flight", "simulation", "rocket", "flight"]
+classifiers = [
+  "Development Status :: Alpha",
+  "Programming Language :: Python"
+]
+
+[project.urls]
+Homepage = "http://api.rocketpy.org/"
+Documentation = "http://api.rocketpy.org/docs"
+Repository = "https://github.com/RocketPy-Team/infinity-api"
+"Bug Tracker" = "https://github.com/RocketPy-Team/Infinity-API/issues"
+
+[tool.black]
+line-length = 79
+include = '\.py$'
+skip-string-normalization = true
+
+[tool.pylint]
+max-line-length = 79
+disable = """
+    line-too-long,
+    duplicate-code,
+    use-dict-literal,
+    missing-module-docstring,
+    missing-function-docstring,
+    missing-class-docstring,
+    too-few-public-methods,
+    too-many-public-methods,
+    too-many-instance-attributes,
+    logging-fstring-interpolation,
+    broad-exception-raised,
+    import-error,
+    protected-access
+"""
