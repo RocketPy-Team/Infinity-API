@@ -1,3 +1,4 @@
+import logging
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.server_api import ServerApi
 from lib.secrets import secrets_instance
@@ -25,5 +26,6 @@ class Repository:
         self.db = self.client.rocketpy
         self.collection = self.db[collection]
 
-    def __del__(self):
+    def close_connection(self) -> None:
+        logging.info(f"[{datetime.now()}] Closing connection to database")
         self.client.close()

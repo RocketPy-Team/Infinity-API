@@ -36,7 +36,7 @@ class EnvController:
         self._env = env
 
     @property
-    async def env(self) -> Env:
+    def env(self) -> Env:
         return self._env
 
     @env.setter

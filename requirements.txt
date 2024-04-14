@@ -6,4 +6,4 @@ pymongo
 jsonpickle
 gunicorn
 uvicorn
-git+https://github.com/RocketPy-Team/RocketPy
+rocketpy
