@@ -1,3 +1,10 @@
+[build-system]
+requires = ["setuptools", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
 [project]
 name = "Infinity-API"
 version = "1.1.0"
@@ -12,14 +19,11 @@ maintainers = [
   {name = "Luiz Mota", email = "luiz.mota1999@usp.br"}
 ]
 readme = "README.md"
-keywords = ["rocketpy", "rocket flight", "simulation", "API"]
+keywords = ["rocketpy", "API", "simulation", "rocket", "flight"]
 classifiers = [
   "Development Status :: Alpha",
   "Programming Language :: Python"
 ]
-
-[tool.setuptools.dynamic]
-dependencies = { file = ["requirements.txt"] }
 
 [project.urls]
 Homepage = "http://api.rocketpy.org/"
