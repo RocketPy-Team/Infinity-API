@@ -27,7 +27,9 @@ class MotorRepository(Repository):
     def __del__(self):
         super().__del__()
 
-    async def create_motor(self, motor_kind: str = "solid") -> "InsertOneResult":
+    async def create_motor(
+        self, motor_kind: str = "solid"
+    ) -> "InsertOneResult":
         """
         Creates a motor in the database
 
@@ -50,7 +52,9 @@ class MotorRepository(Repository):
         else:
             return InsertOneResult(acknowledged=True, inserted_id=None)
 
-    async def update_motor(self, motor_kind: str = "solid") -> "Union[int, None]":
+    async def update_motor(
+        self, motor_kind: str = "solid"
+    ) -> "Union[int, None]":
         """
         Updates a motor in the database
 
@@ -96,7 +100,9 @@ class MotorRepository(Repository):
             DeleteResult: result of the delete operation
         """
         try:
-            return await self.collection.delete_one({"motor_id": self.motor_id})
+            return await self.collection.delete_one(
+                {"motor_id": self.motor_id}
+            )
         except Exception as e:
             raise Exception(f"Error deleting motor: {str(e)}") from e
         finally:

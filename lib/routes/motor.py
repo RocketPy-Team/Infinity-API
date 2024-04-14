@@ -1,6 +1,7 @@
 """
 Motor routes
 """
+
 from fastapi import APIRouter
 
 from lib.views.motor import (

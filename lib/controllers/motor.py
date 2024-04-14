@@ -116,16 +116,21 @@ class MotorController:
         Raises:
             HTTP 404 Not Found: If the motor is not found in the database.
         """
-        successfully_read_motor = await MotorRepository(motor_id=motor_id).get_motor()
+        successfully_read_motor = await MotorRepository(
+            motor_id=motor_id
+        ).get_motor()
         if not successfully_read_motor:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Motor not found."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Motor not found.",
             )
 
         return successfully_read_motor
 
     @staticmethod
-    async def get_rocketpy_motor(motor_id: int) -> "Union[MotorPickle, HTTPException]":
+    async def get_rocketpy_motor(
+        motor_id: int,
+    ) -> "Union[MotorPickle, HTTPException]":
         """
         Get a rocketpy motor object encoded as jsonpickle string from the database.
 
@@ -138,10 +143,13 @@ class MotorController:
         Raises:
             HTTP 404 Not Found: If the motor is not found in the database.
         """
-        successfully_read_motor = await MotorRepository(motor_id=motor_id).get_motor()
+        successfully_read_motor = await MotorRepository(
+            motor_id=motor_id
+        ).get_motor()
         if not successfully_read_motor:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Motor not found."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Motor not found.",
             )
 
         successfully_read_rocketpy_motor = MotorController(
@@ -155,7 +163,9 @@ class MotorController:
             )
         )
 
-    async def update_motor(self, motor_id: int) -> "Union[MotorUpdated, HTTPException]":
+    async def update_motor(
+        self, motor_id: int
+    ) -> "Union[MotorUpdated, HTTPException]":
         """
         Update a motor in the database.
 
@@ -168,10 +178,13 @@ class MotorController:
         Raises:
             HTTP 404 Not Found: If the motor is not found in the database.
         """
-        successfully_read_motor = await MotorRepository(motor_id=motor_id).get_motor()
+        successfully_read_motor = await MotorRepository(
+            motor_id=motor_id
+        ).get_motor()
         if not successfully_read_motor:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Motor not found."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Motor not found.",
             )
 
         successfully_updated_motor = await MotorRepository(
@@ -186,7 +199,9 @@ class MotorController:
         return MotorUpdated(new_motor_id=str(successfully_updated_motor))
 
     @staticmethod
-    async def delete_motor(motor_id: int) -> "Union[MotorDeleted, HTTPException]":
+    async def delete_motor(
+        motor_id: int,
+    ) -> "Union[MotorDeleted, HTTPException]":
         """
         Delete a motor from the database.
 
@@ -199,10 +214,13 @@ class MotorController:
         Raises:
             HTTP 404 Not Found: If the motor is not found in the database.
         """
-        successfully_read_motor = await MotorRepository(motor_id=motor_id).get_motor()
+        successfully_read_motor = await MotorRepository(
+            motor_id=motor_id
+        ).get_motor()
         if not successfully_read_motor:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Motor not found."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Motor not found.",
             )
 
         successfully_deleted_motor = await MotorRepository(
@@ -230,10 +248,13 @@ class MotorController:
         Raises:
             HTTP 404 Not Found: If the motor does not exist in the database.
         """
-        successfully_read_motor = await MotorRepository(motor_id=motor_id).get_motor()
+        successfully_read_motor = await MotorRepository(
+            motor_id=motor_id
+        ).get_motor()
         if not successfully_read_motor:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Motor not found."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Motor not found.",
             )
 
         try:
@@ -249,7 +270,9 @@ class MotorController:
                 + "{:.3f}".format(motor.propellant_initial_mass)
                 + " kg",
                 average_propellant_exhaust_velocity="Average Propellant Exhaust Velocity: "
-                + "{:.3f}".format(motor.exhaust_velocity.average(*motor.burn_time))
+                + "{:.3f}".format(
+                    motor.exhaust_velocity.average(*motor.burn_time)
+                )
                 + " m/s",
                 average_thrust="Average Thrust: "
                 + "{:.3f}".format(motor.average_thrust)

@@ -27,7 +27,9 @@ class RocketRepository(Repository):
     def __del__(self):
         super().__del__()
 
-    async def create_rocket(self, rocket_option: str = "Calisto") -> "InsertOneResult":
+    async def create_rocket(
+        self, rocket_option: str = "Calisto"
+    ) -> "InsertOneResult":
         """
         Creates a rocket in the database
 
@@ -50,7 +52,9 @@ class RocketRepository(Repository):
         else:
             return InsertOneResult(acknowledged=True, inserted_id=None)
 
-    async def update_rocket(self, rocket_option: str = "Calisto") -> "Union[int, None]":
+    async def update_rocket(
+        self, rocket_option: str = "Calisto"
+    ) -> "Union[int, None]":
         """
         Updates a rocket in the database
 
@@ -81,7 +85,9 @@ class RocketRepository(Repository):
             models.Rocket: Model rocket object
         """
         try:
-            rocket = await self.collection.find_one({"rocket_id": self.rocket_id})
+            rocket = await self.collection.find_one(
+                {"rocket_id": self.rocket_id}
+            )
             if rocket is not None:
                 return Rocket.parse_obj(rocket)
             return None
@@ -96,7 +102,9 @@ class RocketRepository(Repository):
             DeleteResult: result of the delete operation
         """
         try:
-            return await self.collection.delete_one({"rocket_id": self.rocket_id})
+            return await self.collection.delete_one(
+                {"rocket_id": self.rocket_id}
+            )
         except Exception as e:
             raise Exception(f"Error deleting rocket: {str(e)}") from e
         finally:

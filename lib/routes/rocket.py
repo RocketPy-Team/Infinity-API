@@ -1,6 +1,7 @@
 """
 Rocket routes
 """
+
 from fastapi import APIRouter
 
 from lib.views.rocket import (
@@ -35,7 +36,9 @@ async def create_rocket(
     ## Args
     ``` Rocket object as a JSON ```
     """
-    return await RocketController(rocket, rocket_option, motor_kind).create_rocket()
+    return await RocketController(
+        rocket, rocket_option, motor_kind
+    ).create_rocket()
 
 
 @router.get("/{rocket_id}")
@@ -51,7 +54,10 @@ async def read_rocket(rocket_id: int) -> Rocket:
 
 @router.put("/{rocket_id}")
 async def update_rocket(
-    rocket_id: int, rocket: Rocket, rocket_option: RocketOptions, motor_kind: MotorKinds
+    rocket_id: int,
+    rocket: Rocket,
+    rocket_option: RocketOptions,
+    motor_kind: MotorKinds,
 ) -> "RocketUpdated":
     """
     Updates a rocket
@@ -62,9 +68,9 @@ async def update_rocket(
         rocket: Rocket object as JSON
     ```
     """
-    return await RocketController(rocket, rocket_option, motor_kind).update_rocket(
-        rocket_id
-    )
+    return await RocketController(
+        rocket, rocket_option, motor_kind
+    ).update_rocket(rocket_id)
 
 
 @router.delete("/{rocket_id}")

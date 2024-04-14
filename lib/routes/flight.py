@@ -1,6 +1,7 @@
 """
 Flight routes
 """
+
 from fastapi import APIRouter
 
 from lib.views.flight import (
@@ -37,7 +38,9 @@ async def create_flight(
     ## Args
     ``` Flight object as JSON ```
     """
-    return await FlightController(flight, rocket_option, motor_kind).create_flight()
+    return await FlightController(
+        flight, rocket_option, motor_kind
+    ).create_flight()
 
 
 @router.get("/{flight_id}")
@@ -78,7 +81,10 @@ async def update_flight_env(flight_id: int, env: Env) -> "FlightUpdated":
 
 @router.put("/{flight_id}/rocket")
 async def update_flight_rocket(
-    flight_id: int, rocket: Rocket, rocket_option: RocketOptions, motor_kind: MotorKinds
+    flight_id: int,
+    rocket: Rocket,
+    rocket_option: RocketOptions,
+    motor_kind: MotorKinds,
 ) -> "FlightUpdated":
     """
     Updates flight rocket.
@@ -96,7 +102,10 @@ async def update_flight_rocket(
 
 @router.put("/{flight_id}")
 async def update_flight(
-    flight_id: int, flight: Flight, rocket_option: RocketOptions, motor_kind: MotorKinds
+    flight_id: int,
+    flight: Flight,
+    rocket_option: RocketOptions,
+    motor_kind: MotorKinds,
 ) -> "FlightUpdated":
     """
     Updates Flight object
@@ -107,9 +116,9 @@ async def update_flight(
         flight: Flight object as JSON
     ```
     """
-    return await FlightController(flight, rocket_option, motor_kind).update_flight(
-        flight_id
-    )
+    return await FlightController(
+        flight, rocket_option, motor_kind
+    ).update_flight(flight_id)
 
 
 @router.delete("/{flight_id}")

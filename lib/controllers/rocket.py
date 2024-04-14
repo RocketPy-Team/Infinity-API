@@ -10,7 +10,9 @@ from fastapi import HTTPException, status
 from rocketpy.rocket.parachute import Parachute as RocketpyParachute
 from rocketpy.rocket.rocket import Rocket as RocketpyRocket
 from rocketpy.rocket.aero_surface import NoseCone as RocketpyNoseCone
-from rocketpy.rocket.aero_surface import TrapezoidalFins as RocketpyTrapezoidalFins
+from rocketpy.rocket.aero_surface import (
+    TrapezoidalFins as RocketpyTrapezoidalFins,
+)
 from rocketpy.rocket.aero_surface import Tail as RocketpyTail
 
 from lib.controllers.motor import MotorController
@@ -238,7 +240,9 @@ class RocketController:
                 try:
                     for operand in lambda_node.body.values:
                         if not isinstance(operand, ast.Compare):
-                            print("Invalid expression structure (not a Compare).")
+                            print(
+                                "Invalid expression structure (not a Compare)."
+                            )
                             return False
                 except AttributeError:
                     print("Invalid expression structure (not a Compare).")
@@ -247,10 +251,14 @@ class RocketController:
             # Restricting access to functions or attributes
             for node in ast.walk(lambda_node):
                 if isinstance(node, ast.Call):
-                    print("Calling functions is not allowed in the expression.")
+                    print(
+                        "Calling functions is not allowed in the expression."
+                    )
                     return False
                 if isinstance(node, ast.Attribute):
-                    print("Accessing attributes is not allowed in the expression.")
+                    print(
+                        "Accessing attributes is not allowed in the expression."
+                    )
                     return False
             return True
 
@@ -292,7 +300,8 @@ class RocketController:
         ).get_rocket()
         if not successfully_read_rocket:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Rocket not found."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Rocket not found.",
             )
 
         return successfully_read_rocket
@@ -318,12 +327,15 @@ class RocketController:
         ).get_rocket()
         if not successfully_read_rocket:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Rocket not found."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Rocket not found.",
             )
 
         successfully_read_rocketpy_rocket = RocketController(
             rocket=successfully_read_rocket,
-            rocket_option=RocketOptions(successfully_read_rocket._rocket_option),
+            rocket_option=RocketOptions(
+                successfully_read_rocket._rocket_option
+            ),
             motor_kind=MotorKinds(successfully_read_rocket.motor._motor_kind),
         ).rocketpy_rocket
 
@@ -353,7 +365,8 @@ class RocketController:
         ).get_rocket()
         if not successfully_read_rocket:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Rocket not found."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Rocket not found.",
             )
 
         successfully_updated_rocket = await RocketRepository(
@@ -368,7 +381,9 @@ class RocketController:
         return RocketUpdated(new_rocket_id=str(successfully_updated_rocket))
 
     @staticmethod
-    async def delete_rocket(rocket_id: int) -> "Union[RocketDeleted, HTTPException]":
+    async def delete_rocket(
+        rocket_id: int,
+    ) -> "Union[RocketDeleted, HTTPException]":
         """
         Delete a rocket from the database.
 
@@ -386,7 +401,8 @@ class RocketController:
         ).get_rocket()
         if not successfully_read_rocket:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Rocket not found."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Rocket not found.",
             )
 
         successfully_deleted_rocket = await RocketRepository(
@@ -401,7 +417,9 @@ class RocketController:
         return RocketDeleted(deleted_rocket_id=str(rocket_id))
 
     @staticmethod
-    async def simulate(rocket_id: int) -> "Union[RocketSummary, HTTPException]":
+    async def simulate(
+        rocket_id: int,
+    ) -> "Union[RocketSummary, HTTPException]":
         """
         Simulate a rocket rocket.
 
@@ -419,14 +437,19 @@ class RocketController:
         ).get_rocket()
         if not successfully_read_rocket:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Rocket not found."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Rocket not found.",
             )
 
         try:
             rocket = RocketController(
                 rocket=successfully_read_rocket,
-                rocket_option=RocketOptions(successfully_read_rocket._rocket_option),
-                motor_kind=MotorKinds(successfully_read_rocket.motor._motor_kind),
+                rocket_option=RocketOptions(
+                    successfully_read_rocket._rocket_option
+                ),
+                motor_kind=MotorKinds(
+                    successfully_read_rocket.motor._motor_kind
+                ),
             ).rocketpy_rocket
 
             _inertia_details = InertiaDetails(
@@ -467,7 +490,10 @@ class RocketController:
                 + " m2",
                 rocket_codm_nozzle_exit_distance="Rocket Center of Dry Mass - Nozzle Exit Distance: "
                 + "{:.3f} m".format(
-                    abs(rocket.center_of_dry_mass_position - rocket.motor_position)
+                    abs(
+                        rocket.center_of_dry_mass_position
+                        - rocket.motor_position
+                    )
                 ),
                 rocket_codm_center_of_propellant_mass="Rocket Center of Dry Mass - Center of Propellant Mass: "
                 + "{:.3f} m".format(
@@ -478,7 +504,10 @@ class RocketController:
                 ),
                 rocket_codm_loaded_center_of_mass="Rocket Center of Mass - Rocket Loaded Center of Mass: "
                 + "{:.3f} m".format(
-                    abs(rocket.center_of_mass(0) - rocket.center_of_dry_mass_position)
+                    abs(
+                        rocket.center_of_mass(0)
+                        - rocket.center_of_dry_mass_position
+                    )
                 ),
             )
 
@@ -488,7 +517,9 @@ class RocketController:
                 _aerodynamics_lift_coefficient_derivatives[name] = []
                 _aerodynamics_lift_coefficient_derivatives[name].append(
                     name
-                    + " Lift Coefficient Derivative: {:.3f}".format(surface.clalpha(0))
+                    + " Lift Coefficient Derivative: {:.3f}".format(
+                        surface.clalpha(0)
+                    )
                     + "/rad"
                 )
 
@@ -498,20 +529,26 @@ class RocketController:
                 cpz = surface.cp[2]
                 _aerodynamics_center_of_pressure[name] = []
                 _aerodynamics_center_of_pressure[name].append(
-                    name + " Center of Pressure to CM: {:.3f}".format(cpz) + " m"
+                    name
+                    + " Center of Pressure to CM: {:.3f}".format(cpz)
+                    + " m"
                 )
 
             _rocket_aerodynamics_quantities = RocketAerodynamicsQuantities(
                 aerodynamics_lift_coefficient_derivatives=_aerodynamics_lift_coefficient_derivatives,
                 aerodynamics_center_of_pressure=_aerodynamics_center_of_pressure,
                 distance_cop_to_codm="Distance from Center of Pressure to Center of Dry Mass: "
-                + "{:.3f}".format(rocket.center_of_mass(0) - rocket.cp_position)
+                + "{:.3f}".format(
+                    rocket.center_of_mass(0) - rocket.cp_position
+                )
                 + " m",
                 initial_static_margin="Initial Static Margin: "
                 + "{:.3f}".format(rocket.static_margin(0))
                 + " c",
                 final_static_margin="Final Static Margin: "
-                + "{:.3f}".format(rocket.static_margin(rocket.motor.burn_out_time))
+                + "{:.3f}".format(
+                    rocket.static_margin(rocket.motor.burn_out_time)
+                )
                 + " c",
             )
 
@@ -531,12 +568,12 @@ class RocketController:
                     _parachute_ejection_signal_trigger[chute.name] = (
                         "Ejection signal trigger: " + chute.trigger.__name__
                     )
-                    _parachute_ejection_system_refresh_rate[
-                        chute.name
-                    ] = "Ejection system refresh rate: {chute.sampling_rate:.3f} Hz"
-                    _parachute_lag[
-                        chute.name
-                    ] = "Time between ejection signal is triggered and the parachute is fully opened: {chute.lag:.1f} s\n"
+                    _parachute_ejection_system_refresh_rate[chute.name] = (
+                        "Ejection system refresh rate: {chute.sampling_rate:.3f} Hz"
+                    )
+                    _parachute_lag[chute.name] = (
+                        "Time between ejection signal is triggered and the parachute is fully opened: {chute.lag:.1f} s\n"
+                    )
 
             _parachute_data = ParachuteData(
                 parachute_details=_parachute_details,
