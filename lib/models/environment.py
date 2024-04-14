@@ -11,6 +11,6 @@ class Env(BaseModel, frozen=True):
     # Opional parameters
     atmospheric_model_type: Optional[str] = "standard_atmosphere"
     atmospheric_model_file: Optional[str] = "GFS"
-    date: Optional[datetime.datetime] = datetime.datetime.today() + datetime.timedelta(
-        days=1
+    date: Optional[datetime.datetime] = (
+        datetime.datetime.today() + datetime.timedelta(days=1)
     )
