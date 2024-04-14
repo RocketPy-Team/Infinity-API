@@ -87,7 +87,9 @@ class FlightRepository(Repository):
             models.Flight: Model flight object
         """
         try:
-            flight = await self.collection.find_one({"flight_id": self.flight_id})
+            flight = await self.collection.find_one(
+                {"flight_id": self.flight_id}
+            )
             if flight is not None:
                 return Flight.parse_obj(flight)
             return None
@@ -102,7 +104,9 @@ class FlightRepository(Repository):
             DeleteResult: result of the delete operation
         """
         try:
-            return await self.collection.delete_one({"flight_id": self.flight_id})
+            return await self.collection.delete_one(
+                {"flight_id": self.flight_id}
+            )
         except Exception as e:
             raise Exception(f"Error deleting flight: {str(e)}") from e
         finally:

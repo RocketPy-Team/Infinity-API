@@ -51,7 +51,10 @@ class FlightController:
     """
 
     def __init__(
-        self, flight: Flight, rocket_option: RocketOptions, motor_kind: MotorKinds
+        self,
+        flight: Flight,
+        rocket_option: RocketOptions,
+        motor_kind: MotorKinds,
     ):
         rocketpy_rocket = RocketController(
             flight.rocket, rocket_option=rocket_option, motor_kind=motor_kind
@@ -110,7 +113,8 @@ class FlightController:
         ).get_flight()
         if not successfully_read_flight:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Flight not found."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Flight not found.",
             )
 
         return successfully_read_flight
@@ -136,13 +140,18 @@ class FlightController:
         ).get_flight()
         if not successfully_read_flight:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Flight not found."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Flight not found.",
             )
 
         successfully_read_rocketpy_flight = FlightController(
             flight=successfully_read_flight,
-            rocket_option=RocketOptions(successfully_read_flight.rocket._rocket_option),
-            motor_kind=MotorKinds(successfully_read_flight.rocket.motor._motor_kind),
+            rocket_option=RocketOptions(
+                successfully_read_flight.rocket._rocket_option
+            ),
+            motor_kind=MotorKinds(
+                successfully_read_flight.rocket.motor._motor_kind
+            ),
         ).rocketpy_flight
 
         return FlightPickle(
@@ -171,12 +180,15 @@ class FlightController:
         ).get_flight()
         if not successfully_read_flight:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Flight not found."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Flight not found.",
             )
 
         successfully_updated_flight = await FlightRepository(
             flight=self.flight, flight_id=flight_id
-        ).update_flight(rocket_option=self.rocket_option, motor_kind=self.motor_kind)
+        ).update_flight(
+            rocket_option=self.rocket_option, motor_kind=self.motor_kind
+        )
         if not successfully_updated_flight:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -207,7 +219,8 @@ class FlightController:
         ).get_flight()
         if not successfully_read_flight:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Flight not found."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Flight not found.",
             )
 
         flight = successfully_read_flight.dict()
@@ -246,7 +259,8 @@ class FlightController:
         ).get_flight()
         if not successfully_read_flight:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Flight not found."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Flight not found.",
             )
 
         flight = successfully_read_flight.dict()
@@ -267,7 +281,9 @@ class FlightController:
         return FlightUpdated(new_flight_id=str(successfully_updated_flight))
 
     @staticmethod
-    async def delete_flight(flight_id: int) -> "Union[FlightDeleted, HTTPException]":
+    async def delete_flight(
+        flight_id: int,
+    ) -> "Union[FlightDeleted, HTTPException]":
         """
         Delete a flight from the database.
 
@@ -285,7 +301,8 @@ class FlightController:
         ).get_flight()
         if not successfully_read_flight:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Flight not found."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Flight not found.",
             )
 
         successfully_deleted_flight = await FlightRepository(
@@ -300,7 +317,9 @@ class FlightController:
         return FlightDeleted(deleted_flight_id=str(flight_id))
 
     @staticmethod
-    async def simulate(flight_id: int) -> "Union[FlightSummary, HTTPException]":
+    async def simulate(
+        flight_id: int,
+    ) -> "Union[FlightSummary, HTTPException]":
         """
         Simulate a rocket flight.
 
@@ -318,7 +337,8 @@ class FlightController:
         ).get_flight()
         if not successfully_read_flight:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Flight not found."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Flight not found.",
             )
 
         try:
@@ -351,7 +371,9 @@ class FlightController:
             )
 
             _numerical_integration_settings = NumericalIntegrationSettings(
-                max_time="Maximum Allowed Flight Time: {:f} s".format(flight.max_time),
+                max_time="Maximum Allowed Flight Time: {:f} s".format(
+                    flight.max_time
+                ),
                 max_time_step="Maximum Allowed Time Step: {:f} s".format(
                     flight.max_time_step
                 ),
@@ -371,11 +393,15 @@ class FlightController:
             )
 
             _launch_rail_conditions = LaunchRailConditions(
-                rail_length="Launch Rail Length: {:.2f} m".format(flight.rail_length),
+                rail_length="Launch Rail Length: {:.2f} m".format(
+                    flight.rail_length
+                ),
                 flight_inclination="Launch Rail Inclination: {:.2f}°".format(
                     flight.inclination
                 ),
-                flight_heading="Launch Rail Heading: {:.2f}°".format(flight.heading),
+                flight_heading="Launch Rail Heading: {:.2f}°".format(
+                    flight.heading
+                ),
             )
 
             _surface_wind_conditions = SurfaceWindConditions(
@@ -413,17 +439,25 @@ class FlightController:
                     flight.rocket.motor.burn_out_time
                 ),
                 burnout_altitude="Altitude at burn out: {:.3f} m (AGL)".format(
-                    flight.z(flight.rocket.motor.burn_out_time) - flight.env.elevation
+                    flight.z(flight.rocket.motor.burn_out_time)
+                    - flight.env.elevation
                 ),
                 burnout_rocket_velocity="Rocket velocity at burn out: {:.3f} m/s".format(
                     flight.speed(flight.rocket.motor.burn_out_time)
                 ),
                 burnout_freestream_velocity="Freestream velocity at burn out: {:.3f} m/s".format(
                     (
-                        flight.stream_velocity_x(flight.rocket.motor.burn_out_time) ** 2
-                        + flight.stream_velocity_y(flight.rocket.motor.burn_out_time)
+                        flight.stream_velocity_x(
+                            flight.rocket.motor.burn_out_time
+                        )
                         ** 2
-                        + flight.stream_velocity_z(flight.rocket.motor.burn_out_time)
+                        + flight.stream_velocity_y(
+                            flight.rocket.motor.burn_out_time
+                        )
+                        ** 2
+                        + flight.stream_velocity_z(
+                            flight.rocket.motor.burn_out_time
+                        )
                         ** 2
                     )
                     ** 0.5
@@ -457,14 +491,17 @@ class FlightController:
                     flight.max_reynolds_number, flight.max_reynolds_number_time
                 ),
                 maximum_dynamic_pressure="Maximum Dynamic Pressure: {:.3e} Pa at {:.2f} s".format(
-                    flight.max_dynamic_pressure, flight.max_dynamic_pressure_time
+                    flight.max_dynamic_pressure,
+                    flight.max_dynamic_pressure_time,
                 ),
                 maximum_acceleration_during_motor_burn="Maximum Acceleration During Motor Burn: {:.3f} m/s² at {:.2f} s".format(
                     flight.max_acceleration, flight.max_acceleration_time
                 ),
                 maximum_gs_during_motor_burn="Maximum Gs During Motor Burn: {:.3f} g at {:.2f} s".format(
                     flight.max_acceleration
-                    / flight.env.gravity(flight.z(flight.max_acceleration_time)),
+                    / flight.env.gravity(
+                        flight.z(flight.max_acceleration_time)
+                    ),
                     flight.max_acceleration_time,
                 ),
                 maximum_acceleration_after_motor_burn="Maximum Acceleration After Motor Burn: {:.3f} m/s² at {:.2f} s".format(
@@ -491,9 +528,15 @@ class FlightController:
 
             if len(flight.impact_state) != 0:
                 _impact_conditions = ImpactConditions(
-                    x_impact_position="X Impact: {:.3f} m".format(flight.x_impact),
-                    y_impact_position="Y Impact: {:.3f} m".format(flight.y_impact),
-                    time_of_impact="Time of Impact: {:.3f} s".format(flight.t_final),
+                    x_impact_position="X Impact: {:.3f} m".format(
+                        flight.x_impact
+                    ),
+                    y_impact_position="Y Impact: {:.3f} m".format(
+                        flight.y_impact
+                    ),
+                    time_of_impact="Time of Impact: {:.3f} s".format(
+                        flight.t_final
+                    ),
                     impact_velocity="Velocity at Impact: {:.3f} m/s".format(
                         flight.impact_velocity
                     ),
@@ -501,7 +544,9 @@ class FlightController:
             elif flight.terminate_on_apogee is False:
                 _impact_conditions = ImpactConditions(
                     time="Time: {:.3f} s".format(flight.solution[-1][0]),
-                    altitude="Altitude: {:.3f} m".format(flight.solution[-1][3]),
+                    altitude="Altitude: {:.3f} m".format(
+                        flight.solution[-1][3]
+                    ),
                 )
 
             if len(flight.parachute_events) == 0:
@@ -519,10 +564,14 @@ class FlightController:
                     name = parachute.name.title()
                     events[name] = []
                     events[name].append(
-                        name + " Ejection Triggered at: {:.3f} s".format(trigger_time)
+                        name
+                        + " Ejection Triggered at: {:.3f} s".format(
+                            trigger_time
+                        )
                     )
                     events[name].append(
-                        name + " Parachute Inflated at: {:.3f} s".format(open_time)
+                        name
+                        + " Parachute Inflated at: {:.3f} s".format(open_time)
                     )
                     events[name].append(
                         name

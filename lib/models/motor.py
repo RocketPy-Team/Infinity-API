@@ -35,7 +35,10 @@ class TankFluids(BaseModel, frozen=True):
 
 class MotorTank(BaseModel, frozen=True):
     # Required parameters
-    geometry: "List[Tuple[Tuple[float,float],float]]" = [((0, 5), 1), ((5, 10), 2)]
+    geometry: "List[Tuple[Tuple[float,float],float]]" = [
+        ((0, 5), 1),
+        ((5, 10), 2),
+    ]
     tank_kind: TankKinds = TankKinds.mass_flow
     gas: TankFluids = TankFluids()
     liquid: TankFluids = TankFluids()
@@ -69,10 +72,14 @@ class MotorTank(BaseModel, frozen=True):
 
         match self.tank_kind:
             case TankKinds.level:
-                tank = LevelBasedTank(**tank_core, liquid_height=self.liquid_height)
+                tank = LevelBasedTank(
+                    **tank_core, liquid_height=self.liquid_height
+                )
             case TankKinds.mass:
                 tank = MassBasedTank(
-                    **tank_core, liquid_mass=self.liquid_mass, gas_mass=self.gas_mass
+                    **tank_core,
+                    liquid_mass=self.liquid_mass,
+                    gas_mass=self.gas_mass,
                 )
             case TankKinds.mass_flow:
                 tank = MassFlowRateBasedTank(
@@ -117,7 +124,9 @@ class Motor(BaseModel, frozen=True):
     grain_separation: Optional[float] = 0.005
     throat_radius: Optional[float] = 0.011
     interpolation_method: Optional[str] = "linear"
-    coordinate_system_orientation: Optional[str] = "nozzle_to_combustion_chamber"
+    coordinate_system_orientation: Optional[str] = (
+        "nozzle_to_combustion_chamber"
+    )
 
     def __init__(self, motor_kind=MotorKinds.solid, **kwargs):
         super().__init__(**kwargs)
