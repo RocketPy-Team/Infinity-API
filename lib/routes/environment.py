@@ -1,6 +1,7 @@
 """
 Environment routes
 """
+
 from fastapi import APIRouter
 
 from lib.views.environment import (
@@ -30,38 +31,38 @@ async def create_env(env: Env) -> "EnvCreated":
     Creates a new environment
 
     ## Args
-    ``` Env object as a JSON ```
+    ``` models.Env JSON ```
     """
     return await EnvController(env).create_env()
 
 
 @router.get("/{env_id}")
-async def read_env(env_id: int) -> "Env":
+async def read_env(env_id: str) -> "Env":
     """
     Reads an environment
 
     ## Args
-    ``` env_id: Environment ID hash ```
+    ``` env_id: str ```
     """
-    return await EnvController.get_env(env_id)
+    return await EnvController.get_env_by_id(env_id)
 
 
 @router.put("/{env_id}")
-async def update_env(env_id: int, env: Env) -> "EnvUpdated":
+async def update_env(env_id: str, env: Env) -> "EnvUpdated":
     """
     Updates an environment
 
     ## Args
     ```
-        env_id: Environment ID hash
-        env: Env object as JSON
+        env_id: str
+        env: models.Env JSON
     ```
     """
     return await EnvController(env).update_env(env_id)
 
 
 @router.delete("/{env_id}")
-async def delete_env(env_id: int) -> "EnvDeleted":
+async def delete_env(env_id: str) -> "EnvDeleted":
     """
     Deletes an environment
 
@@ -72,22 +73,22 @@ async def delete_env(env_id: int) -> "EnvDeleted":
 
 
 @router.get("/rocketpy/{env_id}")
-async def read_rocketpy_env(env_id: int) -> "EnvPickle":
+async def read_rocketpy_env(env_id: str) -> "EnvPickle":
     """
-    Reads a rocketpy environment
+    Loads rocketpy.environment as jsonpickle string
 
     ## Args
-    ``` env_id: Environment ID hash ```
+    ``` env_id: str ```
     """
-    return await EnvController.get_rocketpy_env(env_id)
+    return await EnvController.get_rocketpy_env_as_jsonpickle(env_id)
 
 
 @router.get("/{env_id}/simulate")
-async def simulate_env(env_id: int) -> "EnvSummary":
+async def simulate_env(env_id: str) -> "EnvSummary":
     """
-    Simulates an environment
+    Loads rocketpy.environment simulation
 
     ## Args
-    ``` env_id: Env ID hash ```
+    ``` env_id: str ```
     """
     return await EnvController.simulate(env_id)
