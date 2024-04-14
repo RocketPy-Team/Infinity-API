@@ -35,7 +35,7 @@ def custom_openapi():
         return app.openapi_schema
     openapi_schema = get_openapi(
         title="RocketPy Infinity-API",
-        version="1.0.0 BETA",
+        version="1.1.0 BETA",
         description=(
             "<p style='font-size: 18px;'>RocketPy Infinity-API is a RESTful Open API for RocketPy, a rocket flight simulator.</p>"
             "<br/>"
