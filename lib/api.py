@@ -2,15 +2,16 @@
 This is the main API file for the RocketPy API.
 """
 
-import logging
-
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import RedirectResponse, JSONResponse
 
+from lib import logging
 from lib.routes import flight, environment, motor, rocket
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     swagger_ui_parameters={
@@ -84,7 +85,7 @@ async def validation_exception_handler(
     request: Request, exc: RequestValidationError
 ):
     exc_str = f"{exc}".replace("\n", " ").replace("   ", " ")
-    logging.error(f"{request}: {exc_str}")
+    logger.error(f"{request}: {exc_str}")
     content = {"status_code": 10422, "message": exc_str, "data": None}
     return JSONResponse(
         content=content, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
