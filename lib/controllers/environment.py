@@ -1,11 +1,10 @@
 from typing import Union
-from datetime import datetime
 
-import logging
 import jsonpickle
 from rocketpy.environment.environment import Environment as RocketPyEnvironment
 from fastapi import HTTPException, status
 
+from lib import logging
 from lib.controllers import parse_error
 from lib.models.environment import Env
 from lib.repositories.environment import EnvRepository
@@ -18,6 +17,8 @@ from lib.views.environment import (
     EnvUpdated,
     EnvPickle,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class EnvController:
@@ -69,23 +70,22 @@ class EnvController:
         Returns:
             views.EnvCreated
         """
-        env_repo = EnvRepository(environment=self.env)
         try:
-            await env_repo.create_env()
+            created_env = await EnvRepository(
+                environment=self.env
+            ).create_env()
         except Exception as e:
             exc_str = parse_error(e)
-            logging.error(
-                f"[{datetime.now()}] controllers.environment.create_env: {exc_str}"
-            )
+            logger.error(f"controllers.environment.create_env: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to create environment: {e}",
             ) from e
         else:
-            return EnvCreated(env_id=env_repo.env_id)
+            return EnvCreated(env_id=created_env.env_id)
         finally:
-            logging.info(
-                f"[{datetime.now()}] Call to controllers.environment.create_env completed; params: Env {hash(self.env)}"
+            logger.info(
+                f"Call to controllers.environment.create_env completed; params: Env {hash(self.env)}"
             )
 
     @staticmethod
@@ -102,14 +102,11 @@ class EnvController:
         Raises:
             HTTP 404 Not Found: If the env is not found in the database.
         """
-        env_repo = EnvRepository(env_id=env_id)
         try:
-            read_env = await env_repo.get_env()
+            read_env = await EnvRepository(env_id=env_id).get_env()
         except Exception as e:
             exc_str = parse_error(e)
-            logging.error(
-                f"[{datetime.now()}] controllers.environment.get_env_by_id: {exc_str}"
-            )
+            logger.error(f"controllers.environment.get_env_by_id: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to read environment: {e}",
@@ -122,8 +119,8 @@ class EnvController:
                 detail="Environment not found",
             )
         finally:
-            logging.info(
-                f"[{datetime.now()}] Call to controllers.environment.get_env_by_id completed; params: EnvID {env_id}"
+            logger.info(
+                f"Call to controllers.environment.get_env_by_id completed; params: EnvID {env_id}"
             )
 
     @classmethod
@@ -143,31 +140,27 @@ class EnvController:
         Raises:
             HTTP 404 Not Found: If the env is not found in the database.
         """
-        env_repo = EnvRepository(env_id=env_id)
         try:
-            read_env = await env_repo.get_env()
+            read_env = await cls.get_env_by_id(env_id)
+        except HTTPException as e:
+            raise e from e
         except Exception as e:
             exc_str = parse_error(e)
-            logging.error(
-                f"[{datetime.now()}] controllers.environment.get_rocketpy_env_as_jsonpickle: {exc_str}"
+            logger.error(
+                f"controllers.environment.get_rocketpy_env_as_jsonpickle: {exc_str}"
             )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to read environment: {e}",
             ) from e
         else:
-            if read_env:
-                rocketpy_env = cls.get_rocketpy_env(read_env)
-                return EnvPickle(
-                    jsonpickle_rocketpy_env=jsonpickle.encode(rocketpy_env)
-                )
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Environment not found",
+            rocketpy_env = await cls.get_rocketpy_env(read_env)
+            return EnvPickle(
+                jsonpickle_rocketpy_env=jsonpickle.encode(rocketpy_env)
             )
         finally:
-            logging.info(
-                f"[{datetime.now()}] Call to controllers.environment.get_rocketpy_env_as_jsonpickle completed; params: EnvID {env_id}"
+            logger.info(
+                f"Call to controllers.environment.get_rocketpy_env_as_jsonpickle completed; params: EnvID {env_id}"
             )
 
     async def update_env(
@@ -185,30 +178,25 @@ class EnvController:
         Raises:
             HTTP 404 Not Found: If the env is not found in the database.
         """
-        env_repo = EnvRepository(environment=self.env, env_id=env_id)
         try:
-            read_env = await env_repo.get_env()
-            if read_env:
-                await env_repo.update_env()
-            else:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Environment not found",
-                )
+            await EnvController.get_env_by_id(env_id)
+            updated_env = await EnvRepository(
+                environment=self.env, env_id=env_id
+            ).update_env()
+        except HTTPException as e:
+            raise e from e
         except Exception as e:
             exc_str = parse_error(e)
-            logging.error(
-                f"[{datetime.now()}] controllers.environment.update_env: {exc_str}"
-            )
+            logger.error(f"controllers.environment.update_env: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to update environment: {e}",
             ) from e
         else:
-            return EnvUpdated(new_env_id=env_repo.env_id)
+            return EnvUpdated(new_env_id=updated_env.env_id)
         finally:
-            logging.info(
-                f"[{datetime.now()}] Call to controllers.environment.update_env completed; params: EnvID {env_id}, Env {hash(self.env)}"
+            logger.info(
+                f"Call to controllers.environment.update_env completed; params: EnvID {env_id}, Env {hash(self.env)}"
             )
 
     @staticmethod
@@ -225,14 +213,11 @@ class EnvController:
         Raises:
             HTTP 404 Not Found: If the env is not found in the database.
         """
-        env_repo = EnvRepository(env_id=env_id)
         try:
-            await env_repo.delete_env()
+            await EnvRepository(env_id=env_id).delete_env()
         except Exception as e:
             exc_str = parse_error(e)
-            logging.error(
-                f"[{datetime.now()}] controllers.environment.delete_env: {exc_str}"
-            )
+            logger.error(f"controllers.environment.delete_env: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to delete environment: {e}",
@@ -240,8 +225,8 @@ class EnvController:
         else:
             return EnvDeleted(deleted_env_id=env_id)
         finally:
-            logging.info(
-                f"[{datetime.now()}] Call to controllers.environment.delete_env completed; params: EnvID {env_id}"
+            logger.info(
+                f"Call to controllers.environment.delete_env completed; params: EnvID {env_id}"
             )
 
     @classmethod
@@ -258,9 +243,9 @@ class EnvController:
         Raises:
             HTTP 404 Not Found: If the env does not exist in the database.
         """
-        read_env = await cls.get_env_by_id(env_id)
         try:
-            rocketpy_env = cls.get_rocketpy_env(read_env)
+            read_env = await cls.get_env_by_id(env_id)
+            rocketpy_env = await cls.get_rocketpy_env(read_env)
             env_simulation_numbers = EnvData.parse_obj(
                 rocketpy_env.all_info_returned()
             )
@@ -270,11 +255,11 @@ class EnvController:
             env_summary = EnvSummary(
                 env_data=env_simulation_numbers, env_plots=env_simulation_plots
             )
+        except HTTPException as e:
+            raise e from e
         except Exception as e:
             exc_str = parse_error(e)
-            logging.error(
-                f"[{datetime.now()}] controllers.environment.simulate: {exc_str}"
-            )
+            logger.error(f"controllers.environment.simulate: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to simulate environment: {e}",
@@ -282,6 +267,6 @@ class EnvController:
         else:
             return env_summary
         finally:
-            logging.info(
-                f"[{datetime.now()}] Call to controllers.environment.simulate completed; params: EnvID {env_id}"
+            logger.info(
+                f"Call to controllers.environment.simulate completed; params: EnvID {env_id}"
             )
