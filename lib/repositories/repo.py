@@ -24,6 +24,3 @@ class Repository:
         )
         self.db = self.client.rocketpy
         self.collection = self.db[collection]
-
-    async def close_connection(self) -> None:
-        self.client.close()

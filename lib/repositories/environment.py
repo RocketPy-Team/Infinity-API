@@ -62,7 +62,6 @@ class EnvRepository(Repository):
             logger.info(
                 f"Call to repositories.environment.create_env completed; states: EnvID {self.env_id}"
             )
-            await self.close_connection()
 
     async def update_env(self):
         """
@@ -88,7 +87,6 @@ class EnvRepository(Repository):
             logger.info(
                 f"Call to repositories.environment.update_env completed; states: Env {hash(self.env)}, EnvID {self.env_id}"
             )
-            await self.close_connection()
 
     async def get_env(self) -> "Union[Env, None]":
         """
@@ -108,7 +106,6 @@ class EnvRepository(Repository):
             logger.info(
                 f"Call to repositories.environment.get_env completed; states: Env {hash(self.env)}, EnvID {self.env_id}"
             )
-            await self.close_connection()
 
     async def delete_env(self):
         """
@@ -126,4 +123,3 @@ class EnvRepository(Repository):
             logger.info(
                 f"Call to repositories.environment.delete_env completed; states: Env {hash(self.env)}, EnvID {self.env_id}"
             )
-            await self.close_connection()
