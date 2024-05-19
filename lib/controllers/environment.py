@@ -29,7 +29,7 @@ class EnvController:
 
     Enables:
         - Simulation of RocketPyEnvironment from models.Env
-        - CRUD operations over modeols.Env on the database
+        - CRUD operations over models.Env on the database
     """
 
     def __init__(self, env: Env):
@@ -88,12 +88,12 @@ class EnvController:
             )
 
     @staticmethod
-    async def get_env_by_id(env_id: int) -> "Union[Env, HTTPException]":
+    async def get_env_by_id(env_id: str) -> "Union[Env, HTTPException]":
         """
         Get a env from the database.
 
         Args:
-            env_id: int
+            env_id: str
 
         Returns:
             models.Env
@@ -125,13 +125,13 @@ class EnvController:
     @classmethod
     async def get_rocketpy_env_as_jsonpickle(
         cls,
-        env_id: int,
+        env_id: str,
     ) -> "Union[EnvPickle, HTTPException]":
         """
         Get rocketpy.Environmnet as jsonpickle string.
 
         Args:
-            env_id: int
+            env_id: str
 
         Returns:
             views.EnvPickle
@@ -163,13 +163,13 @@ class EnvController:
             )
 
     async def update_env(
-        self, env_id: int
+        self, env_id: str
     ) -> "Union[EnvUpdated, HTTPException]":
         """
         Update a env in the database.
 
         Args:
-            env_id: int
+            env_id: str
 
         Returns:
             views.EnvUpdated
@@ -204,7 +204,7 @@ class EnvController:
         Delete a env from the database.
 
         Args:
-            env_id: int
+            env_id: str
 
         Returns:
             views.EnvDeleted
@@ -229,12 +229,12 @@ class EnvController:
             )
 
     @classmethod
-    async def simulate(cls, env_id: int) -> "Union[EnvSummary, HTTPException]":
+    async def simulate(cls, env_id: str) -> "Union[EnvSummary, HTTPException]":
         """
         Simulate a rocket environment.
 
         Args:
-            env_id: int.
+            env_id: str.
 
         Returns:
             views.EnvSummary
