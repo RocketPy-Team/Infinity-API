@@ -77,11 +77,17 @@ class FlightController:
 
     @flight.setter
     def flight(self, flight: Flight):
-        self._flight= flight
+        self._flight = flight
 
     @staticmethod
-    async def get_rocketpy_flight(flight: Flight, rocket_option: RocketOptions, motor_kind: MotorKinds) -> RocketPyFlight:
-        rocketpy_rocket = RocketController.get_rocketpy_rocket(flight.rocket, rocket_option=rocket_option, motor_kind=motor_kind)
+    async def get_rocketpy_flight(flight: Flight) -> RocketPyFlight:
+        """
+        Get the rocketpy flight object.
+
+        Returns:
+            RocketPyFlight
+        """
+        rocketpy_rocket = RocketController.get_rocketpy_rocket(flight.rocket)
         rocketpy_env = EnvController.get_rocketpy_env(flight.environment)
         rocketpy_flight = RocketPyFlight(
             rocket=rocketpy_rocket,
@@ -91,7 +97,6 @@ class FlightController:
             rail_length=flight.rail_length,
         )
         return rocketpy_flight
-
 
     async def create_flight(self) -> "Union[FlightCreated, HTTPException]":
         """
@@ -121,12 +126,14 @@ class FlightController:
             )
 
     @staticmethod
-    async def get_flight_by_id(flight_id: str) -> "Union[Flight, HTTPException]":
+    async def get_flight_by_id(
+        flight_id: str,
+    ) -> "Union[Flight, HTTPException]":
         """
         Get a flight from the database.
 
         Args:
-            flight_id: str 
+            flight_id: str
 
         Returns:
             models.Flight
@@ -166,7 +173,7 @@ class FlightController:
         Get rocketpy.flight as jsonpickle string.
 
         Args:
-            flight_id: str 
+            flight_id: str
 
         Returns:
             views.FlightPickle
@@ -189,7 +196,7 @@ class FlightController:
             ) from e
         else:
             rocketpy_flight = await cls.get_rocketpy_flight(
-                read_flight, read_flight.rocket.rocket_option, read_flight.rocket.motor.motor_kind
+                read_flight
             )
             return FlightPickle(
                 jsonpickle_rocketpy_flight=jsonpickle.encode(rocketpy_flight)
@@ -206,7 +213,7 @@ class FlightController:
         Update a flight in the database.
 
         Args:
-            flight_id: str 
+            flight_id: str
 
         Returns:
             views.FlightUpdated
@@ -328,7 +335,7 @@ class FlightController:
         Delete a flight from the database.
 
         Args:
-            flight_id: str 
+            flight_id: str
 
         Returns:
             views.FlightDeleted
@@ -337,9 +344,7 @@ class FlightController:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
         try:
-            await FlightRepository(
-                flight_id=flight_id
-            ).delete_flight()
+            await FlightRepository(flight_id=flight_id).delete_flight()
         except HTTPException as e:
             raise e from e
         except Exception as e:
@@ -358,13 +363,14 @@ class FlightController:
 
     @classmethod
     async def simulate_flight(
-        cls, flight_id: str,
+        cls,
+        flight_id: str,
     ) -> "Union[FlightSummary, HTTPException]":
         """
         Simulate a rocket flight.
 
         Args:
-            flight_id: str 
+            flight_id: str
 
         Returns:
             Flight summary view.
@@ -374,15 +380,7 @@ class FlightController:
         """
         try:
             read_flight = await cls.get_flight_by_id(flight_id=flight_id)
-            rocketpy_flight = cls.get_rocketpy_flight(
-                flight=read_flight,
-                rocket_option=RocketOptions(
-                    read_flight.rocket.rocket_option
-                ),
-                motor_kind=MotorKinds(
-                    read_flight.rocket.motor.motor_kind
-                )
-            )
+            rocketpy_flight = cls.get_rocketpy_flight(flight=read_flight)
             flight = rocketpy_flight
 
             _initial_conditions = InitialConditions(
