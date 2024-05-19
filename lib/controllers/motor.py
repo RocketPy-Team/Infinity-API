@@ -28,8 +28,34 @@ class MotorController:
         - Create a rocketpy.Motor object from a Motor model object.
     """
 
-    def __init__(self, motor: Motor, motor_kind):
+    def __init__(self, motor: Motor, motor_kind: MotorKinds):
         self.guard(motor, motor_kind)
+        self._motor = motor
+        self._motor_kind = motor_kind
+
+    @property
+    def motor(self) -> Motor:
+        return self._motor
+
+    @motor.setter
+    def motor(self, motor: Motor):
+        self._motor = motor
+
+    @property
+    def motor_kind(self) -> MotorKinds:
+        return self._motor_kind
+
+    @staticmethod
+    def get_rocketpy_motor(
+        motor: Motor,
+    ) -> Union[LiquidMotor, HybridMotor, SolidMotor]:
+        """
+        Get the rocketpy motor object.
+
+        Returns:
+            Union[LiquidMotor, HybridMotor, SolidMotor]
+        """
+
         motor_core = {
             "thrust_source": f"lib/data/engines/{motor.thrust_source.value}.eng",
             "burn_time": motor.burn_time,
@@ -39,7 +65,7 @@ class MotorController:
             "center_of_dry_mass_position": motor.center_of_dry_mass_position,
         }
 
-        match motor_kind:
+        match motor.motor_kind:
             case MotorKinds.liquid:
                 rocketpy_motor = LiquidMotor(**motor_core)
             case MotorKinds.hybrid:
@@ -68,13 +94,11 @@ class MotorController:
                     interpolation_method=motor.interpolation_method,
                 )
 
-        if motor_kind != MotorKinds.solid:
+        if motor.motor_kind != MotorKinds.solid:
             for tank in motor.tanks:
                 rocketpy_motor.add_tank(tank.tank, tank.position)
 
-        self.motor_kind = motor_kind  # tracks motor kind state
-        self.rocketpy_motor = rocketpy_motor
-        self.motor = motor
+        return rocketpy_motor
 
     def guard(self, motor: Motor, motor_kind):
         if motor_kind != MotorKinds.solid and motor.tanks is None:
