@@ -20,7 +20,14 @@ class Repository:
             "MONGODB_CONNECTION_STRING"
         )
         self.client = AsyncIOMotorClient(
-            self.connection_string, server_api=ServerApi("1")
+            self.connection_string,
+            server_api=ServerApi("1"),
+            maxIdleTimeMS=5000,
+            connectTimeoutMS=5000,
+            serverSelectionTimeoutMS=30000,
         )
         self.db = self.client.rocketpy
         self.collection = self.db[collection]
+
+    async def close_connection(self) -> None:
+        self.client.close()

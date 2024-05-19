@@ -25,6 +25,7 @@ class MotorRepository(Repository):
             self.motor_id = self.motor.__hash__()
 
     def __del__(self):
+        self.connection.close()
         super().__del__()
 
     async def create_motor(

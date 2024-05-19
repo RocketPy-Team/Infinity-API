@@ -51,5 +51,9 @@ disable = """
     logging-fstring-interpolation,
     broad-exception-raised,
     import-error,
-    protected-access
+    protected-access,
+    unnecessary-dunder-call,
+    wrong-import-position,
+    consider-using-f-string,
+    too-many-function-args
 """

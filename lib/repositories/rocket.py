@@ -25,6 +25,7 @@ class RocketRepository(Repository):
             self.rocket_id = self.rocket.__hash__()
 
     def __del__(self):
+        self.connection.close()
         super().__del__()
 
     async def create_rocket(

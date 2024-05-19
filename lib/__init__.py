@@ -1,6 +1,5 @@
 # lib/__init__.py
 import logging
-from .api import app
 
 logging.basicConfig(
     level=logging.INFO,
@@ -8,3 +7,12 @@ logging.basicConfig(
     filemode='a',
     format='%(asctime)s - %(levelname)s - %(message)s',
 )
+
+
+def parse_error(error):
+    exc_type = type(error).__name__
+    exc_obj = f"{error}".replace("\n", " ").replace("   ", " ")
+    return f"{exc_type} exception: {exc_obj}"
+
+
+from .api import app  # noqa
