@@ -1,10 +1,11 @@
 from typing import Union
 from fastapi import HTTPException, status
 
-from rocketpy.simulation.flight import Flight as RocketpyFlight
+from rocketpy.simulation.flight import Flight as RocketPyFlight
 
 import jsonpickle
 
+from lib import logging, parse_error
 from lib.models.rocket import Rocket, RocketOptions
 from lib.models.motor import MotorKinds
 from lib.models.flight import Flight
@@ -31,6 +32,8 @@ from lib.repositories.flight import FlightRepository
 from lib.controllers.environment import EnvController
 from lib.controllers.rocket import RocketController
 
+logger = logging.getLogger(__name__)
+
 
 class FlightController:
     """
@@ -40,13 +43,13 @@ class FlightController:
         flight (models.Flight): Flight model object.
 
     Enables:
-        - Create a RocketpyFlight object from a Flight model object.
-        - Generate trajectory simulation from a RocketpyFlight object.
-        - Create both Flight model and RocketpyFlight objects in the database.
-        - Update both Flight model and RocketpyFlight objects in the database.
-        - Delete both Flight model and RocketpyFlight objects from the database.
+        - Create a RocketPyFlight object from a Flight model object.
+        - Generate trajectory simulation from a RocketPyFlight object.
+        - Create both Flight model and RocketPyFlight objects in the database.
+        - Update both Flight model and RocketPyFlight objects in the database.
+        - Delete both Flight model and RocketPyFlight objects from the database.
         - Read a Flight model from the database.
-        - Read a RocketpyFlight object from the database.
+        - Read a RocketPyFlight object from the database.
 
     """
 
@@ -56,275 +59,312 @@ class FlightController:
         rocket_option: RocketOptions,
         motor_kind: MotorKinds,
     ):
-        rocketpy_rocket = RocketController(
-            flight.rocket, rocket_option=rocket_option, motor_kind=motor_kind
-        ).rocketpy_rocket
-        rocketpy_env = EnvController(flight.environment).rocketpy_env
+        self._flight = flight
+        self._rocket_option = rocket_option
+        self._motor_kind = motor_kind
 
-        rocketpy_flight = RocketpyFlight(
+    @property
+    def flight(self) -> Flight:
+        return self._flight
+
+    @property
+    def rocket_option(self) -> RocketOptions:
+        return self._rocket_option
+
+    @property
+    def motor_kind(self) -> MotorKinds:
+        return self._motor_kind
+
+    @flight.setter
+    def flight(self, flight: Flight):
+        self._flight= flight
+
+    @staticmethod
+    async def get_rocketpy_flight(flight: Flight, rocket_option: RocketOptions, motor_kind: MotorKinds) -> RocketPyFlight:
+        rocketpy_rocket = RocketController.get_rocketpy_rocket(flight.rocket, rocket_option=rocket_option, motor_kind=motor_kind)
+        rocketpy_env = EnvController.get_rocketpy_env(flight.environment)
+        rocketpy_flight = RocketPyFlight(
             rocket=rocketpy_rocket,
             inclination=flight.inclination,
             heading=flight.heading,
             environment=rocketpy_env,
             rail_length=flight.rail_length,
         )
+        return rocketpy_flight
 
-        self.rocket_option = rocket_option
-        self.motor_kind = motor_kind
-        self.rocketpy_flight = rocketpy_flight
-        self.flight = flight
 
     async def create_flight(self) -> "Union[FlightCreated, HTTPException]":
         """
         Create a flight in the database.
 
         Returns:
-            FlightCreated: Flight id.
+            views.FlightCreated
         """
-        flight = FlightRepository(flight=self.flight)
-        successfully_created_flight = await flight.create_flight(
-            motor_kind=self.motor_kind, rocket_option=self.rocket_option
-        )
-
-        if not successfully_created_flight:
+        try:
+            created_flight = await FlightRepository(
+                flight=self.flight
+            ).create_flight(
+                motor_kind=self.motor_kind, rocket_option=self.rocket_option
+            )
+        except Exception as e:
+            exc_str = parse_error(e)
+            logger.error(f"controllers.flight.create_flight: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to create flight.",
+                detail="Failed to create flight: {e}",
+            ) from e
+        else:
+            return FlightCreated(flight_id=str(created_flight.flight_id))
+        finally:
+            logger.info(
+                f"Call to controllers.flight.create_flight completed; params: Flight {hash(self.flight)}"
             )
 
-        return FlightCreated(flight_id=str(flight.flight_id))
-
     @staticmethod
-    async def get_flight(flight_id: int) -> "Union[Flight, HTTPException]":
+    async def get_flight_by_id(flight_id: str) -> "Union[Flight, HTTPException]":
         """
         Get a flight from the database.
 
         Args:
-            flight_id (int): Flight id.
+            flight_id: str 
 
         Returns:
-            Flight model object
+            models.Flight
 
         Raises:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
-        successfully_read_flight = await FlightRepository(
-            flight_id=flight_id
-        ).get_flight()
-        if not successfully_read_flight:
+        try:
+            read_flight = await FlightRepository(
+                flight_id=flight_id
+            ).get_flight()
+        except Exception as e:
+            exc_str = parse_error(e)
+            logger.error(f"controllers.flight.get_flight_by_id: {exc_str}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to read flight: {e}",
+            ) from e
+        else:
+            if read_flight:
+                return read_flight
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Flight not found.",
+            ) from e
+        finally:
+            logger.info(
+                f"Call to controllers.flight.get_flight_by_id completed; params: FlightID {flight_id}"
             )
 
-        return successfully_read_flight
-
-    @staticmethod
-    async def get_rocketpy_flight(
-        flight_id: int,
+    @classmethod
+    async def get_rocketpy_flight_as_jsonpickle(
+        cls,
+        flight_id: str,
     ) -> "Union[FlightPickle, HTTPException]":
         """
-        Get a rocketpy flight object encoded as jsonpickle string from the database.
+        Get rocketpy.flight as jsonpickle string.
 
         Args:
-            flight_id (int): Flight id.
+            flight_id: str 
 
         Returns:
-            str: jsonpickle string of the rocketpy flight.
+            views.FlightPickle
 
         Raises:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
-        successfully_read_flight = await FlightRepository(
-            flight_id=flight_id
-        ).get_flight()
-        if not successfully_read_flight:
+        try:
+            read_flight = await cls.get_flight_by_id(flight_id)
+        except HTTPException as e:
+            raise e from e
+        except Exception as e:
+            exc_str = parse_error(e)
+            logger.error(
+                f"controllers.flight.get_rocketpy_flight_as_jsonpickle: {exc_str}"
+            )
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Flight not found.",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to read flight: {e}",
+            ) from e
+        else:
+            rocketpy_flight = await cls.get_rocketpy_flight(
+                read_flight, read_flight.rocket.rocket_option, read_flight.rocket.motor.motor_kind
             )
-
-        successfully_read_rocketpy_flight = FlightController(
-            flight=successfully_read_flight,
-            rocket_option=RocketOptions(
-                successfully_read_flight.rocket._rocket_option
-            ),
-            motor_kind=MotorKinds(
-                successfully_read_flight.rocket.motor._motor_kind
-            ),
-        ).rocketpy_flight
-
-        return FlightPickle(
-            jsonpickle_rocketpy_flight=jsonpickle.encode(
-                successfully_read_rocketpy_flight
+            return FlightPickle(
+                jsonpickle_rocketpy_flight=jsonpickle.encode(rocketpy_flight)
             )
-        )
+        finally:
+            logger.info(
+                f"Call to controllers.flight.get_rocketpy_flight_as_jsonpickle completed; params: FlightID {flight_id}"
+            )
 
     async def update_flight(
-        self, flight_id: int
+        self, flight_id: str
     ) -> "Union[FlightUpdated, HTTPException]":
         """
         Update a flight in the database.
 
         Args:
-            flight_id (int): Flight id.
+            flight_id: str 
 
         Returns:
-            FlightUpdated: Flight id and message.
+            views.FlightUpdated
 
         Raises:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
-        successfully_read_flight = await FlightRepository(
-            flight_id=flight_id
-        ).get_flight()
-        if not successfully_read_flight:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Flight not found.",
-            )
-
-        successfully_updated_flight = await FlightRepository(
-            flight=self.flight, flight_id=flight_id
-        ).update_flight(
-            rocket_option=self.rocket_option, motor_kind=self.motor_kind
-        )
-        if not successfully_updated_flight:
+        try:
+            await FlightController.get_flight_by_id(flight_id)
+            updated_flight = await FlightRepository(
+                flight=self.flight, flight_id=flight_id
+            ).update_flight()
+        except HTTPException as e:
+            raise e from e
+        except Exception as e:
+            exc_str = parse_error(e)
+            logger.error(f"controllers.flight.update_flight: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to update flight.",
+                detail="Failed to update flight: {e}",
+            ) from e
+        else:
+            return FlightUpdated(new_flight_id=str(updated_flight.flight_id))
+        finally:
+            logger.info(
+                f"Call to controllers.flight.update_flight completed; params: FlightID {flight_id}"
             )
 
-        return FlightUpdated(new_flight_id=str(successfully_updated_flight))
-
-    @staticmethod
+    @classmethod
     async def update_env(
-        flight_id: int, env: Env
+        cls, flight_id: str, env: Env
     ) -> "Union[FlightUpdated, HTTPException]":
         """
         Update the environment of a flight in the database.
 
         Args:
-            flight_id (int): Flight id.
-            env (models.Env): Environment model object.
+            flight_id: str
+            env: models.Env
 
         Returns:
-            FlightUpdated: Flight id and message.
+            views.FlightUpdated
 
         Raises:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
-        successfully_read_flight = await FlightRepository(
-            flight_id=flight_id
-        ).get_flight()
-        if not successfully_read_flight:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Flight not found.",
-            )
-
-        flight = successfully_read_flight.dict()
-        flight["environment"] = env
-        flight = Flight(**flight)
-        successfully_updated_flight = await FlightRepository(
-            flight=flight, flight_id=flight_id
-        ).update_flight()
-        if not successfully_updated_flight:
+        try:
+            read_flight = await cls.get_flight_by_id(flight_id)
+            new_flight = read_flight.dict()
+            new_flight["environment"] = env
+            new_flight = Flight(**new_flight)
+            updated_flight = await FlightRepository(
+                flight=new_flight, flight_id=flight_id
+            ).update_flight()
+        except HTTPException as e:
+            raise e from e
+        except Exception as e:
+            exc_str = parse_error(e)
+            logger.error(f"controllers.flight.update_env: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to update flight.",
+                detail="Failed to update environment: {e}",
+            ) from e
+        else:
+            return FlightUpdated(new_flight_id=str(updated_flight.flight_id))
+        finally:
+            logger.info(
+                f"Call to controllers.flight.update_env completed; params: FlightID {flight_id}, Env {hash(env)}"
             )
-
-        return FlightUpdated(new_flight_id=str(successfully_updated_flight))
 
     @staticmethod
     async def update_rocket(
-        flight_id: int, rocket: Rocket, rocket_option, motor_kind
+        flight_id: str, rocket: Rocket, rocket_option, motor_kind
     ) -> "Union[FlightUpdated, HTTPException]":
         """
         Update the rocket of a flight in the database.
 
         Args:
-            flight_id (int): Flight id.
-            rocket (models.Rocket): Rocket model object.
+            flight_id: str
+            rocket: models.Rocket
 
         Returns:
-            FlightUpdated: Flight id and message.
+            views.FlightUpdated
 
         Raises:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
-        successfully_read_flight = await FlightRepository(
-            flight_id=flight_id
-        ).get_flight()
-        if not successfully_read_flight:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Flight not found.",
-            )
-
-        flight = successfully_read_flight.dict()
-        updated_rocket = rocket.dict()
-        updated_rocket["rocket_option"] = rocket_option
-        updated_rocket["motor"]["motor_kind"] = motor_kind
-        flight["rocket"] = Rocket(**updated_rocket)
-        flight = Flight(**flight)
-        successfully_updated_flight = await FlightRepository(
-            flight=flight, flight_id=flight_id
-        ).update_flight()
-        if not successfully_updated_flight:
+        try:
+            read_flight = await FlightController.get_flight_by_id(flight_id)
+            updated_rocket = rocket.dict()
+            updated_rocket["rocket_option"] = rocket_option
+            updated_rocket["motor"]["motor_kind"] = motor_kind
+            new_flight = read_flight.dict()
+            new_flight["rocket"] = updated_rocket
+            new_flight = Flight(**new_flight)
+            new_flight_id = await FlightRepository(
+                flight=new_flight, flight_id=flight_id
+            ).update_flight()
+        except HTTPException as e:
+            raise e from e
+        except Exception as e:
+            exc_str = parse_error(e)
+            logger.error(f"controllers.flight.update_rocket: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to update flight.",
+                detail="Failed to update rocket: {e}",
+            ) from e
+        else:
+            return FlightUpdated(new_flight_id=str(new_flight_id))
+        finally:
+            logger.info(
+                f"Call to controllers.flight.update_rocket completed; params: FlightID {flight_id}, Rocket {hash(rocket)}"
             )
-
-        return FlightUpdated(new_flight_id=str(successfully_updated_flight))
 
     @staticmethod
     async def delete_flight(
-        flight_id: int,
+        flight_id: str,
     ) -> "Union[FlightDeleted, HTTPException]":
         """
         Delete a flight from the database.
 
         Args:
-            flight_id (int): Flight id.
+            flight_id: str 
 
         Returns:
-            FlightDeleted: Flight id and message.
+            views.FlightDeleted
 
         Raises:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
-        successfully_read_flight = await FlightRepository(
-            flight_id=flight_id
-        ).get_flight()
-        if not successfully_read_flight:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Flight not found.",
-            )
-
-        successfully_deleted_flight = await FlightRepository(
-            flight_id=flight_id
-        ).delete_flight()
-        if not successfully_deleted_flight:
+        try:
+            await FlightRepository(
+                flight_id=flight_id
+            ).delete_flight()
+        except HTTPException as e:
+            raise e from e
+        except Exception as e:
+            exc_str = parse_error(e)
+            logger.error(f"controllers.flight.delete_flight: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to delete flight.",
+                detail="Failed to delete flight: {e}",
+            ) from e
+        else:
+            return FlightDeleted(deleted_flight_id=str(flight_id))
+        finally:
+            logger.info(
+                f"Call to controllers.flight.delete_flight completed; params: FlightID {flight_id}"
             )
 
-        return FlightDeleted(deleted_flight_id=str(flight_id))
-
-    @staticmethod
-    async def simulate(
-        flight_id: int,
+    @classmethod
+    async def simulate_flight(
+        cls, flight_id: str,
     ) -> "Union[FlightSummary, HTTPException]":
         """
         Simulate a rocket flight.
 
         Args:
-            flight_id (int): Flight id.
+            flight_id: str 
 
         Returns:
             Flight summary view.
@@ -332,25 +372,18 @@ class FlightController:
         Raises:
             HTTP 404 Not Found: If the flight does not exist in the database.
         """
-        successfully_read_flight = await FlightRepository(
-            flight_id=flight_id
-        ).get_flight()
-        if not successfully_read_flight:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Flight not found.",
-            )
-
         try:
-            flight = FlightController(
-                flight=successfully_read_flight,
+            read_flight = await cls.get_flight_by_id(flight_id=flight_id)
+            rocketpy_flight = cls.get_rocketpy_flight(
+                flight=read_flight,
                 rocket_option=RocketOptions(
-                    successfully_read_flight.rocket._rocket_option
+                    read_flight.rocket.rocket_option
                 ),
                 motor_kind=MotorKinds(
-                    successfully_read_flight.rocket.motor._motor_kind
-                ),
-            ).rocketpy_flight
+                    read_flight.rocket.motor.motor_kind
+                )
+            )
+            flight = rocketpy_flight
 
             _initial_conditions = InitialConditions(
                 initial_altitude="Attitude - e0: {:.3f} | e1: {:.3f} | e2: {:.3f} | e3: {:.3f}".format(
@@ -601,8 +634,18 @@ class FlightController:
             )
 
             flight_summary = FlightSummary(flight_data=_flight_data)
-            return flight_summary
+        except HTTPException as e:
+            raise e from e
         except Exception as e:
+            exc_str = parse_error(e)
+            logger.error(f"controllers.flight.simulate_flight: {exc_str}")
             raise HTTPException(
-                status_code=500, detail=f"Failed to simulate flight: {e}"
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to simulate flight: {e}",
             ) from e
+        else:
+            return flight_summary
+        finally:
+            logger.info(
+                f"Call to controllers.flight.simulate_flight completed; params: FlightID {flight_id}"
+            )

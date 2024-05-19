@@ -25,6 +25,7 @@ class FlightRepository(Repository):
             self.flight_id = self.flight.__hash__()
 
     def __del__(self):
+        self.connection.close()
         super().__del__()
 
     async def create_flight(
@@ -55,7 +56,7 @@ class FlightRepository(Repository):
 
     async def update_flight(
         self, motor_kind: str = "Solid", rocket_option: str = "Calisto"
-    ) -> "Union[int, None]":
+    ) -> "Union[str, None]":
         """
         Updates a flight in the database
 
@@ -71,11 +72,11 @@ class FlightRepository(Repository):
             await self.collection.update_one(
                 {"flight_id": self.flight_id}, {"$set": flight_to_dict}
             )
-
             self.flight_id = flight_to_dict["flight_id"]
-            return self.flight_id
         except Exception as e:
             raise Exception(f"Error updating flight: {str(e)}") from e
+        else:
+            return str(self.flight_id)
         finally:
             self.__del__()
 

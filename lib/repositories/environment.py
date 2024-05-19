@@ -25,6 +25,10 @@ class EnvRepository(Repository):
         else:
             self._env_id = str(hash(self._env))
 
+    def __del__(self):
+        self.connection.close()
+        super().__del__()
+
     @property
     def env(self) -> "Env":
         return self._env

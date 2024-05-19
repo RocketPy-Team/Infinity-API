@@ -132,6 +132,10 @@ class Motor(BaseModel, frozen=True):
         super().__init__(**kwargs)
         self._motor_kind = motor_kind
 
+    @property
+    def motor_kind(self) -> MotorKinds:
+        return self._motor_kind
+
     def __hash__(self):
         temp = vars(self)
         temp = str(temp)

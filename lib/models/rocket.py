@@ -44,6 +44,10 @@ class Rocket(BaseModel, frozen=True):
         super().__init__(**kwargs)
         self._rocket_option = rocket_option
 
+    @property
+    def rocket_option(self) -> RocketOptions:
+        return self._rocket_option
+
     def __hash__(self):
         temp = vars(self)
         temp = str(temp)

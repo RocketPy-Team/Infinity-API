@@ -140,4 +140,4 @@ async def simulate_flight(flight_id: int) -> "FlightSummary":
     ## Args
     ``` flight_id: Flight ID hash ```
     """
-    return await FlightController.simulate(flight_id)
+    return await FlightController.simulate_flight(flight_id)
