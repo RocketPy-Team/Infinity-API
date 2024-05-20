@@ -49,7 +49,7 @@ async def read_rocket(rocket_id: int) -> Rocket:
     ## Args
     ``` rocket_id: Rocket ID hash ```
     """
-    return await RocketController.get_rocket(rocket_id)
+    return await RocketController.get_rocket_by_id(rocket_id)
 
 
 @router.put("/{rocket_id}")
@@ -92,7 +92,7 @@ async def read_rocketpy_rocket(rocket_id: int) -> "RocketPickle":
     ## Args
     ``` rocket_id: Rocket ID hash ```
     """
-    return await RocketController.get_rocketpy_rocket(rocket_id)
+    return await RocketController.get_rocketpy_rocket_as_jsonpickle(rocket_id)
 
 
 @router.get("/{rocket_id}/simulate")
