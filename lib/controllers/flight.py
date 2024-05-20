@@ -195,9 +195,7 @@ class FlightController:
                 detail="Failed to read flight: {e}",
             ) from e
         else:
-            rocketpy_flight = await cls.get_rocketpy_flight(
-                read_flight
-            )
+            rocketpy_flight = await cls.get_rocketpy_flight(read_flight)
             return FlightPickle(
                 jsonpickle_rocketpy_flight=jsonpickle.encode(rocketpy_flight)
             )
