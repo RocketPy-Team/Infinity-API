@@ -55,5 +55,6 @@ disable = """
     unnecessary-dunder-call,
     wrong-import-position,
     consider-using-f-string,
-    too-many-function-args
+    too-many-function-args,
+    no-member
 """

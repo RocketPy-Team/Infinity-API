@@ -1,6 +1,5 @@
 from typing import Union
-from lib import logging
-from lib.repositories import parse_error
+from lib import logging, parse_error
 from lib.models.environment import Env
 from lib.repositories.repo import Repository
 
@@ -30,7 +29,7 @@ class EnvRepository(Repository):
         super().__del__()
 
     @property
-    def env(self) -> "Env":
+    def env(self) -> Env:
         return self._env
 
     @env.setter
@@ -38,7 +37,7 @@ class EnvRepository(Repository):
         self._env = environment
 
     @property
-    def env_id(self) -> "str":
+    def env_id(self) -> str:
         return self._env_id
 
     @env_id.setter
@@ -64,7 +63,7 @@ class EnvRepository(Repository):
             return self
         finally:
             logger.info(
-                f"Call to repositories.environment.create_env completed; states: EnvID {self.env_id}"
+                f"Call to repositories.environment.create_env completed for Env {self.env_id}"
             )
 
     async def update_env(self):
@@ -89,10 +88,10 @@ class EnvRepository(Repository):
             return self
         finally:
             logger.info(
-                f"Call to repositories.environment.update_env completed; states: Env {hash(self.env)}, EnvID {self.env_id}"
+                f"Call to repositories.environment.update_env completed for Env {self.env_id}"
             )
 
-    async def get_env(self) -> "Union[Env, None]":
+    async def get_env(self) -> Union[Env, None]:
         """
         Gets a models.Env from the database
 
@@ -101,14 +100,16 @@ class EnvRepository(Repository):
         """
         try:
             read_env = await self.collection.find_one({"env_id": self.env_id})
+            parsed_env = Env.parse_obj(read_env) if read_env else None
         except Exception as e:
-            logger.error(f"repositories.environment.get_env: {str(e)}")
+            exc_str = parse_error(e)
+            logger.error(f"repositories.environment.get_env: {exc_str}")
             raise Exception(f"Error getting environment: {str(e)}") from e
         else:
-            return Env.parse_obj(read_env) if read_env else None
+            return parsed_env
         finally:
             logger.info(
-                f"Call to repositories.environment.get_env completed; states: Env {hash(self.env)}, EnvID {self.env_id}"
+                f"Call to repositories.environment.get_env completed for Env {self.env_id}"
             )
 
     async def delete_env(self):
@@ -121,9 +122,10 @@ class EnvRepository(Repository):
         try:
             await self.collection.delete_one({"env_id": self.env_id})
         except Exception as e:
-            logger.error(f"repositories.environment.delete_env: {str(e)}")
+            exc_str = parse_error(e)
+            logger.error(f"repositories.environment.delete_env: {exc_str}")
             raise Exception(f"Error deleting environment: {str(e)}") from e
         finally:
             logger.info(
-                f"Call to repositories.environment.delete_env completed; states: Env {hash(self.env)}, EnvID {self.env_id}"
+                f"Call to repositories.environment.delete_env completed for Env {self.env_id}"
             )
