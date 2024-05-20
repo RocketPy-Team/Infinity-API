@@ -98,7 +98,7 @@ class FlightController:
         )
         return rocketpy_flight
 
-    async def create_flight(self) -> "Union[FlightCreated, HTTPException]":
+    async def create_flight(self) -> Union[FlightCreated, HTTPException]:
         """
         Create a flight in the database.
 
@@ -122,13 +122,13 @@ class FlightController:
             return FlightCreated(flight_id=str(created_flight.flight_id))
         finally:
             logger.info(
-                f"Call to controllers.flight.create_flight completed; params: Flight {hash(self.flight)}"
+                f"Call to controllers.flight.create_flight completed for Flight {hash(self.flight)}"
             )
 
     @staticmethod
     async def get_flight_by_id(
         flight_id: str,
-    ) -> "Union[Flight, HTTPException]":
+    ) -> Union[Flight, HTTPException]:
         """
         Get a flight from the database.
 
@@ -161,14 +161,14 @@ class FlightController:
             ) from e
         finally:
             logger.info(
-                f"Call to controllers.flight.get_flight_by_id completed; params: FlightID {flight_id}"
+                f"Call to controllers.flight.get_flight_by_id completed for Flight {flight_id}"
             )
 
     @classmethod
     async def get_rocketpy_flight_as_jsonpickle(
         cls,
         flight_id: str,
-    ) -> "Union[FlightPickle, HTTPException]":
+    ) -> Union[FlightPickle, HTTPException]:
         """
         Get rocketpy.flight as jsonpickle string.
 
@@ -201,12 +201,12 @@ class FlightController:
             )
         finally:
             logger.info(
-                f"Call to controllers.flight.get_rocketpy_flight_as_jsonpickle completed; params: FlightID {flight_id}"
+                f"Call to controllers.flight.get_rocketpy_flight_as_jsonpickle completed for Flight {flight_id}"
             )
 
     async def update_flight(
         self, flight_id: str
-    ) -> "Union[FlightUpdated, HTTPException]":
+    ) -> Union[FlightUpdated, HTTPException]:
         """
         Update a flight in the database.
 
@@ -237,13 +237,13 @@ class FlightController:
             return FlightUpdated(new_flight_id=str(updated_flight.flight_id))
         finally:
             logger.info(
-                f"Call to controllers.flight.update_flight completed; params: FlightID {flight_id}"
+                f"Call to controllers.flight.update_flight completed for Flight {flight_id}"
             )
 
     @classmethod
     async def update_env(
         cls, flight_id: str, env: Env
-    ) -> "Union[FlightUpdated, HTTPException]":
+    ) -> Union[FlightUpdated, HTTPException]:
         """
         Update the environment of a flight in the database.
 
@@ -278,13 +278,13 @@ class FlightController:
             return FlightUpdated(new_flight_id=str(updated_flight.flight_id))
         finally:
             logger.info(
-                f"Call to controllers.flight.update_env completed; params: FlightID {flight_id}, Env {hash(env)}"
+                f"Call to controllers.flight.update_env completed for Flight {flight_id}; Env {hash(env)}"
             )
 
     @staticmethod
     async def update_rocket(
         flight_id: str, rocket: Rocket, rocket_option, motor_kind
-    ) -> "Union[FlightUpdated, HTTPException]":
+    ) -> Union[FlightUpdated, HTTPException]:
         """
         Update the rocket of a flight in the database.
 
@@ -322,13 +322,13 @@ class FlightController:
             return FlightUpdated(new_flight_id=str(new_flight_id))
         finally:
             logger.info(
-                f"Call to controllers.flight.update_rocket completed; params: FlightID {flight_id}, Rocket {hash(rocket)}"
+                f"Call to controllers.flight.update_rocket completed for Flight {flight_id}; Rocket {hash(rocket)}"
             )
 
     @staticmethod
     async def delete_flight(
         flight_id: str,
-    ) -> "Union[FlightDeleted, HTTPException]":
+    ) -> Union[FlightDeleted, HTTPException]:
         """
         Delete a flight from the database.
 
@@ -356,14 +356,14 @@ class FlightController:
             return FlightDeleted(deleted_flight_id=str(flight_id))
         finally:
             logger.info(
-                f"Call to controllers.flight.delete_flight completed; params: FlightID {flight_id}"
+                f"Call to controllers.flight.delete_flight completed for Flight {flight_id}"
             )
 
     @classmethod
     async def simulate_flight(
         cls,
         flight_id: str,
-    ) -> "Union[FlightSummary, HTTPException]":
+    ) -> Union[FlightSummary, HTTPException]:
         """
         Simulate a rocket flight.
 
@@ -643,5 +643,5 @@ class FlightController:
             return flight_summary
         finally:
             logger.info(
-                f"Call to controllers.flight.simulate_flight completed; params: FlightID {flight_id}"
+                f"Call to controllers.flight.simulate_flight completed for Flight {flight_id}"
             )

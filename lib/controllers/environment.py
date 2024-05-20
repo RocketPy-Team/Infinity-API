@@ -62,7 +62,7 @@ class EnvController:
         )
         return rocketpy_env
 
-    async def create_env(self) -> "Union[EnvCreated, HTTPException]":
+    async def create_env(self) -> Union[EnvCreated, HTTPException]:
         """
         Create a env in the database.
 
@@ -84,11 +84,11 @@ class EnvController:
             return EnvCreated(env_id=created_env.env_id)
         finally:
             logger.info(
-                f"Call to controllers.environment.create_env completed; params: Env {hash(self.env)}"
+                f"Call to controllers.environment.create_env completed for Env {hash(self.env)}"
             )
 
     @staticmethod
-    async def get_env_by_id(env_id: str) -> "Union[Env, HTTPException]":
+    async def get_env_by_id(env_id: str) -> Union[Env, HTTPException]:
         """
         Get a env from the database.
 
@@ -119,14 +119,14 @@ class EnvController:
             )
         finally:
             logger.info(
-                f"Call to controllers.environment.get_env_by_id completed; params: EnvID {env_id}"
+                f"Call to controllers.environment.get_env_by_id completed for Env {env_id}"
             )
 
     @classmethod
     async def get_rocketpy_env_as_jsonpickle(
         cls,
         env_id: str,
-    ) -> "Union[EnvPickle, HTTPException]":
+    ) -> Union[EnvPickle, HTTPException]:
         """
         Get rocketpy.Environmnet as jsonpickle string.
 
@@ -159,12 +159,12 @@ class EnvController:
             )
         finally:
             logger.info(
-                f"Call to controllers.environment.get_rocketpy_env_as_jsonpickle completed; params: EnvID {env_id}"
+                f"Call to controllers.environment.get_rocketpy_env_as_jsonpickle completed for Env {env_id}"
             )
 
     async def update_env(
         self, env_id: str
-    ) -> "Union[EnvUpdated, HTTPException]":
+    ) -> Union[EnvUpdated, HTTPException]:
         """
         Update a env in the database.
 
@@ -195,11 +195,11 @@ class EnvController:
             return EnvUpdated(new_env_id=updated_env.env_id)
         finally:
             logger.info(
-                f"Call to controllers.environment.update_env completed; params: EnvID {env_id}, Env {hash(self.env)}"
+                f"Call to controllers.environment.update_env completed for Env {env_id}; Env {hash(self.env)}"
             )
 
     @staticmethod
-    async def delete_env(env_id: str) -> "Union[EnvDeleted, HTTPException]":
+    async def delete_env(env_id: str) -> Union[EnvDeleted, HTTPException]:
         """
         Delete a env from the database.
 
@@ -225,11 +225,13 @@ class EnvController:
             return EnvDeleted(deleted_env_id=env_id)
         finally:
             logger.info(
-                f"Call to controllers.environment.delete_env completed; params: EnvID {env_id}"
+                f"Call to controllers.environment.delete_env completed for Env {env_id}"
             )
 
     @classmethod
-    async def simulate(cls, env_id: str) -> "Union[EnvSummary, HTTPException]":
+    async def simulate_env(
+        cls, env_id: str
+    ) -> Union[EnvSummary, HTTPException]:
         """
         Simulate a rocket environment.
 
@@ -267,5 +269,5 @@ class EnvController:
             return env_summary
         finally:
             logger.info(
-                f"Call to controllers.environment.simulate completed; params: EnvID {env_id}"
+                f"Call to controllers.environment.simulate completed for Env {env_id}"
             )

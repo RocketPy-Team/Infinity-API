@@ -132,7 +132,7 @@ class RocketController:
 
         return rocketpy_rocket
 
-    async def create_rocket(self) -> "Union[RocketCreated, HTTPException]":
+    async def create_rocket(self) -> Union[RocketCreated, HTTPException]:
         """
         Create a rocket in the database.
 
@@ -156,13 +156,13 @@ class RocketController:
             return RocketCreated(rocket_id=str(created_rocket.rocket_id))
         finally:
             logger.info(
-                f"Call to controllers.rocket.create_rocket completed; params: Rocket {hash(self.rocket)}"
+                f"Call to controllers.rocket.create_rocket completed for Rocket {hash(self.rocket)}"
             )
 
     @staticmethod
     async def get_rocket_by_id(
         rocket_id: str,
-    ) -> "Union[Rocket, HTTPException]":
+    ) -> Union[Rocket, HTTPException]:
         """
         Get a rocket from the database.
 
@@ -195,13 +195,13 @@ class RocketController:
             )
         finally:
             logger.info(
-                f"Call to controllers.rocket.get_rocket_by_id completed; params: RocketID {rocket_id}"
+                f"Call to controllers.rocket.get_rocket_by_id completed for Rocket {rocket_id}"
             )
 
     @classmethod
     async def get_rocketpy_rocket_as_jsonpickle(
         cls, rocket_id: str
-    ) -> "Union[RocketPickle, HTTPException]":
+    ) -> Union[RocketPickle, HTTPException]:
         """
         Get a rocketpy.Rocket object as jsonpickle string.
 
@@ -234,12 +234,12 @@ class RocketController:
             )
         finally:
             logger.info(
-                f"Call to controllers.rocket.get_rocketpy_rocket_as_jsonpickle completed; params: RocketID {rocket_id}"
+                f"Call to controllers.rocket.get_rocketpy_rocket_as_jsonpickle completed for Rocket {rocket_id}"
             )
 
     async def update_rocket(
         self, rocket_id: str
-    ) -> "Union[RocketUpdated, HTTPException]":
+    ) -> Union[RocketUpdated, HTTPException]:
         """
         Update a rocket in the database.
 
@@ -270,13 +270,13 @@ class RocketController:
             return RocketUpdated(new_rocket_id=str(updated_rocket.rocket_id))
         finally:
             logger.info(
-                f"Call to controllers.rocket.update_rocket completed; params: RocketID {rocket_id}"
+                f"Call to controllers.rocket.update_rocket completed for Rocket {rocket_id}"
             )
 
     @staticmethod
     async def delete_rocket(
         rocket_id: str,
-    ) -> "Union[RocketDeleted, HTTPException]":
+    ) -> Union[RocketDeleted, HTTPException]:
         """
         Delete a rocket from the database.
 
@@ -302,14 +302,14 @@ class RocketController:
             return RocketDeleted(deleted_rocket_id=str(rocket_id))
         finally:
             logger.info(
-                f"Call to controllers.rocket.delete_rocket completed; params: RocketID {rocket_id}"
+                f"Call to controllers.rocket.delete_rocket completed for Rocket {rocket_id}"
             )
 
     @classmethod
     async def simulate(
         cls,
         rocket_id: str,
-    ) -> "Union[RocketSummary, HTTPException]":
+    ) -> Union[RocketSummary, HTTPException]:
         """
         Simulate a rocket rocket.
 
@@ -477,7 +477,7 @@ class RocketController:
             return rocket_summary
         finally:
             logger.info(
-                f"Call to controllers.rocket.simulate completed; params: RocketID {rocket_id}"
+                f"Call to controllers.rocket.simulate completed for Rocket {rocket_id}"
             )
 
     @staticmethod
