@@ -29,7 +29,7 @@ class RocketRepository(Repository):
         super().__del__()
 
     async def create_rocket(
-        self, rocket_option: str = "Calisto"
+        self, rocket_option: str = "Calisto", motor_kind: str = "Solid"
     ) -> "InsertOneResult":
         """
         Creates a rocket in the database
@@ -45,6 +45,7 @@ class RocketRepository(Repository):
                 rocket_to_dict = self.rocket.dict()
                 rocket_to_dict["rocket_id"] = self.rocket_id
                 rocket_to_dict["rocket_option"] = rocket_option
+                rocket_to_dict["motor"]["motor_kind"] = motor_kind
                 return await self.collection.insert_one(rocket_to_dict)
             except Exception as e:
                 raise Exception(f"Error creating rocket: {str(e)}") from e
