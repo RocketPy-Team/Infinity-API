@@ -82,7 +82,7 @@ async def read_rocketpy_motor(motor_id: int) -> "MotorPickle":
     ## Args
     ``` motor_id: Motor ID hash ```
     """
-    return await MotorController.get_rocketpy_motor(motor_id)
+    return await MotorController.get_rocketpy_motor_as_jsonpickle(motor_id)
 
 
 @router.get("/{motor_id}/simulate")
@@ -93,4 +93,4 @@ async def simulate_motor(motor_id: int) -> "MotorSummary":
     ## Args
     ``` motor_id: Motor ID hash ```
     """
-    return await MotorController.simulate(motor_id)
+    return await MotorController.simulate_motor(motor_id)

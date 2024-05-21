@@ -62,7 +62,7 @@ async def read_rocketpy_flight(flight_id: int) -> "FlightPickle":
     ## Args
     ``` flight_id: Flight ID hash. ```
     """
-    return await FlightController.get_rocketpy_flight(flight_id)
+    return await FlightController.get_rocketpy_flight_as_jsonpickle(flight_id)
 
 
 @router.put("/{flight_id}/env")
