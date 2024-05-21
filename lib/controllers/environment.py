@@ -78,7 +78,7 @@ class EnvController:
             logger.error(f"controllers.environment.create_env: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to create environment: {e}",
+                detail=f"Failed to create environment: {exc_str}",
             ) from e
         else:
             return EnvCreated(env_id=created_env.env_id)
@@ -102,13 +102,13 @@ class EnvController:
             HTTP 404 Not Found: If the env is not found in the database.
         """
         try:
-            read_env = await EnvRepository(env_id=env_id).get_env()
+            read_env = await EnvRepository().get_env_by_id(env_id)
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.environment.get_env_by_id: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to read environment: {e}",
+                detail=f"Failed to read environment: {exc_str}",
             ) from e
         else:
             if read_env:
@@ -141,6 +141,7 @@ class EnvController:
         """
         try:
             read_env = await cls.get_env_by_id(env_id)
+            rocketpy_env = await cls.get_rocketpy_env(read_env)
         except HTTPException as e:
             raise e from e
         except Exception as e:
@@ -150,10 +151,9 @@ class EnvController:
             )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to read environment: {e}",
+                detail=f"Failed to read environment: {exc_str}",
             ) from e
         else:
-            rocketpy_env = await cls.get_rocketpy_env(read_env)
             return EnvPickle(
                 jsonpickle_rocketpy_env=jsonpickle.encode(rocketpy_env)
             )
@@ -166,7 +166,7 @@ class EnvController:
         self, env_id: str
     ) -> Union[EnvUpdated, HTTPException]:
         """
-        Update a env in the database.
+        Update a models.Env in the database.
 
         Args:
             env_id: str
@@ -180,8 +180,8 @@ class EnvController:
         try:
             await EnvController.get_env_by_id(env_id)
             updated_env = await EnvRepository(
-                environment=self.env, env_id=env_id
-            ).update_env()
+                environment=self.env
+            ).update_env_by_id(env_id)
         except HTTPException as e:
             raise e from e
         except Exception as e:
@@ -189,7 +189,7 @@ class EnvController:
             logger.error(f"controllers.environment.update_env: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to update environment: {e}",
+                detail=f"Failed to update environment: {exc_str}",
             ) from e
         else:
             return EnvUpdated(new_env_id=updated_env.env_id)
@@ -201,7 +201,7 @@ class EnvController:
     @staticmethod
     async def delete_env(env_id: str) -> Union[EnvDeleted, HTTPException]:
         """
-        Delete a env from the database.
+        Delete a models.Env from the database.
 
         Args:
             env_id: str
@@ -213,13 +213,13 @@ class EnvController:
             HTTP 404 Not Found: If the env is not found in the database.
         """
         try:
-            await EnvRepository(env_id=env_id).delete_env()
+            await EnvRepository().delete_env_by_id(env_id)
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.environment.delete_env: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to delete environment: {e}",
+                detail=f"Failed to delete environment: {exc_str}",
             ) from e
         else:
             return EnvDeleted(deleted_env_id=env_id)
@@ -263,7 +263,7 @@ class EnvController:
             logger.error(f"controllers.environment.simulate: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to simulate environment: {e}",
+                detail=f"Failed to simulate environment: {exc_str}",
             ) from e
         else:
             return env_summary
