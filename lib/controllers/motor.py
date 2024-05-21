@@ -5,6 +5,7 @@ from rocketpy.motors.liquid_motor import LiquidMotor
 from rocketpy.motors.hybrid_motor import HybridMotor
 import jsonpickle
 
+from lib import logging, parse_error
 from lib.models.motor import Motor, MotorKinds
 from lib.repositories.motor import MotorRepository
 from lib.views.motor import (
@@ -15,6 +16,8 @@ from lib.views.motor import (
     MotorDeleted,
     MotorPickle,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class MotorController:
@@ -66,9 +69,9 @@ class MotorController:
         }
 
         match motor.motor_kind:
-            case MotorKinds.liquid:
+            case MotorKinds.LIQUID:
                 rocketpy_motor = LiquidMotor(**motor_core)
-            case MotorKinds.hybrid:
+            case MotorKinds.HYBRID:
                 rocketpy_motor = HybridMotor(
                     **motor_core,
                     throat_radius=motor.throat_radius,
@@ -94,198 +97,207 @@ class MotorController:
                     interpolation_method=motor.interpolation_method,
                 )
 
-        if motor.motor_kind != MotorKinds.solid:
+        if motor.motor_kind != MotorKinds.SOLID:
             for tank in motor.tanks:
                 rocketpy_motor.add_tank(tank.tank, tank.position)
 
         return rocketpy_motor
 
     def guard(self, motor: Motor, motor_kind):
-        if motor_kind != MotorKinds.solid and motor.tanks is None:
+        if motor_kind != MotorKinds.SOLID and motor.tanks is None:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="Tanks must be provided for liquid and hybrid motors.",
             )
 
-    async def create_motor(self) -> "Union[MotorCreated, HTTPException]":
+    async def create_motor(self) -> Union[MotorCreated, HTTPException]:
         """
-        Create a motor in the database.
+        Create a models.Motor in the database.
 
         Returns:
-            MotorCreated: motor id.
+            views.MotorCreated
         """
-        motor = MotorRepository(motor=self.motor)
-        successfully_created_motor = await motor.create_motor(
-            motor_kind=self.motor_kind
-        )
-        if not successfully_created_motor:
+        try:
+            created_motor = MotorRepository(motor=self.motor).create_motor(
+                motor_kind=self.motor_kind
+            )
+        except Exception as e:
+            exc_str = parse_error(e)
+            logger.error(f"controllers.motor.create_motor: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to create motor.",
+                detail=f"Failed to create motor: {exc_str}",
+            ) from e
+        else:
+            return MotorCreated(motor_id=created_motor.motor_id)
+        finally:
+            logger.info(
+                f"Call to controllers.motor.create_motor completed for Motor {self.motor.motor_id}"
             )
 
-        return MotorCreated(motor_id=str(motor.motor_id))
-
     @staticmethod
-    async def get_motor(motor_id: int) -> "Union[Motor, HTTPException]":
+    async def get_motor_by_id(motor_id: str) -> Union[Motor, HTTPException]:
         """
-        Get a motor from the database.
+        Get a models.Motor from the database.
 
         Args:
-            motor_id (int): Motor id.
+            motor_id: str
 
         Returns:
-            Motor model object
+            models.Motor
 
         Raises:
             HTTP 404 Not Found: If the motor is not found in the database.
         """
-        successfully_read_motor = await MotorRepository(
-            motor_id=motor_id
-        ).get_motor()
-        if not successfully_read_motor:
+        try:
+            read_motor = await MotorRepository().get_motor_by_id(motor_id)
+        except Exception as e:
+            exc_str = parse_error(e)
+            logger.error(f"controllers.motor.get_motor_by_id: {exc_str}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to read motor: {exc_str}",
+            ) from e
+        else:
+            if read_motor:
+                return read_motor
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Motor not found.",
+                detail="Motor not found",
+            )
+        finally:
+            logger.info(
+                f"Call to controllers.motor.get_motor_by_id completed for Motor {motor_id}"
             )
 
-        return successfully_read_motor
-
-    @staticmethod
-    async def get_rocketpy_motor(
-        motor_id: int,
-    ) -> "Union[MotorPickle, HTTPException]":
+    @classmethod
+    async def get_rocketpy_motor_as_jsonpickle(
+        cls,
+        motor_id: str,
+    ) -> Union[MotorPickle, HTTPException]:
         """
-        Get a rocketpy motor object encoded as jsonpickle string from the database.
+        Get a rocketpy.Motor object as a jsonpickle string.
 
         Args:
-            motor_id (int): Motor id.
+            motor_id: str
 
         Returns:
-            str: jsonpickle string of the rocketpy motor.
+            views.MotorPickle
 
         Raises:
             HTTP 404 Not Found: If the motor is not found in the database.
         """
-        successfully_read_motor = await MotorRepository(
-            motor_id=motor_id
-        ).get_motor()
-        if not successfully_read_motor:
+        try:
+            read_motor = await cls.get_motor_by_id(motor_id)
+            rocketpy_motor = cls.get_rocketpy_motor(read_motor)
+        except HTTPException as e:
+            raise e from e
+        except Exception as e:
+            exc_str = parse_error(e)
+            logger.error(
+                f"controllers.motor.get_rocketpy_motor_as_jsonpickle: {exc_str}"
+            )
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Motor not found.",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to read motor: {exc_str}",
+            ) from e
+        else:
+            return MotorPickle(
+                jsonpickle_rocketpy_motor=jsonpickle.encode(rocketpy_motor)
             )
-
-        successfully_read_rocketpy_motor = MotorController(
-            motor=successfully_read_motor,
-            motor_kind=MotorKinds(successfully_read_motor._motor_kind),
-        ).rocketpy_motor
-
-        return MotorPickle(
-            jsonpickle_rocketpy_motor=jsonpickle.encode(
-                successfully_read_rocketpy_motor
+        finally:
+            logger.info(
+                f"Call to controllers.motor.get_rocketpy_motor_as_jsonpickle completed for Motor {motor_id}"
             )
-        )
 
     async def update_motor(
-        self, motor_id: int
-    ) -> "Union[MotorUpdated, HTTPException]":
+        self, motor_id: str
+    ) -> Union[MotorUpdated, HTTPException]:
         """
         Update a motor in the database.
 
         Args:
-            motor_id (int): Motor id.
+            motor_id: str
 
         Returns:
-            MotorUpdated: motor id and message.
+            views.MotorUpdated
 
         Raises:
             HTTP 404 Not Found: If the motor is not found in the database.
         """
-        successfully_read_motor = await MotorRepository(
-            motor_id=motor_id
-        ).get_motor()
-        if not successfully_read_motor:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Motor not found.",
-            )
-
-        successfully_updated_motor = await MotorRepository(
-            motor=self.motor, motor_id=motor_id
-        ).update_motor(motor_kind=self.motor_kind)
-        if not successfully_updated_motor:
+        try:
+            await MotorController.get_motor_by_id(motor_id)
+            updated_motor = await MotorRepository(
+                motor=self.motor
+            ).update_motor_by_id(motor_id=motor_id, motor_kind=self.motor_kind)
+        except HTTPException as e:
+            raise e from e
+        except Exception as e:
+            exc_str = parse_error(e)
+            logger.error(f"controllers.motor.update_motor: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to update motor.",
+                detail=f"Failed to update motor: {exc_str}",
+            ) from e
+        else:
+            return MotorUpdated(new_motor_id=updated_motor.motor_id)
+        finally:
+            logger.info(
+                f"Call to controllers.motor.update_motor completed for Motor {motor_id}"
             )
-
-        return MotorUpdated(new_motor_id=str(successfully_updated_motor))
 
     @staticmethod
     async def delete_motor(
-        motor_id: int,
-    ) -> "Union[MotorDeleted, HTTPException]":
+        motor_id: str,
+    ) -> Union[MotorDeleted, HTTPException]:
         """
-        Delete a motor from the database.
+        Delete a models.Motor from the database.
 
         Args:
-            motor_id (int): motor id.
+            motor_id: str
 
         Returns:
-            MotorDeleted: motor id and message.
+            views.MotorDeleted
 
         Raises:
             HTTP 404 Not Found: If the motor is not found in the database.
         """
-        successfully_read_motor = await MotorRepository(
-            motor_id=motor_id
-        ).get_motor()
-        if not successfully_read_motor:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Motor not found.",
-            )
-
-        successfully_deleted_motor = await MotorRepository(
-            motor_id=motor_id
-        ).delete_motor()
-        if not successfully_deleted_motor:
+        try:
+            await MotorRepository().delete_motor_by_id(motor_id)
+        except Exception as e:
+            exc_str = parse_error(e)
+            logger.error(f"controllers.motor.delete_motor: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to delete motor.",
+                detail=f"Failed to delete motor: {exc_str}",
+            ) from e
+        else:
+            return MotorDeleted(deleted_motor_id=motor_id)
+        finally:
+            logger.info(
+                f"Call to controllers.motor.delete_motor completed for Motor {motor_id}"
             )
 
-        return MotorDeleted(deleted_motor_id=str(motor_id))
-
-    @staticmethod
-    async def simulate(motor_id: int) -> "Union[MotorSummary, HTTPException]":
+    @classmethod
+    async def simulate_motor(
+        cls, motor_id: str
+    ) -> Union[MotorSummary, HTTPException]:
         """
         Simulate a rocketpy motor.
 
         Args:
-            motor_id (int): Motor id.
+            motor_id: str
 
         Returns:
-            motor summary view.
+            views.MotorSummary
 
         Raises:
             HTTP 404 Not Found: If the motor does not exist in the database.
         """
-        successfully_read_motor = await MotorRepository(
-            motor_id=motor_id
-        ).get_motor()
-        if not successfully_read_motor:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Motor not found.",
-            )
-
         try:
-            motor = MotorController(
-                motor=successfully_read_motor,
-                motor_kind=MotorKinds(successfully_read_motor._motor_kind),
-            ).rocketpy_motor
+            read_motor = await MotorRepository().get_motor_by_id(motor_id)
+            motor = await cls.get_rocketpy_motor(read_motor)
+
             motor_simulation_numbers = MotorData(
                 total_burning_time="Total Burning Time: "
                 + str(motor.burn_out_time)
@@ -316,9 +328,18 @@ class MotorController:
             motor_summary = MotorSummary(
                 motor_data=motor_simulation_numbers
             )  # , plots=motor_simulation_plots )
-            return motor_summary
+        except HTTPException as e:
+            raise e from e
         except Exception as e:
+            exc_str = parse_error(e)
+            logger.error(f"controllers.motor.simulate_motor: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to simulate motor: {e}",
+                detail=f"Failed to simulate motor: {exc_str}",
             ) from e
+        else:
+            return motor_summary
+        finally:
+            logger.info(
+                f"Call to controllers.motor.simulate_motor completed for Motor {motor_id}"
+            )

@@ -134,7 +134,7 @@ class RocketController:
 
     async def create_rocket(self) -> Union[RocketCreated, HTTPException]:
         """
-        Create a rocket in the database.
+        Create a models.Rocket in the database.
 
         Returns:
             views.RocketCreated
@@ -153,7 +153,7 @@ class RocketController:
                 detail=f"Failed to create rocket: {exc_str}",
             ) from e
         else:
-            return RocketCreated(rocket_id=str(created_rocket.rocket_id))
+            return RocketCreated(rocket_id=created_rocket.rocket_id)
         finally:
             logger.info(
                 f"Call to controllers.rocket.create_rocket completed for Rocket {hash(self.rocket)}"
@@ -176,15 +176,13 @@ class RocketController:
             HTTP 404 Not Found: If the rocket is not found in the database.
         """
         try:
-            read_rocket = await RocketRepository(
-                rocket_id=rocket_id
-            ).get_rocket()
+            read_rocket = await RocketRepository().get_rocket_by_id(rocket_id)
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.rocket.get_rocket_by_id: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to read rocket: {e}",
+                detail=f"Failed to read rocket: {exc_str}",
             ) from e
         else:
             if read_rocket:
@@ -216,6 +214,7 @@ class RocketController:
         """
         try:
             read_rocket = await cls.get_rocket_by_id(rocket_id)
+            rocketpy_rocket = cls.get_rocketpy_rocket(read_rocket)
         except HTTPException as e:
             raise e from e
         except Exception as e:
@@ -225,10 +224,9 @@ class RocketController:
             )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to read rocket: {e}",
+                detail=f"Failed to read rocket: {exc_str}",
             ) from e
         else:
-            rocketpy_rocket = cls.get_rocketpy_rocket(read_rocket)
             return RocketPickle(
                 jsonpickle_rocketpy_rocket=jsonpickle.encode(rocketpy_rocket)
             )
@@ -241,7 +239,7 @@ class RocketController:
         self, rocket_id: str
     ) -> Union[RocketUpdated, HTTPException]:
         """
-        Update a rocket in the database.
+        Update a models.Rocket in the database.
 
         Args:
             rocket_id: str
@@ -255,8 +253,10 @@ class RocketController:
         try:
             await RocketController.get_rocket_by_id(rocket_id)
             updated_rocket = await RocketRepository(
-                rocket=self.rocket, rocket_id=rocket_id
-            ).update_rocket(rocket_option=self.rocket_option)
+                rocket=self.rocket
+            ).update_rocket_by_id(
+                rocket_id=rocket_id, rocket_option=self.rocket_option
+            )
         except HTTPException as e:
             raise e from e
         except Exception as e:
@@ -264,10 +264,10 @@ class RocketController:
             logger.error(f"controllers.rocket.update_rocket: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to update rocket: {e}",
+                detail=f"Failed to update rocket: {exc_str}",
             ) from e
         else:
-            return RocketUpdated(new_rocket_id=str(updated_rocket.rocket_id))
+            return RocketUpdated(new_rocket_id=updated_rocket.rocket_id)
         finally:
             logger.info(
                 f"Call to controllers.rocket.update_rocket completed for Rocket {rocket_id}"
@@ -278,7 +278,7 @@ class RocketController:
         rocket_id: str,
     ) -> Union[RocketDeleted, HTTPException]:
         """
-        Delete a rocket from the database.
+        Delete a models.Rocket from the database.
 
         Args:
             rocket_id: str
@@ -290,28 +290,28 @@ class RocketController:
             HTTP 404 Not Found: If the rocket is not found in the database.
         """
         try:
-            await RocketRepository(rocket_id=rocket_id).delete_rocket()
+            await RocketRepository().delete_rocket_by_id(rocket_id)
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.rocket.delete_rocket: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to delete rocket: {e}",
+                detail=f"Failed to delete rocket: {exc_str}",
             ) from e
         else:
-            return RocketDeleted(deleted_rocket_id=str(rocket_id))
+            return RocketDeleted(deleted_rocket_id=rocket_id)
         finally:
             logger.info(
                 f"Call to controllers.rocket.delete_rocket completed for Rocket {rocket_id}"
             )
 
     @classmethod
-    async def simulate(
+    async def simulate_rocket(
         cls,
         rocket_id: str,
     ) -> Union[RocketSummary, HTTPException]:
         """
-        Simulate a rocket rocket.
+        Simulate a rocketpy rocket.
 
         Args:
             rocket_id: str
@@ -471,7 +471,7 @@ class RocketController:
             logger.error(f"controllers.rocket.simulate: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to simulate rocket: {e}",
+                detail=f"Failed to simulate rocket: {exc_str}",
             ) from e
         else:
             return rocket_summary

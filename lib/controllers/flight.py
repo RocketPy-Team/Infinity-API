@@ -116,19 +116,17 @@ class FlightController:
             logger.error(f"controllers.flight.create_flight: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to create flight: {e}",
+                detail="Failed to create flight: {exc_str}",
             ) from e
         else:
-            return FlightCreated(flight_id=str(created_flight.flight_id))
+            return FlightCreated(flight_id=created_flight.flight_id)
         finally:
             logger.info(
                 f"Call to controllers.flight.create_flight completed for Flight {hash(self.flight)}"
             )
 
     @staticmethod
-    async def get_flight_by_id(
-        flight_id: str,
-    ) -> Union[Flight, HTTPException]:
+    async def get_flight_by_id(flight_id: str) -> Union[Flight, HTTPException]:
         """
         Get a flight from the database.
 
@@ -142,15 +140,13 @@ class FlightController:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
         try:
-            read_flight = await FlightRepository(
-                flight_id=flight_id
-            ).get_flight()
+            read_flight = await FlightRepository().get_flight_by_id(flight_id)
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.flight.get_flight_by_id: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to read flight: {e}",
+                detail="Failed to read flight: {exc_str}",
             ) from e
         else:
             if read_flight:
@@ -183,6 +179,7 @@ class FlightController:
         """
         try:
             read_flight = await cls.get_flight_by_id(flight_id)
+            rocketpy_flight = await cls.get_rocketpy_flight(read_flight)
         except HTTPException as e:
             raise e from e
         except Exception as e:
@@ -192,10 +189,9 @@ class FlightController:
             )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to read flight: {e}",
+                detail="Failed to read flight: {exc_str}",
             ) from e
         else:
-            rocketpy_flight = await cls.get_rocketpy_flight(read_flight)
             return FlightPickle(
                 jsonpickle_rocketpy_flight=jsonpickle.encode(rocketpy_flight)
             )
@@ -208,7 +204,7 @@ class FlightController:
         self, flight_id: str
     ) -> Union[FlightUpdated, HTTPException]:
         """
-        Update a flight in the database.
+        Update a models.Flight in the database.
 
         Args:
             flight_id: str
@@ -222,8 +218,10 @@ class FlightController:
         try:
             await FlightController.get_flight_by_id(flight_id)
             updated_flight = await FlightRepository(
-                flight=self.flight, flight_id=flight_id
-            ).update_flight()
+                flight=self.flight,
+                motor_kind=self.motor_kind,
+                rocket_option=self.rocket_option,
+            ).update_flight_by_id(flight_id=flight_id)
         except HTTPException as e:
             raise e from e
         except Exception as e:
@@ -231,10 +229,10 @@ class FlightController:
             logger.error(f"controllers.flight.update_flight: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to update flight: {e}",
+                detail="Failed to update flight: {exc_str}",
             ) from e
         else:
-            return FlightUpdated(new_flight_id=str(updated_flight.flight_id))
+            return FlightUpdated(new_flight_id=updated_flight.flight_id)
         finally:
             logger.info(
                 f"Call to controllers.flight.update_flight completed for Flight {flight_id}"
@@ -245,7 +243,7 @@ class FlightController:
         cls, flight_id: str, env: Env
     ) -> Union[FlightUpdated, HTTPException]:
         """
-        Update the environment of a flight in the database.
+        Update a models.Flight.env in the database.
 
         Args:
             flight_id: str
@@ -272,10 +270,10 @@ class FlightController:
             logger.error(f"controllers.flight.update_env: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to update environment: {e}",
+                detail="Failed to update environment: {exc_str}",
             ) from e
         else:
-            return FlightUpdated(new_flight_id=str(updated_flight.flight_id))
+            return FlightUpdated(new_flight_id=updated_flight.flight_id)
         finally:
             logger.info(
                 f"Call to controllers.flight.update_env completed for Flight {flight_id}; Env {hash(env)}"
@@ -286,7 +284,7 @@ class FlightController:
         flight_id: str, rocket: Rocket, rocket_option, motor_kind
     ) -> Union[FlightUpdated, HTTPException]:
         """
-        Update the rocket of a flight in the database.
+        Update a models.Flight.rocket in the database.
 
         Args:
             flight_id: str
@@ -316,10 +314,10 @@ class FlightController:
             logger.error(f"controllers.flight.update_rocket: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to update rocket: {e}",
+                detail="Failed to update rocket: {exc_str}",
             ) from e
         else:
-            return FlightUpdated(new_flight_id=str(new_flight_id))
+            return FlightUpdated(new_flight_id=new_flight_id)
         finally:
             logger.info(
                 f"Call to controllers.flight.update_rocket completed for Flight {flight_id}; Rocket {hash(rocket)}"
@@ -330,7 +328,7 @@ class FlightController:
         flight_id: str,
     ) -> Union[FlightDeleted, HTTPException]:
         """
-        Delete a flight from the database.
+        Delete a models.Flight from the database.
 
         Args:
             flight_id: str
@@ -342,7 +340,7 @@ class FlightController:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
         try:
-            await FlightRepository(flight_id=flight_id).delete_flight()
+            await FlightRepository().delete_flight_by_id(flight_id)
         except HTTPException as e:
             raise e from e
         except Exception as e:
@@ -350,10 +348,10 @@ class FlightController:
             logger.error(f"controllers.flight.delete_flight: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to delete flight: {e}",
+                detail="Failed to delete flight: {exc_str}",
             ) from e
         else:
-            return FlightDeleted(deleted_flight_id=str(flight_id))
+            return FlightDeleted(deleted_flight_id=flight_id)
         finally:
             logger.info(
                 f"Call to controllers.flight.delete_flight completed for Flight {flight_id}"
@@ -637,7 +635,7 @@ class FlightController:
             logger.error(f"controllers.flight.simulate_flight: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to simulate flight: {e}",
+                detail="Failed to simulate flight: {exc_str}",
             ) from e
         else:
             return flight_summary
