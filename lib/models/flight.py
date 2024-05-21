@@ -9,3 +9,7 @@ class Flight(BaseModel, frozen=True):
     inclination: int = 85
     heading: int = 0
     rail_length: float = 5.2
+
+    @property
+    def flight_id(self) -> str:
+        return str(hash(self))

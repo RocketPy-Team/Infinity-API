@@ -14,3 +14,7 @@ class Env(BaseModel, frozen=True):
     date: Optional[datetime.datetime] = (
         datetime.datetime.today() + datetime.timedelta(days=1)
     )
+
+    @property
+    def env_id(self) -> str:
+        return str(hash(self))

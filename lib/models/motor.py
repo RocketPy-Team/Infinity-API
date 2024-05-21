@@ -11,25 +11,25 @@ from pydantic import BaseModel, PrivateAttr
 
 
 class MotorKinds(str, Enum):
-    hybrid: str = "Hybrid"
-    solid: str = "Solid"
-    liquid: str = "Liquid"
+    HYBRID: str = "HYBRID"
+    SOLID: str = "SOLID"
+    LIQUID: str = "LIQUID"
 
 
 class MotorEngines(str, Enum):
-    cesaroni: str = "Cesaroni_M1670"
-    custom: str = "Custom"
+    CESARONI: str = "CESARONI_M1670"
+    CUSTOM: str = "CUSTOM"
 
 
 class TankKinds(str, Enum):
-    level: str = "Level"
-    mass: str = "Mass"
-    mass_flow: str = "MassFlow"
-    ullage: str = "Ullage"
+    LEVEL: str = "LEVEL"
+    MASS: str = "MASS"
+    MASS_FLOW: str = "MASSFlOW"
+    ULLAGE: str = "ULLAGE"
 
 
 class TankFluids(BaseModel, frozen=True):
-    name: str = "FluidName"
+    name: str = "FLUIDNAME"
     density: float = 100.0
 
 
@@ -39,7 +39,7 @@ class MotorTank(BaseModel, frozen=True):
         ((0, 5), 1),
         ((5, 10), 2),
     ]
-    tank_kind: TankKinds = TankKinds.mass_flow
+    tank_kind: TankKinds = TankKinds.MASS_FLOW
     gas: TankFluids = TankFluids()
     liquid: TankFluids = TankFluids()
     name: str = "Tank"
@@ -81,7 +81,7 @@ class MotorTank(BaseModel, frozen=True):
                     liquid_mass=self.liquid_mass,
                     gas_mass=self.gas_mass,
                 )
-            case TankKinds.mass_flow:
+            case TankKinds.MASS_FLOW:
                 tank = MassFlowRateBasedTank(
                     **tank_core,
                     gas_mass_flow_rate_in=self.gas_mass_flow_rate_in,
@@ -135,6 +135,10 @@ class Motor(BaseModel, frozen=True):
     @property
     def motor_kind(self) -> MotorKinds:
         return self._motor_kind
+
+    @property
+    def motor_id(self) -> str:
+        return str(hash(self))
 
     def __hash__(self):
         temp = vars(self)

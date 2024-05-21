@@ -7,8 +7,8 @@ from lib.models.parachute import Parachute
 
 
 class RocketOptions(str, Enum):
-    CALISTO: str = "Calisto"
-    CUSTOM: str = "Custom"
+    CALISTO: str = "CALISTO"
+    CUSTOM: str = "CUSTOM"
 
 
 class Rocket(BaseModel, frozen=True):
@@ -47,6 +47,10 @@ class Rocket(BaseModel, frozen=True):
     @property
     def rocket_option(self) -> RocketOptions:
         return self._rocket_option
+
+    @property
+    def rocket_id(self) -> str:
+        return str(hash(self))
 
     def __hash__(self):
         temp = vars(self)
