@@ -16,13 +16,10 @@ class EnvRepository(Repository):
 
     """
 
-    def __init__(self, environment: Env = None, env_id: str = None):
+    def __init__(self, environment: Env | None = None):
         super().__init__("environments")
-        self._env = environment
-        if env_id:
-            self._env_id = env_id
-        else:
-            self._env_id = str(hash(self._env))
+        self._env = environment if environment else None
+        self._env_id = environment.env_id if environment else None
 
     def __del__(self):
         self.connection.close()
@@ -58,7 +55,7 @@ class EnvRepository(Repository):
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.environment.create_env: {exc_str}")
-            raise Exception(f"Error creating environment: {str(e)}") from e
+            raise Exception(f"Error creating environment: {exc_str}") from e
         else:
             return self
         finally:
@@ -66,7 +63,7 @@ class EnvRepository(Repository):
                 f"Call to repositories.environment.create_env completed for Env {self.env_id}"
             )
 
-    async def update_env(self):
+    async def update_env_by_id(self, env_id: str):
         """
         Updates a models.Env in the database
 
@@ -75,15 +72,14 @@ class EnvRepository(Repository):
         """
         try:
             environment_to_dict = self.env.dict()
-            environment_to_dict["env_id"] = str(hash(self.env))
+            environment_to_dict["env_id"] = self.env_id
             await self.collection.update_one(
-                {"env_id": self.env_id}, {"$set": environment_to_dict}
+                {"env_id": env_id}, {"$set": environment_to_dict}
             )
-            self.env_id = environment_to_dict["env_id"]
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.environment.update_env: {exc_str}")
-            raise Exception(f"Error updating environment: {str(e)}") from e
+            raise Exception(f"Error updating environment: {exc_str}") from e
         else:
             return self
         finally:
@@ -91,7 +87,7 @@ class EnvRepository(Repository):
                 f"Call to repositories.environment.update_env completed for Env {self.env_id}"
             )
 
-    async def get_env(self) -> Union[Env, None]:
+    async def get_env_by_id(self, env_id: str) -> Union[Env, None]:
         """
         Gets a models.Env from the database
 
@@ -99,20 +95,20 @@ class EnvRepository(Repository):
             models.Env
         """
         try:
-            read_env = await self.collection.find_one({"env_id": self.env_id})
+            read_env = await self.collection.find_one({"env_id": env_id})
             parsed_env = Env.parse_obj(read_env) if read_env else None
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.environment.get_env: {exc_str}")
-            raise Exception(f"Error getting environment: {str(e)}") from e
+            raise Exception(f"Error getting environment: {exc_str}") from e
         else:
             return parsed_env
         finally:
             logger.info(
-                f"Call to repositories.environment.get_env completed for Env {self.env_id}"
+                f"Call to repositories.environment.get_env completed for Env {env_id}"
             )
 
-    async def delete_env(self):
+    async def delete_env_by_id(self, env_id: str):
         """
         Deletes a models.Env from the database
 
@@ -120,12 +116,12 @@ class EnvRepository(Repository):
             None
         """
         try:
-            await self.collection.delete_one({"env_id": self.env_id})
+            await self.collection.delete_one({"env_id": env_id})
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.environment.delete_env: {exc_str}")
-            raise Exception(f"Error deleting environment: {str(e)}") from e
+            raise Exception(f"Error deleting environment: {exc_str}") from e
         finally:
             logger.info(
-                f"Call to repositories.environment.delete_env completed for Env {self.env_id}"
+                f"Call to repositories.environment.delete_env completed for Env {env_id}"
             )

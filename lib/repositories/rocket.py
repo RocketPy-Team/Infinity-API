@@ -16,13 +16,10 @@ class RocketRepository(Repository):
 
     """
 
-    def __init__(self, rocket: Rocket = None, rocket_id: str = None):
+    def __init__(self, rocket: Rocket | None = None):
         super().__init__("rockets")
-        self._rocket = rocket
-        if rocket_id:
-            self._rocket_id = rocket_id
-        else:
-            self._rocket_id = str(hash(self._rocket))
+        self._rocket = rocket if rocket else None
+        self._rocket_id = rocket.rocket_id if rocket else None
 
     def __del__(self):
         self.connection.close()
@@ -45,7 +42,7 @@ class RocketRepository(Repository):
         self._rocket_id = rocket_id
 
     async def create_rocket(
-        self, rocket_option: str = "Calisto", motor_kind: str = "Solid"
+        self, rocket_option: str = "CALISTO", motor_kind: str = "SOLID"
     ):
         """
         Creates a non-existing models.Rocket in the database
@@ -66,7 +63,7 @@ class RocketRepository(Repository):
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.rocket.create_rocket: {exc_str}")
-            raise Exception(f"Error creating rocket: {str(e)}") from e
+            raise Exception(f"Error creating rocket: {exc_str}") from e
         else:
             return self
         finally:
@@ -74,7 +71,13 @@ class RocketRepository(Repository):
                 f"Call to repositories.rocket.create_rocket completed for Rocket {self.rocket_id}"
             )
 
-    async def update_rocket(self, rocket_option: str = "Calisto", motor_kind: str = "Solid"):
+    async def update_rocket_by_id(
+        self,
+        *,
+        rocket_id: str,
+        rocket_option: str = "CALISTO",
+        motor_kind: str = "SOLID",
+    ):
         """
         Updates a models.Rocket in the database
 
@@ -83,18 +86,16 @@ class RocketRepository(Repository):
         """
         try:
             rocket_to_dict = self.rocket.dict()
-            rocket_to_dict["rocket_id"] = str(hash(self.rocket))
+            rocket_to_dict["rocket_id"] = self.rocket_id
             rocket_to_dict["rocket_option"] = rocket_option
             rocket_to_dict["motor"]["motor_kind"] = motor_kind
             await self.collection.update_one(
-                {"rocket_id": self.rocket_id}, {"$set": rocket_to_dict}
+                {"rocket_id": rocket_id}, {"$set": rocket_to_dict}
             )
-
-            self.rocket_id = rocket_to_dict["rocket_id"]
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.rocket.update_rocket: {exc_str}")
-            raise Exception(f"Error updating rocket: {str(e)}") from e
+            raise Exception(f"Error updating rocket: {exc_str}") from e
         else:
             return self
         finally:
@@ -102,7 +103,7 @@ class RocketRepository(Repository):
                 f"Call to repositories.rocket.update_rocket completed for Rocket {self.rocket_id}"
             )
 
-    async def get_rocket(self) -> Union[Rocket, None]:
+    async def get_rocket_by_id(self, rocket_id: str) -> Union[Rocket, None]:
         """
         Gets a models.Rocket from the database
 
@@ -111,7 +112,7 @@ class RocketRepository(Repository):
         """
         try:
             read_rocket = await self.collection.find_one(
-                {"rocket_id": self.rocket_id}
+                {"rocket_id": rocket_id}
             )
             parsed_rocket = (
                 Rocket.parse_obj(read_rocket) if read_rocket else None
@@ -119,15 +120,15 @@ class RocketRepository(Repository):
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.rocket.get_rocket: {exc_str}")
-            raise Exception(f"Error getting rocket: {str(e)}") from e
+            raise Exception(f"Error getting rocket: {exc_str}") from e
         else:
             return parsed_rocket
         finally:
             logger.info(
-                f"Call to repositories.rocket.get_rocket completed for Rocket {self.rocket_id}"
+                f"Call to repositories.rocket.get_rocket completed for Rocket {rocket_id}"
             )
 
-    async def delete_rocket(self):
+    async def delete_rocket_by_id(self, rocket_id: str):
         """
         Deletes a models.Rocket from the database
 
@@ -135,12 +136,12 @@ class RocketRepository(Repository):
             None
         """
         try:
-            await self.collection.delete_one({"rocket_id": self.rocket_id})
+            await self.collection.delete_one({"rocket_id": rocket_id})
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.rocket.delete_rocket: {exc_str}")
-            raise Exception(f"Error deleting rocket: {str(e)}") from e
+            raise Exception(f"Error deleting rocket: {exc_str}") from e
         finally:
             logger.info(
-                f"Call to repositories.rocket.delete_rocket completed for Rocket {self.rocket_id}"
+                f"Call to repositories.rocket.delete_rocket completed for Rocket {rocket_id}"
             )
