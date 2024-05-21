@@ -16,13 +16,10 @@ class FlightRepository(Repository):
 
     """
 
-    def __init__(self, flight: Flight = None, flight_id: str = None):
+    def __init__(self, flight: Flight | None = None):
         super().__init__("flights")
-        self._flight = flight
-        if flight_id:
-            self._flight_id = flight_id
-        else:
-            self._flight_id = str(hash(self._flight))
+        self._flight = flight if flight else None
+        self._flight_id = flight.flight_id if flight else None
 
     def __del__(self):
         self.connection.close()
@@ -45,7 +42,7 @@ class FlightRepository(Repository):
         self._flight_id = flight_id
 
     async def create_flight(
-        self, motor_kind: str = "Solid", rocket_option: str = "Calisto"
+        self, motor_kind: str = "SOLID", rocket_option: str = "CALISTO"
     ):
         """
         Creates a non-existing models.Flight in the database
@@ -66,7 +63,7 @@ class FlightRepository(Repository):
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.flight.create_flight: {exc_str}")
-            raise Exception(f"Error creating flight: {str(e)}") from e
+            raise Exception(f"Error creating flight: {exc_str}") from e
         else:
             return self
         finally:
@@ -74,8 +71,12 @@ class FlightRepository(Repository):
                 f"Call to repositories.flight.create_flight completed for Flight {self.flight_id}"
             )
 
-    async def update_flight(
-        self, motor_kind: str = "Solid", rocket_option: str = "Calisto"
+    async def update_flight_by_id(
+        self,
+        *,
+        flight_id: str,
+        motor_kind: str = "SOLID",
+        rocket_option: str = "CALISTO",
     ):
         """
         Updates a models.Flight in the database
@@ -85,23 +86,22 @@ class FlightRepository(Repository):
         """
         try:
             flight_to_dict = self.flight.dict()
-            flight_to_dict["flight_id"] = str(hash(self.flight))
+            flight_to_dict["flight_id"] = self.flight_id
             flight_to_dict["rocket"]["rocket_option"] = rocket_option
             flight_to_dict["rocket"]["motor"]["motor_kind"] = motor_kind
             await self.collection.update_one(
-                {"flight_id": self.flight_id}, {"$set": flight_to_dict}
+                {"flight_id": flight_id}, {"$set": flight_to_dict}
             )
-            self.flight_id = flight_to_dict["flight_id"]
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.flight.update_flight: {exc_str}")
-            raise Exception(f"Error updating flight: {str(e)}") from e
+            raise Exception(f"Error updating flight: {exc_str}") from e
         finally:
             logger.info(
                 f"Call to repositories.flight.update_flight completed for Flight {self.flight_id}"
             )
 
-    async def get_flight(self) -> Union[Flight, None]:
+    async def get_flight_by_id(self, flight_id: str) -> Union[Flight, None]:
         """
         Gets a models.Flight from the database
 
@@ -110,7 +110,7 @@ class FlightRepository(Repository):
         """
         try:
             read_flight = await self.collection.find_one(
-                {"flight_id": self.flight_id}
+                {"flight_id": flight_id}
             )
             parsed_flight = (
                 Flight.parse_obj(read_flight) if read_flight else None
@@ -118,15 +118,15 @@ class FlightRepository(Repository):
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.flight.get_flight: {exc_str}")
-            raise Exception(f"Error getting flight: {str(e)}") from e
+            raise Exception(f"Error getting flight: {exc_str}") from e
         else:
             return parsed_flight
         finally:
             logger.info(
-                f"Call to repositories.flight.get_flight completed for Flight {self.flight_id}"
+                f"Call to repositories.flight.get_flight completed for Flight {flight_id}"
             )
 
-    async def delete_flight(self):
+    async def delete_flight_by_id(self, flight_id: str):
         """
         Deletes a models.Flight from the database
 
@@ -134,12 +134,12 @@ class FlightRepository(Repository):
             None
         """
         try:
-            await self.collection.delete_one({"flight_id": self.flight_id})
+            await self.collection.delete_one({"flight_id": flight_id})
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.flight.delete_flight: {exc_str}")
-            raise Exception(f"Error deleting flight: {str(e)}") from e
+            raise Exception(f"Error deleting flight: {exc_str}") from e
         finally:
             logger.info(
-                f"Call to repositories.flight.delete_flight completed for Flight {self.flight_id}"
+                f"Call to repositories.flight.delete_flight completed for Flight {flight_id}"
             )

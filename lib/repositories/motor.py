@@ -16,13 +16,10 @@ class MotorRepository(Repository):
 
     """
 
-    def __init__(self, motor: Motor = None, motor_id: str = None) -> None:
+    def __init__(self, motor: Motor | None = None):
         super().__init__("motors")
-        self._motor = motor
-        if motor_id:
-            self._motor_id = motor_id
-        else:
-            self._motor_id = str(hash(self._motor))
+        self._motor = motor if motor else None
+        self._motor_id = motor.motor_id if motor else None
 
     def __del__(self):
         self.connection.close()
@@ -44,7 +41,7 @@ class MotorRepository(Repository):
     def motor_id(self, motor_id: "str"):
         self._motor_id = motor_id
 
-    async def create_motor(self, motor_kind: str = "solid"):
+    async def create_motor(self, motor_kind: str = "SOLID"):
         """
         Creates a non-existing models.Motor in the database
 
@@ -62,7 +59,7 @@ class MotorRepository(Repository):
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.motor.create_motor: {exc_str}")
-            raise Exception(f"Error creating motor: {str(e)}") from e
+            raise Exception(f"Error creating motor: {exc_str}") from e
         else:
             return self
         finally:
@@ -70,7 +67,9 @@ class MotorRepository(Repository):
                 f"Call to repositories.motor.create_motor completed for Motor {self.motor_id}"
             )
 
-    async def update_motor(self, motor_kind: str = "solid"):
+    async def update_motor_by_id(
+        self, *, motor_id: str, motor_kind: str = "SOLID"
+    ):
         """
         Updates a models.Motor in the database
 
@@ -79,16 +78,15 @@ class MotorRepository(Repository):
         """
         try:
             motor_to_dict = self.motor.dict()
-            motor_to_dict["motor_id"] = str(hash(self.motor))
+            motor_to_dict["motor_id"] = self.motor_id
             motor_to_dict["motor_kind"] = motor_kind
             await self.collection.update_one(
-                {"motor_id": self.motor_id}, {"$set": motor_to_dict}
+                {"motor_id": motor_id}, {"$set": motor_to_dict}
             )
-            self.motor_id = motor_to_dict["motor_id"]
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.motor.update_motor: {exc_str}")
-            raise Exception(f"Error updating motor: {str(e)}") from e
+            raise Exception(f"Error updating motor: {exc_str}") from e
         else:
             return self
         finally:
@@ -96,7 +94,7 @@ class MotorRepository(Repository):
                 f"Call to repositories.motor.update_motor completed for Motor {self.motor_id}"
             )
 
-    async def get_motor(self) -> Union[motor, None]:
+    async def get_motor_by_id(self, motor_id: str) -> Union[motor, None]:
         """
         Gets a models.Motor from the database
 
@@ -104,22 +102,20 @@ class MotorRepository(Repository):
             models.Motor
         """
         try:
-            read_motor = await self.collection.find_one(
-                {"motor_id": self.motor_id}
-            )
+            read_motor = await self.collection.find_one({"motor_id": motor_id})
             parsed_motor = Motor.parse_obj(read_motor) if read_motor else None
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.motor.get_motor: {exc_str}")
-            raise Exception(f"Error getting motor: {str(e)}") from e
+            raise Exception(f"Error getting motor: {exc_str}") from e
         else:
             return parsed_motor
         finally:
             logger.info(
-                f"Call to repositories.motor.get_motor completed for Motor {self.motor_id}"
+                f"Call to repositories.motor.get_motor completed for Motor {motor_id}"
             )
 
-    async def delete_motor(self):
+    async def delete_motor_by_id(self, motor_id: str):
         """
         Deletes a models.Motor from the database
 
@@ -127,12 +123,12 @@ class MotorRepository(Repository):
             None
         """
         try:
-            await self.collection.delete_one({"motor_id": self.motor_id})
+            await self.collection.delete_one({"motor_id": motor_id})
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.motor.delete_motor: {exc_str}")
-            raise Exception(f"Error deleting motor: {str(e)}") from e
+            raise Exception(f"Error deleting motor: {exc_str}") from e
         finally:
             logger.info(
-                f"Call to repositories.motor.delete_motor completed for Motor {self.motor_id}"
+                f"Call to repositories.motor.delete_motor completed for Motor {motor_id}"
             )
