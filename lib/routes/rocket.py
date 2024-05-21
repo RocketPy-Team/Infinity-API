@@ -103,4 +103,4 @@ async def simulate_rocket(rocket_id: int) -> "RocketSummary":
     ## Args
     ``` rocket_id: Rocket ID hash ```
     """
-    return await RocketController.simulate(rocket_id)
+    return await RocketController.simulate_rocket(rocket_id)

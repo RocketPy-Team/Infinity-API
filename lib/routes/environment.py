@@ -91,4 +91,4 @@ async def simulate_env(env_id: str) -> "EnvSummary":
     ## Args
     ``` env_id: str ```
     """
-    return await EnvController.simulate(env_id)
+    return await EnvController.simulate_env(env_id)
