@@ -83,8 +83,8 @@ class RocketController:
             radius=rocket.radius,
             mass=rocket.mass,
             inertia=rocket.inertia,
-            power_off_drag=f"lib/data/{rocket.rocket_option.value.lower()}/powerOffDragCurve.csv",
-            power_on_drag=f"lib/data/{rocket.rocket_option.value.lower()}/powerOnDragCurve.csv",
+            power_off_drag=f"lib/data/{rocket.rocket_option.lower()}/powerOffDragCurve.csv",
+            power_on_drag=f"lib/data/{rocket.rocket_option.lower()}/powerOnDragCurve.csv",
             center_of_mass_without_motor=rocket.center_of_mass_without_motor,
             coordinate_system_orientation=rocket.coordinate_system_orientation,
         )
@@ -140,9 +140,7 @@ class RocketController:
             views.RocketCreated
         """
         try:
-            created_rocket = await RocketRepository(
-                rocket=self.rocket
-            ).create_rocket(
+            await RocketRepository.fetch_rocket(self.rocket).create_rocket(
                 rocket_option=self.rocket_option, motor_kind=self.motor_kind
             )
         except Exception as e:
@@ -153,7 +151,7 @@ class RocketController:
                 detail=f"Failed to create rocket: {exc_str}",
             ) from e
         else:
-            return RocketCreated(rocket_id=created_rocket.rocket_id)
+            return RocketCreated(rocket_id=self.rocket.rocket_id)
         finally:
             logger.info(
                 f"Call to controllers.rocket.create_rocket completed for Rocket {hash(self.rocket)}"
@@ -235,7 +233,7 @@ class RocketController:
                 f"Call to controllers.rocket.get_rocketpy_rocket_as_jsonpickle completed for Rocket {rocket_id}"
             )
 
-    async def update_rocket(
+    async def update_rocket_by_id(
         self, rocket_id: str
     ) -> Union[RocketUpdated, HTTPException]:
         """
@@ -251,14 +249,12 @@ class RocketController:
             HTTP 404 Not Found: If the rocket is not found in the database.
         """
         try:
-            await RocketController.get_rocket_by_id(rocket_id)
-            updated_rocket = await RocketRepository(
-                rocket=self.rocket
-            ).update_rocket_by_id(
-                rocket_id=rocket_id, rocket_option=self.rocket_option
+            rocket_repo = await RocketRepository.fetch_rocket(
+                self.rocket
+            ).create_rocket(
+                rocket_option=self.rocket_option, motor_kind=self.motor_kind
             )
-        except HTTPException as e:
-            raise e from e
+            await rocket_repo.delete_rocket_by_id(rocket_id)
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.rocket.update_rocket: {exc_str}")
@@ -267,14 +263,14 @@ class RocketController:
                 detail=f"Failed to update rocket: {exc_str}",
             ) from e
         else:
-            return RocketUpdated(new_rocket_id=updated_rocket.rocket_id)
+            return RocketUpdated(new_rocket_id=self.rocket.rocket_id)
         finally:
             logger.info(
                 f"Call to controllers.rocket.update_rocket completed for Rocket {rocket_id}"
             )
 
     @staticmethod
-    async def delete_rocket(
+    async def delete_rocket_by_id(
         rocket_id: str,
     ) -> Union[RocketDeleted, HTTPException]:
         """
@@ -324,7 +320,7 @@ class RocketController:
         """
         try:
             read_rocket = await cls.get_rocket_by_id(rocket_id)
-            rocket = await cls.get_rocketpy_rocket(read_rocket)
+            rocket = cls.get_rocketpy_rocket(read_rocket)
 
             _inertia_details = InertiaDetails(
                 rocket_mass_without_propellant="Rocket Mass: {:.3f} kg (No Propellant)".format(
@@ -413,7 +409,7 @@ class RocketController:
                 aerodynamics_center_of_pressure=_aerodynamics_center_of_pressure,
                 distance_cop_to_codm="Distance from Center of Pressure to Center of Dry Mass: "
                 + "{:.3f}".format(
-                    rocket.center_of_mass(0) - rocket.cp_position
+                    rocket.center_of_mass(0) - rocket.cp_position(0)
                 )
                 + " m",
                 initial_static_margin="Initial Static Margin: "

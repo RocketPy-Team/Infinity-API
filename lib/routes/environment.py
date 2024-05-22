@@ -26,7 +26,7 @@ router = APIRouter(
 
 
 @router.post("/")
-async def create_env(env: Env) -> "EnvCreated":
+async def create_env(env: Env) -> EnvCreated:
     """
     Creates a new environment
 
@@ -37,7 +37,7 @@ async def create_env(env: Env) -> "EnvCreated":
 
 
 @router.get("/{env_id}")
-async def read_env(env_id: str) -> "Env":
+async def read_env(env_id: str) -> Env:
     """
     Reads an environment
 
@@ -48,7 +48,7 @@ async def read_env(env_id: str) -> "Env":
 
 
 @router.put("/{env_id}")
-async def update_env(env_id: str, env: Env) -> "EnvUpdated":
+async def update_env(env_id: str, env: Env) -> EnvUpdated:
     """
     Updates an environment
 
@@ -58,22 +58,22 @@ async def update_env(env_id: str, env: Env) -> "EnvUpdated":
         env: models.Env JSON
     ```
     """
-    return await EnvController(env).update_env(env_id)
+    return await EnvController(env).update_env_by_id(env_id)
 
 
 @router.delete("/{env_id}")
-async def delete_env(env_id: str) -> "EnvDeleted":
+async def delete_env(env_id: str) -> EnvDeleted:
     """
     Deletes an environment
 
     ## Args
     ``` env_id: Environment ID hash ```
     """
-    return await EnvController.delete_env(env_id)
+    return await EnvController.delete_env_by_id(env_id)
 
 
 @router.get("/rocketpy/{env_id}")
-async def read_rocketpy_env(env_id: str) -> "EnvPickle":
+async def read_rocketpy_env(env_id: str) -> EnvPickle:
     """
     Loads rocketpy.environment as jsonpickle string
 
@@ -84,7 +84,7 @@ async def read_rocketpy_env(env_id: str) -> "EnvPickle":
 
 
 @router.get("/{env_id}/simulate")
-async def simulate_env(env_id: str) -> "EnvSummary":
+async def simulate_env(env_id: str) -> EnvSummary:
     """
     Loads rocketpy.environment simulation
 

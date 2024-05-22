@@ -16,14 +16,15 @@ class EnvRepository(Repository):
 
     """
 
-    def __init__(self, environment: Env | None = None):
+    def __init__(self):
         super().__init__("environments")
-        self._env = environment if environment else None
-        self._env_id = environment.env_id if environment else None
 
-    def __del__(self):
-        self.connection.close()
-        super().__del__()
+    @classmethod
+    def fetch_env(cls, environment: Env):
+        instance = cls()
+        instance.env = environment
+        instance.env_id = environment.env_id
+        return instance
 
     @property
     def env(self) -> Env:
@@ -61,30 +62,6 @@ class EnvRepository(Repository):
         finally:
             logger.info(
                 f"Call to repositories.environment.create_env completed for Env {self.env_id}"
-            )
-
-    async def update_env_by_id(self, env_id: str):
-        """
-        Updates a models.Env in the database
-
-        Returns:
-           self
-        """
-        try:
-            environment_to_dict = self.env.dict()
-            environment_to_dict["env_id"] = self.env_id
-            await self.collection.update_one(
-                {"env_id": env_id}, {"$set": environment_to_dict}
-            )
-        except Exception as e:
-            exc_str = parse_error(e)
-            logger.error(f"repositories.environment.update_env: {exc_str}")
-            raise Exception(f"Error updating environment: {exc_str}") from e
-        else:
-            return self
-        finally:
-            logger.info(
-                f"Call to repositories.environment.update_env completed for Env {self.env_id}"
             )
 
     async def get_env_by_id(self, env_id: str) -> Union[Env, None]:

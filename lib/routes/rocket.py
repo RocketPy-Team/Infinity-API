@@ -29,7 +29,7 @@ router = APIRouter(
 @router.post("/")
 async def create_rocket(
     rocket: Rocket, rocket_option: RocketOptions, motor_kind: MotorKinds
-) -> "RocketCreated":
+) -> RocketCreated:
     """
     Creates a new rocket
 
@@ -42,7 +42,7 @@ async def create_rocket(
 
 
 @router.get("/{rocket_id}")
-async def read_rocket(rocket_id: int) -> Rocket:
+async def read_rocket(rocket_id: str) -> Rocket:
     """
     Reads a rocket
 
@@ -54,11 +54,11 @@ async def read_rocket(rocket_id: int) -> Rocket:
 
 @router.put("/{rocket_id}")
 async def update_rocket(
-    rocket_id: int,
+    rocket_id: str,
     rocket: Rocket,
     rocket_option: RocketOptions,
     motor_kind: MotorKinds,
-) -> "RocketUpdated":
+) -> RocketUpdated:
     """
     Updates a rocket
 
@@ -70,22 +70,22 @@ async def update_rocket(
     """
     return await RocketController(
         rocket, rocket_option, motor_kind
-    ).update_rocket(rocket_id)
+    ).update_rocket_by_id(rocket_id)
 
 
 @router.delete("/{rocket_id}")
-async def delete_rocket(rocket_id: int) -> "RocketDeleted":
+async def delete_rocket(rocket_id: str) -> RocketDeleted:
     """
     Deletes a rocket
 
     ## Args
     ``` rocket_id: Rocket ID hash ```
     """
-    return await RocketController.delete_rocket(rocket_id)
+    return await RocketController.delete_rocket_by_id(rocket_id)
 
 
 @router.get("/rocketpy/{rocket_id}")
-async def read_rocketpy_rocket(rocket_id: int) -> "RocketPickle":
+async def read_rocketpy_rocket(rocket_id: str) -> RocketPickle:
     """
     Reads a rocketpy rocket
 
@@ -96,7 +96,7 @@ async def read_rocketpy_rocket(rocket_id: int) -> "RocketPickle":
 
 
 @router.get("/{rocket_id}/simulate")
-async def simulate_rocket(rocket_id: int) -> "RocketSummary":
+async def simulate_rocket(rocket_id: str) -> RocketSummary:
     """
     Simulates a rocket
 

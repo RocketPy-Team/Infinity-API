@@ -31,7 +31,7 @@ router = APIRouter(
 @router.post("/")
 async def create_flight(
     flight: Flight, rocket_option: RocketOptions, motor_kind: MotorKinds
-) -> "FlightCreated":
+) -> FlightCreated:
     """
     Creates a new flight
 
@@ -44,18 +44,18 @@ async def create_flight(
 
 
 @router.get("/{flight_id}")
-async def read_flight(flight_id: int) -> "Flight":
+async def read_flight(flight_id: str) -> Flight:
     """
     Reads a flight
 
     ## Args
     ``` flight_id: Flight ID hash ```
     """
-    return await FlightController.get_flight(flight_id)
+    return await FlightController.get_flight_by_id(flight_id)
 
 
 @router.get("/rocketpy/{flight_id}")
-async def read_rocketpy_flight(flight_id: int) -> "FlightPickle":
+async def read_rocketpy_flight(flight_id: str) -> FlightPickle:
     """
     Reads a rocketpy flight object
 
@@ -66,7 +66,7 @@ async def read_rocketpy_flight(flight_id: int) -> "FlightPickle":
 
 
 @router.put("/{flight_id}/env")
-async def update_flight_env(flight_id: int, env: Env) -> "FlightUpdated":
+async def update_flight_env(flight_id: str, env: Env) -> FlightUpdated:
     """
     Updates flight environment
 
@@ -76,16 +76,16 @@ async def update_flight_env(flight_id: int, env: Env) -> "FlightUpdated":
         env: env object as JSON
     ```
     """
-    return await FlightController.update_env(flight_id, env)
+    return await FlightController.update_env_by_flight_id(flight_id, env)
 
 
 @router.put("/{flight_id}/rocket")
 async def update_flight_rocket(
-    flight_id: int,
+    flight_id: str,
     rocket: Rocket,
     rocket_option: RocketOptions,
     motor_kind: MotorKinds,
-) -> "FlightUpdated":
+) -> FlightUpdated:
     """
     Updates flight rocket.
 
@@ -95,18 +95,18 @@ async def update_flight_rocket(
         rocket: Rocket object as JSON
     ```
     """
-    return await FlightController.update_rocket(
+    return await FlightController.update_rocket_by_flight_id(
         flight_id, rocket, rocket_option, motor_kind
     )
 
 
 @router.put("/{flight_id}")
 async def update_flight(
-    flight_id: int,
+    flight_id: str,
     flight: Flight,
     rocket_option: RocketOptions,
     motor_kind: MotorKinds,
-) -> "FlightUpdated":
+) -> FlightUpdated:
     """
     Updates Flight object
 
@@ -118,22 +118,22 @@ async def update_flight(
     """
     return await FlightController(
         flight, rocket_option, motor_kind
-    ).update_flight(flight_id)
+    ).update_flight_by_id(flight_id)
 
 
 @router.delete("/{flight_id}")
-async def delete_flight(flight_id: int) -> "FlightDeleted":
+async def delete_flight(flight_id: str) -> FlightDeleted:
     """
     Deletes a flight
 
     ## Args
     ``` flight_id: Flight ID hash ```
     """
-    return await FlightController.delete_flight(flight_id)
+    return await FlightController.delete_flight_by_id(flight_id)
 
 
 @router.get("/{flight_id}/simulate")
-async def simulate_flight(flight_id: int) -> "FlightSummary":
+async def simulate_flight(flight_id: str) -> FlightSummary:
     """
     Simulates a flight
 

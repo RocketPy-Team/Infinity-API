@@ -118,7 +118,7 @@ class MotorController:
             views.MotorCreated
         """
         try:
-            created_motor = MotorRepository(motor=self.motor).create_motor(
+            await MotorRepository.fetch_motor(self.motor).create_motor(
                 motor_kind=self.motor_kind
             )
         except Exception as e:
@@ -129,7 +129,7 @@ class MotorController:
                 detail=f"Failed to create motor: {exc_str}",
             ) from e
         else:
-            return MotorCreated(motor_id=created_motor.motor_id)
+            return MotorCreated(motor_id=self.motor.motor_id)
         finally:
             logger.info(
                 f"Call to controllers.motor.create_motor completed for Motor {self.motor.motor_id}"
@@ -210,7 +210,7 @@ class MotorController:
                 f"Call to controllers.motor.get_rocketpy_motor_as_jsonpickle completed for Motor {motor_id}"
             )
 
-    async def update_motor(
+    async def update_motor_by_id(
         self, motor_id: str
     ) -> Union[MotorUpdated, HTTPException]:
         """
@@ -226,12 +226,10 @@ class MotorController:
             HTTP 404 Not Found: If the motor is not found in the database.
         """
         try:
-            await MotorController.get_motor_by_id(motor_id)
-            updated_motor = await MotorRepository(
-                motor=self.motor
-            ).update_motor_by_id(motor_id=motor_id, motor_kind=self.motor_kind)
-        except HTTPException as e:
-            raise e from e
+            motor_repo = await MotorRepository.fetch_motor(
+                self.motor
+            ).create_motor(motor_kind=self.motor_kind)
+            await motor_repo.delete_motor_by_id(motor_id)
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.motor.update_motor: {exc_str}")
@@ -240,14 +238,14 @@ class MotorController:
                 detail=f"Failed to update motor: {exc_str}",
             ) from e
         else:
-            return MotorUpdated(new_motor_id=updated_motor.motor_id)
+            return MotorUpdated(new_motor_id=self.motor.motor_id)
         finally:
             logger.info(
                 f"Call to controllers.motor.update_motor completed for Motor {motor_id}"
             )
 
     @staticmethod
-    async def delete_motor(
+    async def delete_motor_by_id(
         motor_id: str,
     ) -> Union[MotorDeleted, HTTPException]:
         """
@@ -296,7 +294,7 @@ class MotorController:
         """
         try:
             read_motor = await MotorRepository().get_motor_by_id(motor_id)
-            motor = await cls.get_rocketpy_motor(read_motor)
+            motor = cls.get_rocketpy_motor(read_motor)
 
             motor_simulation_numbers = MotorData(
                 total_burning_time="Total Burning Time: "
