@@ -37,7 +37,7 @@ async def create_rocket(
     ``` Rocket object as a JSON ```
     """
     return await RocketController(
-        rocket, rocket_option, motor_kind
+        rocket=rocket, rocket_option=rocket_option, motor_kind=motor_kind
     ).create_rocket()
 
 
@@ -69,7 +69,7 @@ async def update_rocket(
     ```
     """
     return await RocketController(
-        rocket, rocket_option, motor_kind
+        rocket=rocket, rocket_option=rocket_option, motor_kind=motor_kind
     ).update_rocket_by_id(rocket_id)
 
 

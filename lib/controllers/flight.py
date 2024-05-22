@@ -56,6 +56,7 @@ class FlightController:
     def __init__(
         self,
         flight: Flight,
+        *,
         rocket_option: RocketOptions,
         motor_kind: MotorKinds,
     ):
@@ -236,7 +237,7 @@ class FlightController:
 
     @classmethod
     async def update_env_by_flight_id(
-        cls, flight_id: str, env: Env
+        cls, flight_id: str, *, env: Env
     ) -> Union[FlightUpdated, HTTPException]:
         """
         Update a models.Flight.env in the database.
@@ -281,7 +282,7 @@ class FlightController:
 
     @classmethod
     async def update_rocket_by_flight_id(
-        cls, flight_id: str, rocket: Rocket, rocket_option, motor_kind
+        cls, flight_id: str, *, rocket: Rocket, rocket_option, motor_kind
     ) -> Union[FlightUpdated, HTTPException]:
         """
         Update a models.Flight.rocket in the database.

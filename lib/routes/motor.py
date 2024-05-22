@@ -33,7 +33,9 @@ async def create_motor(motor: Motor, motor_kind: MotorKinds) -> MotorCreated:
     ## Args
     ``` Motor object as a JSON ```
     """
-    return await MotorController(motor, motor_kind).create_motor()
+    return await MotorController(
+        motor=motor, motor_kind=motor_kind
+    ).create_motor()
 
 
 @router.get("/{motor_id}")
@@ -60,9 +62,9 @@ async def update_motor(
         motor: Motor object as JSON
     ```
     """
-    return await MotorController(motor, motor_kind).update_motor_by_id(
-        motor_id
-    )
+    return await MotorController(
+        motor=motor, motor_kind=motor_kind
+    ).update_motor_by_id(motor_id)
 
 
 @router.delete("/{motor_id}")
