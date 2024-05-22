@@ -44,7 +44,7 @@ class EnvController:
         self._env = env
 
     @staticmethod
-    async def get_rocketpy_env(env: Env) -> RocketPyEnvironment:
+    def get_rocketpy_env(env: Env) -> RocketPyEnvironment:
         """
         Get the rocketpy env object.
 
@@ -70,9 +70,7 @@ class EnvController:
             views.EnvCreated
         """
         try:
-            created_env = await EnvRepository(
-                environment=self.env
-            ).create_env()
+            await EnvRepository.fetch_env(self.env).create_env()
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.environment.create_env: {exc_str}")
@@ -81,7 +79,7 @@ class EnvController:
                 detail=f"Failed to create environment: {exc_str}",
             ) from e
         else:
-            return EnvCreated(env_id=created_env.env_id)
+            return EnvCreated(env_id=self.env.env_id)
         finally:
             logger.info(
                 f"Call to controllers.environment.create_env completed for Env {hash(self.env)}"
@@ -141,7 +139,7 @@ class EnvController:
         """
         try:
             read_env = await cls.get_env_by_id(env_id)
-            rocketpy_env = await cls.get_rocketpy_env(read_env)
+            rocketpy_env = cls.get_rocketpy_env(read_env)
         except HTTPException as e:
             raise e from e
         except Exception as e:
@@ -162,7 +160,7 @@ class EnvController:
                 f"Call to controllers.environment.get_rocketpy_env_as_jsonpickle completed for Env {env_id}"
             )
 
-    async def update_env(
+    async def update_env_by_id(
         self, env_id: str
     ) -> Union[EnvUpdated, HTTPException]:
         """
@@ -178,12 +176,8 @@ class EnvController:
             HTTP 404 Not Found: If the env is not found in the database.
         """
         try:
-            await EnvController.get_env_by_id(env_id)
-            updated_env = await EnvRepository(
-                environment=self.env
-            ).update_env_by_id(env_id)
-        except HTTPException as e:
-            raise e from e
+            env_repo = await EnvRepository.fetch_env(self.env).create_env()
+            await env_repo.delete_env_by_id(env_id)
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.environment.update_env: {exc_str}")
@@ -192,14 +186,16 @@ class EnvController:
                 detail=f"Failed to update environment: {exc_str}",
             ) from e
         else:
-            return EnvUpdated(new_env_id=updated_env.env_id)
+            return EnvUpdated(new_env_id=self.env.env_id)
         finally:
             logger.info(
                 f"Call to controllers.environment.update_env completed for Env {env_id}; Env {hash(self.env)}"
             )
 
     @staticmethod
-    async def delete_env(env_id: str) -> Union[EnvDeleted, HTTPException]:
+    async def delete_env_by_id(
+        env_id: str,
+    ) -> Union[EnvDeleted, HTTPException]:
         """
         Delete a models.Env from the database.
 
@@ -246,7 +242,7 @@ class EnvController:
         """
         try:
             read_env = await cls.get_env_by_id(env_id)
-            rocketpy_env = await cls.get_rocketpy_env(read_env)
+            rocketpy_env = cls.get_rocketpy_env(read_env)
             env_simulation_numbers = EnvData.parse_obj(
                 rocketpy_env.all_info_returned()
             )

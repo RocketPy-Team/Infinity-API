@@ -28,8 +28,7 @@ class Fins(BaseModel, frozen=True):
 
 
 class TrapezoidalFins(Fins, frozen=True):
-    def __init__(self):
-        super().__init__()
+    pass
 
 
 class Tail(BaseModel, frozen=True):

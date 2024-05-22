@@ -17,7 +17,7 @@ class MotorKinds(str, Enum):
 
 
 class MotorEngines(str, Enum):
-    CESARONI: str = "CESARONI_M1670"
+    CESARONI_M1670: str = "CESARONI_M1670"
     CUSTOM: str = "CUSTOM"
 
 
@@ -71,11 +71,11 @@ class MotorTank(BaseModel, frozen=True):
         }
 
         match self.tank_kind:
-            case TankKinds.level:
+            case TankKinds.LEVEL:
                 tank = LevelBasedTank(
                     **tank_core, liquid_height=self.liquid_height
                 )
-            case TankKinds.mass:
+            case TankKinds.MASS:
                 tank = MassBasedTank(
                     **tank_core,
                     liquid_mass=self.liquid_mass,
@@ -105,7 +105,7 @@ class Motor(BaseModel, frozen=True):
     # TODO: thrust_source must be the id of a previously uploaded .eng file and a list of "default" files must be provided in the api docs
 
     # Required parameters
-    thrust_source: MotorEngines = MotorEngines.cesaroni
+    thrust_source: MotorEngines = MotorEngines.CESARONI_M1670
     burn_time: float = 3.9
     nozzle_radius: float = 0.033
     dry_mass: float = 1.815
@@ -128,7 +128,7 @@ class Motor(BaseModel, frozen=True):
         "nozzle_to_combustion_chamber"
     )
 
-    def __init__(self, motor_kind=MotorKinds.solid, **kwargs):
+    def __init__(self, motor_kind=MotorKinds.SOLID, **kwargs):
         super().__init__(**kwargs)
         self._motor_kind = motor_kind
 

@@ -26,7 +26,7 @@ router = APIRouter(
 
 
 @router.post("/")
-async def create_motor(motor: Motor, motor_kind: MotorKinds) -> "MotorCreated":
+async def create_motor(motor: Motor, motor_kind: MotorKinds) -> MotorCreated:
     """
     Creates a new motor
 
@@ -37,20 +37,20 @@ async def create_motor(motor: Motor, motor_kind: MotorKinds) -> "MotorCreated":
 
 
 @router.get("/{motor_id}")
-async def read_motor(motor_id: int) -> "Motor":
+async def read_motor(motor_id: str) -> Motor:
     """
     Reads a motor
 
     ## Args
     ``` motor_id: Motor ID hash ```
     """
-    return await MotorController.get_motor(motor_id)
+    return await MotorController.get_motor_by_id(motor_id)
 
 
 @router.put("/{motor_id}")
 async def update_motor(
-    motor_id: int, motor: Motor, motor_kind: MotorKinds
-) -> "MotorUpdated":
+    motor_id: str, motor: Motor, motor_kind: MotorKinds
+) -> MotorUpdated:
     """
     Updates a motor
 
@@ -60,22 +60,24 @@ async def update_motor(
         motor: Motor object as JSON
     ```
     """
-    return await MotorController(motor, motor_kind).update_motor(motor_id)
+    return await MotorController(motor, motor_kind).update_motor_by_id(
+        motor_id
+    )
 
 
 @router.delete("/{motor_id}")
-async def delete_motor(motor_id: int) -> "MotorDeleted":
+async def delete_motor(motor_id: str) -> MotorDeleted:
     """
     Deletes a motor
 
     ## Args
     ``` motor_id: Motor ID hash ```
     """
-    return await MotorController.delete_motor(motor_id)
+    return await MotorController.delete_motor_by_id(motor_id)
 
 
 @router.get("/rocketpy/{motor_id}")
-async def read_rocketpy_motor(motor_id: int) -> "MotorPickle":
+async def read_rocketpy_motor(motor_id: str) -> MotorPickle:
     """
     Reads a rocketpy motor
 
@@ -86,7 +88,7 @@ async def read_rocketpy_motor(motor_id: int) -> "MotorPickle":
 
 
 @router.get("/{motor_id}/simulate")
-async def simulate_motor(motor_id: int) -> "MotorSummary":
+async def simulate_motor(motor_id: str) -> MotorSummary:
     """
     Simulates a motor
 

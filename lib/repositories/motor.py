@@ -16,14 +16,15 @@ class MotorRepository(Repository):
 
     """
 
-    def __init__(self, motor: Motor | None = None):
+    def __init__(self):
         super().__init__("motors")
-        self._motor = motor if motor else None
-        self._motor_id = motor.motor_id if motor else None
 
-    def __del__(self):
-        self.connection.close()
-        super().__del__()
+    @classmethod
+    def fetch_motor(cls, motor: Motor):
+        instance = cls()
+        instance.motor = motor
+        instance.motor_id = motor.motor_id
+        return instance
 
     @property
     def motor(self) -> Motor:
@@ -65,33 +66,6 @@ class MotorRepository(Repository):
         finally:
             logger.info(
                 f"Call to repositories.motor.create_motor completed for Motor {self.motor_id}"
-            )
-
-    async def update_motor_by_id(
-        self, *, motor_id: str, motor_kind: str = "SOLID"
-    ):
-        """
-        Updates a models.Motor in the database
-
-        Returns:
-            self
-        """
-        try:
-            motor_to_dict = self.motor.dict()
-            motor_to_dict["motor_id"] = self.motor_id
-            motor_to_dict["motor_kind"] = motor_kind
-            await self.collection.update_one(
-                {"motor_id": motor_id}, {"$set": motor_to_dict}
-            )
-        except Exception as e:
-            exc_str = parse_error(e)
-            logger.error(f"repositories.motor.update_motor: {exc_str}")
-            raise Exception(f"Error updating motor: {exc_str}") from e
-        else:
-            return self
-        finally:
-            logger.info(
-                f"Call to repositories.motor.update_motor completed for Motor {self.motor_id}"
             )
 
     async def get_motor_by_id(self, motor_id: str) -> Union[motor, None]:
