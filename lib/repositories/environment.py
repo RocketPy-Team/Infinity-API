@@ -52,7 +52,7 @@ class EnvRepository(Repository):
         try:
             environment_to_dict = self.env.dict()
             environment_to_dict["env_id"] = self.env_id
-            await self.collection.insert_one(environment_to_dict)
+            await self.insert_env(environment_to_dict)
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.environment.create_env: {exc_str}")
@@ -72,7 +72,7 @@ class EnvRepository(Repository):
             models.Env
         """
         try:
-            read_env = await self.collection.find_one({"env_id": env_id})
+            read_env = await self.find_env(env_id)
             parsed_env = Env.parse_obj(read_env) if read_env else None
         except Exception as e:
             exc_str = parse_error(e)
@@ -93,7 +93,7 @@ class EnvRepository(Repository):
             None
         """
         try:
-            await self.collection.delete_one({"env_id": env_id})
+            await self.delete_env(env_id)
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.environment.delete_env: {exc_str}")
@@ -102,3 +102,14 @@ class EnvRepository(Repository):
             logger.info(
                 f"Call to repositories.environment.delete_env completed for Env {env_id}"
             )
+
+    async def insert_env(self, env_data: dict):
+        await self.collection.insert_one(env_data)
+        return self
+
+    async def find_env(self, env_id: str):
+        return await self.collection.find_one({"env_id": env_id})
+
+    async def delete_env(self, env_id: str):
+        await self.collection.delete_one({"env_id": env_id})
+        return self

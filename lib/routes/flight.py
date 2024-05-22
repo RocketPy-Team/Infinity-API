@@ -39,7 +39,7 @@ async def create_flight(
     ``` Flight object as JSON ```
     """
     return await FlightController(
-        flight, rocket_option, motor_kind
+        flight, rocket_option=rocket_option, motor_kind=motor_kind
     ).create_flight()
 
 
@@ -76,7 +76,7 @@ async def update_flight_env(flight_id: str, env: Env) -> FlightUpdated:
         env: env object as JSON
     ```
     """
-    return await FlightController.update_env_by_flight_id(flight_id, env)
+    return await FlightController.update_env_by_flight_id(flight_id, env=env)
 
 
 @router.put("/{flight_id}/rocket")
@@ -96,7 +96,10 @@ async def update_flight_rocket(
     ```
     """
     return await FlightController.update_rocket_by_flight_id(
-        flight_id, rocket, rocket_option, motor_kind
+        flight_id,
+        rocket=rocket,
+        rocket_option=rocket_option,
+        motor_kind=motor_kind,
     )
 
 
@@ -117,7 +120,7 @@ async def update_flight(
     ```
     """
     return await FlightController(
-        flight, rocket_option, motor_kind
+        flight, rocket_option=rocket_option, motor_kind=motor_kind
     ).update_flight_by_id(flight_id)
 
 

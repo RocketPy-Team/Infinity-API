@@ -1,4 +1,5 @@
 from typing import Union
+import os
 import ast
 import jsonpickle
 
@@ -49,7 +50,13 @@ class RocketController:
        - CRUD operations over models.Rocket on the database.
     """
 
-    def __init__(self, rocket: Rocket, rocket_option, motor_kind):
+    def __init__(
+        self,
+        *,
+        rocket: Rocket,
+        rocket_option: RocketOptions,
+        motor_kind: MotorKinds,
+    ):
         self._rocket = rocket
         self._rocket_option = rocket_option
         self._motor_kind = motor_kind
@@ -83,8 +90,16 @@ class RocketController:
             radius=rocket.radius,
             mass=rocket.mass,
             inertia=rocket.inertia,
-            power_off_drag=f"lib/data/{rocket.rocket_option.lower()}/powerOffDragCurve.csv",
-            power_on_drag=f"lib/data/{rocket.rocket_option.lower()}/powerOnDragCurve.csv",
+            power_off_drag=os.path.join(
+                "lib/data",
+                f"{rocket.rocket_option.lower()}",
+                "powerOffDragCurve.csv",
+            ),
+            power_on_drag=os.path.join(
+                "lib/data",
+                f"{rocket.rocket_option.lower()}",
+                "powerOnDragCurve.csv",
+            ),
             center_of_mass_without_motor=rocket.center_of_mass_without_motor,
             coordinate_system_orientation=rocket.coordinate_system_orientation,
         )

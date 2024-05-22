@@ -21,18 +21,24 @@ class Repository:
 
     def __init__(self, collection: str):
         if not self._initialized:
-            self._connection_string = Secrets.get_secret(
-                "MONGODB_CONNECTION_STRING"
-            )
-            self._client = AsyncIOMotorClient(
-                self.connection_string,
-                server_api=ServerApi("1"),
-                maxIdleTimeMS=5000,
-                connectTimeoutMS=5000,
-                serverSelectionTimeoutMS=30000,
-            )
-            self._collection = self.client.rocketpy[collection]
-            self._initialized = True  # Mark as initialized
+            try:
+                self._connection_string = Secrets.get_secret(
+                    "MONGODB_CONNECTION_STRING"
+                )
+                self._client = AsyncIOMotorClient(
+                    self.connection_string,
+                    server_api=ServerApi("1"),
+                    maxIdleTimeMS=5000,
+                    connectTimeoutMS=5000,
+                    serverSelectionTimeoutMS=30000,
+                )
+                self._collection = self.client.rocketpy[collection]
+                self._initialized = True  # Mark as initialized
+            except Exception as e:
+                logging.error(f"Failed to initialize MongoDB client: {e}")
+                raise ConnectionError(
+                    "Could not establish a connection with MongoDB."
+                ) from e
 
     @property
     def connection_string(self):

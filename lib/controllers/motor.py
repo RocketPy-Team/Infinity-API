@@ -31,7 +31,7 @@ class MotorController:
         - Create a rocketpy.Motor object from a Motor model object.
     """
 
-    def __init__(self, motor: Motor, motor_kind: MotorKinds):
+    def __init__(self, *, motor: Motor, motor_kind: MotorKinds):
         self.guard(motor, motor_kind)
         self._motor = motor
         self._motor_kind = motor_kind

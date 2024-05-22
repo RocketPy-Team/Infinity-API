@@ -60,7 +60,7 @@ class RocketRepository(Repository):
             rocket_to_dict["rocket_id"] = self.rocket_id
             rocket_to_dict["rocket_option"] = rocket_option
             rocket_to_dict["motor"]["motor_kind"] = motor_kind
-            await self.collection.insert_one(rocket_to_dict)
+            await self.insert_rocket(rocket_to_dict)
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.rocket.create_rocket: {exc_str}")
@@ -80,9 +80,7 @@ class RocketRepository(Repository):
             models.Rocket
         """
         try:
-            read_rocket = await self.collection.find_one(
-                {"rocket_id": rocket_id}
-            )
+            read_rocket = await self.find_rocket(rocket_id)
             parsed_rocket = (
                 Rocket.parse_obj(read_rocket) if read_rocket else None
             )
@@ -105,7 +103,7 @@ class RocketRepository(Repository):
             None
         """
         try:
-            await self.collection.delete_one({"rocket_id": rocket_id})
+            await self.delete_rocket(rocket_id)
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.rocket.delete_rocket: {exc_str}")
@@ -114,3 +112,14 @@ class RocketRepository(Repository):
             logger.info(
                 f"Call to repositories.rocket.delete_rocket completed for Rocket {rocket_id}"
             )
+
+    async def insert_rocket(self, rocket_data: dict):
+        await self.collection.insert_one(rocket_data)
+        return self
+
+    async def find_rocket(self, rocket_id: str):
+        return await self.collection.find_one({"rocket_id": rocket_id})
+
+    async def delete_rocket(self, rocket_id: str):
+        await self.collection.delete_one({"rocket_id": rocket_id})
+        return self
