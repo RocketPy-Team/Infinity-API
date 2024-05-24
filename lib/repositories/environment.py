@@ -18,6 +18,7 @@ class EnvRepository(Repository):
 
     def __init__(self):
         super().__init__("environments")
+        self._env = None
 
     @classmethod
     def fetch_env(cls, environment: Env):
@@ -41,6 +42,17 @@ class EnvRepository(Repository):
     @env_id.setter
     def env_id(self, env_id: "str"):
         self._env_id = env_id
+
+    async def insert_env(self, env_data: dict):
+        await self.collection.insert_one(env_data)
+        return self
+
+    async def find_env(self, env_id: str):
+        return await self.collection.find_one({"env_id": env_id})
+
+    async def delete_env(self, env_id: str):
+        await self.collection.delete_one({"env_id": env_id})
+        return self
 
     async def create_env(self):
         """
@@ -69,17 +81,18 @@ class EnvRepository(Repository):
         Gets a models.Env from the database
 
         Returns:
-            models.Env
+            self
         """
         try:
             read_env = await self.find_env(env_id)
             parsed_env = Env.parse_obj(read_env) if read_env else None
+            self.env = parsed_env
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.environment.get_env: {exc_str}")
             raise Exception(f"Error getting environment: {exc_str}") from e
         else:
-            return parsed_env
+            return self
         finally:
             logger.info(
                 f"Call to repositories.environment.get_env completed for Env {env_id}"
@@ -90,7 +103,7 @@ class EnvRepository(Repository):
         Deletes a models.Env from the database
 
         Returns:
-            None
+            self
         """
         try:
             await self.delete_env(env_id)
@@ -98,18 +111,9 @@ class EnvRepository(Repository):
             exc_str = parse_error(e)
             logger.error(f"repositories.environment.delete_env: {exc_str}")
             raise Exception(f"Error deleting environment: {exc_str}") from e
+        else:
+            return self
         finally:
             logger.info(
                 f"Call to repositories.environment.delete_env completed for Env {env_id}"
             )
-
-    async def insert_env(self, env_data: dict):
-        await self.collection.insert_one(env_data)
-        return self
-
-    async def find_env(self, env_id: str):
-        return await self.collection.find_one({"env_id": env_id})
-
-    async def delete_env(self, env_id: str):
-        await self.collection.delete_one({"env_id": env_id})
-        return self

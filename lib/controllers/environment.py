@@ -70,7 +70,8 @@ class EnvController:
             views.EnvCreated
         """
         try:
-            await EnvRepository.fetch_env(self.env).create_env()
+            with EnvRepository.fetch_env(self.env) as env_repo:
+                await env_repo.create_env()
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.environment.create_env: {exc_str}")
@@ -100,7 +101,9 @@ class EnvController:
             HTTP 404 Not Found: If the env is not found in the database.
         """
         try:
-            read_env = await EnvRepository().get_env_by_id(env_id)
+            with EnvRepository() as env_repo:
+                await env_repo.get_env_by_id(env_id)
+                read_env = env_repo.env
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.environment.get_env_by_id: {exc_str}")
@@ -176,8 +179,9 @@ class EnvController:
             HTTP 404 Not Found: If the env is not found in the database.
         """
         try:
-            env_repo = await EnvRepository.fetch_env(self.env).create_env()
-            await env_repo.delete_env_by_id(env_id)
+            with EnvRepository.fetch_env(self.env) as env_repo:
+                await env_repo.create_env()
+                await env_repo.delete_env_by_id(env_id)
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.environment.update_env: {exc_str}")
@@ -209,7 +213,8 @@ class EnvController:
             HTTP 404 Not Found: If the env is not found in the database.
         """
         try:
-            await EnvRepository().delete_env_by_id(env_id)
+            with EnvRepository() as env_repo:
+                await env_repo.delete_env_by_id(env_id)
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.environment.delete_env: {exc_str}")
@@ -243,6 +248,7 @@ class EnvController:
         try:
             read_env = await cls.get_env_by_id(env_id)
             rocketpy_env = cls.get_rocketpy_env(read_env)
+
             env_simulation_numbers = EnvData.parse_obj(
                 rocketpy_env.all_info_returned()
             )

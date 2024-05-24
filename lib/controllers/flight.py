@@ -107,9 +107,11 @@ class FlightController:
             views.FlightCreated
         """
         try:
-            await FlightRepository.fetch_flight(self.flight).create_flight(
-                motor_kind=self.motor_kind, rocket_option=self.rocket_option
-            )
+            with FlightRepository.fetch_flight(self.flight) as flight_repo:
+                await flight_repo.create_flight(
+                    motor_kind=self.motor_kind,
+                    rocket_option=self.rocket_option,
+                )
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.flight.create_flight: {exc_str}")
@@ -139,7 +141,9 @@ class FlightController:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
         try:
-            read_flight = await FlightRepository().get_flight_by_id(flight_id)
+            with FlightRepository() as flight_repo:
+                await flight_repo.get_flight_by_id(flight_id)
+                read_flight = flight_repo.flight
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.flight.get_flight_by_id: {exc_str}")
@@ -215,12 +219,12 @@ class FlightController:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
         try:
-            flight_repo = await FlightRepository.fetch_flight(
-                self.flight
-            ).create_flight(
-                motor_kind=self.motor_kind, rocket_option=self.rocket_option
-            )
-            await flight_repo.delete_flight_by_id(flight_id)
+            with FlightRepository.fetch_flight(self.flight) as flight_repo:
+                await flight_repo.create_flight(
+                    motor_kind=self.motor_kind,
+                    rocket_option=self.rocket_option,
+                )
+                await flight_repo.delete_flight_by_id(flight_id)
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.flight.update_flight: {exc_str}")
@@ -257,13 +261,12 @@ class FlightController:
             new_flight = read_flight.dict()
             new_flight["environment"] = env
             new_flight = Flight(**new_flight)
-            flight_repo = await FlightRepository.fetch_flight(
-                new_flight
-            ).create_flight(
-                motor_kind=read_flight.rocket.motor.motor_kind,
-                rocket_option=read_flight.rocket.rocket_option,
-            )
-            await flight_repo.delete_flight_by_id(flight_id)
+            with FlightRepository.fetch_flight(new_flight) as flight_repo:
+                await flight_repo.create_flight(
+                    motor_kind=read_flight.rocket.motor.motor_kind,
+                    rocket_option=read_flight.rocket.rocket_option,
+                )
+                await flight_repo.delete_flight_by_id(flight_id)
         except HTTPException as e:
             raise e from e
         except Exception as e:
@@ -305,10 +308,11 @@ class FlightController:
             new_flight = read_flight.dict()
             new_flight["rocket"] = updated_rocket
             new_flight = Flight(**new_flight)
-            flight_repo = await FlightRepository.fetch_flight(
-                new_flight
-            ).create_flight(motor_kind=motor_kind, rocket_option=rocket_option)
-            await flight_repo.delete_flight_by_id(flight_id)
+            with FlightRepository.fetch_flight(new_flight) as flight_repo:
+                await flight_repo.create_flight(
+                    motor_kind=motor_kind, rocket_option=rocket_option
+                )
+                await flight_repo.delete_flight_by_id(flight_id)
         except HTTPException as e:
             raise e from e
         except Exception as e:
@@ -342,7 +346,8 @@ class FlightController:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
         try:
-            await FlightRepository().delete_flight_by_id(flight_id)
+            with FlightRepository() as flight_repo:
+                await flight_repo.delete_flight_by_id(flight_id)
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.flight.delete_flight: {exc_str}")
@@ -376,8 +381,7 @@ class FlightController:
         """
         try:
             read_flight = await cls.get_flight_by_id(flight_id=flight_id)
-            rocketpy_flight = cls.get_rocketpy_flight(flight=read_flight)
-            flight = rocketpy_flight
+            flight = cls.get_rocketpy_flight(read_flight)
 
             _initial_conditions = InitialConditions(
                 initial_altitude="Attitude - e0: {:.3f} | e1: {:.3f} | e2: {:.3f} | e3: {:.3f}".format(
