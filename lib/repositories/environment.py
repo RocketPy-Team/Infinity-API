@@ -19,6 +19,7 @@ class EnvRepository(Repository):
     def __init__(self):
         super().__init__("environments")
         self._env = None
+        self._env_id = None
 
     def fetch_env(self, environment: Env):
         self.env = environment

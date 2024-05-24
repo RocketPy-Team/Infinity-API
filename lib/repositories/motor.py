@@ -19,6 +19,7 @@ class MotorRepository(Repository):
     def __init__(self):
         super().__init__("motors")
         self._motor = None
+        self._motor_id = None
 
     def fetch_motor(self, motor: Motor):
         self.motor = motor
