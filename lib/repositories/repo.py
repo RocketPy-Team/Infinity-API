@@ -41,6 +41,13 @@ class Repository:
                     "Could not establish a connection with MongoDB."
                 ) from e
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close_connection()
+        self._instances.pop(self.__class__)
+
     @property
     def connection_string(self):
         return self._connection_string
@@ -65,5 +72,5 @@ class Repository:
     def collection(self, value):
         self._collection = value
 
-    async def close_connection(self) -> None:
+    def close_connection(self):
         self.client.close()

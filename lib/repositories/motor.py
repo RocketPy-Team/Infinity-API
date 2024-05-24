@@ -18,6 +18,7 @@ class MotorRepository(Repository):
 
     def __init__(self):
         super().__init__("motors")
+        self._motor = None
 
     @classmethod
     def fetch_motor(cls, motor: Motor):
@@ -41,6 +42,17 @@ class MotorRepository(Repository):
     @motor_id.setter
     def motor_id(self, motor_id: "str"):
         self._motor_id = motor_id
+
+    async def insert_motor(self, motor_data: dict):
+        await self.collection.insert_one(motor_data)
+        return self
+
+    async def find_motor(self, motor_id: str):
+        return await self.collection.find_one({"motor_id": motor_id})
+
+    async def delete_motor(self, motor_id: str):
+        await self.collection.delete_one({"motor_id": motor_id})
+        return self
 
     async def create_motor(self, motor_kind: str = "SOLID"):
         """
@@ -73,17 +85,18 @@ class MotorRepository(Repository):
         Gets a models.Motor from the database
 
         Returns:
-            models.Motor
+            self
         """
         try:
             read_motor = await self.find_motor(motor_id)
             parsed_motor = Motor.parse_obj(read_motor) if read_motor else None
+            self.motor = parsed_motor
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.motor.get_motor: {exc_str}")
             raise Exception(f"Error getting motor: {exc_str}") from e
         else:
-            return parsed_motor
+            return self
         finally:
             logger.info(
                 f"Call to repositories.motor.get_motor completed for Motor {motor_id}"
@@ -94,7 +107,7 @@ class MotorRepository(Repository):
         Deletes a models.Motor from the database
 
         Returns:
-            None
+            self
         """
         try:
             await self.delete_motor(motor_id)
@@ -102,18 +115,9 @@ class MotorRepository(Repository):
             exc_str = parse_error(e)
             logger.error(f"repositories.motor.delete_motor: {exc_str}")
             raise Exception(f"Error deleting motor: {exc_str}") from e
+        else:
+            return self
         finally:
             logger.info(
                 f"Call to repositories.motor.delete_motor completed for Motor {motor_id}"
             )
-
-    async def insert_motor(self, motor_data: dict):
-        await self.collection.insert_one(motor_data)
-        return self
-
-    async def find_motor(self, motor_id: str):
-        return await self.collection.find_one({"motor_id": motor_id})
-
-    async def delete_motor(self, motor_id: str):
-        await self.collection.delete_one({"motor_id": motor_id})
-        return self

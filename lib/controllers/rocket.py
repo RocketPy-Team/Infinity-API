@@ -155,9 +155,11 @@ class RocketController:
             views.RocketCreated
         """
         try:
-            await RocketRepository.fetch_rocket(self.rocket).create_rocket(
-                rocket_option=self.rocket_option, motor_kind=self.motor_kind
-            )
+            with RocketRepository.fetch_rocket(self.rocket) as rocket_repo:
+                await rocket_repo.create_rocket(
+                    rocket_option=self.rocket_option,
+                    motor_kind=self.motor_kind,
+                )
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.rocket.create_rocket: {exc_str}")
@@ -189,7 +191,9 @@ class RocketController:
             HTTP 404 Not Found: If the rocket is not found in the database.
         """
         try:
-            read_rocket = await RocketRepository().get_rocket_by_id(rocket_id)
+            with RocketRepository() as rocket_repo:
+                await rocket_repo.get_rocket_by_id(rocket_id)
+                read_rocket = rocket_repo.rocket
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.rocket.get_rocket_by_id: {exc_str}")
@@ -264,12 +268,12 @@ class RocketController:
             HTTP 404 Not Found: If the rocket is not found in the database.
         """
         try:
-            rocket_repo = await RocketRepository.fetch_rocket(
-                self.rocket
-            ).create_rocket(
-                rocket_option=self.rocket_option, motor_kind=self.motor_kind
-            )
-            await rocket_repo.delete_rocket_by_id(rocket_id)
+            with RocketRepository.fetch_rocket(self.rocket) as rocket_repo:
+                await rocket_repo.create_rocket(
+                    rocket_option=self.rocket_option,
+                    motor_kind=self.motor_kind,
+                )
+                await rocket_repo.delete_rocket_by_id(rocket_id)
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.rocket.update_rocket: {exc_str}")
@@ -301,7 +305,8 @@ class RocketController:
             HTTP 404 Not Found: If the rocket is not found in the database.
         """
         try:
-            await RocketRepository().delete_rocket_by_id(rocket_id)
+            with RocketRepository() as rocket_repo:
+                await rocket_repo.delete_rocket_by_id(rocket_id)
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.rocket.delete_rocket: {exc_str}")

@@ -118,9 +118,8 @@ class MotorController:
             views.MotorCreated
         """
         try:
-            await MotorRepository.fetch_motor(self.motor).create_motor(
-                motor_kind=self.motor_kind
-            )
+            with MotorRepository.fetch_motor(self.motor) as motor_repo:
+                await motor_repo.create_motor(motor_kind=self.motor_kind)
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.motor.create_motor: {exc_str}")
@@ -150,7 +149,9 @@ class MotorController:
             HTTP 404 Not Found: If the motor is not found in the database.
         """
         try:
-            read_motor = await MotorRepository().get_motor_by_id(motor_id)
+            with MotorRepository() as motor_repo:
+                await motor_repo.get_motor_by_id(motor_id)
+                read_motor = motor_repo.motor
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.motor.get_motor_by_id: {exc_str}")
@@ -226,10 +227,9 @@ class MotorController:
             HTTP 404 Not Found: If the motor is not found in the database.
         """
         try:
-            motor_repo = await MotorRepository.fetch_motor(
-                self.motor
-            ).create_motor(motor_kind=self.motor_kind)
-            await motor_repo.delete_motor_by_id(motor_id)
+            with MotorRepository.fetch_motor(self.motor) as motor_repo:
+                await motor_repo.create_motor(motor_kind=self.motor_kind)
+                await motor_repo.delete_motor_by_id(motor_id)
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.motor.update_motor: {exc_str}")
@@ -261,7 +261,8 @@ class MotorController:
             HTTP 404 Not Found: If the motor is not found in the database.
         """
         try:
-            await MotorRepository().delete_motor_by_id(motor_id)
+            with MotorRepository() as motor_repo:
+                await motor_repo.delete_motor_by_id(motor_id)
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.motor.delete_motor: {exc_str}")
@@ -293,7 +294,7 @@ class MotorController:
             HTTP 404 Not Found: If the motor does not exist in the database.
         """
         try:
-            read_motor = await MotorRepository().get_motor_by_id(motor_id)
+            read_motor = await cls.get_motor_by_id(motor_id)
             motor = cls.get_rocketpy_motor(read_motor)
 
             motor_simulation_numbers = MotorData(

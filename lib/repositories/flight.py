@@ -18,6 +18,7 @@ class FlightRepository(Repository):
 
     def __init__(self):
         super().__init__("flights")
+        self._flight = None
 
     @classmethod
     def fetch_flight(cls, flight: Flight):
@@ -41,6 +42,16 @@ class FlightRepository(Repository):
     @flight_id.setter
     def flight_id(self, flight_id: "str"):
         self._flight_id = flight_id
+
+    async def insert_flight(self, flight_data: dict):
+        await self.collection.insert_one(flight_data)
+
+    async def find_flight(self, flight_id: str):
+        return await self.collection.find_one({"flight_id": flight_id})
+
+    async def delete_flight(self, flight_id: str):
+        await self.collection.delete_one({"flight_id": flight_id})
+        return self
 
     async def create_flight(
         self, *, motor_kind: str = "SOLID", rocket_option: str = "CALISTO"
@@ -77,19 +88,20 @@ class FlightRepository(Repository):
         Gets a models.Flight from the database
 
         Returns:
-            models.Flight
+            self
         """
         try:
             read_flight = await self.find_flight(flight_id)
             parsed_flight = (
                 Flight.parse_obj(read_flight) if read_flight else None
             )
+            self.flight = parsed_flight
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.flight.get_flight: {exc_str}")
             raise Exception(f"Error getting flight: {exc_str}") from e
         else:
-            return parsed_flight
+            return self
         finally:
             logger.info(
                 f"Call to repositories.flight.get_flight completed for Flight {flight_id}"
@@ -100,7 +112,7 @@ class FlightRepository(Repository):
         Deletes a models.Flight from the database
 
         Returns:
-            None
+            self
         """
         try:
             await self.delete_flight(flight_id)
@@ -108,17 +120,9 @@ class FlightRepository(Repository):
             exc_str = parse_error(e)
             logger.error(f"repositories.flight.delete_flight: {exc_str}")
             raise Exception(f"Error deleting flight: {exc_str}") from e
+        else:
+            return self
         finally:
             logger.info(
                 f"Call to repositories.flight.delete_flight completed for Flight {flight_id}"
             )
-
-    async def insert_flight(self, flight_data: dict):
-        await self.collection.insert_one(flight_data)
-
-    async def find_flight(self, flight_id: str):
-        return await self.collection.find_one({"flight_id": flight_id})
-
-    async def delete_flight(self, flight_id: str):
-        await self.collection.delete_one({"flight_id": flight_id})
-        return self

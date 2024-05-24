@@ -42,6 +42,17 @@ class RocketRepository(Repository):
     def rocket_id(self, rocket_id: "str"):
         self._rocket_id = rocket_id
 
+    async def insert_rocket(self, rocket_data: dict):
+        await self.collection.insert_one(rocket_data)
+        return self
+
+    async def find_rocket(self, rocket_id: str):
+        return await self.collection.find_one({"rocket_id": rocket_id})
+
+    async def delete_rocket(self, rocket_id: str):
+        await self.collection.delete_one({"rocket_id": rocket_id})
+        return self
+
     async def create_rocket(
         self, *, rocket_option: str = "CALISTO", motor_kind: str = "SOLID"
     ):
@@ -84,12 +95,13 @@ class RocketRepository(Repository):
             parsed_rocket = (
                 Rocket.parse_obj(read_rocket) if read_rocket else None
             )
+            self.rocket = parsed_rocket
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"repositories.rocket.get_rocket: {exc_str}")
             raise Exception(f"Error getting rocket: {exc_str}") from e
         else:
-            return parsed_rocket
+            return self
         finally:
             logger.info(
                 f"Call to repositories.rocket.get_rocket completed for Rocket {rocket_id}"
@@ -100,7 +112,7 @@ class RocketRepository(Repository):
         Deletes a models.Rocket from the database
 
         Returns:
-            None
+            self
         """
         try:
             await self.delete_rocket(rocket_id)
@@ -108,18 +120,9 @@ class RocketRepository(Repository):
             exc_str = parse_error(e)
             logger.error(f"repositories.rocket.delete_rocket: {exc_str}")
             raise Exception(f"Error deleting rocket: {exc_str}") from e
+        else:
+            return self
         finally:
             logger.info(
                 f"Call to repositories.rocket.delete_rocket completed for Rocket {rocket_id}"
             )
-
-    async def insert_rocket(self, rocket_data: dict):
-        await self.collection.insert_one(rocket_data)
-        return self
-
-    async def find_rocket(self, rocket_id: str):
-        return await self.collection.find_one({"rocket_id": rocket_id})
-
-    async def delete_rocket(self, rocket_id: str):
-        await self.collection.delete_one({"rocket_id": rocket_id})
-        return self
