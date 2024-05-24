@@ -18,6 +18,7 @@ class RocketRepository(Repository):
 
     def __init__(self):
         super().__init__("rockets")
+        self._rocket_id = None
         self._rocket = None
 
     def fetch_rocket(self, rocket: Rocket):
