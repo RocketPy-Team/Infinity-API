@@ -20,12 +20,10 @@ class EnvRepository(Repository):
         super().__init__("environments")
         self._env = None
 
-    @classmethod
-    def fetch_env(cls, environment: Env):
-        instance = cls()
-        instance.env = environment
-        instance.env_id = environment.env_id
-        return instance
+    def fetch_env(self, environment: Env):
+        self.env = environment
+        self.env_id = environment.env_id
+        return self
 
     @property
     def env(self) -> Env:

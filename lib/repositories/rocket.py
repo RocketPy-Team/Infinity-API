@@ -18,13 +18,12 @@ class RocketRepository(Repository):
 
     def __init__(self):
         super().__init__("rockets")
+        self._rocket = None
 
-    @classmethod
-    def fetch_rocket(cls, rocket: Rocket):
-        instance = cls()
-        instance.rocket = rocket
-        instance.rocket_id = rocket.rocket_id
-        return instance
+    def fetch_rocket(self, rocket: Rocket):
+        self.rocket = rocket
+        self.rocket_id = rocket.rocket_id
+        return self
 
     @property
     def rocket(self) -> Rocket:

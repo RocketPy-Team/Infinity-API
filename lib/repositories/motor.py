@@ -20,12 +20,10 @@ class MotorRepository(Repository):
         super().__init__("motors")
         self._motor = None
 
-    @classmethod
-    def fetch_motor(cls, motor: Motor):
-        instance = cls()
-        instance.motor = motor
-        instance.motor_id = motor.motor_id
-        return instance
+    def fetch_motor(self, motor: Motor):
+        self.motor = motor
+        self.motor_id = motor.motor_id
+        return self
 
     @property
     def motor(self) -> Motor:
