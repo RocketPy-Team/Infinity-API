@@ -20,12 +20,10 @@ class FlightRepository(Repository):
         super().__init__("flights")
         self._flight = None
 
-    @classmethod
-    def fetch_flight(cls, flight: Flight):
-        instance = cls()
-        instance.flight = flight
-        instance.flight_id = flight.flight_id
-        return instance
+    def fetch_flight(self, flight: Flight):
+        self.flight = flight
+        self.flight_id = flight.flight_id
+        return self
 
     @property
     def flight(self) -> Flight:

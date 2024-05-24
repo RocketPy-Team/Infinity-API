@@ -155,7 +155,8 @@ class RocketController:
             views.RocketCreated
         """
         try:
-            with RocketRepository.fetch_rocket(self.rocket) as rocket_repo:
+            with RocketRepository() as rocket_repo:
+                rocket_repo.fetch_rocket(self.rocket)
                 await rocket_repo.create_rocket(
                     rocket_option=self.rocket_option,
                     motor_kind=self.motor_kind,
@@ -268,7 +269,8 @@ class RocketController:
             HTTP 404 Not Found: If the rocket is not found in the database.
         """
         try:
-            with RocketRepository.fetch_rocket(self.rocket) as rocket_repo:
+            with RocketRepository() as rocket_repo:
+                rocket_repo.fetch_rocket(self.rocket)
                 await rocket_repo.create_rocket(
                     rocket_option=self.rocket_option,
                     motor_kind=self.motor_kind,

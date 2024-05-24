@@ -107,7 +107,8 @@ class FlightController:
             views.FlightCreated
         """
         try:
-            with FlightRepository.fetch_flight(self.flight) as flight_repo:
+            with FlightRepository() as flight_repo:
+                flight_repo.fetch_flight(self.flight)
                 await flight_repo.create_flight(
                     motor_kind=self.motor_kind,
                     rocket_option=self.rocket_option,
@@ -219,7 +220,8 @@ class FlightController:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
         try:
-            with FlightRepository.fetch_flight(self.flight) as flight_repo:
+            with FlightRepository() as flight_repo:
+                flight_repo.fetch_flight(self.flight)
                 await flight_repo.create_flight(
                     motor_kind=self.motor_kind,
                     rocket_option=self.rocket_option,
@@ -261,7 +263,8 @@ class FlightController:
             new_flight = read_flight.dict()
             new_flight["environment"] = env
             new_flight = Flight(**new_flight)
-            with FlightRepository.fetch_flight(new_flight) as flight_repo:
+            with FlightRepository() as flight_repo:
+                flight_repo.fetch_flight(new_flight)
                 await flight_repo.create_flight(
                     motor_kind=read_flight.rocket.motor.motor_kind,
                     rocket_option=read_flight.rocket.rocket_option,
@@ -308,7 +311,8 @@ class FlightController:
             new_flight = read_flight.dict()
             new_flight["rocket"] = updated_rocket
             new_flight = Flight(**new_flight)
-            with FlightRepository.fetch_flight(new_flight) as flight_repo:
+            with FlightRepository() as flight_repo:
+                flight_repo.fetch_flight(new_flight)
                 await flight_repo.create_flight(
                     motor_kind=motor_kind, rocket_option=rocket_option
                 )
