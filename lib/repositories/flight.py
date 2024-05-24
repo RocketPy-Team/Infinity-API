@@ -19,6 +19,7 @@ class FlightRepository(Repository):
     def __init__(self):
         super().__init__("flights")
         self._flight = None
+        self._flight_id = None
 
     def fetch_flight(self, flight: Flight):
         self.flight = flight
