@@ -38,13 +38,11 @@ class Repository:
             future.result()
         except Exception as e:
             logging.error("Initialization failed: %s", e, exc_info=True)
-            raise
-        self._initialized = True
-        self._initialized_event.set()
+            raise e from e
 
     async def _async_init(self):
         async with self._lock:
-            await self._initialize_connection()
+            self._initialize_connection()
             self._initialized = True
             self._initialized_event.set()
 
@@ -54,11 +52,10 @@ class Repository:
 
     async def __aexit__(self, exc_type, exc_value, traceback):
         await self._initialized_event.wait()
-        self.close_connection()
         async with self._lock:
             self._cleanup_instance()
 
-    async def _initialize_connection(self):
+    def _initialize_connection(self):
         try:
             self._connection_string = Secrets.get_secret(
                 "MONGODB_CONNECTION_STRING"
@@ -81,6 +78,9 @@ class Repository:
             ) from e
 
     def _cleanup_instance(self):
+        if hasattr(self, '_client'):
+            self.client.close()
+            logger.info("Connection closed for %s", self.__class__)
         self._instances.pop(self.__class__, None)
 
     @property
@@ -114,8 +114,3 @@ class Repository:
         if not getattr(self, '_initialized', False):
             raise RuntimeError("Repository not initialized yet")
         self._collection = value
-
-    def close_connection(self):
-        if hasattr(self, '_client'):
-            self.client.close()
-            logger.info("Connection closed for %s", self.__class__)
