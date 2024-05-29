@@ -118,7 +118,7 @@ class MotorController:
             views.MotorCreated
         """
         try:
-            with MotorRepository() as motor_repo:
+            async with MotorRepository() as motor_repo:
                 motor_repo.fetch_motor(self.motor)
                 await motor_repo.create_motor(motor_kind=self.motor_kind)
         except Exception as e:
@@ -150,7 +150,7 @@ class MotorController:
             HTTP 404 Not Found: If the motor is not found in the database.
         """
         try:
-            with MotorRepository() as motor_repo:
+            async with MotorRepository() as motor_repo:
                 await motor_repo.get_motor_by_id(motor_id)
                 read_motor = motor_repo.motor
         except Exception as e:
@@ -228,7 +228,7 @@ class MotorController:
             HTTP 404 Not Found: If the motor is not found in the database.
         """
         try:
-            with MotorRepository() as motor_repo:
+            async with MotorRepository() as motor_repo:
                 motor_repo.fetch_motor(self.motor)
                 await motor_repo.create_motor(motor_kind=self.motor_kind)
                 await motor_repo.delete_motor_by_id(motor_id)
@@ -263,7 +263,7 @@ class MotorController:
             HTTP 404 Not Found: If the motor is not found in the database.
         """
         try:
-            with MotorRepository() as motor_repo:
+            async with MotorRepository() as motor_repo:
                 await motor_repo.delete_motor_by_id(motor_id)
         except Exception as e:
             exc_str = parse_error(e)

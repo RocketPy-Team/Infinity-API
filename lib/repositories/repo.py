@@ -1,6 +1,6 @@
-import threading
+import asyncio
 import logging
-from lib.secrets import Secrets
+from app.lib.secrets import Secrets
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.server_api import ServerApi
 
@@ -11,10 +11,10 @@ class Repository:
     """
 
     _instances = {}
-    _lock = threading.Lock()
+    _lock = asyncio.Lock()
 
     def __new__(cls):
-        with cls._lock:
+        async with cls._lock:
             if cls not in cls._instances:
                 cls._instances[cls] = super(Repository, cls).__new__(cls)
                 cls._instances[cls]._initialized = False  # Initialize here
@@ -22,31 +22,38 @@ class Repository:
 
     def __init__(self, collection: str):
         if not self._initialized:
-            try:
-                self._connection_string = Secrets.get_secret(
-                    "MONGODB_CONNECTION_STRING"
-                )
-                self._client = AsyncIOMotorClient(
-                    self.connection_string,
-                    server_api=ServerApi("1"),
-                    maxIdleTimeMS=5000,
-                    connectTimeoutMS=5000,
-                    serverSelectionTimeoutMS=30000,
-                )
-                self._collection = self.client.rocketpy[collection]
-                self._initialized = True  # Mark as initialized
-            except Exception as e:
-                logging.error(f"Failed to initialize MongoDB client: {e}")
-                raise ConnectionError(
-                    "Could not establish a connection with MongoDB."
-                ) from e
+            self._collection_name = collection
+            self._initialize_connection()
+            self._initialized = True
 
-    def __enter__(self):
+    def _initialize_connection(self):
+        try:
+            self._connection_string = Secrets.get_secret(
+                "MONGODB_CONNECTION_STRING"
+            )
+            self._client = AsyncIOMotorClient(
+                self._connection_string,
+                server_api=ServerApi("1"),
+                maxIdleTimeMS=5000,
+                connectTimeoutMS=5000,
+                serverSelectionTimeoutMS=30000,
+            )
+            self._collection = self._client.rocketpy[self._collection_name]
+        except Exception as e:
+            logging.error(
+                f"Failed to initialize MongoDB client: {e}", exc_info=True
+            )
+            raise ConnectionError(
+                "Could not establish a connection with MongoDB."
+            ) from e
+
+    def __aenter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __aexit__(self, exc_type, exc_value, traceback):
         self.close_connection()
-        self._instances.pop(self.__class__)
+        async with self._lock:
+            self._instances.pop(self.__class__, None)
 
     @property
     def connection_string(self):
