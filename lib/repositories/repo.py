@@ -71,7 +71,7 @@ class Repository:
                 serverSelectionTimeoutMS=15000,
             )
             self._collection = self._client.rocketpy[self._collection_name]
-            logging.debug("MongoDB client initialized for %s", self.__class__)
+            logging.info("MongoDB client initialized for %s", self.__class__)
         except Exception as e:
             logging.error(
                 f"Failed to initialize MongoDB client: {e}", exc_info=True

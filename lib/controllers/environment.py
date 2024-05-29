@@ -181,7 +181,7 @@ class EnvController:
         """
         try:
             async with EnvRepository() as env_repo:
-                env_repo.fetch_env_by_id(env_id)
+                env_repo.fetch_env(self.env)
                 await env_repo.create_env()
                 await env_repo.delete_env_by_id(env_id)
         except Exception as e:
