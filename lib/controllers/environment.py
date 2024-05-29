@@ -70,7 +70,7 @@ class EnvController:
             views.EnvCreated
         """
         try:
-            with EnvRepository() as env_repo:
+            async with EnvRepository() as env_repo:
                 env_repo.fetch_env(self.env)
                 await env_repo.create_env()
         except Exception as e:
@@ -102,7 +102,7 @@ class EnvController:
             HTTP 404 Not Found: If the env is not found in the database.
         """
         try:
-            with EnvRepository() as env_repo:
+            async with EnvRepository() as env_repo:
                 await env_repo.get_env_by_id(env_id)
                 read_env = env_repo.env
         except Exception as e:
@@ -180,7 +180,7 @@ class EnvController:
             HTTP 404 Not Found: If the env is not found in the database.
         """
         try:
-            with EnvRepository() as env_repo:
+            async with EnvRepository() as env_repo:
                 env_repo.fetch_env_by_id(env_id)
                 await env_repo.create_env()
                 await env_repo.delete_env_by_id(env_id)
@@ -215,7 +215,7 @@ class EnvController:
             HTTP 404 Not Found: If the env is not found in the database.
         """
         try:
-            with EnvRepository() as env_repo:
+            async with EnvRepository() as env_repo:
                 await env_repo.delete_env_by_id(env_id)
         except Exception as e:
             exc_str = parse_error(e)

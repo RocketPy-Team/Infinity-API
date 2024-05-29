@@ -155,7 +155,7 @@ class RocketController:
             views.RocketCreated
         """
         try:
-            with RocketRepository() as rocket_repo:
+            async with RocketRepository() as rocket_repo:
                 rocket_repo.fetch_rocket(self.rocket)
                 await rocket_repo.create_rocket(
                     rocket_option=self.rocket_option,
@@ -192,7 +192,7 @@ class RocketController:
             HTTP 404 Not Found: If the rocket is not found in the database.
         """
         try:
-            with RocketRepository() as rocket_repo:
+            async with RocketRepository() as rocket_repo:
                 await rocket_repo.get_rocket_by_id(rocket_id)
                 read_rocket = rocket_repo.rocket
         except Exception as e:
@@ -269,7 +269,7 @@ class RocketController:
             HTTP 404 Not Found: If the rocket is not found in the database.
         """
         try:
-            with RocketRepository() as rocket_repo:
+            async with RocketRepository() as rocket_repo:
                 rocket_repo.fetch_rocket(self.rocket)
                 await rocket_repo.create_rocket(
                     rocket_option=self.rocket_option,
@@ -307,7 +307,7 @@ class RocketController:
             HTTP 404 Not Found: If the rocket is not found in the database.
         """
         try:
-            with RocketRepository() as rocket_repo:
+            async with RocketRepository() as rocket_repo:
                 await rocket_repo.delete_rocket_by_id(rocket_id)
         except Exception as e:
             exc_str = parse_error(e)

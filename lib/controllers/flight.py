@@ -107,7 +107,7 @@ class FlightController:
             views.FlightCreated
         """
         try:
-            with FlightRepository() as flight_repo:
+            async with FlightRepository() as flight_repo:
                 flight_repo.fetch_flight(self.flight)
                 await flight_repo.create_flight(
                     motor_kind=self.motor_kind,
@@ -142,7 +142,7 @@ class FlightController:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
         try:
-            with FlightRepository() as flight_repo:
+            async with FlightRepository() as flight_repo:
                 await flight_repo.get_flight_by_id(flight_id)
                 read_flight = flight_repo.flight
         except Exception as e:
@@ -220,7 +220,7 @@ class FlightController:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
         try:
-            with FlightRepository() as flight_repo:
+            async with FlightRepository() as flight_repo:
                 flight_repo.fetch_flight(self.flight)
                 await flight_repo.create_flight(
                     motor_kind=self.motor_kind,
@@ -263,7 +263,7 @@ class FlightController:
             new_flight = read_flight.dict()
             new_flight["environment"] = env
             new_flight = Flight(**new_flight)
-            with FlightRepository() as flight_repo:
+            async with FlightRepository() as flight_repo:
                 flight_repo.fetch_flight(new_flight)
                 await flight_repo.create_flight(
                     motor_kind=read_flight.rocket.motor.motor_kind,
@@ -311,7 +311,7 @@ class FlightController:
             new_flight = read_flight.dict()
             new_flight["rocket"] = updated_rocket
             new_flight = Flight(**new_flight)
-            with FlightRepository() as flight_repo:
+            async with FlightRepository() as flight_repo:
                 flight_repo.fetch_flight(new_flight)
                 await flight_repo.create_flight(
                     motor_kind=motor_kind, rocket_option=rocket_option
@@ -350,7 +350,7 @@ class FlightController:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
         try:
-            with FlightRepository() as flight_repo:
+            async with FlightRepository() as flight_repo:
                 await flight_repo.delete_flight_by_id(flight_id)
         except Exception as e:
             exc_str = parse_error(e)
