@@ -16,7 +16,7 @@ from rocketpy.rocket.aero_surface import (
 )
 from rocketpy.rocket.aero_surface import Tail as RocketPyTail
 
-from lib import logging, parse_error
+from lib import logger, parse_error
 from lib.controllers.motor import MotorController
 from lib.models.rocket import Rocket, RocketOptions
 from lib.models.motor import MotorKinds
@@ -35,8 +35,6 @@ from lib.views.rocket import (
     RocketDeleted,
     RocketPickle,
 )
-
-logger = logging.getLogger(__name__)
 
 
 class RocketController:

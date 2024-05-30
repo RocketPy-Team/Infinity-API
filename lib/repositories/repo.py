@@ -1,10 +1,8 @@
 import asyncio
-import logging
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.server_api import ServerApi
+from lib import logger
 from lib.secrets import Secrets
-
-logger = logging.getLogger(__name__)
 
 
 class Repository:
@@ -37,7 +35,7 @@ class Repository:
         try:
             future.result()
         except Exception as e:
-            logging.error("Initialization failed: %s", e, exc_info=True)
+            logger.error("Initialization failed: %s", e, exc_info=True)
             raise e from e
 
     async def _async_init(self):
@@ -68,9 +66,9 @@ class Repository:
                 serverSelectionTimeoutMS=15000,
             )
             self._collection = self._client.rocketpy[self._collection_name]
-            logging.info("MongoDB client initialized for %s", self.__class__)
+            logger.info("MongoDB client initialized for %s", self.__class__)
         except Exception as e:
-            logging.error(
+            logger.error(
                 f"Failed to initialize MongoDB client: {e}", exc_info=True
             )
             raise ConnectionError(

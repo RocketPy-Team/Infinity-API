@@ -4,7 +4,7 @@ import jsonpickle
 from rocketpy.environment.environment import Environment as RocketPyEnvironment
 from fastapi import HTTPException, status
 
-from lib import logging, parse_error
+from lib import logger, parse_error
 from lib.models.environment import Env
 from lib.repositories.environment import EnvRepository
 from lib.views.environment import (
@@ -16,8 +16,6 @@ from lib.views.environment import (
     EnvUpdated,
     EnvPickle,
 )
-
-logger = logging.getLogger(__name__)
 
 
 class EnvController:

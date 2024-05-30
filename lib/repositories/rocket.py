@@ -1,9 +1,7 @@
 from typing import Union
-from lib import logging, parse_error
+from lib import logger, parse_error
 from lib.models.rocket import Rocket
 from lib.repositories.repo import Repository
-
-logger = logging.getLogger(__name__)
 
 
 class RocketRepository(Repository):
