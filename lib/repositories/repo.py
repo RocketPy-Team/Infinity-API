@@ -21,9 +21,9 @@ class Repository:
             cls._instances[cls] = instance
         return cls._instances[cls]
 
-    def __init__(self, collection: str):
+    def __init__(self, collection_name: str):
         if not getattr(self, '_initialized', False):
-            self._collection_name = collection
+            self._collection_name = collection_name
             self._initialized_event = asyncio.Event()
             if not asyncio.get_event_loop().is_running():
                 asyncio.run(self._async_init())
@@ -108,9 +108,3 @@ class Repository:
         if not getattr(self, '_initialized', False):
             raise RuntimeError("Repository not initialized yet")
         return self._collection
-
-    @collection.setter
-    def collection(self, value):
-        if not getattr(self, '_initialized', False):
-            raise RuntimeError("Repository not initialized yet")
-        self._collection = value
