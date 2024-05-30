@@ -8,10 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import RedirectResponse, JSONResponse
 
-from lib import logging, parse_error
+from lib import logger, parse_error
 from lib.routes import flight, environment, motor, rocket
-
-logger = logging.getLogger(__name__)
 
 app = FastAPI(
     swagger_ui_parameters={

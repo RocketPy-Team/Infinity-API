@@ -5,7 +5,7 @@ from rocketpy.motors.liquid_motor import LiquidMotor
 from rocketpy.motors.hybrid_motor import HybridMotor
 import jsonpickle
 
-from lib import logging, parse_error
+from lib import logger, parse_error
 from lib.models.motor import Motor, MotorKinds
 from lib.repositories.motor import MotorRepository
 from lib.views.motor import (
@@ -16,8 +16,6 @@ from lib.views.motor import (
     MotorDeleted,
     MotorPickle,
 )
-
-logger = logging.getLogger(__name__)
 
 
 class MotorController:

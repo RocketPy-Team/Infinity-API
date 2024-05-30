@@ -5,7 +5,7 @@ from rocketpy.simulation.flight import Flight as RocketPyFlight
 
 import jsonpickle
 
-from lib import logging, parse_error
+from lib import logger, parse_error
 from lib.models.rocket import Rocket, RocketOptions
 from lib.models.motor import MotorKinds
 from lib.models.flight import Flight
@@ -31,8 +31,6 @@ from lib.views.flight import (
 from lib.repositories.flight import FlightRepository
 from lib.controllers.environment import EnvController
 from lib.controllers.rocket import RocketController
-
-logger = logging.getLogger(__name__)
 
 
 class FlightController:
