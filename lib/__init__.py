@@ -25,4 +25,4 @@ def parse_error(error):
     return f"{exc_type} exception: {exc_obj}"
 
 
-from .api import app # noqa
+from .api import app  # noqa

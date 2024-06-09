@@ -3,6 +3,7 @@ Environment routes
 """
 
 from fastapi import APIRouter
+from opentelemetry import trace
 
 from lib.views.environment import (
     EnvSummary,
@@ -24,6 +25,8 @@ router = APIRouter(
     },
 )
 
+tracer = trace.get_tracer(__name__)
+
 
 @router.post("/")
 async def create_env(env: Env) -> EnvCreated:
@@ -33,7 +36,8 @@ async def create_env(env: Env) -> EnvCreated:
     ## Args
     ``` models.Env JSON ```
     """
-    return await EnvController(env).create_env()
+    with tracer.start_as_current_span("create_env"):
+        return await EnvController(env).create_env()
 
 
 @router.get("/{env_id}")
@@ -44,7 +48,8 @@ async def read_env(env_id: str) -> Env:
     ## Args
     ``` env_id: str ```
     """
-    return await EnvController.get_env_by_id(env_id)
+    with tracer.start_as_current_span("read_env"):
+        return await EnvController.get_env_by_id(env_id)
 
 
 @router.put("/{env_id}")
@@ -58,7 +63,8 @@ async def update_env(env_id: str, env: Env) -> EnvUpdated:
         env: models.Env JSON
     ```
     """
-    return await EnvController(env).update_env_by_id(env_id)
+    with tracer.start_as_current_span("update_env"):
+        return await EnvController(env).update_env_by_id(env_id)
 
 
 @router.delete("/{env_id}")
@@ -69,7 +75,8 @@ async def delete_env(env_id: str) -> EnvDeleted:
     ## Args
     ``` env_id: Environment ID hash ```
     """
-    return await EnvController.delete_env_by_id(env_id)
+    with tracer.start_as_current_span("delete_env"):
+        return await EnvController.delete_env_by_id(env_id)
 
 
 @router.get("/rocketpy/{env_id}")
@@ -80,7 +87,8 @@ async def read_rocketpy_env(env_id: str) -> EnvPickle:
     ## Args
     ``` env_id: str ```
     """
-    return await EnvController.get_rocketpy_env_as_jsonpickle(env_id)
+    with tracer.start_as_current_span("read_rocketpy_env"):
+        return await EnvController.get_rocketpy_env_as_jsonpickle(env_id)
 
 
 @router.get("/{env_id}/simulate")
@@ -91,4 +99,5 @@ async def simulate_env(env_id: str) -> EnvSummary:
     ## Args
     ``` env_id: str ```
     """
-    return await EnvController.simulate_env(env_id)
+    with tracer.start_as_current_span("simulate_env"):
+        return await EnvController.simulate_env(env_id)
