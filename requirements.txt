@@ -7,3 +7,6 @@ jsonpickle
 gunicorn
 uvicorn
 rocketpy
+opentelemetry.instrumentation.fastapi
+opentelemetry-api
+opentelemetry-sdk
