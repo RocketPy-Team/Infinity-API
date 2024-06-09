@@ -3,6 +3,7 @@ Flight routes
 """
 
 from fastapi import APIRouter
+from opentelemetry import trace
 
 from lib.views.flight import (
     FlightSummary,
@@ -27,6 +28,8 @@ router = APIRouter(
     },
 )
 
+tracer = trace.get_tracer(__name__)
+
 
 @router.post("/")
 async def create_flight(
@@ -38,9 +41,10 @@ async def create_flight(
     ## Args
     ``` Flight object as JSON ```
     """
-    return await FlightController(
-        flight, rocket_option=rocket_option, motor_kind=motor_kind
-    ).create_flight()
+    with tracer.start_as_current_span("create_flight"):
+        return await FlightController(
+            flight, rocket_option=rocket_option, motor_kind=motor_kind
+        ).create_flight()
 
 
 @router.get("/{flight_id}")
@@ -51,7 +55,8 @@ async def read_flight(flight_id: str) -> Flight:
     ## Args
     ``` flight_id: Flight ID hash ```
     """
-    return await FlightController.get_flight_by_id(flight_id)
+    with tracer.start_as_current_span("read_flight"):
+        return await FlightController.get_flight_by_id(flight_id)
 
 
 @router.get("/rocketpy/{flight_id}")
@@ -62,7 +67,10 @@ async def read_rocketpy_flight(flight_id: str) -> FlightPickle:
     ## Args
     ``` flight_id: Flight ID hash. ```
     """
-    return await FlightController.get_rocketpy_flight_as_jsonpickle(flight_id)
+    with tracer.start_as_current_span("read_rocketpy_flight"):
+        return await FlightController.get_rocketpy_flight_as_jsonpickle(
+            flight_id
+        )
 
 
 @router.put("/{flight_id}/env")
@@ -76,7 +84,10 @@ async def update_flight_env(flight_id: str, env: Env) -> FlightUpdated:
         env: env object as JSON
     ```
     """
-    return await FlightController.update_env_by_flight_id(flight_id, env=env)
+    with tracer.start_as_current_span("update_flight_env"):
+        return await FlightController.update_env_by_flight_id(
+            flight_id, env=env
+        )
 
 
 @router.put("/{flight_id}/rocket")
@@ -95,12 +106,13 @@ async def update_flight_rocket(
         rocket: Rocket object as JSON
     ```
     """
-    return await FlightController.update_rocket_by_flight_id(
-        flight_id,
-        rocket=rocket,
-        rocket_option=rocket_option,
-        motor_kind=motor_kind,
-    )
+    with tracer.start_as_current_span("update_flight_rocket"):
+        return await FlightController.update_rocket_by_flight_id(
+            flight_id,
+            rocket=rocket,
+            rocket_option=rocket_option,
+            motor_kind=motor_kind,
+        )
 
 
 @router.put("/{flight_id}")
@@ -119,9 +131,10 @@ async def update_flight(
         flight: Flight object as JSON
     ```
     """
-    return await FlightController(
-        flight, rocket_option=rocket_option, motor_kind=motor_kind
-    ).update_flight_by_id(flight_id)
+    with tracer.start_as_current_span("update_flight"):
+        return await FlightController(
+            flight, rocket_option=rocket_option, motor_kind=motor_kind
+        ).update_flight_by_id(flight_id)
 
 
 @router.delete("/{flight_id}")
@@ -132,7 +145,8 @@ async def delete_flight(flight_id: str) -> FlightDeleted:
     ## Args
     ``` flight_id: Flight ID hash ```
     """
-    return await FlightController.delete_flight_by_id(flight_id)
+    with tracer.start_as_current_span("delete_flight"):
+        return await FlightController.delete_flight_by_id(flight_id)
 
 
 @router.get("/{flight_id}/simulate")
@@ -143,4 +157,5 @@ async def simulate_flight(flight_id: str) -> FlightSummary:
     ## Args
     ``` flight_id: Flight ID hash ```
     """
-    return await FlightController.simulate_flight(flight_id)
+    with tracer.start_as_current_span("simulate_flight"):
+        return await FlightController.simulate_flight(flight_id)
