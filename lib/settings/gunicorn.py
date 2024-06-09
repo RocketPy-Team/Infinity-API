@@ -10,8 +10,8 @@ def post_fork(server, worker):  # pylint: disable=unused-argument
         service_version="1.2.0",
         deployment_environment="production",
     )
-    from app.lib import (  # pylint: disable=import-outside-toplevel
-        server as fastapi_server,
+    from lib import (  # pylint: disable=import-outside-toplevel
+        app as fastapi_server,
     )
 
     FastAPIInstrumentor.instrument_app(fastapi_server)
