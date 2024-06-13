@@ -20,6 +20,7 @@ class Repository:
         return cls._instances[cls]
 
     def __init__(self, collection_name: str):
+        self._entered = False
         if not getattr(self, '_initialized', False):
             self._collection_name = collection_name
             self._initialized_event = asyncio.Event()
@@ -45,7 +46,8 @@ class Repository:
             self._initialized_event.set()
 
     async def __aenter__(self):
-        await self._initialized_event.wait()
+        if not self._entered:
+            await self._initialized_event.wait()
         return self
 
     async def __aexit__(self, exc_type, exc_value, traceback):
@@ -63,7 +65,7 @@ class Repository:
                 server_api=ServerApi("1"),
                 maxIdleTimeMS=5000,
                 connectTimeoutMS=5000,
-                serverSelectionTimeoutMS=15000,
+                serverSelectionTimeoutMS=30000,
             )
             self._collection = self._client.rocketpy[self._collection_name]
             logger.info("MongoDB client initialized for %s", self.__class__)
