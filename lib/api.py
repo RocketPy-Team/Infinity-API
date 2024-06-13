@@ -5,6 +5,7 @@ This is the main API file for the RocketPy API.
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import RedirectResponse, JSONResponse
 
@@ -28,6 +29,9 @@ app.include_router(flight.router)
 app.include_router(environment.router)
 app.include_router(motor.router)
 app.include_router(rocket.router)
+
+# Compress responses above 1KB
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 
 def custom_openapi():
