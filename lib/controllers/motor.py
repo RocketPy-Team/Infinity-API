@@ -1,5 +1,6 @@
 from typing import Union
 from fastapi import HTTPException, status
+from pymongo.errors import PyMongoError
 from rocketpy.motors.solid_motor import SolidMotor
 from rocketpy.motors.liquid_motor import LiquidMotor
 from rocketpy.motors.hybrid_motor import HybridMotor
@@ -119,6 +120,14 @@ class MotorController:
             async with MotorRepository() as motor_repo:
                 motor_repo.fetch_motor(self.motor)
                 await motor_repo.create_motor(motor_kind=self.motor_kind)
+        except PyMongoError as e:
+            logger.error(f"controllers.motor.create_motor: PyMongoError {e}")
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Failed to create motor in db",
+            ) from e
+        except HTTPException as e:
+            raise e from e
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.motor.create_motor: {exc_str}")
@@ -151,6 +160,16 @@ class MotorController:
             async with MotorRepository() as motor_repo:
                 await motor_repo.get_motor_by_id(motor_id)
                 read_motor = motor_repo.motor
+        except PyMongoError as e:
+            logger.error(
+                f"controllers.motor.get_motor_by_id: PyMongoError {e}"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Failed to read motor from db",
+            ) from e
+        except HTTPException as e:
+            raise e from e
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.motor.get_motor_by_id: {exc_str}")
@@ -230,6 +249,14 @@ class MotorController:
                 motor_repo.fetch_motor(self.motor)
                 await motor_repo.create_motor(motor_kind=self.motor_kind)
                 await motor_repo.delete_motor_by_id(motor_id)
+        except PyMongoError as e:
+            logger.error(f"controllers.motor.update_motor: PyMongoError {e}")
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Failed to update motor in db",
+            ) from e
+        except HTTPException as e:
+            raise e from e
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.motor.update_motor: {exc_str}")
@@ -263,6 +290,14 @@ class MotorController:
         try:
             async with MotorRepository() as motor_repo:
                 await motor_repo.delete_motor_by_id(motor_id)
+        except PyMongoError as e:
+            logger.error(f"controllers.motor.delete_motor: PyMongoError {e}")
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Failed to delete motor from db",
+            ) from e
+        except HTTPException as e:
+            raise e from e
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.motor.delete_motor: {exc_str}")

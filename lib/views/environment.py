@@ -2,39 +2,49 @@ from typing import List
 from pydantic import BaseModel
 
 
-class EnvData(BaseModel):
-    # TODO: review grav type
-    # grav: "Any"
-    elevation: int
-    model_type: str
-    model_type_max_expected_height: int
-    wind_speed: float
-    wind_direction: float
-    wind_heading: float
-    surface_pressure: float
-    surface_temperature: float
-    surface_air_density: float
-    surface_speed_of_sound: float
-    launch_date: str
-    lat: float
-    lon: float
-
-
-class EnvPlots(BaseModel):
-    grid: "List[float]"
-    wind_speed: "List[float]"
-    wind_direction: "List[float]"
-    speed_of_sound: "List[float]"
-    density: "List[float]"
-    wind_vel_x: "List[float]"
-    wind_vel_y: "List[float]"
-    pressure: "List[float]"
-    temperature: "List[float]"
-
-
 class EnvSummary(BaseModel):
-    env_data: EnvData
-    env_plots: EnvPlots
+    latitude: float
+    longitude: float
+    elevation: float
+    # date: str #datetime
+    atmospheric_model_type: str
+    air_gas_constant: float
+    standard_g: float
+    earth_radius: float
+    datum: str
+    timezone: str
+    # ellipsoid: str # function
+    initial_utm_zone: int
+    initial_utm_letter: str
+    initial_north: float
+    initial_east: float
+    initial_hemisphere: str
+    initial_ew: str
+    # local_date: str #datetime
+    # datetime_date: str #datetime
+    max_expected_height: int
+    # barometric_height: str # function
+    # barometric_height_ISA: str # function
+    # pressure: str # function
+    # pressure_ISA: str # function
+    # temperature: str # function
+    # temperature_ISA: str # function
+    # density: str # function
+    # speed_of_sound: str # function
+    # dynamic_viscosity: str # function
+    # gravity: str # function
+    # somigliana_gravity: str # function
+    # wind_speed: str # function
+    # wind_direction: str # function
+    # wind_heading: str # function
+    # wind_velocity_x: str # function
+    # wind_velocity_y: str # function
+    # calculate_earth_radius: str # function
+    # decimal_degrees_to_arc_seconds: str # function
+    # geodesic_to_utm: str # function
+    # utm_to_geodesic: str # function
+    # prints: str # function
+    # plots: str # function
 
 
 class EnvCreated(BaseModel):

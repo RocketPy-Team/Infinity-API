@@ -1,7 +1,8 @@
 from typing import Union
-from lib import logger, parse_error
+from pymongo.errors import PyMongoError
+from lib import logger
 from lib.models.flight import Flight
-from lib.repositories.repo import Repository
+from lib.repositories.repo import Repository, RepositoryNotInitializedException
 
 
 class FlightRepository(Repository):
@@ -41,13 +42,16 @@ class FlightRepository(Repository):
         self._flight_id = flight_id
 
     async def insert_flight(self, flight_data: dict):
-        await self.collection.insert_one(flight_data)
+        collection = self.get_collection()
+        await collection.insert_one(flight_data)
 
     async def find_flight(self, flight_id: str):
-        return await self.collection.find_one({"flight_id": flight_id})
+        collection = self.get_collection()
+        return await collection.find_one({"flight_id": flight_id})
 
     async def delete_flight(self, flight_id: str):
-        await self.collection.delete_one({"flight_id": flight_id})
+        collection = self.get_collection()
+        await collection.delete_one({"flight_id": flight_id})
         return self
 
     async def create_flight(
@@ -69,10 +73,10 @@ class FlightRepository(Repository):
             flight_to_dict["rocket"]["rocket_option"] = rocket_option
             flight_to_dict["rocket"]["motor"]["motor_kind"] = motor_kind
             await self.insert_flight(flight_to_dict)
-        except Exception as e:
-            exc_str = parse_error(e)
-            logger.error(f"repositories.flight.create_flight: {exc_str}")
-            raise Exception(f"Error creating flight: {exc_str}") from e
+        except PyMongoError as e:
+            raise e from e
+        except RepositoryNotInitializedException as e:
+            raise e from e
         else:
             return self
         finally:
@@ -93,10 +97,10 @@ class FlightRepository(Repository):
                 Flight.parse_obj(read_flight) if read_flight else None
             )
             self.flight = parsed_flight
-        except Exception as e:
-            exc_str = parse_error(e)
-            logger.error(f"repositories.flight.get_flight: {exc_str}")
-            raise Exception(f"Error getting flight: {exc_str}") from e
+        except PyMongoError as e:
+            raise e from e
+        except RepositoryNotInitializedException as e:
+            raise e from e
         else:
             return self
         finally:
@@ -113,10 +117,10 @@ class FlightRepository(Repository):
         """
         try:
             await self.delete_flight(flight_id)
-        except Exception as e:
-            exc_str = parse_error(e)
-            logger.error(f"repositories.flight.delete_flight: {exc_str}")
-            raise Exception(f"Error deleting flight: {exc_str}") from e
+        except PyMongoError as e:
+            raise e from e
+        except RepositoryNotInitializedException as e:
+            raise e from e
         else:
             return self
         finally:

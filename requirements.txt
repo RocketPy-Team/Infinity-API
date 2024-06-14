@@ -9,5 +9,7 @@ uvicorn
 rocketpy
 uptrace
 opentelemetry.instrumentation.fastapi
+opentelemetry.instrumentation.requests
 opentelemetry-api
 opentelemetry-sdk
+tenacity

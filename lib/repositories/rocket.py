@@ -1,7 +1,8 @@
 from typing import Union
-from lib import logger, parse_error
+from pymongo.errors import PyMongoError
+from lib import logger
 from lib.models.rocket import Rocket
-from lib.repositories.repo import Repository
+from lib.repositories.repo import Repository, RepositoryNotInitializedException
 
 
 class RocketRepository(Repository):
@@ -41,14 +42,17 @@ class RocketRepository(Repository):
         self._rocket_id = rocket_id
 
     async def insert_rocket(self, rocket_data: dict):
-        await self.collection.insert_one(rocket_data)
+        collection = self.get_collection()
+        await collection.insert_one(rocket_data)
         return self
 
     async def find_rocket(self, rocket_id: str):
-        return await self.collection.find_one({"rocket_id": rocket_id})
+        collection = self.get_collection()
+        return await collection.find_one({"rocket_id": rocket_id})
 
     async def delete_rocket(self, rocket_id: str):
-        await self.collection.delete_one({"rocket_id": rocket_id})
+        collection = self.get_collection()
+        await collection.delete_one({"rocket_id": rocket_id})
         return self
 
     async def create_rocket(
@@ -70,10 +74,10 @@ class RocketRepository(Repository):
             rocket_to_dict["rocket_option"] = rocket_option
             rocket_to_dict["motor"]["motor_kind"] = motor_kind
             await self.insert_rocket(rocket_to_dict)
-        except Exception as e:
-            exc_str = parse_error(e)
-            logger.error(f"repositories.rocket.create_rocket: {exc_str}")
-            raise Exception(f"Error creating rocket: {exc_str}") from e
+        except PyMongoError as e:
+            raise e from e
+        except RepositoryNotInitializedException as e:
+            raise e from e
         else:
             return self
         finally:
@@ -94,10 +98,10 @@ class RocketRepository(Repository):
                 Rocket.parse_obj(read_rocket) if read_rocket else None
             )
             self.rocket = parsed_rocket
-        except Exception as e:
-            exc_str = parse_error(e)
-            logger.error(f"repositories.rocket.get_rocket: {exc_str}")
-            raise Exception(f"Error getting rocket: {exc_str}") from e
+        except PyMongoError as e:
+            raise e from e
+        except RepositoryNotInitializedException as e:
+            raise e from e
         else:
             return self
         finally:
@@ -114,10 +118,10 @@ class RocketRepository(Repository):
         """
         try:
             await self.delete_rocket(rocket_id)
-        except Exception as e:
-            exc_str = parse_error(e)
-            logger.error(f"repositories.rocket.delete_rocket: {exc_str}")
-            raise Exception(f"Error deleting rocket: {exc_str}") from e
+        except PyMongoError as e:
+            raise e from e
+        except RepositoryNotInitializedException as e:
+            raise e from e
         else:
             return self
         finally:
