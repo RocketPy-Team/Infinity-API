@@ -1,16 +1,15 @@
 from typing import Union
 
 import jsonpickle
-from rocketpy.environment.environment import Environment as RocketPyEnvironment
 from fastapi import HTTPException, status
+from pymongo.errors import PyMongoError
 
 from lib import logger, parse_error
 from lib.models.environment import Env
+from lib.services.environment import EnvironmentService
 from lib.repositories.environment import EnvRepository
 from lib.views.environment import (
     EnvSummary,
-    EnvData,
-    EnvPlots,
     EnvCreated,
     EnvDeleted,
     EnvUpdated,
@@ -26,7 +25,7 @@ class EnvController:
         env: models.Env
 
     Enables:
-        - Simulation of RocketPyEnvironment from models.Env
+        - Simulation of a RocketPy Environment from models.Env
         - CRUD operations over models.Env on the database
     """
 
@@ -41,25 +40,6 @@ class EnvController:
     def env(self, env: Env):
         self._env = env
 
-    @staticmethod
-    def get_rocketpy_env(env: Env) -> RocketPyEnvironment:
-        """
-        Get the rocketpy env object.
-
-        Returns:
-            RocketPyEnvironment
-        """
-        rocketpy_env = RocketPyEnvironment(
-            latitude=env.latitude,
-            longitude=env.longitude,
-            elevation=env.elevation,
-            date=env.date,
-        )
-        rocketpy_env.set_atmospheric_model(
-            type=env.atmospheric_model_type, file=env.atmospheric_model_file
-        )
-        return rocketpy_env
-
     async def create_env(self) -> Union[EnvCreated, HTTPException]:
         """
         Create a env in the database.
@@ -71,6 +51,16 @@ class EnvController:
             async with EnvRepository() as env_repo:
                 env_repo.fetch_env(self.env)
                 await env_repo.create_env()
+        except PyMongoError as e:
+            logger.error(
+                f"controllers.environment.create_env: PyMongoError {e}"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Failed to create environment in db",
+            ) from e
+        except HTTPException as e:
+            raise e from e
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.environment.create_env: {exc_str}")
@@ -103,6 +93,16 @@ class EnvController:
             async with EnvRepository() as env_repo:
                 await env_repo.get_env_by_id(env_id)
                 read_env = env_repo.env
+        except PyMongoError as e:
+            logger.error(
+                f"controllers.environment.get_env_by_id: PyMongoError {e}"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Failed to read environment from db",
+            ) from e
+        except HTTPException as e:
+            raise e from e
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.environment.get_env_by_id: {exc_str}")
@@ -141,7 +141,7 @@ class EnvController:
         """
         try:
             read_env = await cls.get_env_by_id(env_id)
-            rocketpy_env = cls.get_rocketpy_env(read_env)
+            rocketpy_env = EnvironmentService.from_env_model(read_env)
         except HTTPException as e:
             raise e from e
         except Exception as e:
@@ -182,6 +182,16 @@ class EnvController:
                 env_repo.fetch_env(self.env)
                 await env_repo.create_env()
                 await env_repo.delete_env_by_id(env_id)
+        except PyMongoError as e:
+            logger.error(
+                f"controllers.environment.update_env: PyMongoError {e}"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Failed to update environment from db",
+            ) from e
+        except HTTPException as e:
+            raise e from e
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.environment.update_env: {exc_str}")
@@ -215,6 +225,16 @@ class EnvController:
         try:
             async with EnvRepository() as env_repo:
                 await env_repo.delete_env_by_id(env_id)
+        except PyMongoError as e:
+            logger.error(
+                f"controllers.environment.delete_env: PyMongoError {e}"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Failed to delete environment from db",
+            ) from e
+        except HTTPException as e:
+            raise e from e
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.environment.delete_env: {exc_str}")
@@ -240,24 +260,15 @@ class EnvController:
             env_id: str.
 
         Returns:
-            views.EnvSummary
+            EnvSummary
 
         Raises:
             HTTP 404 Not Found: If the env does not exist in the database.
         """
         try:
             read_env = await cls.get_env_by_id(env_id)
-            rocketpy_env = cls.get_rocketpy_env(read_env)
-
-            env_simulation_numbers = EnvData.parse_obj(
-                rocketpy_env.all_info_returned()
-            )
-            env_simulation_plots = EnvPlots.parse_obj(
-                rocketpy_env.all_plot_info_returned()
-            )
-            env_summary = EnvSummary(
-                env_data=env_simulation_numbers, env_plots=env_simulation_plots
-            )
+            rocketpy_env = EnvironmentService.from_env_model(read_env)
+            env_summary = rocketpy_env.get_env_summary()
         except HTTPException as e:
             raise e from e
         except Exception as e:

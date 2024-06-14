@@ -7,7 +7,7 @@ dependencies = {file = ["requirements.txt"]}
 
 [project]
 name = "Infinity-API"
-version = "1.2.0"
+version = "1.2.2"
 description = "RESTFULL open API for rocketpy"
 dynamic = ["dependencies"]
 requires-python = ">=3.12"
@@ -49,7 +49,6 @@ disable = """
     too-many-public-methods,
     too-many-instance-attributes,
     logging-fstring-interpolation,
-    broad-exception-raised,
     import-error,
     protected-access,
     unnecessary-dunder-call,

@@ -4,6 +4,7 @@ import ast
 import jsonpickle
 
 from fastapi import HTTPException, status
+from pymongo.errors import PyMongoError
 
 # TODO
 # from inspect import getsourcelines
@@ -159,6 +160,14 @@ class RocketController:
                     rocket_option=self.rocket_option,
                     motor_kind=self.motor_kind,
                 )
+        except PyMongoError as e:
+            logger.error(f"controllers.rocket.create_rocket: PyMongoError {e}")
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=f"Failed to create rocket in the db",
+            ) from e
+        except HTTPException as e:
+            raise e from e
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.rocket.create_rocket: {exc_str}")
@@ -193,6 +202,16 @@ class RocketController:
             async with RocketRepository() as rocket_repo:
                 await rocket_repo.get_rocket_by_id(rocket_id)
                 read_rocket = rocket_repo.rocket
+        except PyMongoError as e:
+            logger.error(
+                f"controllers.rocket.get_rocket_by_id: PyMongoError {e}"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Failed to read rocket from db",
+            ) from e
+        except HTTPException as e:
+            raise e from e
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.rocket.get_rocket_by_id: {exc_str}")
@@ -274,6 +293,14 @@ class RocketController:
                     motor_kind=self.motor_kind,
                 )
                 await rocket_repo.delete_rocket_by_id(rocket_id)
+        except PyMongoError as e:
+            logger.error(f"controllers.rocket.update_rocket: PyMongoError {e}")
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Failed to update rocket in the db",
+            ) from e
+        except HTTPException as e:
+            raise e from e
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.rocket.update_rocket: {exc_str}")
@@ -307,6 +334,14 @@ class RocketController:
         try:
             async with RocketRepository() as rocket_repo:
                 await rocket_repo.delete_rocket_by_id(rocket_id)
+        except PyMongoError as e:
+            logger.error(f"controllers.rocket.delete_rocket: PyMongoError {e}")
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Failed to delete rocket from db",
+            ) from e
+        except HTTPException as e:
+            raise e from e
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.rocket.delete_rocket: {exc_str}")

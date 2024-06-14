@@ -1,7 +1,8 @@
 from typing import Union
-from lib import logger, parse_error
+from pymongo.errors import PyMongoError
+from lib import logger
 from lib.models.motor import Motor
-from lib.repositories.repo import Repository
+from lib.repositories.repo import Repository, RepositoryNotInitializedException
 
 
 class MotorRepository(Repository):
@@ -41,14 +42,17 @@ class MotorRepository(Repository):
         self._motor_id = motor_id
 
     async def insert_motor(self, motor_data: dict):
-        await self.collection.insert_one(motor_data)
+        collection = self.get_collection()
+        await collection.insert_one(motor_data)
         return self
 
     async def find_motor(self, motor_id: str):
-        return await self.collection.find_one({"motor_id": motor_id})
+        collection = self.get_collection()
+        return await collection.find_one({"motor_id": motor_id})
 
     async def delete_motor(self, motor_id: str):
-        await self.collection.delete_one({"motor_id": motor_id})
+        collection = self.get_collection()
+        await collection.delete_one({"motor_id": motor_id})
         return self
 
     async def create_motor(self, motor_kind: str = "SOLID"):
@@ -66,10 +70,10 @@ class MotorRepository(Repository):
             motor_to_dict["motor_id"] = self.motor_id
             motor_to_dict["motor_kind"] = motor_kind
             await self.insert_motor(motor_to_dict)
-        except Exception as e:
-            exc_str = parse_error(e)
-            logger.error(f"repositories.motor.create_motor: {exc_str}")
-            raise Exception(f"Error creating motor: {exc_str}") from e
+        except PyMongoError as e:
+            raise e from e
+        except RepositoryNotInitializedException as e:
+            raise e from e
         else:
             return self
         finally:
@@ -88,10 +92,10 @@ class MotorRepository(Repository):
             read_motor = await self.find_motor(motor_id)
             parsed_motor = Motor.parse_obj(read_motor) if read_motor else None
             self.motor = parsed_motor
-        except Exception as e:
-            exc_str = parse_error(e)
-            logger.error(f"repositories.motor.get_motor: {exc_str}")
-            raise Exception(f"Error getting motor: {exc_str}") from e
+        except PyMongoError as e:
+            raise e from e
+        except RepositoryNotInitializedException as e:
+            raise e from e
         else:
             return self
         finally:
@@ -108,10 +112,10 @@ class MotorRepository(Repository):
         """
         try:
             await self.delete_motor(motor_id)
-        except Exception as e:
-            exc_str = parse_error(e)
-            logger.error(f"repositories.motor.delete_motor: {exc_str}")
-            raise Exception(f"Error deleting motor: {exc_str}") from e
+        except PyMongoError as e:
+            raise e from e
+        except RepositoryNotInitializedException as e:
+            raise e from e
         else:
             return self
         finally:

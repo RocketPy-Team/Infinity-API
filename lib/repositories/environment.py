@@ -1,7 +1,8 @@
 from typing import Union
-from lib import logger, parse_error
+from pymongo.errors import PyMongoError
 from lib.models.environment import Env
-from lib.repositories.repo import Repository
+from lib import logger
+from lib.repositories.repo import Repository, RepositoryNotInitializedException
 
 
 class EnvRepository(Repository):
@@ -41,14 +42,17 @@ class EnvRepository(Repository):
         self._env_id = env_id
 
     async def insert_env(self, env_data: dict):
-        await self.collection.insert_one(env_data)
+        collection = self.get_collection()
+        await collection.insert_one(env_data)
         return self
 
     async def find_env(self, env_id: str):
-        return await self.collection.find_one({"env_id": env_id})
+        collection = self.get_collection()
+        return await collection.find_one({"env_id": env_id})
 
     async def delete_env(self, env_id: str):
-        await self.collection.delete_one({"env_id": env_id})
+        collection = self.get_collection()
+        await collection.delete_one({"env_id": env_id})
         return self
 
     async def create_env(self):
@@ -62,10 +66,10 @@ class EnvRepository(Repository):
             environment_to_dict = self.env.dict()
             environment_to_dict["env_id"] = self.env_id
             await self.insert_env(environment_to_dict)
-        except Exception as e:
-            exc_str = parse_error(e)
-            logger.error(f"repositories.environment.create_env: {exc_str}")
-            raise Exception(f"Error creating environment: {exc_str}") from e
+        except PyMongoError as e:
+            raise e from e
+        except RepositoryNotInitializedException as e:
+            raise e from e
         else:
             return self
         finally:
@@ -84,10 +88,10 @@ class EnvRepository(Repository):
             read_env = await self.find_env(env_id)
             parsed_env = Env.parse_obj(read_env) if read_env else None
             self.env = parsed_env
-        except Exception as e:
-            exc_str = parse_error(e)
-            logger.error(f"repositories.environment.get_env: {exc_str}")
-            raise Exception(f"Error getting environment: {exc_str}") from e
+        except PyMongoError as e:
+            raise e from e
+        except RepositoryNotInitializedException as e:
+            raise e from e
         else:
             return self
         finally:
@@ -104,10 +108,10 @@ class EnvRepository(Repository):
         """
         try:
             await self.delete_env(env_id)
-        except Exception as e:
-            exc_str = parse_error(e)
-            logger.error(f"repositories.environment.delete_env: {exc_str}")
-            raise Exception(f"Error deleting environment: {exc_str}") from e
+        except PyMongoError as e:
+            raise e from e
+        except RepositoryNotInitializedException as e:
+            raise e from e
         else:
             return self
         finally:

@@ -1,5 +1,6 @@
 from typing import Union
 from fastapi import HTTPException, status
+from pymongo.errors import PyMongoError
 
 from rocketpy.simulation.flight import Flight as RocketPyFlight
 
@@ -31,6 +32,7 @@ from lib.views.flight import (
 from lib.repositories.flight import FlightRepository
 from lib.controllers.environment import EnvController
 from lib.controllers.rocket import RocketController
+from lib.services.environment import EnvironmentService
 
 
 class FlightController:
@@ -87,7 +89,7 @@ class FlightController:
             RocketPyFlight
         """
         rocketpy_rocket = RocketController.get_rocketpy_rocket(flight.rocket)
-        rocketpy_env = EnvController.get_rocketpy_env(flight.environment)
+        rocketpy_env = EnvironmentService.from_env_model(flight.environment)
         rocketpy_flight = RocketPyFlight(
             rocket=rocketpy_rocket,
             inclination=flight.inclination,
@@ -111,6 +113,14 @@ class FlightController:
                     motor_kind=self.motor_kind,
                     rocket_option=self.rocket_option,
                 )
+        except PyMongoError as e:
+            logger.error(f"controllers.flight.create_flight: PyMongoError {e}")
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Failed to create flight in db",
+            ) from e
+        except HTTPException as e:
+            raise e from e
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.flight.create_flight: {exc_str}")
@@ -143,6 +153,16 @@ class FlightController:
             async with FlightRepository() as flight_repo:
                 await flight_repo.get_flight_by_id(flight_id)
                 read_flight = flight_repo.flight
+        except PyMongoError as e:
+            logger.error(
+                f"controllers.flight.get_flight_by_id: PyMongoError {e}"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Failed to read flight from db",
+            ) from e
+        except HTTPException as e:
+            raise e from e
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.flight.get_flight_by_id: {exc_str}")
@@ -225,6 +245,14 @@ class FlightController:
                     rocket_option=self.rocket_option,
                 )
                 await flight_repo.delete_flight_by_id(flight_id)
+        except PyMongoError as e:
+            logger.error(f"controllers.flight.update_flight: PyMongoError {e}")
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Failed to update flight in db",
+            ) from e
+        except HTTPException as e:
+            raise e from e
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.flight.update_flight: {exc_str}")
@@ -268,6 +296,14 @@ class FlightController:
                     rocket_option=read_flight.rocket.rocket_option,
                 )
                 await flight_repo.delete_flight_by_id(flight_id)
+        except PyMongoError as e:
+            logger.error(
+                f"controllers.flight.update_env_by_flight_id: PyMongoError {e}"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Failed to update environment from db",
+            ) from e
         except HTTPException as e:
             raise e from e
         except Exception as e:
@@ -315,6 +351,14 @@ class FlightController:
                     motor_kind=motor_kind, rocket_option=rocket_option
                 )
                 await flight_repo.delete_flight_by_id(flight_id)
+        except PyMongoError as e:
+            logger.error(
+                f"controllers.flight.update_rocket_by_flight_id: PyMongoError {e}"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Failed to update rocket from db",
+            ) from e
         except HTTPException as e:
             raise e from e
         except Exception as e:
@@ -350,6 +394,14 @@ class FlightController:
         try:
             async with FlightRepository() as flight_repo:
                 await flight_repo.delete_flight_by_id(flight_id)
+        except PyMongoError as e:
+            logger.error(f"controllers.flight.delete_flight: PyMongoError {e}")
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Failed to delete flight from db",
+            ) from e
+        except HTTPException as e:
+            raise e from e
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(f"controllers.flight.delete_flight: {exc_str}")
