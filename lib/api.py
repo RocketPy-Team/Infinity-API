@@ -9,6 +9,9 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import RedirectResponse, JSONResponse
 
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
+
 from lib import logger, parse_error
 from lib.routes import flight, environment, motor, rocket
 
@@ -29,6 +32,9 @@ app.include_router(flight.router)
 app.include_router(environment.router)
 app.include_router(motor.router)
 app.include_router(rocket.router)
+
+FastAPIInstrumentor.instrument_app(app)
+RequestsInstrumentor().instrument()
 
 # Compress responses above 1KB
 app.add_middleware(GZipMiddleware, minimum_size=1000)
