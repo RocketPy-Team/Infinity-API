@@ -1,4 +1,5 @@
 from typing import Union
+from bson import ObjectId
 from pymongo.errors import PyMongoError
 from lib.models.environment import Env
 from lib import logger
@@ -11,19 +12,12 @@ class EnvRepository(Repository):
 
     Init Attributes:
         environment: models.Env
-        env_id: str
-
     """
 
-    def __init__(self):
+    def __init__(self, environment: Env = None):
         super().__init__("environments")
-        self._env = None
+        self._env = environment
         self._env_id = None
-
-    def fetch_env(self, environment: Env):
-        self.env = environment
-        self.env_id = environment.env_id
-        return self
 
     @property
     def env(self) -> Env:
@@ -35,7 +29,7 @@ class EnvRepository(Repository):
 
     @property
     def env_id(self) -> str:
-        return self._env_id
+        return str(self._env_id)
 
     @env_id.setter
     def env_id(self, env_id: "str"):
@@ -43,12 +37,20 @@ class EnvRepository(Repository):
 
     async def insert_env(self, env_data: dict):
         collection = self.get_collection()
-        await collection.insert_one(env_data)
+        result = await collection.insert_one(env_data)
+        self.env_id = result.inserted_id
+        return self
+
+    async def update_env(self, env_data: dict, env_id: str):
+        collection = self.get_collection()
+        await collection.update_one(
+            {"_id": ObjectId(env_id)}, {"$set": env_data}
+        )
         return self
 
     async def find_env(self, env_id: str):
         collection = self.get_collection()
-        return await collection.find_one({"env_id": env_id})
+        return await collection.find_one({"_id": ObjectId(env_id)})
 
     async def delete_env(self, env_id: str):
         collection = self.get_collection()
@@ -57,14 +59,13 @@ class EnvRepository(Repository):
 
     async def create_env(self):
         """
-        Creates a non-existing models.Env in the database
+        Creates a models.Env in the database
 
         Returns:
             self
         """
         try:
             environment_to_dict = self.env.dict()
-            environment_to_dict["env_id"] = self.env_id
             await self.insert_env(environment_to_dict)
         except PyMongoError as e:
             raise e from e
@@ -117,4 +118,25 @@ class EnvRepository(Repository):
         finally:
             logger.info(
                 f"Call to repositories.environment.delete_env completed for Env {env_id}"
+            )
+
+    async def update_env_by_id(self, env_id: str):
+        """
+        Updates a models.Env in the database
+
+        Returns:
+            self
+        """
+        try:
+            environment_to_dict = self.env.dict()
+            await self.update_env(environment_to_dict, env_id)
+        except PyMongoError as e:
+            raise e from e
+        except RepositoryNotInitializedException as e:
+            raise e from e
+        else:
+            return self
+        finally:
+            logger.info(
+                f"Call to repositories.environment.update_env_by_id completed for Env {env_id}"
             )

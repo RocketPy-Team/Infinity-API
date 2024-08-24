@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, Union
 from rocketpy import (
     LevelBasedTank,
     MassBasedTank,
@@ -28,36 +28,40 @@ class TankKinds(str, Enum):
     ULLAGE: str = "ULLAGE"
 
 
-class TankFluids(BaseModel, frozen=True):
-    name: str = "FLUIDNAME"
-    density: float = 100.0
+class TankFluids(BaseModel):
+    name: str
+    density: float
 
 
-class MotorTank(BaseModel, frozen=True):
+class MotorTank(BaseModel):
     # Required parameters
-    geometry: "List[Tuple[Tuple[float,float],float]]" = [
-        ((0, 5), 1),
-        ((5, 10), 2),
+    geometry: List[Tuple[Tuple[float, float], float]] = [
+        ((0.0, 5.0), 1.0),
+        ((5.0, 10.0), 2.0),
     ]
     tank_kind: TankKinds = TankKinds.MASS_FLOW
-    gas: TankFluids = TankFluids()
-    liquid: TankFluids = TankFluids()
+    gas: TankFluids = TankFluids(name="GAS", density=100)
+    liquid: TankFluids = TankFluids(name="LIQUID", density=1000)
     name: str = "Tank"
-    flux_time: "List[float]" = [0, 8]
+    flux_time: Tuple[float, float] = (0.0, 3.9)
     position: float = 1.0
+    discretize: int = 100
 
     # Optional parameters
-    discretize: Optional[int] = 100
     liquid_height: Optional[float] = 0.5
     liquid_mass: Optional[float] = 5.0
     gas_mass: Optional[float] = 0.1
-    gas_mass_flow_rate_in: Optional[float] = 0.1
+    gas_mass_flow_rate_in: Optional[float] = 0.0
     gas_mass_flow_rate_out: Optional[float] = 0.1
-    liquid_mass_flow_rate_in: Optional[float] = 0.1
-    liquid_mass_flow_rate_out: Optional[float] = 0.1
+    liquid_mass_flow_rate_in: Optional[float] = 0.0
+    liquid_mass_flow_rate_out: Optional[float] = 1
     initial_liquid_mass: Optional[float] = 5.0
-    initial_gas_mass: Optional[float] = 0.1
+    initial_gas_mass: Optional[float] = 0.4
     ullage: Optional[float] = 0.1
+
+    _tank: Union[
+        LevelBasedTank, MassBasedTank, MassFlowRateBasedTank, UllageBasedTank
+    ] = PrivateAttr()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -93,28 +97,25 @@ class MotorTank(BaseModel, frozen=True):
                 )
             case TankKinds.ullage:
                 tank = UllageBasedTank(**tank_core, ullage=self.ullage)
-        object.__setattr__(self, "tank", tank)
+        self._tank = tank
 
-    def __hash__(self):
-        temp = vars(self)
-        temp = str(temp)
-        return hash(temp)
+    @property
+    def tank(self):
+        return self._tank
 
 
-class Motor(BaseModel, frozen=True):
-    # TODO: thrust_source must be the id of a previously uploaded .eng file and a list of "default" files must be provided in the api docs
-
+class Motor(BaseModel):
     # Required parameters
     thrust_source: MotorEngines = MotorEngines.CESARONI_M1670
     burn_time: float = 3.9
     nozzle_radius: float = 0.033
     dry_mass: float = 1.815
-    dry_inertia: "Tuple[float, float, float]" = (0.125, 0.125, 0.002)
+    dry_inertia: Tuple[float, float, float] = (0.125, 0.125, 0.002)
     center_of_dry_mass_position: float = 0.317
-    _motor_kind: MotorKinds = PrivateAttr()
+    _motor_kind: MotorKinds = PrivateAttr(default=MotorKinds.SOLID)
 
     # Optional parameters
-    tanks: Optional["List[MotorTank]"] = [MotorTank()]
+    tanks: Optional[List[MotorTank]] = [MotorTank()]
     grain_number: Optional[int] = 5
     grain_density: Optional[float] = 1815
     grain_outer_radius: Optional[float] = 0.033
@@ -128,19 +129,9 @@ class Motor(BaseModel, frozen=True):
         "nozzle_to_combustion_chamber"
     )
 
-    def __init__(self, motor_kind=MotorKinds.SOLID, **kwargs):
-        super().__init__(**kwargs)
-        self._motor_kind = motor_kind
-
     @property
     def motor_kind(self) -> MotorKinds:
         return self._motor_kind
 
-    @property
-    def motor_id(self) -> str:
-        return str(hash(self))
-
-    def __hash__(self):
-        temp = vars(self)
-        temp = str(temp)
-        return hash(temp)
+    def set_motor_kind(self, motor_kind: MotorKinds):
+        self._motor_kind = motor_kind

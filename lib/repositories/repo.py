@@ -1,12 +1,18 @@
 import asyncio
 import threading
+
+from tenacity import (
+    stop_after_attempt,
+    wait_fixed,
+    retry,
+)
+from pydantic import BaseModel
+from pymongo.server_api import ServerApi
+from motor.motor_asyncio import AsyncIOMotorClient
+from fastapi import HTTPException, status
+
 from lib import logger
 from lib.secrets import Secrets
-from pydantic import BaseModel
-from fastapi import HTTPException, status
-from motor.motor_asyncio import AsyncIOMotorClient
-from pymongo.server_api import ServerApi
-from tenacity import retry, stop_after_attempt, wait_fixed
 
 
 class RepositoryNotInitializedException(HTTPException):

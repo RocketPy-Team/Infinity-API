@@ -53,12 +53,12 @@ class RocketCreated(BaseModel):
 
 
 class RocketUpdated(BaseModel):
-    new_rocket_id: str
+    rocket_id: str
     message: str = "Rocket successfully updated"
 
 
 class RocketDeleted(BaseModel):
-    deleted_rocket_id: str
+    rocket_id: str
     message: str = "Rocket successfully deleted"
 
 

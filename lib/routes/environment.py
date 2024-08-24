@@ -9,7 +9,6 @@ from lib.views.environment import (
     EnvSummary,
     EnvCreated,
     EnvUpdated,
-    EnvDeleted,
     EnvPickle,
 )
 from lib.models.environment import Env
@@ -67,18 +66,6 @@ async def update_env(env_id: str, env: Env) -> EnvUpdated:
         return await EnvController(env).update_env_by_id(env_id)
 
 
-@router.delete("/{env_id}")
-async def delete_env(env_id: str) -> EnvDeleted:
-    """
-    Deletes an environment
-
-    ## Args
-    ``` env_id: Environment ID hash ```
-    """
-    with tracer.start_as_current_span("delete_env"):
-        return await EnvController.delete_env_by_id(env_id)
-
-
 @router.get("/rocketpy/{env_id}")
 async def read_rocketpy_env(env_id: str) -> EnvPickle:
     """
@@ -91,7 +78,7 @@ async def read_rocketpy_env(env_id: str) -> EnvPickle:
         return await EnvController.get_rocketpy_env_as_jsonpickle(env_id)
 
 
-@router.get("/{env_id}/simulate")
+@router.get("/{env_id}/simulate", include_in_schema=False)
 async def simulate_env(env_id: str) -> EnvSummary:
     """
     Loads rocketpy.environment simulation

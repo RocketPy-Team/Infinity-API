@@ -48,8 +48,7 @@ class EnvController:
             views.EnvCreated
         """
         try:
-            async with EnvRepository() as env_repo:
-                env_repo.fetch_env(self.env)
+            async with EnvRepository(self.env) as env_repo:
                 await env_repo.create_env()
         except PyMongoError as e:
             logger.error(
@@ -69,10 +68,10 @@ class EnvController:
                 detail=f"Failed to create environment: {exc_str}",
             ) from e
         else:
-            return EnvCreated(env_id=self.env.env_id)
+            return EnvCreated(env_id=env_repo.env_id)
         finally:
             logger.info(
-                f"Call to controllers.environment.create_env completed for Env {hash(self.env)}"
+                f"Call to controllers.environment.create_env completed for Env {env_repo.env_id}"
             )
 
     @staticmethod
@@ -178,10 +177,8 @@ class EnvController:
             HTTP 404 Not Found: If the env is not found in the database.
         """
         try:
-            async with EnvRepository() as env_repo:
-                env_repo.fetch_env(self.env)
-                await env_repo.create_env()
-                await env_repo.delete_env_by_id(env_id)
+            async with EnvRepository(self.env) as env_repo:
+                await env_repo.update_env_by_id(env_id)
         except PyMongoError as e:
             logger.error(
                 f"controllers.environment.update_env: PyMongoError {e}"
@@ -200,10 +197,10 @@ class EnvController:
                 detail=f"Failed to update environment: {exc_str}",
             ) from e
         else:
-            return EnvUpdated(new_env_id=self.env.env_id)
+            return EnvUpdated(env_id=env_id)
         finally:
             logger.info(
-                f"Call to controllers.environment.update_env completed for Env {env_id}; Env {hash(self.env)}"
+                f"Call to controllers.environment.update_env completed for Env {env_id}"
             )
 
     @staticmethod
@@ -243,7 +240,7 @@ class EnvController:
                 detail=f"Failed to delete environment: {exc_str}",
             ) from e
         else:
-            return EnvDeleted(deleted_env_id=env_id)
+            return EnvDeleted(env_id=env_id)
         finally:
             logger.info(
                 f"Call to controllers.environment.delete_env completed for Env {env_id}"
