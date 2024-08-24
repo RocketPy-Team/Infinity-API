@@ -1,7 +1,10 @@
 from typing import Union
+from bson import ObjectId
 from pymongo.errors import PyMongoError
 from lib import logger
 from lib.models.flight import Flight
+from lib.models.rocket import RocketOptions
+from lib.models.motor import MotorKinds
 from lib.repositories.repo import Repository, RepositoryNotInitializedException
 
 
@@ -11,19 +14,12 @@ class FlightRepository(Repository):
 
     Init Attributes:
         flight: models.Flight
-        flight_id: str
-
     """
 
-    def __init__(self):
+    def __init__(self, flight: Flight = None):
         super().__init__("flights")
-        self._flight = None
+        self._flight = flight
         self._flight_id = None
-
-    def fetch_flight(self, flight: Flight):
-        self.flight = flight
-        self.flight_id = flight.flight_id
-        return self
 
     @property
     def flight(self) -> Flight:
@@ -35,7 +31,7 @@ class FlightRepository(Repository):
 
     @property
     def flight_id(self) -> str:
-        return self._flight_id
+        return str(self._flight_id)
 
     @flight_id.setter
     def flight_id(self, flight_id: "str"):
@@ -43,35 +39,55 @@ class FlightRepository(Repository):
 
     async def insert_flight(self, flight_data: dict):
         collection = self.get_collection()
-        await collection.insert_one(flight_data)
+        result = await collection.insert_one(flight_data)
+        self.flight_id = result.inserted_id
+        return self
+
+    async def update_flight(self, flight_data: dict, flight_id: str):
+        collection = self.get_collection()
+        await collection.update_one(
+            {"_id": ObjectId(flight_id)}, {"$set": flight_data}
+        )
+        return self
+
+    async def update_env(self, env_data: dict, flight_id: str):
+        collection = self.get_collection()
+        await collection.update_one(
+            {"_id": ObjectId(flight_id)}, {"$set": {"environment": env_data}}
+        )
+        return self
+
+    async def update_rocket(self, rocket_data: dict, flight_id: str):
+        collection = self.get_collection()
+        await collection.update_one(
+            {"_id": ObjectId(flight_id)}, {"$set": {"rocket": rocket_data}}
+        )
+        return self
 
     async def find_flight(self, flight_id: str):
         collection = self.get_collection()
-        return await collection.find_one({"flight_id": flight_id})
+        return await collection.find_one({"_id": ObjectId(flight_id)})
 
     async def delete_flight(self, flight_id: str):
         collection = self.get_collection()
         await collection.delete_one({"flight_id": flight_id})
         return self
 
-    async def create_flight(
-        self, *, motor_kind: str = "SOLID", rocket_option: str = "CALISTO"
-    ):
+    async def create_flight(self):
         """
-        Creates a non-existing models.Flight in the database
-
-        Args:
-            rocket_option: models.rocket.RocketOptions
-            motor_kind: models.motor.MotorKinds
+        Creates a models.Flight in the database
 
         Returns:
             self
         """
         try:
             flight_to_dict = self.flight.dict()
-            flight_to_dict["flight_id"] = self.flight_id
-            flight_to_dict["rocket"]["rocket_option"] = rocket_option
-            flight_to_dict["rocket"]["motor"]["motor_kind"] = motor_kind
+            flight_to_dict["rocket"][
+                "rocket_option"
+            ] = self.flight.rocket.rocket_option.value
+            flight_to_dict["rocket"]["motor"][
+                "motor_kind"
+            ] = self.flight.rocket.motor.motor_kind.value
             await self.insert_flight(flight_to_dict)
         except PyMongoError as e:
             raise e from e
@@ -95,6 +111,12 @@ class FlightRepository(Repository):
             read_flight = await self.find_flight(flight_id)
             parsed_flight = (
                 Flight.parse_obj(read_flight) if read_flight else None
+            )
+            parsed_flight.rocket.motor.set_motor_kind(
+                MotorKinds(read_flight["rocket"]["motor"]["motor_kind"])
+            )
+            parsed_flight.rocket.set_rocket_option(
+                RocketOptions(read_flight["rocket"]["rocket_option"])
             )
             self.flight = parsed_flight
         except PyMongoError as e:
@@ -126,4 +148,79 @@ class FlightRepository(Repository):
         finally:
             logger.info(
                 f"Call to repositories.flight.delete_flight completed for Flight {flight_id}"
+            )
+
+    async def update_flight_by_id(self, flight_id: str):
+        """
+        Updates a models.Flight in the database
+
+        Returns:
+            self
+        """
+        try:
+            flight_to_dict = self.flight.dict()
+            flight_to_dict["rocket"][
+                "rocket_option"
+            ] = self.flight.rocket.rocket_option.value
+            flight_to_dict["rocket"]["motor"][
+                "motor_kind"
+            ] = self.flight.rocket.motor.motor_kind.value
+            await self.update_flight(flight_to_dict, flight_id)
+        except PyMongoError as e:
+            raise e from e
+        except RepositoryNotInitializedException as e:
+            raise e from e
+        else:
+            return self
+        finally:
+            logger.info(
+                f"Call to repositories.flight.update_flight_by_id completed for Flight {flight_id}"
+            )
+
+    async def update_env_by_flight_id(self, flight_id: str):
+        """
+        Updates a models.Flight.Env in the database
+
+        Returns:
+            self
+        """
+        try:
+            env_to_dict = self.flight.env.dict()
+            await self.update_env(env_to_dict, flight_id)
+        except PyMongoError as e:
+            raise e from e
+        except RepositoryNotInitializedException as e:
+            raise e from e
+        else:
+            return self
+        finally:
+            logger.info(
+                f"Call to repositories.flight.update_env_by_flight_id completed for Flight {flight_id}"
+            )
+
+    async def update_rocket_by_flight_id(self, flight_id: str):
+        """
+        Updates a models.Flight.Rocket in the database
+
+        Returns:
+            self
+        """
+        try:
+            rocket_to_dict = self.flight.rocket.dict()
+            rocket_to_dict["rocket_option"] = (
+                self.flight.rocket.rocket_option.value
+            )
+            rocket_to_dict["motor"][
+                "motor_kind"
+            ] = self.flight.rocket.motor.motor_kind.value
+            await self.update_rocket(rocket_to_dict, flight_id)
+        except PyMongoError as e:
+            raise e from e
+        except RepositoryNotInitializedException as e:
+            raise e from e
+        else:
+            return self
+        finally:
+            logger.info(
+                f"Call to repositories.flight.update_rocket_by_flight_id completed for Flight {flight_id}"
             )

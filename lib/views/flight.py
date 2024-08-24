@@ -112,12 +112,12 @@ class FlightCreated(BaseModel):
 
 
 class FlightUpdated(BaseModel):
-    new_flight_id: str
+    flight_id: str
     message: str = "Flight successfully updated"
 
 
 class FlightDeleted(BaseModel):
-    deleted_flight_id: str
+    flight_id: str
     message: str = "Flight successfully deleted"
 
 

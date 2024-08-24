@@ -9,7 +9,6 @@ from lib.views.motor import (
     MotorSummary,
     MotorCreated,
     MotorUpdated,
-    MotorDeleted,
     MotorPickle,
 )
 from lib.models.motor import Motor, MotorKinds
@@ -37,9 +36,8 @@ async def create_motor(motor: Motor, motor_kind: MotorKinds) -> MotorCreated:
     ``` Motor object as a JSON ```
     """
     with tracer.start_as_current_span("create_motor"):
-        return await MotorController(
-            motor=motor, motor_kind=motor_kind
-        ).create_motor()
+        motor.set_motor_kind(motor_kind)
+        return await MotorController(motor).create_motor()
 
 
 @router.get("/{motor_id}")
@@ -48,7 +46,7 @@ async def read_motor(motor_id: str) -> Motor:
     Reads a motor
 
     ## Args
-    ``` motor_id: Motor ID hash ```
+    ``` motor_id: Motor ID ```
     """
     with tracer.start_as_current_span("read_motor"):
         return await MotorController.get_motor_by_id(motor_id)
@@ -63,26 +61,13 @@ async def update_motor(
 
     ## Args
     ```
-        motor_id: Motor ID hash
+        motor_id: Motor ID
         motor: Motor object as JSON
     ```
     """
     with tracer.start_as_current_span("update_motor"):
-        return await MotorController(
-            motor=motor, motor_kind=motor_kind
-        ).update_motor_by_id(motor_id)
-
-
-@router.delete("/{motor_id}")
-async def delete_motor(motor_id: str) -> MotorDeleted:
-    """
-    Deletes a motor
-
-    ## Args
-    ``` motor_id: Motor ID hash ```
-    """
-    with tracer.start_as_current_span("delete_motor"):
-        return await MotorController.delete_motor_by_id(motor_id)
+        motor.set_motor_kind(motor_kind)
+        return await MotorController(motor).update_motor_by_id(motor_id)
 
 
 @router.get("/rocketpy/{motor_id}")
@@ -91,19 +76,19 @@ async def read_rocketpy_motor(motor_id: str) -> MotorPickle:
     Reads a rocketpy motor
 
     ## Args
-    ``` motor_id: Motor ID hash ```
+    ``` motor_id: Motor ID ```
     """
     with tracer.start_as_current_span("read_rocketpy_motor"):
         return await MotorController.get_rocketpy_motor_as_jsonpickle(motor_id)
 
 
-@router.get("/{motor_id}/simulate")
+@router.get("/{motor_id}/simulate", include_in_schema=False)
 async def simulate_motor(motor_id: str) -> MotorSummary:
     """
     Simulates a motor
 
     ## Args
-    ``` motor_id: Motor ID hash ```
+    ``` motor_id: Motor ID ```
     """
     with tracer.start_as_current_span("simulate_motor"):
         return await MotorController.simulate_motor(motor_id)

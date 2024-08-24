@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class Env(BaseModel, frozen=True):
+class Env(BaseModel):
     latitude: float = 0
     longitude: float = 0
     elevation: Optional[int] = 1400
@@ -14,7 +14,3 @@ class Env(BaseModel, frozen=True):
     date: Optional[datetime.datetime] = (
         datetime.datetime.today() + datetime.timedelta(days=1)
     )
-
-    @property
-    def env_id(self) -> str:
-        return str(hash(self))

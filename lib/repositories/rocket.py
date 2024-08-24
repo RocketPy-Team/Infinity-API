@@ -1,7 +1,9 @@
 from typing import Union
+from bson import ObjectId
 from pymongo.errors import PyMongoError
 from lib import logger
-from lib.models.rocket import Rocket
+from lib.models.rocket import Rocket, RocketOptions
+from lib.models.motor import MotorKinds
 from lib.repositories.repo import Repository, RepositoryNotInitializedException
 
 
@@ -11,19 +13,12 @@ class RocketRepository(Repository):
 
     Init Attributes:
         rocket: models.Rocket
-        rocket_id: str
-
     """
 
-    def __init__(self):
+    def __init__(self, rocket: Rocket = None):
         super().__init__("rockets")
         self._rocket_id = None
-        self._rocket = None
-
-    def fetch_rocket(self, rocket: Rocket):
-        self.rocket = rocket
-        self.rocket_id = rocket.rocket_id
-        return self
+        self._rocket = rocket
 
     @property
     def rocket(self) -> Rocket:
@@ -35,7 +30,7 @@ class RocketRepository(Repository):
 
     @property
     def rocket_id(self) -> str:
-        return self._rocket_id
+        return str(self._rocket_id)
 
     @rocket_id.setter
     def rocket_id(self, rocket_id: "str"):
@@ -43,36 +38,39 @@ class RocketRepository(Repository):
 
     async def insert_rocket(self, rocket_data: dict):
         collection = self.get_collection()
-        await collection.insert_one(rocket_data)
+        result = await collection.insert_one(rocket_data)
+        self.rocket_id = result.inserted_id
+        return self
+
+    async def update_rocket(self, rocket_data: dict, rocket_id: str):
+        collection = self.get_collection()
+        await collection.update_one(
+            {"_id": ObjectId(rocket_id)}, {"$set": rocket_data}
+        )
         return self
 
     async def find_rocket(self, rocket_id: str):
         collection = self.get_collection()
-        return await collection.find_one({"rocket_id": rocket_id})
+        return await collection.find_one({"_id": ObjectId(rocket_id)})
 
     async def delete_rocket(self, rocket_id: str):
         collection = self.get_collection()
         await collection.delete_one({"rocket_id": rocket_id})
         return self
 
-    async def create_rocket(
-        self, *, rocket_option: str = "CALISTO", motor_kind: str = "SOLID"
-    ):
+    async def create_rocket(self):
         """
-        Creates a non-existing models.Rocket in the database
-
-        Args:
-            rocket_option: models.rocket.RocketOptions
-            motor_kind: models.motor.MotorKinds
+        Creates a models.Rocket in the database
 
         Returns:
             self
         """
         try:
             rocket_to_dict = self.rocket.dict()
-            rocket_to_dict["rocket_id"] = self.rocket_id
-            rocket_to_dict["rocket_option"] = rocket_option
-            rocket_to_dict["motor"]["motor_kind"] = motor_kind
+            rocket_to_dict["rocket_option"] = self.rocket.rocket_option.value
+            rocket_to_dict["motor"][
+                "motor_kind"
+            ] = self.rocket.motor.motor_kind.value
             await self.insert_rocket(rocket_to_dict)
         except PyMongoError as e:
             raise e from e
@@ -96,6 +94,12 @@ class RocketRepository(Repository):
             read_rocket = await self.find_rocket(rocket_id)
             parsed_rocket = (
                 Rocket.parse_obj(read_rocket) if read_rocket else None
+            )
+            parsed_rocket.motor.set_motor_kind(
+                MotorKinds(read_rocket["motor"]["motor_kind"])
+            )
+            parsed_rocket.set_rocket_option(
+                RocketOptions(read_rocket["rocket_option"])
             )
             self.rocket = parsed_rocket
         except PyMongoError as e:
@@ -127,4 +131,29 @@ class RocketRepository(Repository):
         finally:
             logger.info(
                 f"Call to repositories.rocket.delete_rocket completed for Rocket {rocket_id}"
+            )
+
+    async def update_rocket_by_id(self, rocket_id: str):
+        """
+        Updates a models.Rocket in the database
+
+        Returns:
+            self
+        """
+        try:
+            rocket_to_dict = self.rocket.dict()
+            rocket_to_dict["rocket_option"] = self.rocket.rocket_option.value
+            rocket_to_dict["motor"][
+                "motor_kind"
+            ] = self.rocket.motor.motor_kind.value
+            await self.update_rocket(rocket_to_dict, rocket_id)
+        except PyMongoError as e:
+            raise e from e
+        except RepositoryNotInitializedException as e:
+            raise e from e
+        else:
+            return self
+        finally:
+            logger.info(
+                f"Call to repositories.rocket.update_rocket_by_id completed for Rocket {rocket_id}"
             )

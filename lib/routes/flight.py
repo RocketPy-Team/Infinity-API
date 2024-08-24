@@ -9,7 +9,6 @@ from lib.views.flight import (
     FlightSummary,
     FlightCreated,
     FlightUpdated,
-    FlightDeleted,
     FlightPickle,
 )
 from lib.models.environment import Env
@@ -42,9 +41,9 @@ async def create_flight(
     ``` Flight object as JSON ```
     """
     with tracer.start_as_current_span("create_flight"):
-        return await FlightController(
-            flight, rocket_option=rocket_option, motor_kind=motor_kind
-        ).create_flight()
+        flight.rocket.set_rocket_option(rocket_option)
+        flight.rocket.motor.set_motor_kind(motor_kind)
+        return await FlightController(flight).create_flight()
 
 
 @router.get("/{flight_id}")
@@ -53,7 +52,7 @@ async def read_flight(flight_id: str) -> Flight:
     Reads a flight
 
     ## Args
-    ``` flight_id: Flight ID hash ```
+    ``` flight_id: Flight ID ```
     """
     with tracer.start_as_current_span("read_flight"):
         return await FlightController.get_flight_by_id(flight_id)
@@ -65,7 +64,7 @@ async def read_rocketpy_flight(flight_id: str) -> FlightPickle:
     Reads a rocketpy flight object
 
     ## Args
-    ``` flight_id: Flight ID hash. ```
+    ``` flight_id: Flight ID ```
     """
     with tracer.start_as_current_span("read_rocketpy_flight"):
         return await FlightController.get_rocketpy_flight_as_jsonpickle(
@@ -80,7 +79,7 @@ async def update_flight_env(flight_id: str, env: Env) -> FlightUpdated:
 
     ## Args
     ```
-        flight_id: Flight ID hash
+        flight_id: Flight ID
         env: env object as JSON
     ```
     """
@@ -102,16 +101,16 @@ async def update_flight_rocket(
 
     ## Args
     ```
-        flight_id: Flight ID hash.
+        flight_id: Flight ID
         rocket: Rocket object as JSON
     ```
     """
     with tracer.start_as_current_span("update_flight_rocket"):
+        rocket.set_rocket_option(rocket_option)
+        rocket.motor.set_motor_kind(motor_kind)
         return await FlightController.update_rocket_by_flight_id(
             flight_id,
             rocket=rocket,
-            rocket_option=rocket_option,
-            motor_kind=motor_kind,
         )
 
 
@@ -127,35 +126,23 @@ async def update_flight(
 
     ## Args
     ```
-        flight_id: Flight ID hash.
+        flight_id: Flight ID
         flight: Flight object as JSON
     ```
     """
     with tracer.start_as_current_span("update_flight"):
-        return await FlightController(
-            flight, rocket_option=rocket_option, motor_kind=motor_kind
-        ).update_flight_by_id(flight_id)
+        flight.rocket.set_rocket_option(rocket_option)
+        flight.rocket.motor.set_motor_kind(motor_kind)
+        return await FlightController(flight).update_flight_by_id(flight_id)
 
 
-@router.delete("/{flight_id}")
-async def delete_flight(flight_id: str) -> FlightDeleted:
-    """
-    Deletes a flight
-
-    ## Args
-    ``` flight_id: Flight ID hash ```
-    """
-    with tracer.start_as_current_span("delete_flight"):
-        return await FlightController.delete_flight_by_id(flight_id)
-
-
-@router.get("/{flight_id}/simulate")
+@router.get("/{flight_id}/simulate", include_in_schema=False)
 async def simulate_flight(flight_id: str) -> FlightSummary:
     """
     Simulates a flight
 
     ## Args
-    ``` flight_id: Flight ID hash ```
+    ``` flight_id: Flight ID ```
     """
     with tracer.start_as_current_span("simulate_flight"):
         return await FlightController.simulate_flight(flight_id)

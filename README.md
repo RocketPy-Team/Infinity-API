@@ -18,7 +18,7 @@ $ touch .env && echo MONGODB_CONNECTION_STRING="$ConnectionString" > .env
 ### Docker
 - run docker compose: `docker-compose up --build -d`
 
-### Standard
+### Standalone 
 - Dev: `python3 -m uvicorn lib:app --reload --port 3000`
 - Prod: `gunicorn -k uvicorn.workers.UvicornWorker lib:app -b 0.0.0.0:3000`
 
@@ -33,6 +33,12 @@ $ touch .env && echo MONGODB_CONNECTION_STRING="$ConnectionString" > .env
 │   │── secrets.py
 │   │   
 │   ├── controllers
+│   │   ├── environment.py
+│   │   ├── flight.py
+│   │   ├── motor.py
+│   │   └── rocket.py
+│   │   
+│   ├── services 
 │   │   ├── environment.py
 │   │   ├── flight.py
 │   │   ├── motor.py
@@ -66,43 +72,51 @@ $ touch .env && echo MONGODB_CONNECTION_STRING="$ConnectionString" > .env
 │       └── rocket.py
 │   
 └── tests
-    ├── infinity-api-postman-collection.json
-    │   
     ├── integration 
+    │   ├── test_environment_integration.py
+    │   ├── test_motor_integration.py
+    │   ├── test_rocket_integration.py
+    │   └── test_flight_integration.py
     │   
     └── unit
         ├── test_secrets.py
         ├── test_api.py
         │   
         ├── test_controllers
-        │   ├── test_environment.py
-        │   ├── test_flight.py
-        │   ├── test_motor.py
-        │   └── test_rocket.py
+        │   ├── test_environment_controller.py
+        │   ├── test_flight_controller.py
+        │   ├── test_motor_controller.py
+        │   └── test_rocket_controller.py
+        │   
+        ├── test_services
+        │   ├── test_environment_service.py
+        │   ├── test_flight_service.py
+        │   ├── test_motor_service.py
+        │   └── test_rocket_serice.py
         │
         ├── test_routes
-        │   ├── test_environment.py
-        │   ├── test_flight.py
-        │   ├── test_motor.py
-        │   └── test_rocket.py
+        │   ├── test_environment_route.py
+        │   ├── test_flight_route.py
+        │   ├── test_motor_route.py
+        │   └── test_rocket_route.py
         │
         ├── test_repositories
-        │   ├── test_environment.py
-        │   ├── test_flight.py
-        │   ├── test_motor.py
-        │   └── test_rocket.py
+        │   ├── test_environment_repo.py
+        │   ├── test_flight_repo.py
+        │   ├── test_motor_repo.py
+        │   └── test_rocket_repo.py
         │
         ├── test_models
-        │   ├── test_environment.py
-        │   ├── test_flight.py
-        │   ├── test_motor.py
-        │   └── test_rocket.py
+        │   ├── test_environment_model.py
+        │   ├── test_flight_model.py
+        │   ├── test_motor_model.py
+        │   └── test_rocket_model.py
         │   
         └── test_views
-            ├── test_environment.py
-            ├── test_flight.py
-            ├── test_motor.py
-            └── test_rocket.py
+            ├── test_environment_view.py
+            ├── test_flight_view.py
+            ├── test_motor_view.py
+            └── test_rocket_view.py
 ```
 
 ## DOCS

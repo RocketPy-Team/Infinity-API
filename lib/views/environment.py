@@ -1,4 +1,3 @@
-from typing import List
 from pydantic import BaseModel
 
 
@@ -53,12 +52,12 @@ class EnvCreated(BaseModel):
 
 
 class EnvUpdated(BaseModel):
-    new_env_id: str
+    env_id: str
     message: str = "Environment successfully updated"
 
 
 class EnvDeleted(BaseModel):
-    deleted_env_id: str
+    env_id: str
     message: str = "Environment successfully deleted"
 
 

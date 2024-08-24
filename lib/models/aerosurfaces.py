@@ -2,38 +2,38 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class RailButtons(BaseModel, frozen=True):
-    upper_button_position: Optional[float] = -0.5
-    lower_button_position: Optional[float] = 0.2
-    angular_position: Optional[float] = 45
+class RailButtons(BaseModel):
+    upper_button_position: float
+    lower_button_position: float
+    angular_position: float
 
 
-class NoseCone(BaseModel, frozen=True):
-    length: float = 0.55829
-    kind: str = "vonKarman"
-    position: float = 1.278
-    base_radius: float = 0.0635
-    rocket_radius: float = 0.0635
+class NoseCone(BaseModel):
+    length: float
+    kind: str
+    position: float
+    base_radius: float
+    rocket_radius: float
 
 
-class Fins(BaseModel, frozen=True):
-    n: int = 4
-    root_chord: float = 0.12
-    tip_chord: float = 0.04
-    span: float = 0.1
-    position: float = -1.04956
-    cant_angle: float = 0
-    radius: float = 0.0635
-    airfoil: str = ""
+class Fins(BaseModel):
+    n: int
+    root_chord: float
+    tip_chord: float
+    span: float
+    position: float
+    cant_angle: float
+    radius: float
+    airfoil: str
 
 
-class TrapezoidalFins(Fins, frozen=True):
+class TrapezoidalFins(Fins):
     pass
 
 
-class Tail(BaseModel, frozen=True):
-    top_radius: float = 0.0635
-    bottom_radius: float = 0.0435
-    length: float = 0.06
-    position: float = -1.194656
-    radius: float = 0.0635
+class Tail(BaseModel):
+    top_radius: float
+    bottom_radius: float
+    length: float
+    position: float
+    radius: float
