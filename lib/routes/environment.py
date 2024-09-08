@@ -2,14 +2,14 @@
 Environment routes
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
 from opentelemetry import trace
 
 from lib.views.environment import (
     EnvSummary,
     EnvCreated,
     EnvUpdated,
-    EnvPickle,
+    EnvDeleted,
 )
 from lib.models.environment import Env
 from lib.controllers.environment import EnvController
@@ -66,19 +66,38 @@ async def update_env(env_id: str, env: Env) -> EnvUpdated:
         return await EnvController(env).update_env_by_id(env_id)
 
 
-@router.get("/rocketpy/{env_id}")
-async def read_rocketpy_env(env_id: str) -> EnvPickle:
+@router.get(
+    "/rocketpy/{env_id}",
+    responses={
+        203: {
+            "description": "Binary file download",
+            "content": {"application/octet-stream": {}},
+        }
+    },
+    status_code=203,
+    response_class=Response,
+)
+async def read_rocketpy_env(env_id: str):
     """
-    Loads rocketpy.environment as jsonpickle string
+    Loads rocketpy.environment as a dill binary
 
     ## Args
     ``` env_id: str ```
     """
     with tracer.start_as_current_span("read_rocketpy_env"):
-        return await EnvController.get_rocketpy_env_as_jsonpickle(env_id)
+        headers = {
+            'Content-Disposition': f'attachment; filename="rocketpy_environment_{env_id}.dill"'
+        }
+        binary = await EnvController.get_rocketpy_env_binary(env_id)
+        return Response(
+            content=binary,
+            headers=headers,
+            media_type="application/octet-stream",
+            status_code=203,
+        )
 
 
-@router.get("/{env_id}/simulate", include_in_schema=False)
+@router.get("/{env_id}/summary")
 async def simulate_env(env_id: str) -> EnvSummary:
     """
     Loads rocketpy.environment simulation
@@ -88,3 +107,15 @@ async def simulate_env(env_id: str) -> EnvSummary:
     """
     with tracer.start_as_current_span("simulate_env"):
         return await EnvController.simulate_env(env_id)
+
+
+@router.delete("/{env_id}")
+async def delete_env(env_id: str) -> EnvDeleted:
+    """
+    Deletes an environment
+
+    ## Args
+    ``` env_id: str ```
+    """
+    with tracer.start_as_current_span("delete_env"):
+        return await EnvController(env_id).delete_env_by_id(env_id)

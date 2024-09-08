@@ -39,23 +39,16 @@ skip-string-normalization = true
 [tool.pylint]
 max-line-length = 79
 disable = """
-    line-too-long,
-    duplicate-code,
-    use-dict-literal,
     missing-module-docstring,
     missing-function-docstring,
     missing-class-docstring,
     too-few-public-methods,
     too-many-public-methods,
-    too-many-instance-attributes,
+    line-too-long,
+    duplicate-code,
     logging-fstring-interpolation,
-    import-error,
-    protected-access,
-    unnecessary-dunder-call,
-    wrong-import-position,
-    consider-using-f-string,
-    too-many-function-args,
-    no-member,
     attribute-defined-outside-init,
-    no-else-raise
+    broad-exception-caught,
+    raise-missing-from,
+    too-many-instance-attributes,
 """

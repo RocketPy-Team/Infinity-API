@@ -1,6 +1,5 @@
 from typing import Union
 
-import jsonpickle
 from fastapi import HTTPException, status
 from pymongo.errors import PyMongoError
 
@@ -13,7 +12,6 @@ from lib.views.environment import (
     EnvCreated,
     EnvDeleted,
     EnvUpdated,
-    EnvPickle,
 )
 
 
@@ -91,7 +89,7 @@ class EnvController:
         try:
             async with EnvRepository() as env_repo:
                 await env_repo.get_env_by_id(env_id)
-                read_env = env_repo.env
+                env = env_repo.env
         except PyMongoError as e:
             logger.error(
                 f"controllers.environment.get_env_by_id: PyMongoError {e}"
@@ -110,8 +108,8 @@ class EnvController:
                 detail=f"Failed to read environment: {exc_str}",
             ) from e
         else:
-            if read_env:
-                return read_env
+            if env:
+                return env
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Environment not found",
@@ -122,43 +120,41 @@ class EnvController:
             )
 
     @classmethod
-    async def get_rocketpy_env_as_jsonpickle(
+    async def get_rocketpy_env_binary(
         cls,
         env_id: str,
-    ) -> Union[EnvPickle, HTTPException]:
+    ) -> Union[bytes, HTTPException]:
         """
-        Get rocketpy.Environmnet as jsonpickle string.
+        Get rocketpy.Environmnet dill binary.
 
         Args:
             env_id: str
 
         Returns:
-            views.EnvPickle
+            bytes
 
         Raises:
             HTTP 404 Not Found: If the env is not found in the database.
         """
         try:
-            read_env = await cls.get_env_by_id(env_id)
-            rocketpy_env = EnvironmentService.from_env_model(read_env)
+            env = await cls.get_env_by_id(env_id)
+            env_service = EnvironmentService.from_env_model(env)
         except HTTPException as e:
             raise e from e
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(
-                f"controllers.environment.get_rocketpy_env_as_jsonpickle: {exc_str}"
+                f"controllers.environment.get_rocketpy_env_as_binary: {exc_str}"
             )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to read environment: {exc_str}",
             ) from e
         else:
-            return EnvPickle(
-                jsonpickle_rocketpy_env=jsonpickle.encode(rocketpy_env)
-            )
+            return env_service.get_env_binary()
         finally:
             logger.info(
-                f"Call to controllers.environment.get_rocketpy_env_as_jsonpickle completed for Env {env_id}"
+                f"Call to controllers.environment.get_rocketpy_env_binary completed for Env {env_id}"
             )
 
     async def update_env_by_id(
@@ -263,9 +259,9 @@ class EnvController:
             HTTP 404 Not Found: If the env does not exist in the database.
         """
         try:
-            read_env = await cls.get_env_by_id(env_id)
-            rocketpy_env = EnvironmentService.from_env_model(read_env)
-            env_summary = rocketpy_env.get_env_summary()
+            env = await cls.get_env_by_id(env_id)
+            env_service = EnvironmentService.from_env_model(env)
+            env_summary = env_service.get_env_summary()
         except HTTPException as e:
             raise e from e
         except Exception as e:

@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Self
 from bson import ObjectId
 from pymongo.errors import PyMongoError
 from lib import logger
@@ -54,7 +54,7 @@ class MotorRepository(Repository):
 
     async def delete_motor(self, motor_id: str):
         collection = self.get_collection()
-        await collection.delete_one({"motor_id": motor_id})
+        await collection.delete_one({"_id": ObjectId(motor_id)})
         return self
 
     async def create_motor(self):
@@ -79,7 +79,7 @@ class MotorRepository(Repository):
                 f"Call to repositories.motor.create_motor completed for Motor {self.motor_id}"
             )
 
-    async def get_motor_by_id(self, motor_id: str) -> Union[motor, None]:
+    async def get_motor_by_id(self, motor_id: str) -> Self:
         """
         Gets a models.Motor from the database
 
@@ -88,9 +88,12 @@ class MotorRepository(Repository):
         """
         try:
             read_motor = await self.find_motor(motor_id)
-            parsed_motor = Motor.parse_obj(read_motor) if read_motor else None
-            parsed_motor.set_motor_kind(MotorKinds(read_motor["motor_kind"]))
-            self.motor = parsed_motor
+            if read_motor:
+                parsed_motor = Motor.parse_obj(read_motor)
+                parsed_motor.set_motor_kind(
+                    MotorKinds(read_motor["motor_kind"])
+                )
+                self.motor = parsed_motor
         except PyMongoError as e:
             raise e from e
         except RepositoryNotInitializedException as e:

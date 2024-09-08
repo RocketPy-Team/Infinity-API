@@ -5,7 +5,6 @@ This is the main API file for the RocketPy API.
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import RedirectResponse, JSONResponse
 
@@ -14,6 +13,7 @@ from opentelemetry.instrumentation.requests import RequestsInstrumentor
 
 from lib import logger, parse_error
 from lib.routes import flight, environment, motor, rocket
+from lib.utils import RocketPyGZipMiddleware
 
 app = FastAPI(
     swagger_ui_parameters={
@@ -21,6 +21,7 @@ app = FastAPI(
         "syntaxHighlight.theme": "obsidian",
     }
 )
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -37,7 +38,7 @@ FastAPIInstrumentor.instrument_app(app)
 RequestsInstrumentor().instrument()
 
 # Compress responses above 1KB
-app.add_middleware(GZipMiddleware, minimum_size=1000)
+app.add_middleware(RocketPyGZipMiddleware, minimum_size=1000)
 
 
 def custom_openapi():
@@ -45,7 +46,7 @@ def custom_openapi():
         return app.openapi_schema
     openapi_schema = get_openapi(
         title="RocketPy Infinity-API",
-        version="1.2.2 BETA",
+        version="2.0.0",
         description=(
             "<p style='font-size: 18px;'>RocketPy Infinity-API is a RESTful Open API for RocketPy, a rocket flight simulator.</p>"
             "<br/>"
@@ -57,7 +58,6 @@ def custom_openapi():
             "<a href='https://api.rocketpy.org/redoc' style='color: white; text-decoration: none;'>ReDoc</a>"
             "</button>"
             "<p>Create, manage, and simulate rocket flights, environments, rockets, and motors.</p>"
-            "<p>Currently, the API only supports TrapezoidalFins. We apologize for the limitation, but we are actively working to expand its capabilities soon.</p>"
             "<p>Please report any bugs at <a href='https://github.com/RocketPy-Team/infinity-api/issues/new/choose' style='text-decoration: none; color: #008CBA;'>GitHub Issues</a></p>"
         ),
         routes=app.routes,

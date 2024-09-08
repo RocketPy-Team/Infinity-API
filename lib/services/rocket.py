@@ -1,22 +1,31 @@
 import ast
 from typing import Self
+
+import dill
+
 from rocketpy.rocket.rocket import Rocket as RocketPyRocket
 from rocketpy.rocket.parachute import Parachute as RocketPyParachute
-from rocketpy.rocket.aero_surface import NoseCone as RocketPyNoseCone
 from rocketpy.rocket.aero_surface import (
     TrapezoidalFins as RocketPyTrapezoidalFins,
+    EllipticalFins as RocketPyEllipticalFins,
+    NoseCone as RocketPyNoseCone,
+    Fins as RocketPyFins,
+    Tail as RocketPyTail,
 )
-from rocketpy.rocket.aero_surface import Tail as RocketPyTail
 from rocketpy.utilities import get_instance_attributes
 
-from lib.models.rocket import Rocket
-from lib.models.aerosurfaces import NoseCone, TrapezoidalFins, Tail
-from lib.models.parachute import Parachute
+from lib import logger
+from lib.models.rocket import Rocket, Parachute
+from lib.models.aerosurfaces import NoseCone, Tail, Fins
 from lib.services.motor import MotorService
 from lib.views.rocket import RocketSummary
 
 
-class RocketService(RocketPyRocket):
+class RocketService:
+    _rocket: RocketPyRocket
+
+    def __init__(self, rocket: RocketPyRocket = None):
+        self._rocket = rocket
 
     @classmethod
     def from_rocket_model(cls, rocket: Rocket) -> Self:
@@ -24,17 +33,22 @@ class RocketService(RocketPyRocket):
         Get the rocketpy rocket object.
 
         Returns:
-            RocketPyRocket
+            RocketService containing the rocketpy rocket object.
         """
 
+        # Core
         rocketpy_rocket = RocketPyRocket(
             radius=rocket.radius,
             mass=rocket.mass,
             inertia=rocket.inertia,
-            power_off_drag=rocket.power_off_drag,
-            power_on_drag=rocket.power_on_drag,
+            power_off_drag=(
+                rocket.power_off_drag if rocket.power_off_drag else None
+            ),
+            power_on_drag=(
+                rocket.power_on_drag if rocket.power_on_drag else None
+            ),
             center_of_mass_without_motor=rocket.center_of_mass_without_motor,
-            coordinate_system_orientation=rocket.coordinate_system_orientation,
+            coordinate_system_orientation=rocket.coordinate_system_orientation.value.lower(),
         )
 
         # RailButtons
@@ -44,7 +58,7 @@ class RocketService(RocketPyRocket):
             angular_position=rocket.rail_buttons.angular_position,
         )
         rocketpy_rocket.add_motor(
-            MotorService.from_motor_model(rocket.motor),
+            MotorService.from_motor_model(rocket.motor).motor,
             rocket.motor_position,
         )
 
@@ -54,9 +68,7 @@ class RocketService(RocketPyRocket):
         rocketpy_rocket.evaluate_static_margin()
 
         # FinSet
-        # TODO: re-write this to match overall fins not only TrapezoidalFins
-        # Maybe a strategy with different factory methods?
-        finset = cls.get_rocketpy_finset(rocket.fins)
+        finset = cls.get_rocketpy_finset(rocket.fins, rocket.fins.fins_kind)
         rocketpy_rocket.aerodynamic_surfaces.add(finset, finset.position)
         rocketpy_rocket.evaluate_static_margin()
 
@@ -65,20 +77,33 @@ class RocketService(RocketPyRocket):
         rocketpy_rocket.aerodynamic_surfaces.add(tail, tail.position)
         rocketpy_rocket.evaluate_static_margin()
 
+        # Air Brakes
+
         # Parachutes
-        for p, _ in enumerate(rocket.parachutes):
-            parachute_trigger = rocket.parachutes[p].triggers[0]
-            if cls.check_parachute_trigger(parachute_trigger):
-                rocket.parachutes[p].triggers[0] = compile(
-                    parachute_trigger, "<string>", "eval"
+        for parachute in rocket.parachutes:
+            if cls.check_parachute_trigger(
+                trigger_expression := parachute.trigger
+            ):
+                parachute.trigger = eval(  # pylint: disable=eval-used
+                    trigger_expression, {"__builtins__": None}, {}
                 )
-                parachute = cls.get_rocketpy_parachute(rocket.parachutes, p)
-                rocketpy_rocket.parachutes.append(parachute)
+                rocketpy_parachute = cls.get_rocketpy_parachute(parachute)
+                rocketpy_rocket.parachutes.append(rocketpy_parachute)
             else:
-                print("Parachute trigger not valid. Skipping parachute.")
+                logger.warning(
+                    "Parachute trigger not valid. Skipping parachute."
+                )
                 continue
 
-        return rocketpy_rocket
+        return cls(rocket=rocketpy_rocket)
+
+    @property
+    def rocket(self) -> RocketPyRocket:
+        return self._rocket
+
+    @rocket.setter
+    def rocket(self, rocket: RocketPyRocket):
+        self._rocket = rocket
 
     def get_rocket_summary(self) -> RocketSummary:
         """
@@ -87,9 +112,18 @@ class RocketService(RocketPyRocket):
         Returns:
             RocketSummary
         """
-        attributes = get_instance_attributes(self)
+        attributes = get_instance_attributes(self.rocket)
         rocket_summary = RocketSummary(**attributes)
         return rocket_summary
+
+    def get_rocket_binary(self) -> bytes:
+        """
+        Get the binary representation of the rocket.
+
+        Returns:
+            bytes
+        """
+        return dill.dumps(self.rocket)
 
     @staticmethod
     def get_rocketpy_nose(nose: NoseCone) -> RocketPyNoseCone:
@@ -101,6 +135,7 @@ class RocketService(RocketPyRocket):
         """
 
         rocketpy_nose = RocketPyNoseCone(
+            name=nose.name,
             length=nose.length,
             kind=nose.kind,
             base_radius=nose.base_radius,
@@ -110,25 +145,48 @@ class RocketService(RocketPyRocket):
         return rocketpy_nose
 
     @staticmethod
-    def get_rocketpy_finset(
-        trapezoidal_fins: TrapezoidalFins,
-    ) -> RocketPyTrapezoidalFins:
+    def get_rocketpy_finset(fins: Fins, kind: str) -> RocketPyFins:
         """
         Get a rocketpy finset object.
 
-        Returns:
+        Returns one of:
             RocketPyTrapezoidalFins
+            RocketPyEllipticalFins
         """
-        rocketpy_finset = RocketPyTrapezoidalFins(
-            n=trapezoidal_fins.n,
-            root_chord=trapezoidal_fins.root_chord,
-            tip_chord=trapezoidal_fins.tip_chord,
-            span=trapezoidal_fins.span,
-            cant_angle=trapezoidal_fins.cant_angle,
-            rocket_radius=trapezoidal_fins.radius,
-            airfoil=trapezoidal_fins.airfoil,
-        )
-        rocketpy_finset.position = trapezoidal_fins.position
+        match kind:
+            case "TRAPEZOIDAL":
+                rocketpy_finset = RocketPyTrapezoidalFins(
+                    n=fins.n,
+                    name=fins.name,
+                    root_chord=fins.root_chord,
+                    tip_chord=fins.tip_chord,
+                    span=fins.span,
+                    cant_angle=fins.cant_angle,
+                    rocket_radius=fins.radius,
+                    airfoil=fins.airfoil,
+                )
+            case "ELLIPTICAL":
+                rocketpy_finset = RocketPyEllipticalFins(
+                    n=fins.n,
+                    name=fins.name,
+                    root_chord=fins.root_chord,
+                    span=fins.span,
+                    cant_angle=fins.cant_angle,
+                    rocket_radius=fins.radius,
+                    airfoil=fins.airfoil,
+                )
+            case _:
+                rocketpy_finset = RocketPyTrapezoidalFins(
+                    n=fins.n,
+                    name=fins.name,
+                    tip_chord=fins.tip_chord,
+                    root_chord=fins.root_chord,
+                    span=fins.span,
+                    cant_angle=fins.cant_angle,
+                    rocket_radius=fins.radius,
+                    airfoil=fins.airfoil,
+                )
+        rocketpy_finset.position = fins.position
         return rocketpy_finset
 
     @staticmethod
@@ -140,6 +198,7 @@ class RocketService(RocketPyRocket):
             RocketPyTail
         """
         rocketpy_tail = RocketPyTail(
+            name=tail.name,
             top_radius=tail.top_radius,
             bottom_radius=tail.bottom_radius,
             length=tail.length,
@@ -149,9 +208,7 @@ class RocketService(RocketPyRocket):
         return rocketpy_tail
 
     @staticmethod
-    def get_rocketpy_parachute(
-        parachute: Parachute, p: int
-    ) -> RocketPyParachute:
+    def get_rocketpy_parachute(parachute: Parachute) -> RocketPyParachute:
         """
         Get a rocketpy parachute object.
 
@@ -159,12 +216,12 @@ class RocketService(RocketPyRocket):
             RocketPyParachute
         """
         rocketpy_parachute = RocketPyParachute(
-            name=parachute[p].name[0],
-            cd_s=parachute[p].cd_s[0],
-            trigger=eval(parachute[p].triggers[0]),
-            sampling_rate=parachute[p].sampling_rate[0],
-            lag=parachute[p].lag[0],
-            noise=parachute[p].noise[0],
+            name=parachute.name,
+            cd_s=parachute.cd_s,
+            trigger=parachute.trigger,
+            sampling_rate=parachute.sampling_rate,
+            lag=parachute.lag,
+            noise=parachute.noise,
         )
         return rocketpy_parachute
 
@@ -180,12 +237,16 @@ class RocketService(RocketPyRocket):
             bool: True if the expression is valid, False otherwise.
         """
 
+        class InvalidParachuteTrigger(Exception):
+            pass
+
         # Parsing the expression into an AST
         try:
             parsed_expression = ast.parse(expression, mode="eval")
-        except SyntaxError:
-            print("Invalid syntax.")
-            return False
+        except SyntaxError as e:
+            raise InvalidParachuteTrigger(
+                f"Invalid expression syntax: {str(e)}"
+            ) from None
 
         # Constant case (supported after beta v1)
         if isinstance(parsed_expression.body, ast.Constant):
@@ -195,36 +256,40 @@ class RocketService(RocketPyRocket):
             isinstance(parsed_expression.body, ast.Name)
             and parsed_expression.body.id == "apogee"
         ):
-            global apogee
-            apogee = "apogee"
             return True
 
         # Validating the expression structure
         if not isinstance(parsed_expression.body, ast.Lambda):
-            print("Invalid expression structure (not a Lambda).")
-            return False
+            raise InvalidParachuteTrigger(
+                "Invalid expression structure: not a lambda."
+            ) from None
 
         lambda_node = parsed_expression.body
         if len(lambda_node.args.args) != 3:
-            print("Invalid expression structure (invalid arity).")
-            return False
+            raise InvalidParachuteTrigger(
+                "Invalid expression structure: lambda should have 3 arguments."
+            ) from None
 
         if not isinstance(lambda_node.body, ast.Compare):
             try:
                 for operand in lambda_node.body.values:
                     if not isinstance(operand, ast.Compare):
-                        print("Invalid expression structure (not a Compare).")
-                        return False
+                        raise InvalidParachuteTrigger(
+                            "Invalid expression structure: not a Compare."
+                        ) from None
             except AttributeError:
-                print("Invalid expression structure (not a Compare).")
-                return False
+                raise InvalidParachuteTrigger(
+                    "Invalid expression structure: not a Compare."
+                ) from None
 
         # Restricting access to functions or attributes
         for node in ast.walk(lambda_node):
             if isinstance(node, ast.Call):
-                print("Calling functions is not allowed in the expression.")
-                return False
+                raise InvalidParachuteTrigger(
+                    "Calling functions is not allowed in the expression."
+                ) from None
             if isinstance(node, ast.Attribute):
-                print("Accessing attributes is not allowed in the expression.")
-                return False
+                raise InvalidParachuteTrigger(
+                    "Accessing attributes is not allowed in the expression."
+                ) from None
         return True

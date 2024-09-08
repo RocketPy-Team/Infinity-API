@@ -1,4 +1,4 @@
-FROM python:3.11-slim-bookworm
+FROM python:3.12.5-slim-bookworm
 
 EXPOSE 3000
 
@@ -16,4 +16,4 @@ RUN apt-get update && \
 
 COPY ./lib /app/lib
 
-CMD ["gunicorn", "-c", "lib/settings/gunicorn.py", "-w", "1", "--threads=2", "-k", "uvicorn.workers.UvicornWorker", "lib.api:app", "--log-level", "Debug", "-b", "0.0.0.0:3000", "--timeout", "35"]
+CMD ["gunicorn", "-c", "lib/settings/gunicorn.py", "-w", "1", "--threads=2", "-k", "uvicorn.workers.UvicornWorker", "lib.api:app", "--log-level", "Debug", "-b", "0.0.0.0:3000", "--timeout", "60"]

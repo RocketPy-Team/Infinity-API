@@ -1,50 +1,39 @@
-from typing import List, Any, Optional
+from typing import Any, Optional
 from pydantic import BaseModel
+from lib.models.rocket import Rocket
+from lib.views.motor import MotorView, MotorSummary
 
 
-class InertiaDetails(BaseModel):
-    rocket_mass_without_propellant: str
-    rocket_mass_with_propellant: str
-    rocket_inertia_with_motor_without_propellant: "List[str]"
-
-
-class RocketGeometricalParameters(BaseModel):
-    rocket_maximum_radius: str
-    rocket_frontal_area: str
-    rocket_codm_nozzle_exit_distance: str
-    rocket_codm_center_of_propellant_mass: str
-    rocket_codm_loaded_center_of_mass: str
-
-
-class RocketAerodynamicsQuantities(BaseModel):
-    aerodynamics_lift_coefficient_derivatives: "Any"
-    aerodynamics_center_of_pressure: "Any"
-    distance_cop_to_codm: str
-    initial_static_margin: str
-    final_static_margin: str
-
-
-class ParachuteData(BaseModel):
-    parachute_details: "Any"
-    # parachute_ejection_signal_trigger: "Any"
-    parachute_ejection_system_refresh_rate: "Optional[Any]"
-    parachute_lag: "Any"
-
-
-class RocketData(BaseModel):
-    inertia_details: InertiaDetails
-    rocket_geometrical_parameters: RocketGeometricalParameters
-    rocket_aerodynamics_quantities: RocketAerodynamicsQuantities
-    parachute_data: ParachuteData
-
-
-class RocketPlots(BaseModel):
-    pass
-
-
-class RocketSummary(BaseModel):
-    rocket_data: RocketData
-    # rocket_plots: RocketPlots
+class RocketSummary(MotorSummary):
+    # TODO: if Any is Callable, jumps pydantic parsing, expects a dill binary object
+    area: Optional[float]
+    center_of_mass_without_motor: Optional[float]
+    motor_center_of_dry_mass_position: Optional[float]
+    motor_position: Optional[float]
+    nozzle_position: Optional[float]
+    nozzle_to_cdm: Optional[float]
+    cp_eccentricity_x: Optional[float]
+    cp_eccentricity_y: Optional[float]
+    thrust_eccentricity_x: Optional[float]
+    thrust_eccentricity_y: Optional[float]
+    I_11_without_motor: Optional[Any]
+    I_12_without_motor: Optional[Any]
+    I_13_without_motor: Optional[Any]
+    I_22_without_motor: Optional[Any]
+    I_23_without_motor: Optional[Any]
+    I_33_without_motor: Optional[Any]
+    check_parachute_trigger: Optional[Any]
+    com_to_cdm_function: Optional[Any]
+    cp_position: Optional[Any]
+    motor_center_of_mass_position: Optional[Any]
+    nozzle_gyration_tensor: Optional[Any]
+    power_off_drag: Optional[Any]
+    power_on_drag: Optional[Any]
+    reduced_mass: Optional[Any]
+    stability_margin: Optional[Any]
+    static_margin: Optional[Any]
+    thrust_to_weight: Optional[Any]
+    total_lift_coeff_der: Optional[Any]
 
 
 class RocketCreated(BaseModel):
@@ -62,5 +51,5 @@ class RocketDeleted(BaseModel):
     message: str = "Rocket successfully deleted"
 
 
-class RocketPickle(BaseModel):
-    jsonpickle_rocketpy_rocket: str
+class RocketView(Rocket):
+    motor: MotorView
