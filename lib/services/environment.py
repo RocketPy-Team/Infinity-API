@@ -1,11 +1,18 @@
 from typing import Self
+
+import dill
+
 from rocketpy.environment.environment import Environment as RocketPyEnvironment
 from rocketpy.utilities import get_instance_attributes
 from lib.models.environment import Env
 from lib.views.environment import EnvSummary
 
 
-class EnvironmentService(RocketPyEnvironment):
+class EnvironmentService:
+    _environment: RocketPyEnvironment
+
+    def __init__(self, environment: RocketPyEnvironment = None):
+        self._environment = environment
 
     @classmethod
     def from_env_model(cls, env: Env) -> Self:
@@ -15,7 +22,7 @@ class EnvironmentService(RocketPyEnvironment):
         Returns:
             RocketPyEnvironment
         """
-        rocketpy_env = cls(
+        rocketpy_env = RocketPyEnvironment(
             latitude=env.latitude,
             longitude=env.longitude,
             elevation=env.elevation,
@@ -24,7 +31,15 @@ class EnvironmentService(RocketPyEnvironment):
         rocketpy_env.set_atmospheric_model(
             type=env.atmospheric_model_type, file=env.atmospheric_model_file
         )
-        return rocketpy_env
+        return cls(environment=rocketpy_env)
+
+    @property
+    def environment(self) -> RocketPyEnvironment:
+        return self._environment
+
+    @environment.setter
+    def environment(self, environment: RocketPyEnvironment):
+        self._environment = environment
 
     def get_env_summary(self) -> EnvSummary:
         """
@@ -34,6 +49,15 @@ class EnvironmentService(RocketPyEnvironment):
             EnvSummary
         """
 
-        attributes = get_instance_attributes(self)
+        attributes = get_instance_attributes(self.environment)
         env_summary = EnvSummary(**attributes)
         return env_summary
+
+    def get_env_binary(self) -> bytes:
+        """
+        Get the binary representation of the environment.
+
+        Returns:
+            bytes
+        """
+        return dill.dumps(self.environment)

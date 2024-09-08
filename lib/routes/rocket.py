@@ -2,17 +2,18 @@
 Rocket routes
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
 from opentelemetry import trace
 
 from lib.views.rocket import (
     RocketSummary,
     RocketCreated,
     RocketUpdated,
-    RocketPickle,
+    RocketDeleted,
 )
-from lib.models.rocket import Rocket, RocketOptions
+from lib.models.rocket import Rocket
 from lib.models.motor import MotorKinds
+from lib.views.rocket import RocketView
 from lib.controllers.rocket import RocketController
 
 router = APIRouter(
@@ -30,7 +31,7 @@ tracer = trace.get_tracer(__name__)
 
 @router.post("/")
 async def create_rocket(
-    rocket: Rocket, rocket_option: RocketOptions, motor_kind: MotorKinds
+    rocket: Rocket, motor_kind: MotorKinds
 ) -> RocketCreated:
     """
     Creates a new rocket
@@ -39,13 +40,12 @@ async def create_rocket(
     ``` Rocket object as a JSON ```
     """
     with tracer.start_as_current_span("create_rocket"):
-        rocket.set_rocket_option(rocket_option)
         rocket.motor.set_motor_kind(motor_kind)
         return await RocketController(rocket).create_rocket()
 
 
 @router.get("/{rocket_id}")
-async def read_rocket(rocket_id: str) -> Rocket:
+async def read_rocket(rocket_id: str) -> RocketView:
     """
     Reads a rocket
 
@@ -60,7 +60,6 @@ async def read_rocket(rocket_id: str) -> Rocket:
 async def update_rocket(
     rocket_id: str,
     rocket: Rocket,
-    rocket_option: RocketOptions,
     motor_kind: MotorKinds,
 ) -> RocketUpdated:
     """
@@ -73,26 +72,42 @@ async def update_rocket(
     ```
     """
     with tracer.start_as_current_span("update_rocket"):
-        rocket.set_rocket_option(rocket_option)
         rocket.motor.set_motor_kind(motor_kind)
         return await RocketController(rocket).update_rocket_by_id(rocket_id)
 
 
-@router.get("/rocketpy/{rocket_id}")
-async def read_rocketpy_rocket(rocket_id: str) -> RocketPickle:
+@router.get(
+    "/rocketpy/{rocket_id}",
+    responses={
+        203: {
+            "description": "Binary file download",
+            "content": {"application/octet-stream": {}},
+        }
+    },
+    status_code=203,
+    response_class=Response,
+)
+async def read_rocketpy_rocket(rocket_id: str):
     """
-    Reads a rocketpy rocket
+    Loads rocketpy.rocket as a dill binary
 
     ## Args
-    ``` rocket_id: Rocket ID ```
+    ``` rocket_id: str ```
     """
     with tracer.start_as_current_span("read_rocketpy_rocket"):
-        return await RocketController.get_rocketpy_rocket_as_jsonpickle(
-            rocket_id
+        headers = {
+            'Content-Disposition': f'attachment; filename="rocketpy_rocket_{rocket_id}.dill"'
+        }
+        binary = await RocketController.get_rocketpy_rocket_binary(rocket_id)
+        return Response(
+            content=binary,
+            headers=headers,
+            media_type="application/octet-stream",
+            status_code=203,
         )
 
 
-@router.get("/{rocket_id}/simulate", include_in_schema=False)
+@router.get("/{rocket_id}/summary")
 async def simulate_rocket(rocket_id: str) -> RocketSummary:
     """
     Simulates a rocket
@@ -102,3 +117,15 @@ async def simulate_rocket(rocket_id: str) -> RocketSummary:
     """
     with tracer.start_as_current_span("simulate_rocket"):
         return await RocketController.simulate_rocket(rocket_id)
+
+
+@router.delete("/{rocket_id}")
+async def delete_rocket(rocket_id: str) -> RocketDeleted:
+    """
+    Deletes a rocket
+
+    ## Args
+    ``` rocket_id: Rocket ID ```
+    """
+    with tracer.start_as_current_span("delete_rocket"):
+        return await RocketController.delete_rocket_by_id(rocket_id)

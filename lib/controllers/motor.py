@@ -1,7 +1,6 @@
 from typing import Union
 from fastapi import HTTPException, status
 from pymongo.errors import PyMongoError
-import jsonpickle
 
 from lib import logger, parse_error
 from lib.models.motor import Motor, MotorKinds
@@ -12,7 +11,7 @@ from lib.views.motor import (
     MotorCreated,
     MotorUpdated,
     MotorDeleted,
-    MotorPickle,
+    MotorView,
 )
 
 
@@ -39,12 +38,18 @@ class MotorController:
     def motor(self, motor: Motor):
         self._motor = motor
 
-    def guard(self, motor: Motor):
-        if motor.motor_kind != MotorKinds.SOLID and motor.tanks is None:
+    @staticmethod
+    def guard(motor: Motor):
+        if (
+            motor.motor_kind not in (MotorKinds.SOLID, MotorKinds.GENERIC)
+            and motor.tanks is None
+        ):
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="Tanks must be provided for liquid and hybrid motors.",
             )
+
+        # TODO: extend guard to check motor kinds and tank kinds specifics
 
     async def create_motor(self) -> Union[MotorCreated, HTTPException]:
         """
@@ -79,7 +84,9 @@ class MotorController:
             )
 
     @staticmethod
-    async def get_motor_by_id(motor_id: str) -> Union[Motor, HTTPException]:
+    async def get_motor_by_id(
+        motor_id: str,
+    ) -> Union[MotorView, HTTPException]:
         """
         Get a models.Motor from the database.
 
@@ -95,7 +102,7 @@ class MotorController:
         try:
             async with MotorRepository() as motor_repo:
                 await motor_repo.get_motor_by_id(motor_id)
-                read_motor = motor_repo.motor
+                motor = motor_repo.motor
         except PyMongoError as e:
             logger.error(
                 f"controllers.motor.get_motor_by_id: PyMongoError {e}"
@@ -114,8 +121,11 @@ class MotorController:
                 detail=f"Failed to read motor: {exc_str}",
             ) from e
         else:
-            if read_motor:
-                return read_motor
+            if motor:
+                motor_view = MotorView(
+                    **motor.dict(), selected_motor_kind=motor.motor_kind
+                )
+                return motor_view
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Motor not found",
@@ -126,43 +136,41 @@ class MotorController:
             )
 
     @classmethod
-    async def get_rocketpy_motor_as_jsonpickle(
+    async def get_rocketpy_motor_binary(
         cls,
         motor_id: str,
-    ) -> Union[MotorPickle, HTTPException]:
+    ) -> Union[bytes, HTTPException]:
         """
-        Get a rocketpy.Motor object as a jsonpickle string.
+        Get a rocketpy.Motor object as a dill binary.
 
         Args:
             motor_id: str
 
         Returns:
-            views.MotorPickle
+            bytes
 
         Raises:
             HTTP 404 Not Found: If the motor is not found in the database.
         """
         try:
-            read_motor = await cls.get_motor_by_id(motor_id)
-            rocketpy_motor = MotorService.from_motor_model(read_motor)
+            motor = await cls.get_motor_by_id(motor_id)
+            motor_service = MotorService.from_motor_model(motor)
         except HTTPException as e:
             raise e from e
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(
-                f"controllers.motor.get_rocketpy_motor_as_jsonpickle: {exc_str}"
+                f"controllers.motor.get_rocketpy_motor_binary: {exc_str}"
             )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to read motor: {exc_str}",
             ) from e
         else:
-            return MotorPickle(
-                jsonpickle_rocketpy_motor=jsonpickle.encode(rocketpy_motor)
-            )
+            return motor_service.get_motor_binary()
         finally:
             logger.info(
-                f"Call to controllers.motor.get_rocketpy_motor_as_jsonpickle completed for Motor {motor_id}"
+                f"Call to controllers.motor.get_rocketpy_motor_binary completed for Motor {motor_id}"
             )
 
     async def update_motor_by_id(
@@ -263,9 +271,9 @@ class MotorController:
             HTTP 404 Not Found: If the motor does not exist in the database.
         """
         try:
-            read_motor = await cls.get_motor_by_id(motor_id)
-            rocketpy_motor = MotorService.from_motor_model(read_motor)
-            motor_summary = rocketpy_motor.get_motor_summary()
+            motor = await cls.get_motor_by_id(motor_id)
+            motor_service = MotorService.from_motor_model(motor)
+            motor_summary = motor_service.get_motor_summary()
         except HTTPException as e:
             raise e from e
         except Exception as e:

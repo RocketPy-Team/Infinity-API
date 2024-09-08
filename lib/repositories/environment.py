@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Self
 from bson import ObjectId
 from pymongo.errors import PyMongoError
 from lib.models.environment import Env
@@ -54,7 +54,7 @@ class EnvRepository(Repository):
 
     async def delete_env(self, env_id: str):
         collection = self.get_collection()
-        await collection.delete_one({"env_id": env_id})
+        await collection.delete_one({"_id": ObjectId(env_id)})
         return self
 
     async def create_env(self):
@@ -78,7 +78,7 @@ class EnvRepository(Repository):
                 f"Call to repositories.environment.create_env completed for Env {self.env_id}"
             )
 
-    async def get_env_by_id(self, env_id: str) -> Union[Env, None]:
+    async def get_env_by_id(self, env_id: str) -> Self:
         """
         Gets a models.Env from the database
 

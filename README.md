@@ -9,6 +9,11 @@
 - [install mongodb-atlas](https://www.mongodb.com/try/download/community)
 - Install dependencies `python3 -m pip install -r requirements.txt`
 
+## Development
+- black ./lib
+- pylint --extension-pkg-whitelist='pydantic' ./lib/*
+- flake8 --ignore E501,E402,F401,W503 ./lib
+
 ## Starting the server
 - Setup MONGODB_CONNECTION_STRING:
 ```
@@ -62,7 +67,6 @@ $ touch .env && echo MONGODB_CONNECTION_STRING="$ConnectionString" > .env
 │   │   ├── environment.py
 │   │   ├── flight.py
 │   │   ├── motor.py
-│   │   ├── parachute.py
 │   │   └── rocket.py
 │   │   
 │   └── views
@@ -163,7 +167,7 @@ sequenceDiagram
     participant MongoDB
     participant Rocketpy lib
 
-    User ->> API: POST /simulate/rocketpy-model/:id
+    User ->> API: POST /summary/rocketpy-model/:id
     API -->> MongoDB: Retrieve Rocketpy Model
     MongoDB -->> API: Rocketpy Model
     API ->> Rocketpy lib: Simulate Rocketpy Model

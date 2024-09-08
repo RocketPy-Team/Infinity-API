@@ -2,19 +2,20 @@
 Flight routes
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
 from opentelemetry import trace
 
 from lib.views.flight import (
     FlightSummary,
     FlightCreated,
     FlightUpdated,
-    FlightPickle,
+    FlightDeleted,
 )
 from lib.models.environment import Env
 from lib.models.flight import Flight
-from lib.models.rocket import Rocket, RocketOptions
+from lib.models.rocket import Rocket
 from lib.models.motor import MotorKinds
+from lib.views.flight import FlightView
 from lib.controllers.flight import FlightController
 
 router = APIRouter(
@@ -32,7 +33,7 @@ tracer = trace.get_tracer(__name__)
 
 @router.post("/")
 async def create_flight(
-    flight: Flight, rocket_option: RocketOptions, motor_kind: MotorKinds
+    flight: Flight, motor_kind: MotorKinds
 ) -> FlightCreated:
     """
     Creates a new flight
@@ -41,13 +42,12 @@ async def create_flight(
     ``` Flight object as JSON ```
     """
     with tracer.start_as_current_span("create_flight"):
-        flight.rocket.set_rocket_option(rocket_option)
         flight.rocket.motor.set_motor_kind(motor_kind)
         return await FlightController(flight).create_flight()
 
 
 @router.get("/{flight_id}")
-async def read_flight(flight_id: str) -> Flight:
+async def read_flight(flight_id: str) -> FlightView:
     """
     Reads a flight
 
@@ -58,17 +58,34 @@ async def read_flight(flight_id: str) -> Flight:
         return await FlightController.get_flight_by_id(flight_id)
 
 
-@router.get("/rocketpy/{flight_id}")
-async def read_rocketpy_flight(flight_id: str) -> FlightPickle:
+@router.get(
+    "/rocketpy/{flight_id}",
+    responses={
+        203: {
+            "description": "Binary file download",
+            "content": {"application/octet-stream": {}},
+        }
+    },
+    status_code=203,
+    response_class=Response,
+)
+async def read_rocketpy_flight(flight_id: str):
     """
-    Reads a rocketpy flight object
+    Loads rocketpy.flight as a dill binary
 
     ## Args
-    ``` flight_id: Flight ID ```
+    ``` flight_id: str ```
     """
     with tracer.start_as_current_span("read_rocketpy_flight"):
-        return await FlightController.get_rocketpy_flight_as_jsonpickle(
-            flight_id
+        headers = {
+            'Content-Disposition': f'attachment; filename="rocketpy_flight_{flight_id}.dill"'
+        }
+        binary = await FlightController.get_rocketpy_flight_binary(flight_id)
+        return Response(
+            content=binary,
+            headers=headers,
+            media_type="application/octet-stream",
+            status_code=203,
         )
 
 
@@ -93,7 +110,6 @@ async def update_flight_env(flight_id: str, env: Env) -> FlightUpdated:
 async def update_flight_rocket(
     flight_id: str,
     rocket: Rocket,
-    rocket_option: RocketOptions,
     motor_kind: MotorKinds,
 ) -> FlightUpdated:
     """
@@ -106,7 +122,6 @@ async def update_flight_rocket(
     ```
     """
     with tracer.start_as_current_span("update_flight_rocket"):
-        rocket.set_rocket_option(rocket_option)
         rocket.motor.set_motor_kind(motor_kind)
         return await FlightController.update_rocket_by_flight_id(
             flight_id,
@@ -118,7 +133,6 @@ async def update_flight_rocket(
 async def update_flight(
     flight_id: str,
     flight: Flight,
-    rocket_option: RocketOptions,
     motor_kind: MotorKinds,
 ) -> FlightUpdated:
     """
@@ -131,12 +145,11 @@ async def update_flight(
     ```
     """
     with tracer.start_as_current_span("update_flight"):
-        flight.rocket.set_rocket_option(rocket_option)
         flight.rocket.motor.set_motor_kind(motor_kind)
         return await FlightController(flight).update_flight_by_id(flight_id)
 
 
-@router.get("/{flight_id}/simulate", include_in_schema=False)
+@router.get("/{flight_id}/summary")
 async def simulate_flight(flight_id: str) -> FlightSummary:
     """
     Simulates a flight
@@ -146,3 +159,15 @@ async def simulate_flight(flight_id: str) -> FlightSummary:
     """
     with tracer.start_as_current_span("simulate_flight"):
         return await FlightController.simulate_flight(flight_id)
+
+
+@router.delete("/{flight_id}")
+async def delete_flight(flight_id: str) -> FlightDeleted:
+    """
+    Deletes a flight
+
+    ## Args
+    ``` flight_id: Flight ID ```
+    """
+    with tracer.start_as_current_span("delete_flight"):
+        return await FlightController.delete_flight_by_id(flight_id)

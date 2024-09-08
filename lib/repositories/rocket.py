@@ -1,8 +1,8 @@
-from typing import Union
+from typing import Self
 from bson import ObjectId
 from pymongo.errors import PyMongoError
 from lib import logger
-from lib.models.rocket import Rocket, RocketOptions
+from lib.models.rocket import Rocket
 from lib.models.motor import MotorKinds
 from lib.repositories.repo import Repository, RepositoryNotInitializedException
 
@@ -55,7 +55,7 @@ class RocketRepository(Repository):
 
     async def delete_rocket(self, rocket_id: str):
         collection = self.get_collection()
-        await collection.delete_one({"rocket_id": rocket_id})
+        await collection.delete_one({"_id": ObjectId(rocket_id)})
         return self
 
     async def create_rocket(self):
@@ -67,7 +67,6 @@ class RocketRepository(Repository):
         """
         try:
             rocket_to_dict = self.rocket.dict()
-            rocket_to_dict["rocket_option"] = self.rocket.rocket_option.value
             rocket_to_dict["motor"][
                 "motor_kind"
             ] = self.rocket.motor.motor_kind.value
@@ -83,25 +82,21 @@ class RocketRepository(Repository):
                 f"Call to repositories.rocket.create_rocket completed for Rocket {self.rocket_id}"
             )
 
-    async def get_rocket_by_id(self, rocket_id: str) -> Union[Rocket, None]:
+    async def get_rocket_by_id(self, rocket_id: str) -> Self:
         """
         Gets a models.Rocket from the database
 
         Returns:
-            models.Rocket
+            self
         """
         try:
             read_rocket = await self.find_rocket(rocket_id)
-            parsed_rocket = (
-                Rocket.parse_obj(read_rocket) if read_rocket else None
-            )
-            parsed_rocket.motor.set_motor_kind(
-                MotorKinds(read_rocket["motor"]["motor_kind"])
-            )
-            parsed_rocket.set_rocket_option(
-                RocketOptions(read_rocket["rocket_option"])
-            )
-            self.rocket = parsed_rocket
+            if read_rocket:
+                parsed_rocket = Rocket.parse_obj(read_rocket)
+                parsed_rocket.motor.set_motor_kind(
+                    MotorKinds(read_rocket["motor"]["motor_kind"])
+                )
+                self.rocket = parsed_rocket
         except PyMongoError as e:
             raise e from e
         except RepositoryNotInitializedException as e:
@@ -142,7 +137,6 @@ class RocketRepository(Repository):
         """
         try:
             rocket_to_dict = self.rocket.dict()
-            rocket_to_dict["rocket_option"] = self.rocket.rocket_option.value
             rocket_to_dict["motor"][
                 "motor_kind"
             ] = self.rocket.motor.motor_kind.value

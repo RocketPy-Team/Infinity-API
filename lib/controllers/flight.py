@@ -3,18 +3,19 @@ from fastapi import HTTPException, status
 from pymongo.errors import PyMongoError
 
 
-import jsonpickle
-
 from lib import logger, parse_error
+from lib.controllers.rocket import RocketController
 from lib.models.environment import Env
 from lib.models.rocket import Rocket
 from lib.models.flight import Flight
+from lib.views.motor import MotorView
+from lib.views.rocket import RocketView
 from lib.views.flight import (
     FlightSummary,
     FlightCreated,
     FlightUpdated,
     FlightDeleted,
-    FlightPickle,
+    FlightView,
 )
 from lib.repositories.flight import FlightRepository
 from lib.services.flight import FlightService
@@ -42,6 +43,7 @@ class FlightController:
         self,
         flight: Flight,
     ):
+        self.guard(flight)
         self._flight = flight
 
     @property
@@ -51,6 +53,10 @@ class FlightController:
     @flight.setter
     def flight(self, flight: Flight):
         self._flight = flight
+
+    @staticmethod
+    def guard(flight: Flight):
+        RocketController.guard(flight.rocket)
 
     async def create_flight(self) -> Union[FlightCreated, HTTPException]:
         """
@@ -85,7 +91,9 @@ class FlightController:
             )
 
     @staticmethod
-    async def get_flight_by_id(flight_id: str) -> Union[Flight, HTTPException]:
+    async def get_flight_by_id(
+        flight_id: str,
+    ) -> Union[FlightView, HTTPException]:
         """
         Get a flight from the database.
 
@@ -101,7 +109,7 @@ class FlightController:
         try:
             async with FlightRepository() as flight_repo:
                 await flight_repo.get_flight_by_id(flight_id)
-                read_flight = flight_repo.flight
+                flight = flight_repo.flight
         except PyMongoError as e:
             logger.error(
                 f"controllers.flight.get_flight_by_id: PyMongoError {e}"
@@ -120,8 +128,20 @@ class FlightController:
                 detail=f"Failed to read flight: {exc_str}",
             ) from e
         else:
-            if read_flight:
-                return read_flight
+            if flight:
+                motor_view = MotorView(
+                    **flight.rocket.motor.dict(),
+                    selected_motor_kind=flight.rocket.motor.motor_kind,
+                )
+                updated_rocket = flight.rocket.dict()
+                updated_rocket.update(motor=motor_view)
+                rocket_view = RocketView(
+                    **updated_rocket,
+                )
+                updated_flight = flight.dict()
+                updated_flight.update(rocket=rocket_view)
+                flight_view = FlightView(**updated_flight)
+                return flight_view
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Flight not found.",
@@ -132,43 +152,41 @@ class FlightController:
             )
 
     @classmethod
-    async def get_rocketpy_flight_as_jsonpickle(
+    async def get_rocketpy_flight_binary(
         cls,
         flight_id: str,
-    ) -> Union[FlightPickle, HTTPException]:
+    ) -> Union[bytes, HTTPException]:
         """
-        Get rocketpy.flight as jsonpickle string.
+        Get rocketpy.flight as dill binary.
 
         Args:
             flight_id: str
 
         Returns:
-            views.FlightPickle
+            bytes
 
         Raises:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
         try:
-            read_flight = await cls.get_flight_by_id(flight_id)
-            rocketpy_flight = FlightService.from_flight_model(read_flight)
+            flight = await cls.get_flight_by_id(flight_id)
+            flight_service = FlightService.from_flight_model(flight)
         except HTTPException as e:
             raise e from e
         except Exception as e:
             exc_str = parse_error(e)
             logger.error(
-                f"controllers.flight.get_rocketpy_flight_as_jsonpickle: {exc_str}"
+                f"controllers.flight.get_rocketpy_flight_binary: {exc_str}"
             )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to read flight: {exc_str}",
             ) from e
         else:
-            return FlightPickle(
-                jsonpickle_rocketpy_flight=jsonpickle.encode(rocketpy_flight)
-            )
+            return flight_service.get_flight_binary()
         finally:
             logger.info(
-                f"Call to controllers.flight.get_rocketpy_flight_as_jsonpickle completed for Flight {flight_id}"
+                f"Call to controllers.flight.get_rocketpy_flight_binary completed for Flight {flight_id}"
             )
 
     async def update_flight_by_id(
@@ -229,11 +247,9 @@ class FlightController:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
         try:
-            read_flight = await cls.get_flight_by_id(flight_id)
-            new_flight = read_flight.dict()
-            new_flight["environment"] = env
-            new_flight = Flight(**new_flight)
-            async with FlightRepository(new_flight) as flight_repo:
+            flight = await cls.get_flight_by_id(flight_id)
+            flight.environment = env
+            async with FlightRepository(flight) as flight_repo:
                 await flight_repo.update_env_by_flight_id(flight_id)
         except PyMongoError as e:
             logger.error(
@@ -277,16 +293,9 @@ class FlightController:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
         try:
-            read_flight = await cls.get_flight_by_id(flight_id)
-            updated_rocket = rocket.dict()
-            updated_rocket["rocket_option"] = rocket.rocket_option.value
-            updated_rocket["motor"][
-                "motor_kind"
-            ] = rocket.motor.motor_kind.value
-            new_flight = read_flight.dict()
-            new_flight["rocket"] = updated_rocket
-            new_flight = Flight(**new_flight)
-            async with FlightRepository(new_flight) as flight_repo:
+            flight = await cls.get_flight_by_id(flight_id)
+            flight.rocket = rocket
+            async with FlightRepository(flight) as flight_repo:
                 await flight_repo.update_rocket_by_flight_id(flight_id)
         except PyMongoError as e:
             logger.error(
@@ -371,9 +380,9 @@ class FlightController:
             HTTP 404 Not Found: If the flight does not exist in the database.
         """
         try:
-            read_flight = await cls.get_flight_by_id(flight_id=flight_id)
-            rocketpy_flight = FlightService.from_flight_model(read_flight)
-            flight_summary = rocketpy_flight.get_flight_summary()
+            flight = await cls.get_flight_by_id(flight_id=flight_id)
+            flight_service = FlightService.from_flight_model(flight)
+            flight_summary = flight_service.get_flight_summary()
         except HTTPException as e:
             raise e from e
         except Exception as e:

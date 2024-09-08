@@ -1,109 +1,159 @@
 from typing import Optional, Any
 from pydantic import BaseModel
+from lib.models.flight import Flight
+from lib.views.rocket import RocketView, RocketSummary
+from lib.views.environment import EnvSummary
 
 
-class InitialConditions(BaseModel):
-    initial_position: str
-    initial_velocity: str
-    initial_altitude: str
-    initial_angular_position: str
-    initial_angular_velocity: str
-
-
-class NumericalIntegrationSettings(BaseModel):
-    max_time: str
-    max_time_step: str
-    min_time_step: str
-    relative_error_tolerance: str
-    absolute_error_tolerance: str
-    time_overshoot: str
-    terminate_on_apogee: str
-    number_of_time_steps: str
-    function_evaluations_per_time_step: str
-    avg_function_evaluations_per_time_step: str
-
-
-class SurfaceWindConditions(BaseModel):
-    frontal_surface_wind_speed: str
-    lateral_surface_wind_speed: str
-
-
-class LaunchRailConditions(BaseModel):
-    rail_length: str
-    flight_inclination: str
-    flight_heading: str
-
-
-class OutOfRailConditions(BaseModel):
-    out_of_rail_time: str
-    out_of_rail_velocity: str
-    out_of_rail_static_margin: str
-    out_of_rail_angle_of_attack: str
-    out_of_rail_thrust_weight_ratio: str
-    out_of_rail_reynolds_number: str
-
-
-class BurnoutConditions(BaseModel):
-    burnout_time: str
-    burnout_rocket_velocity: str
-    burnout_altitude: str
-    burnout_freestream_velocity: str
-    burnout_mach_number: str
-    burnout_kinetic_energy: str
-
-
-class ApogeeConditions(BaseModel):
-    apogee_time: str
-    apogee_altitude: str
-    apogee_freestream_speed: str
-
-
-class MaximumValues(BaseModel):
-    maximum_speed: str
-    maximum_mach_number: str
-    maximum_reynolds_number: str
-    maximum_dynamic_pressure: str
-    maximum_acceleration_during_motor_burn: str
-    maximum_acceleration_after_motor_burn: str
-    maximum_gs_during_motor_burn: str
-    maximum_gs_after_motor_burn: str
-    maximum_upper_rail_button_normal_force: str
-    maximum_upper_rail_button_shear_force: str
-    maximum_lower_rail_button_normal_force: str
-    maximum_lower_rail_button_shear_force: str
-
-
-class ImpactConditions(BaseModel):
-    x_impact_position: "Optional[str]"
-    y_impact_position: "Optional[str]"
-    time_of_impact: "Optional[str]"
-    impact_velocity: "Optional[str]"
-
-
-class EventsRegistered(BaseModel):
-    events_trace: "Optional[Any]"
-
-
-class FlightData(BaseModel):
-    initial_conditions: InitialConditions
-    numerical_integration_settings: NumericalIntegrationSettings
-    launch_rail_conditions: LaunchRailConditions
-    surface_wind_conditions: SurfaceWindConditions
-    out_of_rail_conditions: OutOfRailConditions
-    burnout_conditions: BurnoutConditions
-    apogee_conditions: ApogeeConditions
-    maximum_values: MaximumValues
-    impact_conditions: ImpactConditions
-    events_registered: "Optional[EventsRegistered]"
-
-
-class FlightPlots(BaseModel):
-    pass
-
-
-class FlightSummary(BaseModel):
-    flight_data: FlightData
-    # flight_plots: FlightPlots
+class FlightSummary(RocketSummary, EnvSummary):
+    # TODO: if Any is Callable, jumps pydantic parsing, expects a dill binary object
+    # TODO: implement {flight_id}/summary/motor; {flight_id}/summary/rocket; {flight_id}/summary/environment
+    name: Optional[str]
+    max_time: Optional[int]
+    min_time_step: Optional[int]
+    # max_time_step: Optional[float]
+    equations_of_motion: Optional[str]
+    heading: Optional[int]
+    inclination: Optional[int]
+    initial_solution: Optional[list]
+    effective_1rl: Optional[float]
+    effective_2rl: Optional[float]
+    out_of_rail_time: Optional[float]
+    out_of_rail_time_index: Optional[int]
+    parachute_cd_s: Optional[float]
+    post_processed: Optional[bool]
+    rail_length: Optional[float]
+    rtol: Optional[float]
+    t: Optional[float]
+    t_final: Optional[float]
+    t_initial: Optional[int]
+    terminate_on_apogee: Optional[bool]
+    time_overshoot: Optional[bool]
+    latitude: Optional[Any]
+    longitude: Optional[Any]
+    M1: Optional[Any]
+    M2: Optional[Any]
+    M3: Optional[Any]
+    R1: Optional[Any]
+    R2: Optional[Any]
+    R3: Optional[Any]
+    acceleration: Optional[Any]
+    aerodynamic_bending_moment: Optional[Any]
+    aerodynamic_drag: Optional[Any]
+    aerodynamic_lift: Optional[Any]
+    aerodynamic_spin_moment: Optional[Any]
+    alpha1: Optional[Any]
+    alpha2: Optional[Any]
+    alpha3: Optional[Any]
+    altitude: Optional[Any]
+    angle_of_attack: Optional[Any]
+    apogee: Optional[Any]
+    apogee_freestream_speed: Optional[Any]
+    # apogee_state: Optional[Any]
+    apogee_time: Optional[Any]
+    apogee_x: Optional[Any]
+    apogee_y: Optional[Any]
+    atol: Optional[Any]
+    attitude_angle: Optional[Any]
+    attitude_frequency_response: Optional[Any]
+    attitude_vector_x: Optional[Any]
+    attitude_vector_y: Optional[Any]
+    attitude_vector_z: Optional[Any]
+    ax: Optional[Any]
+    ay: Optional[Any]
+    az: Optional[Any]
+    bearing: Optional[Any]
+    drag_power: Optional[Any]
+    drift: Optional[Any]
+    dynamic_pressure: Optional[Any]
+    e0: Optional[Any]
+    e1: Optional[Any]
+    e2: Optional[Any]
+    e3: Optional[Any]
+    free_stream_speed: Optional[Any]
+    frontal_surface_wind: Optional[Any]
+    function_evaluations: Optional[Any]
+    function_evaluations_per_time_step: Optional[Any]
+    horizontal_speed: Optional[Any]
+    # impact_state: Optional[Any]
+    impact_velocity: Optional[Any]
+    initial_stability_margin: Optional[Any]
+    kinetic_energy: Optional[Any]
+    lateral_attitude_angle: Optional[Any]
+    lateral_surface_wind: Optional[Any]
+    mach_number: Optional[Any]
+    max_acceleration: Optional[Any]
+    max_acceleration_power_off: Optional[Any]
+    max_acceleration_power_off_time: Optional[Any]
+    max_acceleration_power_on: Optional[Any]
+    max_acceleration_power_on_time: Optional[Any]
+    max_acceleration_time: Optional[Any]
+    max_dynamic_pressure: Optional[Any]
+    max_dynamic_pressure_time: Optional[Any]
+    max_mach_number: Optional[Any]
+    max_mach_number_time: Optional[Any]
+    max_rail_button1_normal_force: Optional[Any]
+    max_rail_button1_shear_force: Optional[Any]
+    max_rail_button2_normal_force: Optional[Any]
+    max_rail_button2_shear_force: Optional[Any]
+    max_reynolds_number: Optional[Any]
+    max_reynolds_number_time: Optional[Any]
+    max_speed: Optional[Any]
+    max_speed_time: Optional[Any]
+    max_stability_margin: Optional[Any]
+    max_stability_margin_time: Optional[Any]
+    max_total_pressure: Optional[Any]
+    max_total_pressure_time: Optional[Any]
+    min_stability_margin: Optional[Any]
+    min_stability_margin_time: Optional[Any]
+    omega1_frequency_response: Optional[Any]
+    omega2_frequency_response: Optional[Any]
+    omega3_frequency_response: Optional[Any]
+    out_of_rail_stability_margin: Optional[Any]
+    # out_of_rail_state: Optional[Any]
+    out_of_rail_velocity: Optional[Any]
+    # parachute_events: Optional[Any]
+    path_angle: Optional[Any]
+    phi: Optional[Any]
+    potential_energy: Optional[Any]
+    psi: Optional[Any]
+    rail_button1_normal_force: Optional[Any]
+    rail_button1_shear_force: Optional[Any]
+    rail_button2_normal_force: Optional[Any]
+    rail_button2_shear_force: Optional[Any]
+    reynolds_number: Optional[Any]
+    rotational_energy: Optional[Any]
+    solution: Optional[Any]
+    # solution_array: Optional[Any]
+    speed: Optional[Any]
+    stability_margin: Optional[Any]
+    static_margin: Optional[Any]
+    stream_velocity_x: Optional[Any]
+    stream_velocity_y: Optional[Any]
+    stream_velocity_z: Optional[Any]
+    theta: Optional[Any]
+    thrust_power: Optional[Any]
+    # time: Optional[Any]
+    # time_steps: Optional[Any]
+    total_energy: Optional[Any]
+    total_pressure: Optional[Any]
+    translational_energy: Optional[Any]
+    vx: Optional[Any]
+    vy: Optional[Any]
+    vz: Optional[Any]
+    w1: Optional[Any]
+    w2: Optional[Any]
+    w3: Optional[Any]
+    x: Optional[Any]
+    x_impact: Optional[Any]
+    y: Optional[Any]
+    y_impact: Optional[Any]
+    # y_sol: Optional[Any]
+    z: Optional[Any]
+    z_impact: Optional[Any]
+    # flight_phases: Optional[Any]
+    # FlightPhases: Optional[Any]
+    # TimeNodes: Optional[Any]
 
 
 class FlightCreated(BaseModel):
@@ -121,5 +171,5 @@ class FlightDeleted(BaseModel):
     message: str = "Flight successfully deleted"
 
 
-class FlightPickle(BaseModel):
-    jsonpickle_rocketpy_flight: str
+class FlightView(Flight):
+    rocket: RocketView
