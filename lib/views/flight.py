@@ -21,7 +21,6 @@ class FlightSummary(RocketSummary, EnvSummary):
     out_of_rail_time: Optional[float]
     out_of_rail_time_index: Optional[int]
     parachute_cd_s: Optional[float]
-    post_processed: Optional[bool]
     rail_length: Optional[float]
     rtol: Optional[float]
     t: Optional[float]

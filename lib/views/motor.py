@@ -61,7 +61,6 @@ class MotorSummary(BaseModel):
     propellant_I_22: Optional[Any]
     propellant_I_23: Optional[Any]
     propellant_I_33: Optional[Any]
-    clip_thrust: Optional[Any]
     propellant_mass: Optional[Any]
     reshape_thrust_curve: Optional[Any]
     total_mass: Optional[Any]
