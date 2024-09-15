@@ -35,6 +35,16 @@ class FlightService:
             heading=flight.heading,
             environment=rocketpy_env,
             rail_length=flight.rail_length,
+            #   initial_solution=flight.initial_solution,
+            terminate_on_apogee=flight.terminate_on_apogee,
+            max_time=flight.max_time,
+            max_time_step=flight.max_time_step,
+            min_time_step=flight.min_time_step,
+            rtol=flight.rtol,
+            atol=flight.atol,
+            time_overshoot=flight.time_overshoot,
+            verbose=flight.verbose,
+            equations_of_motion=flight.equations_of_motion.value.lower(),
         )
         return cls(flight=rocketpy_flight)
 

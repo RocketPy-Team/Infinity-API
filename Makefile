@@ -8,3 +8,14 @@ flake8:
 
 pylint:
 	pylint --extension-pkg-whitelist='pydantic' ./lib/*
+
+dev:
+	python3 -m uvicorn lib:app --reload --port 3000
+
+clean:
+	docker stop infinity-api
+	docker rm infinity-api
+	docker system prune -fa
+
+build:
+	docker build -t infinity-api . --no-cache
