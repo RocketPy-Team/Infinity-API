@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Optional
 from pydantic import BaseModel
 
 
@@ -28,7 +29,7 @@ class Fins(BaseModel):
     name: str
     n: int
     root_chord: float
-    tip_chord: float
+    tip_chord: Optional[float]
     span: float
     position: float
     cant_angle: float
