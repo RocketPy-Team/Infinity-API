@@ -176,16 +176,7 @@ class RocketService:
                     airfoil=fins.airfoil,
                 )
             case _:
-                rocketpy_finset = RocketPyTrapezoidalFins(
-                    n=fins.n,
-                    name=fins.name,
-                    tip_chord=fins.tip_chord,
-                    root_chord=fins.root_chord,
-                    span=fins.span,
-                    cant_angle=fins.cant_angle,
-                    rocket_radius=fins.radius,
-                    airfoil=fins.airfoil,
-                )
+                raise ValueError(f"Invalid fins kind: {kind}")
         rocketpy_finset.position = fins.position
         return rocketpy_finset
 
