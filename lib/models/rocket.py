@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, Union
 from pydantic import BaseModel
 from lib.models.motor import Motor
 from lib.models.aerosurfaces import (
@@ -21,7 +21,7 @@ class Parachute(BaseModel):
     cd_s: float = 10
     sampling_rate: int = 105
     lag: float = 1.5
-    trigger: str = "lambda p, h, y: y[5] < 0 and h < 800"
+    trigger: Union[str, float] = "lambda p, h, y: y[5] < 0 and h < 800"
     noise: Tuple[float, float, float] = (0, 8.3, 0.5)
 
 

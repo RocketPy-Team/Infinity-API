@@ -21,6 +21,10 @@ from lib.services.motor import MotorService
 from lib.views.rocket import RocketSummary
 
 
+class InvalidParachuteTrigger(Exception):
+    """Exception raised for invalid parachute trigger expressions."""
+
+
 class RocketService:
     _rocket: RocketPyRocket
 
@@ -85,7 +89,9 @@ class RocketService:
                 trigger_expression := parachute.trigger
             ):
                 parachute.trigger = eval(  # pylint: disable=eval-used
-                    trigger_expression, {"__builtins__": None}, {}
+                    trigger_expression,
+                    {"__builtins__": None},
+                    {"apogee": "apogee"},
                 )
                 rocketpy_parachute = cls.get_rocketpy_parachute(parachute)
                 rocketpy_rocket.parachutes.append(rocketpy_parachute)
@@ -217,7 +223,7 @@ class RocketService:
         return rocketpy_parachute
 
     @staticmethod
-    def check_parachute_trigger(expression: str) -> bool:
+    def check_parachute_trigger(expression) -> bool:
         """
         Check if the trigger expression is valid.
 
@@ -227,9 +233,6 @@ class RocketService:
         Returns:
             bool: True if the expression is valid, False otherwise.
         """
-
-        class InvalidParachuteTrigger(Exception):
-            pass
 
         # Parsing the expression into an AST
         try:
