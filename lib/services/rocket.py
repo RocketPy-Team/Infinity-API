@@ -20,10 +20,6 @@ from lib.services.motor import MotorService
 from lib.views.rocket import RocketSummary
 
 
-class InvalidParachuteTrigger(Exception):
-    """Exception raised for invalid parachute trigger expressions."""
-
-
 class RocketService:
     _rocket: RocketPyRocket
 
