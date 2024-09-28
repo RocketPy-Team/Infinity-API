@@ -1,4 +1,3 @@
-import ast
 from typing import Self
 
 import dill
@@ -81,14 +80,7 @@ class RocketService:
 
         # Parachutes
         for parachute in rocket.parachutes:
-            if cls.check_parachute_trigger(
-                trigger_expression := parachute.trigger
-            ):
-                parachute.trigger = eval(  # pylint: disable=eval-used
-                    trigger_expression,
-                    {"__builtins__": None},
-                    {"apogee": "apogee"},
-                )
+            if cls.check_parachute_trigger(parachute.trigger):
                 rocketpy_parachute = cls.get_rocketpy_parachute(parachute)
                 rocketpy_rocket.parachutes.append(rocketpy_parachute)
             else:
@@ -219,67 +211,19 @@ class RocketService:
         return rocketpy_parachute
 
     @staticmethod
-    def check_parachute_trigger(expression) -> bool:
+    def check_parachute_trigger(trigger) -> bool:
         """
         Check if the trigger expression is valid.
 
         Args:
-            expression: str
+            trigger: str | float
 
         Returns:
             bool: True if the expression is valid, False otherwise.
         """
 
-        # Parsing the expression into an AST
-        try:
-            parsed_expression = ast.parse(expression, mode="eval")
-        except SyntaxError as e:
-            raise InvalidParachuteTrigger(
-                f"Invalid expression syntax: {str(e)}"
-            ) from None
-
-        # Constant case (supported after beta v1)
-        if isinstance(parsed_expression.body, ast.Constant):
+        if trigger == "apogee":
             return True
-        # Name case (supported after beta v1)
-        if (
-            isinstance(parsed_expression.body, ast.Name)
-            and parsed_expression.body.id == "apogee"
-        ):
+        if isinstance(trigger, (int, float)):
             return True
-
-        # Validating the expression structure
-        if not isinstance(parsed_expression.body, ast.Lambda):
-            raise InvalidParachuteTrigger(
-                "Invalid expression structure: not a lambda."
-            ) from None
-
-        lambda_node = parsed_expression.body
-        if len(lambda_node.args.args) != 3:
-            raise InvalidParachuteTrigger(
-                "Invalid expression structure: lambda should have 3 arguments."
-            ) from None
-
-        if not isinstance(lambda_node.body, ast.Compare):
-            try:
-                for operand in lambda_node.body.values:
-                    if not isinstance(operand, ast.Compare):
-                        raise InvalidParachuteTrigger(
-                            "Invalid expression structure: not a Compare."
-                        ) from None
-            except AttributeError:
-                raise InvalidParachuteTrigger(
-                    "Invalid expression structure: not a Compare."
-                ) from None
-
-        # Restricting access to functions or attributes
-        for node in ast.walk(lambda_node):
-            if isinstance(node, ast.Call):
-                raise InvalidParachuteTrigger(
-                    "Calling functions is not allowed in the expression."
-                ) from None
-            if isinstance(node, ast.Attribute):
-                raise InvalidParachuteTrigger(
-                    "Accessing attributes is not allowed in the expression."
-                ) from None
-        return True
+        return False
