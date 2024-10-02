@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional
+from typing import Optional, Tuple, List
 from pydantic import BaseModel
 
 
@@ -24,6 +24,11 @@ class FinsKinds(str, Enum):
     ELLIPTICAL: str = "ELLIPTICAL"
 
 
+class AngleUnit(str, Enum):
+    RADIANS: str = "RADIANS"
+    DEGREES: str = "DEGREES"
+
+
 class Fins(BaseModel):
     fins_kind: FinsKinds
     name: str
@@ -34,7 +39,7 @@ class Fins(BaseModel):
     position: float
     cant_angle: float
     radius: float
-    airfoil: str
+    airfoil: Tuple[List[Tuple[float, float]], AngleUnit]
 
 
 # TODO: implement airbrakes
