@@ -1,4 +1,4 @@
-from typing import Self
+from typing import Self, List
 
 import dill
 
@@ -63,8 +63,11 @@ class RocketService:
         rocketpy_rocket.evaluate_static_margin()
 
         # FinSet
-        finset = cls.get_rocketpy_finset(rocket.fins, rocket.fins.fins_kind)
-        rocketpy_rocket.aerodynamic_surfaces.add(finset, finset.position)
+        rocketpy_finset_list = cls.get_rocketpy_finset_list_from_fins_list(
+            rocket.fins
+        )
+        for finset in rocketpy_finset_list:
+            rocketpy_rocket.aerodynamic_surfaces.add(finset, finset.position)
         rocketpy_rocket.evaluate_static_margin()
 
         # Tail
@@ -133,6 +136,14 @@ class RocketService:
         )
         rocketpy_nose.position = nose.position
         return rocketpy_nose
+
+    @classmethod
+    def get_rocketpy_finset_list_from_fins_list(
+        cls, fins_list: List[Fins]
+    ) -> List[RocketPyFins]:
+        return [
+            cls.get_rocketpy_finset(fins, fins.fins_kind) for fins in fins_list
+        ]
 
     @staticmethod
     def get_rocketpy_finset(fins: Fins, kind: str) -> RocketPyFins:

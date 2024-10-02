@@ -60,18 +60,20 @@ class Rocket(BaseModel):
         base_radius=0.0635,
         rocket_radius=0.0635,
     )
-    fins: Optional[Fins] = Fins(
-        fins_kind=FinsKinds.TRAPEZOIDAL,
-        name="Fins",
-        n=4,
-        root_chord=0.12,
-        tip_chord=0.04,
-        span=0.1,
-        position=-1.04956,
-        cant_angle=0,
-        radius=0.0635,
-        airfoil="",
-    )
+    fins: Optional[List[Fins]] = [
+        Fins(
+            fins_kind=FinsKinds.TRAPEZOIDAL,
+            name="Fins",
+            n=4,
+            root_chord=0.12,
+            tip_chord=0.04,
+            span=0.1,
+            position=-1.04956,
+            cant_angle=0,
+            radius=0.0635,
+            airfoil=([(0.0, 0.0), (0.1, 0.1), (0.2, 0.2)], "RADIANS"),
+        )
+    ]
     tail: Optional[Tail] = Tail(
         name="Tail",
         top_radius=0.0635,
