@@ -34,12 +34,12 @@ class Fins(BaseModel):
     name: str
     n: int
     root_chord: float
-    tip_chord: Optional[float]
+    tip_chord: Optional[float] = None
     span: float
     position: float
-    cant_angle: float
-    radius: float
-    airfoil: Tuple[List[Tuple[float, float]], AngleUnit]
+    cant_angle: Optional[float] = None
+    radius: Optional[float] = None
+    airfoil: Optional[Tuple[List[Tuple[float, float]], AngleUnit]] = None
 
 
 # TODO: implement airbrakes

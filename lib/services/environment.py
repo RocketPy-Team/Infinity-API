@@ -29,7 +29,8 @@ class EnvironmentService:
             date=env.date,
         )
         rocketpy_env.set_atmospheric_model(
-            type=env.atmospheric_model_type, file=env.atmospheric_model_file
+            type=env.atmospheric_model_type.value.lower(),
+            file=env.atmospheric_model_file,
         )
         return cls(environment=rocketpy_env)
 
