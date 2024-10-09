@@ -40,8 +40,8 @@ class RocketService:
             radius=rocket.radius,
             mass=rocket.mass,
             inertia=rocket.inertia,
-            power_off_drag=(None or rocket.power_off_drag),
-            power_on_drag=(None or rocket.power_on_drag),
+            power_off_drag=rocket.power_off_drag,
+            power_on_drag=rocket.power_on_drag,
             center_of_mass_without_motor=rocket.center_of_mass_without_motor,
             coordinate_system_orientation=rocket.coordinate_system_orientation.value.lower(),
         )
