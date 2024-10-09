@@ -7,7 +7,6 @@ from lib.models.aerosurfaces import (
     NoseCone,
     Tail,
     RailButtons,
-    FinsKinds,
 )
 
 
@@ -17,71 +16,29 @@ class CoordinateSystemOrientation(str, Enum):
 
 
 class Parachute(BaseModel):
-    name: str = "Main"
-    cd_s: float = 10
-    sampling_rate: int = 105
-    lag: float = 1.5
-    trigger: Union[str, float] = "apogee"
-    noise: Tuple[float, float, float] = (0, 8.3, 0.5)
+    name: str
+    cd_s: float
+    sampling_rate: int
+    lag: float
+    trigger: Union[str, float]
+    noise: Tuple[float, float, float]
 
 
 class Rocket(BaseModel):
     # Required parameters
-    motor: Motor = Motor()
-    radius: float = 0.0632
-    mass: float = 16.235
-    motor_position: float = -1.255
-    center_of_mass_without_motor: int = 0
-    inertia: Tuple[float, float, float] = (6.321, 6.321, 0.0346)
-    power_off_drag: List[Tuple[float, float]] = [
-        (0.0, 0.0),
-        (0.1, 0.1),
-        (0.2, 0.2),
-    ]
-    power_on_drag: List[Tuple[float, float]] = [
-        (0.0, 0.0),
-        (0.1, 0.1),
-        (0.2, 0.2),
-    ]
+    motor: Motor
+    radius: float
+    mass: float
+    motor_position: float
+    center_of_mass_without_motor: int
+    inertia: Tuple[float, float, float]
+    power_off_drag: List[Tuple[float, float]]
+    power_on_drag: List[Tuple[float, float]]
 
     # Optional parameters
-    parachutes: Optional[List[Parachute]] = [Parachute()]
-    rail_buttons: Optional[RailButtons] = RailButtons(
-        name="RailButtons",
-        upper_button_position=-0.5,
-        lower_button_position=0.2,
-        angular_position=45,
-    )
-    nose: Optional[NoseCone] = NoseCone(
-        name="Nose",
-        length=0.55829,
-        kind="vonKarman",
-        position=1.278,
-        base_radius=0.0635,
-        rocket_radius=0.0635,
-    )
-    fins: Optional[List[Fins]] = [
-        Fins(
-            fins_kind=FinsKinds.TRAPEZOIDAL,
-            name="Fins",
-            n=4,
-            root_chord=0.12,
-            tip_chord=0.04,
-            span=0.1,
-            position=-1.04956,
-            cant_angle=0,
-            radius=0.0635,
-            airfoil=([(0.0, 0.0), (0.1, 0.1), (0.2, 0.2)], "RADIANS"),
-        )
-    ]
-    tail: Optional[Tail] = Tail(
-        name="Tail",
-        top_radius=0.0635,
-        bottom_radius=0.0435,
-        length=0.06,
-        position=-1.194656,
-        radius=0.0635,
-    )
-    coordinate_system_orientation: Optional[CoordinateSystemOrientation] = (
-        CoordinateSystemOrientation.TAIL_TO_NOSE
-    )
+    parachutes: Optional[List[Parachute]] = None
+    rail_buttons: Optional[RailButtons] = None
+    nose: Optional[NoseCone] = None
+    fins: Optional[List[Fins]] = None
+    tail: Optional[Tail] = None
+    coordinate_system_orientation: Optional[CoordinateSystemOrientation] = None

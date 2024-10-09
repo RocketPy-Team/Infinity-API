@@ -3,15 +3,15 @@ from pydantic import BaseModel
 from lib.models.flight import Flight
 from lib.views.rocket import RocketView, RocketSummary
 from lib.views.environment import EnvSummary
+from lib.utils import to_python_primitive
 
 
 class FlightSummary(RocketSummary, EnvSummary):
-    # TODO: if Any is Callable, jumps pydantic parsing, expects a dill binary object
     # TODO: implement {flight_id}/summary/motor; {flight_id}/summary/rocket; {flight_id}/summary/environment
     name: Optional[str]
     max_time: Optional[int]
     min_time_step: Optional[int]
-    # max_time_step: Optional[float]
+    max_time_step: Optional[Any]
     equations_of_motion: Optional[str]
     heading: Optional[int]
     inclination: Optional[int]
@@ -48,7 +48,7 @@ class FlightSummary(RocketSummary, EnvSummary):
     angle_of_attack: Optional[Any]
     apogee: Optional[Any]
     apogee_freestream_speed: Optional[Any]
-    # apogee_state: Optional[Any]
+    apogee_state: Optional[Any]
     apogee_time: Optional[Any]
     apogee_x: Optional[Any]
     apogee_y: Optional[Any]
@@ -74,7 +74,7 @@ class FlightSummary(RocketSummary, EnvSummary):
     function_evaluations: Optional[Any]
     function_evaluations_per_time_step: Optional[Any]
     horizontal_speed: Optional[Any]
-    # impact_state: Optional[Any]
+    impact_state: Optional[Any]
     impact_velocity: Optional[Any]
     initial_stability_margin: Optional[Any]
     kinetic_energy: Optional[Any]
@@ -109,9 +109,9 @@ class FlightSummary(RocketSummary, EnvSummary):
     omega2_frequency_response: Optional[Any]
     omega3_frequency_response: Optional[Any]
     out_of_rail_stability_margin: Optional[Any]
-    # out_of_rail_state: Optional[Any]
+    out_of_rail_state: Optional[Any]
     out_of_rail_velocity: Optional[Any]
-    # parachute_events: Optional[Any]
+    parachute_events: Optional[Any]
     path_angle: Optional[Any]
     phi: Optional[Any]
     potential_energy: Optional[Any]
@@ -123,7 +123,7 @@ class FlightSummary(RocketSummary, EnvSummary):
     reynolds_number: Optional[Any]
     rotational_energy: Optional[Any]
     solution: Optional[Any]
-    # solution_array: Optional[Any]
+    solution_array: Optional[Any]
     speed: Optional[Any]
     stability_margin: Optional[Any]
     static_margin: Optional[Any]
@@ -132,8 +132,8 @@ class FlightSummary(RocketSummary, EnvSummary):
     stream_velocity_z: Optional[Any]
     theta: Optional[Any]
     thrust_power: Optional[Any]
-    # time: Optional[Any]
-    # time_steps: Optional[Any]
+    time: Optional[Any]
+    time_steps: Optional[Any]
     total_energy: Optional[Any]
     total_pressure: Optional[Any]
     translational_energy: Optional[Any]
@@ -147,12 +147,15 @@ class FlightSummary(RocketSummary, EnvSummary):
     x_impact: Optional[Any]
     y: Optional[Any]
     y_impact: Optional[Any]
-    # y_sol: Optional[Any]
+    y_sol: Optional[Any]
     z: Optional[Any]
     z_impact: Optional[Any]
-    # flight_phases: Optional[Any]
-    # FlightPhases: Optional[Any]
-    # TimeNodes: Optional[Any]
+    flight_phases: Optional[Any]
+    FlightPhases: Optional[Any]
+    TimeNodes: Optional[Any]
+
+    class Config:
+        json_encoders = {Any: to_python_primitive}
 
 
 class FlightCreated(BaseModel):

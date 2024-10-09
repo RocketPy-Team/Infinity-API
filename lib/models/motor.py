@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, Union
 from pydantic import BaseModel, PrivateAttr
 
 
@@ -27,38 +27,41 @@ class TankFluids(BaseModel):
     density: float
 
 
+class InterpolationMethods(str, Enum):
+    LINEAR: str = "LINEAR"
+    SPLINE: str = "SPLINE"
+    AKIMA: str = "AKIMA"
+
+
 class MotorTank(BaseModel):
     # Required parameters
-    geometry: List[Tuple[Tuple[float, float], float]] = [
-        ((0.0, 5.0), 1.0),
-        ((5.0, 10.0), 2.0),
-    ]
-    gas: TankFluids = TankFluids(name="GAS", density=100)
-    liquid: TankFluids = TankFluids(name="LIQUID", density=1000)
-    flux_time: Tuple[float, float] = (0.0, 3.9)
-    position: float = 1.0
-    discretize: int = 100
+    geometry: List[Tuple[Tuple[float, float], float]]
+    gas: TankFluids
+    liquid: TankFluids
+    flux_time: Tuple[float, float]
+    position: float
+    discretize: int
 
     # Level based tank parameters
-    liquid_height: Optional[float] = 0.5
+    liquid_height: Optional[float]
 
     # Mass based tank parameters
-    liquid_mass: Optional[float] = 5.0
-    gas_mass: Optional[float] = 0.1
+    liquid_mass: Optional[float]
+    gas_mass: Optional[float]
 
     # Mass flow based tank parameters
-    gas_mass_flow_rate_in: Optional[float] = 0.0
-    gas_mass_flow_rate_out: Optional[float] = 0.1
-    liquid_mass_flow_rate_in: Optional[float] = 0.0
-    liquid_mass_flow_rate_out: Optional[float] = 1
-    initial_liquid_mass: Optional[float] = 5.0
-    initial_gas_mass: Optional[float] = 0.4
+    gas_mass_flow_rate_in: Optional[float]
+    gas_mass_flow_rate_out: Optional[float]
+    liquid_mass_flow_rate_in: Optional[float]
+    liquid_mass_flow_rate_out: Optional[float]
+    initial_liquid_mass: Optional[float]
+    initial_gas_mass: Optional[float]
 
     # Ullage based tank parameters
-    ullage: Optional[float] = 0.1
+    ullage: Optional[float]
 
     # Optional parameters
-    name: Optional[str] = "Tank"
+    name: Optional[str]
 
     # Computed parameters
     tank_kind: TankKinds = TankKinds.MASS_FLOW
@@ -66,41 +69,39 @@ class MotorTank(BaseModel):
 
 class Motor(BaseModel):
     # Required parameters
-    thrust_source: List[List[float]] = [[0.0, 0.0], [1.0, 1.0]]
-    burn_time: float = 3.9
-    nozzle_radius: float = 0.033
-    dry_mass: float = 1.815
-    dry_inertia: Tuple[float, float, float] = (0.125, 0.125, 0.002)
-    center_of_dry_mass_position: float = 0.317
+    thrust_source: List[List[float]]
+    burn_time: float
+    nozzle_radius: float
+    dry_mass: float
+    dry_inertia: Tuple[float, float, float]
+    center_of_dry_mass_position: float
 
     # Generic motor parameters
-    chamber_radius: Optional[float] = 0.033
-    chamber_height: Optional[float] = 0.1
-    chamber_position: Optional[float] = 0.0
-    propellant_initial_mass: Optional[float] = 1.0
-    nozzle_position: Optional[float] = 0.0
+    chamber_radius: Optional[float] = None
+    chamber_height: Optional[float] = None
+    chamber_position: Optional[float] = None
+    propellant_initial_mass: Optional[float] = None
+    nozzle_position: Optional[float] = None
 
     # Liquid motor parameters
-    tanks: Optional[List[MotorTank]] = [MotorTank()]
+    tanks: Optional[List[MotorTank]] = None
 
     # Solid motor parameters
-    grain_number: Optional[int] = 5
-    grain_density: Optional[float] = 1815
-    grain_outer_radius: Optional[float] = 0.033
-    grain_initial_inner_radius: Optional[float] = 0.015
-    grain_initial_height: Optional[float] = 0.12
-    grains_center_of_mass_position: Optional[float] = -0.85704
-    grain_separation: Optional[float] = 0.005
+    grain_number: Optional[int] = None
+    grain_density: Optional[float] = None
+    grain_outer_radius: Optional[float] = None
+    grain_initial_inner_radius: Optional[float] = None
+    grain_initial_height: Optional[float] = None
+    grains_center_of_mass_position: Optional[float] = None
+    grain_separation: Optional[float] = None
 
     # Hybrid motor parameters
-    throat_radius: Optional[float] = 0.011
+    throat_radius: Optional[float] = None
 
     # Optional parameters
-    interpolation_method: Optional[str] = "linear"
-    coordinate_system_orientation: Optional[CoordinateSystemOrientation] = (
-        CoordinateSystemOrientation.NOZZLE_TO_COMBUSTION_CHAMBER
-    )
-    reshape_thrust_curve: Optional[bool] = False
+    interpolation_method: Optional[InterpolationMethods] = None
+    coordinate_system_orientation: Optional[CoordinateSystemOrientation] = None
+    reshape_thrust_curve: Optional[Union[bool, tuple]] = None
 
     # Computed parameters
     _motor_kind: MotorKinds = PrivateAttr(default=MotorKinds.SOLID)
