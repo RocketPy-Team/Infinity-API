@@ -1,10 +1,10 @@
 from typing import List, Any, Optional
 from pydantic import BaseModel
 from lib.models.motor import Motor, MotorKinds
+from lib.utils import to_python_primitive
 
 
 class MotorSummary(BaseModel):
-    # TODO: if Any is Callable, jumps pydantic parsing, expects a dill binary object
     average_thrust: Optional[float]
     burn_duration: Optional[float]
     burn_out_time: Optional[float]
@@ -66,6 +66,9 @@ class MotorSummary(BaseModel):
     total_mass: Optional[Any]
     total_mass_flow_rate: Optional[Any]
     thrust: Optional[Any]
+
+    class Config:
+        json_encoders = {Any: to_python_primitive}
 
 
 class MotorCreated(BaseModel):

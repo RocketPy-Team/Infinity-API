@@ -2,10 +2,10 @@ from typing import Any, Optional
 from pydantic import BaseModel
 from lib.models.rocket import Rocket
 from lib.views.motor import MotorView, MotorSummary
+from lib.utils import to_python_primitive
 
 
 class RocketSummary(MotorSummary):
-    # TODO: if Any is Callable, jumps pydantic parsing, expects a dill binary object
     area: Optional[float]
     center_of_mass_without_motor: Optional[float]
     motor_center_of_dry_mass_position: Optional[float]
@@ -34,6 +34,9 @@ class RocketSummary(MotorSummary):
     static_margin: Optional[Any]
     thrust_to_weight: Optional[Any]
     total_lift_coeff_der: Optional[Any]
+
+    class Config:
+        json_encoders = {Any: to_python_primitive}
 
 
 class RocketCreated(BaseModel):

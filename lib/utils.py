@@ -3,6 +3,8 @@ import gzip
 import io
 import typing
 
+import numpy as np
+
 from starlette.datastructures import Headers, MutableHeaders
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
@@ -126,3 +128,16 @@ class GZipResponder:
 
 async def unattached_send(message: Message) -> typing.NoReturn:
     raise RuntimeError("send awaitable not set")  # pragma: no cover
+
+
+def to_python_primitive(v):
+    if hasattr(v, "source"):
+        if isinstance(v.source, np.ndarray):
+            return v.source.tolist()
+
+        if isinstance(v.source, (np.generic,)):
+            return v.source.item()
+
+        return str(v.source)
+
+    return str(v)

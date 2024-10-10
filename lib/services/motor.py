@@ -46,8 +46,8 @@ class MotorService:
                 if motor.coordinate_system_orientation
                 else None
             ),
-            "interpolation_method": motor.interpolation_method,
-            "reshape_thrust_curve": motor.reshape_thrust_curve,
+            "interpolation_method": motor.interpolation_method.value.lower(),
+            "reshape_thrust_curve": False or motor.reshape_thrust_curve,
         }
 
         match motor.motor_kind:

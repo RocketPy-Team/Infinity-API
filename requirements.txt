@@ -2,7 +2,8 @@ motor
 dill
 python-dotenv
 fastapi
-pydantic==1.10.18
+pydantic
+numpy==1.26.4
 pymongo
 jsonpickle
 gunicorn

@@ -1,9 +1,10 @@
-from typing import Any, Optional
+from typing import Optional, Any
+from datetime import datetime
 from pydantic import BaseModel
+from lib.utils import to_python_primitive
 
 
 class EnvSummary(BaseModel):
-    # TODO: if Any is Callable, jumps pydantic parsing, expects a dill binary object
     latitude: Optional[float]
     longitude: Optional[float]
     elevation: Optional[float]
@@ -20,10 +21,10 @@ class EnvSummary(BaseModel):
     initial_hemisphere: Optional[str]
     initial_ew: Optional[str]
     max_expected_height: Optional[int]
-    date: Optional[Any]
+    date: Optional[datetime]
+    local_date: Optional[datetime]
+    datetime_date: Optional[datetime]
     ellipsoid: Optional[Any]
-    local_date: Optional[Any]
-    datetime_date: Optional[Any]
     barometric_height: Optional[Any]
     barometric_height_ISA: Optional[Any]
     pressure: Optional[Any]
@@ -44,6 +45,9 @@ class EnvSummary(BaseModel):
     decimal_degrees_to_arc_seconds: Optional[Any]
     geodesic_to_utm: Optional[Any]
     utm_to_geodesic: Optional[Any]
+
+    class Config:
+        json_encoders = {Any: to_python_primitive}
 
 
 class EnvCreated(BaseModel):
