@@ -13,7 +13,7 @@ class MotorKinds(str, Enum):
 class TankKinds(str, Enum):
     LEVEL: str = "LEVEL"
     MASS: str = "MASS"
-    MASS_FLOW: str = "MASSFlOW"
+    MASS_FLOW: str = "MASSFLOW"
     ULLAGE: str = "ULLAGE"
 
 
