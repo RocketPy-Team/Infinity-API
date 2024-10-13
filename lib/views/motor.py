@@ -1,71 +1,73 @@
 from typing import List, Any, Optional
 from pydantic import BaseModel
-from lib.models.motor import Motor, MotorKinds
+from lib.models.motor import Motor, MotorKinds, CoordinateSystemOrientation
 from lib.utils import to_python_primitive
 
 
 class MotorSummary(BaseModel):
-    average_thrust: Optional[float]
-    burn_duration: Optional[float]
-    burn_out_time: Optional[float]
-    burn_start_time: Optional[float]
-    center_of_dry_mass_position: Optional[float]
-    coordinate_system_orientation: Optional[str]
-    dry_I_11: Optional[float]
-    dry_I_12: Optional[float]
-    dry_I_13: Optional[float]
-    dry_I_22: Optional[float]
-    dry_I_23: Optional[float]
-    dry_I_33: Optional[float]
-    dry_mass: Optional[float]
-    grain_burn_out: Optional[float]
-    grain_density: Optional[float]
-    grain_initial_height: Optional[float]
-    grain_initial_inner_radius: Optional[float]
-    grain_initial_mass: Optional[float]
-    grain_initial_volume: Optional[float]
-    grain_number: Optional[int]
-    grain_outer_radius: Optional[float]
-    grain_separation: Optional[float]
-    grains_center_of_mass_position: Optional[float]
-    interpolate: Optional[str]
-    max_thrust: Optional[float]
-    max_thrust_time: Optional[float]
-    nozzle_position: Optional[float]
-    nozzle_radius: Optional[float]
-    propellant_initial_mass: Optional[float]
-    throat_area: Optional[float]
-    throat_radius: Optional[float]
-    thrust_source: Optional[List[List[float]]]
-    total_impulse: Optional[float]
-    Kn: Optional[Any]
-    I_11: Optional[Any]
-    I_12: Optional[Any]
-    I_13: Optional[Any]
-    I_22: Optional[Any]
-    I_23: Optional[Any]
-    I_33: Optional[Any]
-    burn_area: Optional[Any]
-    burn_rate: Optional[Any]
-    burn_time: Optional[Any]
-    center_of_mass: Optional[Any]
-    center_of_propellant_mass: Optional[Any]
-    exhaust_velocity: Optional[Any]
-    grain_height: Optional[Any]
-    grain_volume: Optional[Any]
-    grain_inner_radius: Optional[Any]
-    mass_flow_rate: Optional[Any]
-    propellant_I_11: Optional[Any]
-    propellant_I_12: Optional[Any]
-    propellant_I_13: Optional[Any]
-    propellant_I_22: Optional[Any]
-    propellant_I_23: Optional[Any]
-    propellant_I_33: Optional[Any]
-    propellant_mass: Optional[Any]
-    reshape_thrust_curve: Optional[Any]
-    total_mass: Optional[Any]
-    total_mass_flow_rate: Optional[Any]
-    thrust: Optional[Any]
+    average_thrust: Optional[float] = None
+    burn_duration: Optional[float] = None
+    burn_out_time: Optional[float] = None
+    burn_start_time: Optional[float] = None
+    center_of_dry_mass_position: Optional[float] = None
+    coordinate_system_orientation: str = (
+        CoordinateSystemOrientation.NOZZLE_TO_COMBUSTION_CHAMBER.value
+    )
+    dry_I_11: Optional[float] = None
+    dry_I_12: Optional[float] = None
+    dry_I_13: Optional[float] = None
+    dry_I_22: Optional[float] = None
+    dry_I_23: Optional[float] = None
+    dry_I_33: Optional[float] = None
+    dry_mass: Optional[float] = None
+    grain_burn_out: Optional[float] = None
+    grain_density: Optional[float] = None
+    grain_initial_height: Optional[float] = None
+    grain_initial_inner_radius: Optional[float] = None
+    grain_initial_mass: Optional[float] = None
+    grain_initial_volume: Optional[float] = None
+    grain_number: Optional[int] = None
+    grain_outer_radius: Optional[float] = None
+    grain_separation: Optional[float] = None
+    grains_center_of_mass_position: Optional[float] = None
+    interpolate: Optional[str] = None
+    max_thrust: Optional[float] = None
+    max_thrust_time: Optional[float] = None
+    nozzle_position: Optional[float] = None
+    nozzle_radius: Optional[float] = None
+    propellant_initial_mass: Optional[float] = None
+    throat_area: Optional[float] = None
+    throat_radius: Optional[float] = None
+    thrust_source: Optional[List[List[float]]] = None
+    total_impulse: Optional[float] = None
+    Kn: Optional[Any] = None
+    I_11: Optional[Any] = None
+    I_12: Optional[Any] = None
+    I_13: Optional[Any] = None
+    I_22: Optional[Any] = None
+    I_23: Optional[Any] = None
+    I_33: Optional[Any] = None
+    burn_area: Optional[Any] = None
+    burn_rate: Optional[Any] = None
+    burn_time: Optional[Any] = None
+    center_of_mass: Optional[Any] = None
+    center_of_propellant_mass: Optional[Any] = None
+    exhaust_velocity: Optional[Any] = None
+    grain_height: Optional[Any] = None
+    grain_volume: Optional[Any] = None
+    grain_inner_radius: Optional[Any] = None
+    mass_flow_rate: Optional[Any] = None
+    propellant_I_11: Optional[Any] = None
+    propellant_I_12: Optional[Any] = None
+    propellant_I_13: Optional[Any] = None
+    propellant_I_22: Optional[Any] = None
+    propellant_I_23: Optional[Any] = None
+    propellant_I_33: Optional[Any] = None
+    propellant_mass: Optional[Any] = None
+    reshape_thrust_curve: Optional[Any] = None
+    total_mass: Optional[Any] = None
+    total_mass_flow_rate: Optional[Any] = None
+    thrust: Optional[Any] = None
 
     class Config:
         json_encoders = {Any: to_python_primitive}

@@ -1,39 +1,42 @@
 from typing import Any, Optional
 from pydantic import BaseModel
-from lib.models.rocket import Rocket
+from lib.models.rocket import Rocket, CoordinateSystemOrientation
 from lib.views.motor import MotorView, MotorSummary
 from lib.utils import to_python_primitive
 
 
 class RocketSummary(MotorSummary):
-    area: Optional[float]
-    center_of_mass_without_motor: Optional[float]
-    motor_center_of_dry_mass_position: Optional[float]
-    motor_position: Optional[float]
-    nozzle_position: Optional[float]
-    nozzle_to_cdm: Optional[float]
-    cp_eccentricity_x: Optional[float]
-    cp_eccentricity_y: Optional[float]
-    thrust_eccentricity_x: Optional[float]
-    thrust_eccentricity_y: Optional[float]
-    I_11_without_motor: Optional[Any]
-    I_12_without_motor: Optional[Any]
-    I_13_without_motor: Optional[Any]
-    I_22_without_motor: Optional[Any]
-    I_23_without_motor: Optional[Any]
-    I_33_without_motor: Optional[Any]
-    check_parachute_trigger: Optional[Any]
-    com_to_cdm_function: Optional[Any]
-    cp_position: Optional[Any]
-    motor_center_of_mass_position: Optional[Any]
-    nozzle_gyration_tensor: Optional[Any]
-    power_off_drag: Optional[Any]
-    power_on_drag: Optional[Any]
-    reduced_mass: Optional[Any]
-    stability_margin: Optional[Any]
-    static_margin: Optional[Any]
-    thrust_to_weight: Optional[Any]
-    total_lift_coeff_der: Optional[Any]
+    area: Optional[float] = None
+    coordinate_system_orientation: str = (
+        CoordinateSystemOrientation.TAIL_TO_NOSE.value
+    )
+    center_of_mass_without_motor: Optional[float] = None
+    motor_center_of_dry_mass_position: Optional[float] = None
+    motor_position: Optional[float] = None
+    nozzle_position: Optional[float] = None
+    nozzle_to_cdm: Optional[float] = None
+    cp_eccentricity_x: Optional[float] = None
+    cp_eccentricity_y: Optional[float] = None
+    thrust_eccentricity_x: Optional[float] = None
+    thrust_eccentricity_y: Optional[float] = None
+    I_11_without_motor: Optional[Any] = None
+    I_12_without_motor: Optional[Any] = None
+    I_13_without_motor: Optional[Any] = None
+    I_22_without_motor: Optional[Any] = None
+    I_23_without_motor: Optional[Any] = None
+    I_33_without_motor: Optional[Any] = None
+    check_parachute_trigger: Optional[Any] = None
+    com_to_cdm_function: Optional[Any] = None
+    cp_position: Optional[Any] = None
+    motor_center_of_mass_position: Optional[Any] = None
+    nozzle_gyration_tensor: Optional[Any] = None
+    power_off_drag: Optional[Any] = None
+    power_on_drag: Optional[Any] = None
+    reduced_mass: Optional[Any] = None
+    stability_margin: Optional[Any] = None
+    static_margin: Optional[Any] = None
+    thrust_to_weight: Optional[Any] = None
+    total_lift_coeff_der: Optional[Any] = None
 
     class Config:
         json_encoders = {Any: to_python_primitive}

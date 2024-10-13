@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class RailButtons(BaseModel):
-    name: str
+    name: str = "RailButtons"
     upper_button_position: float
     lower_button_position: float
     angular_position: float
@@ -34,12 +34,23 @@ class Fins(BaseModel):
     name: str
     n: int
     root_chord: float
-    tip_chord: Optional[float] = None
     span: float
     position: float
+
+    # Optional parameters
+    tip_chord: Optional[float] = None
     cant_angle: Optional[float] = None
-    radius: Optional[float] = None
+    rocket_radius: Optional[float] = None
     airfoil: Optional[Tuple[List[Tuple[float, float]], AngleUnit]] = None
+
+    def get_additional_parameters(self):
+        return {
+            key: value
+            for key, value in self.dict().items()
+            if value is not None
+            and key
+            not in ["fins_kind", "name", "n", "root_chord", "span", "position"]
+        }
 
 
 # TODO: implement airbrakes

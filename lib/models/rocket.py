@@ -34,9 +34,12 @@ class Rocket(BaseModel):
     inertia: Union[
         Tuple[float, float, float],
         Tuple[float, float, float, float, float, float],
-    ]
-    power_off_drag: List[Tuple[float, float]]
-    power_on_drag: List[Tuple[float, float]]
+    ] = (0, 0, 0)
+    power_off_drag: List[Tuple[float, float]] = [(0, 0)]
+    power_on_drag: List[Tuple[float, float]] = [(0, 0)]
+    coordinate_system_orientation: CoordinateSystemOrientation = (
+        CoordinateSystemOrientation.TAIL_TO_NOSE
+    )
 
     # Optional parameters
     parachutes: Optional[List[Parachute]] = None
@@ -44,4 +47,3 @@ class Rocket(BaseModel):
     nose: Optional[NoseCone] = None
     fins: Optional[List[Fins]] = None
     tail: Optional[Tail] = None
-    coordinate_system_orientation: Optional[CoordinateSystemOrientation] = None

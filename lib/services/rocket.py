@@ -47,46 +47,53 @@ class RocketService:
         )
 
         # RailButtons
-        rocketpy_rocket.set_rail_buttons(
-            upper_button_position=rocket.rail_buttons.upper_button_position,
-            lower_button_position=rocket.rail_buttons.lower_button_position,
-            angular_position=rocket.rail_buttons.angular_position,
-        )
-        rocketpy_rocket.add_motor(
-            MotorService.from_motor_model(rocket.motor).motor,
-            rocket.motor_position,
-        )
+        if rocket.rail_buttons:
+            rocketpy_rocket.set_rail_buttons(
+                upper_button_position=rocket.rail_buttons.upper_button_position,
+                lower_button_position=rocket.rail_buttons.lower_button_position,
+                angular_position=rocket.rail_buttons.angular_position,
+            )
+            rocketpy_rocket.add_motor(
+                MotorService.from_motor_model(rocket.motor).motor,
+                rocket.motor_position,
+            )
 
         # NoseCone
-        nose = cls.get_rocketpy_nose(rocket.nose)
-        rocketpy_rocket.aerodynamic_surfaces.add(nose, nose.position)
-        rocketpy_rocket.evaluate_static_margin()
+        if rocket.nose:
+            nose = cls.get_rocketpy_nose(rocket.nose)
+            rocketpy_rocket.aerodynamic_surfaces.add(nose, nose.position)
+            rocketpy_rocket.evaluate_static_margin()
 
         # FinSet
-        rocketpy_finset_list = cls.get_rocketpy_finset_list_from_fins_list(
-            rocket.fins
-        )
-        for finset in rocketpy_finset_list:
-            rocketpy_rocket.aerodynamic_surfaces.add(finset, finset.position)
-        rocketpy_rocket.evaluate_static_margin()
+        if rocket.fins:
+            rocketpy_finset_list = cls.get_rocketpy_finset_list_from_fins_list(
+                rocket.fins
+            )
+            for finset in rocketpy_finset_list:
+                rocketpy_rocket.aerodynamic_surfaces.add(
+                    finset, finset.position
+                )
+            rocketpy_rocket.evaluate_static_margin()
 
         # Tail
-        tail = cls.get_rocketpy_tail(rocket.tail)
-        rocketpy_rocket.aerodynamic_surfaces.add(tail, tail.position)
-        rocketpy_rocket.evaluate_static_margin()
+        if rocket.tail:
+            tail = cls.get_rocketpy_tail(rocket.tail)
+            rocketpy_rocket.aerodynamic_surfaces.add(tail, tail.position)
+            rocketpy_rocket.evaluate_static_margin()
 
         # Air Brakes
 
         # Parachutes
-        for parachute in rocket.parachutes:
-            if cls.check_parachute_trigger(parachute.trigger):
-                rocketpy_parachute = cls.get_rocketpy_parachute(parachute)
-                rocketpy_rocket.parachutes.append(rocketpy_parachute)
-            else:
-                logger.warning(
-                    "Parachute trigger not valid. Skipping parachute."
-                )
-                continue
+        if rocket.parachutes:
+            for parachute in rocket.parachutes:
+                if cls.check_parachute_trigger(parachute.trigger):
+                    rocketpy_parachute = cls.get_rocketpy_parachute(parachute)
+                    rocketpy_rocket.parachutes.append(rocketpy_parachute)
+                else:
+                    logger.warning(
+                        "Parachute trigger not valid. Skipping parachute."
+                    )
+                    continue
 
         return cls(rocket=rocketpy_rocket)
 
@@ -160,11 +167,8 @@ class RocketService:
                     n=fins.n,
                     name=fins.name,
                     root_chord=fins.root_chord,
-                    tip_chord=fins.tip_chord,
                     span=fins.span,
-                    cant_angle=fins.cant_angle,
-                    rocket_radius=fins.radius,
-                    airfoil=fins.airfoil,
+                    **fins.get_additional_parameters(),
                 )
             case "ELLIPTICAL":
                 rocketpy_finset = RocketPyEllipticalFins(
@@ -172,9 +176,7 @@ class RocketService:
                     name=fins.name,
                     root_chord=fins.root_chord,
                     span=fins.span,
-                    cant_angle=fins.cant_angle,
-                    rocket_radius=fins.radius,
-                    airfoil=fins.airfoil,
+                    **fins.get_additional_parameters(),
                 )
             case _:
                 raise ValueError(f"Invalid fins kind: {kind}")

@@ -76,7 +76,7 @@ class Motor(BaseModel):
     burn_time: float
     nozzle_radius: float
     dry_mass: float
-    dry_inertia: Tuple[float, float, float]
+    dry_inertia: Tuple[float, float, float] = (0, 0, 0)
     center_of_dry_mass_position: float
 
     # Generic motor parameters
@@ -102,9 +102,11 @@ class Motor(BaseModel):
     throat_radius: Optional[float] = None
 
     # Optional parameters
-    interpolation_method: Optional[InterpolationMethods] = None
-    coordinate_system_orientation: Optional[CoordinateSystemOrientation] = None
-    reshape_thrust_curve: Optional[Union[bool, tuple]] = None
+    interpolation_method: InterpolationMethods = InterpolationMethods.LINEAR
+    coordinate_system_orientation: CoordinateSystemOrientation = (
+        CoordinateSystemOrientation.NOZZLE_TO_COMBUSTION_CHAMBER
+    )
+    reshape_thrust_curve: Union[bool, tuple] = False
 
     # Computed parameters
     _motor_kind: MotorKinds = PrivateAttr(default=MotorKinds.SOLID)

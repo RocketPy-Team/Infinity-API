@@ -41,11 +41,7 @@ class MotorService:
             "dry_mass": motor.dry_mass,
             "dry_inertia": motor.dry_inertia,
             "center_of_dry_mass_position": motor.center_of_dry_mass_position,
-            "coordinate_system_orientation": (
-                motor.coordinate_system_orientation.value.lower()
-                if motor.coordinate_system_orientation
-                else None
-            ),
+            "coordinate_system_orientation": motor.coordinate_system_orientation.value.lower(),
             "interpolation_method": motor.interpolation_method.value.lower(),
             "reshape_thrust_curve": False or motor.reshape_thrust_curve,
         }
