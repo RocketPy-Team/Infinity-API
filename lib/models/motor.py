@@ -31,6 +31,9 @@ class InterpolationMethods(str, Enum):
     LINEAR: str = "LINEAR"
     SPLINE: str = "SPLINE"
     AKIMA: str = "AKIMA"
+    POLYNOMIAL: str = "POLYNOMIAL"
+    SHEPARD: str = "SHEPARD"
+    RBF: str = "RBF"
 
 
 class MotorTank(BaseModel):
