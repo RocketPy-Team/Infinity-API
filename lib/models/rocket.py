@@ -31,7 +31,10 @@ class Rocket(BaseModel):
     mass: float
     motor_position: float
     center_of_mass_without_motor: int
-    inertia: Tuple[float, float, float]
+    inertia: Union[
+        Tuple[float, float, float],
+        Tuple[float, float, float, float, float, float],
+    ]
     power_off_drag: List[Tuple[float, float]]
     power_on_drag: List[Tuple[float, float]]
 

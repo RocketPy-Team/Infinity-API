@@ -8,7 +8,6 @@ class AtmosphericModelTypes(str, Enum):
     STANDARD_ATMOSPHERE: str = "STANDARD_ATMOSPHERE"
     CUSTOM_ATMOSPHERE: str = "CUSTOM_ATMOSPHERE"
     WYOMING_SOUNDING: str = "WYOMING_SOUNDING"
-    NOAARUCSOUNDING: str = "NOAARUCSOUNDING"
     FORECAST: str = "FORECAST"
     REANALYSIS: str = "REANALYSIS"
     ENSEMBLE: str = "ENSEMBLE"
@@ -17,7 +16,7 @@ class AtmosphericModelTypes(str, Enum):
 class Env(BaseModel):
     latitude: float
     longitude: float
-    elevation: Optional[int] = None
+    elevation: Optional[int] = 0
 
     # Optional parameters
     atmospheric_model_type: Optional[AtmosphericModelTypes] = None

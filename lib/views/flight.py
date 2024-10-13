@@ -151,8 +151,6 @@ class FlightSummary(RocketSummary, EnvSummary):
     z: Optional[Any]
     z_impact: Optional[Any]
     flight_phases: Optional[Any]
-    FlightPhases: Optional[Any]
-    TimeNodes: Optional[Any]
 
     class Config:
         json_encoders = {Any: to_python_primitive}
