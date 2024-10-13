@@ -16,10 +16,12 @@ class AtmosphericModelTypes(str, Enum):
 class Env(BaseModel):
     latitude: float
     longitude: float
-    elevation: Optional[int] = 0
+    elevation: Optional[int] = 1
 
     # Optional parameters
-    atmospheric_model_type: Optional[AtmosphericModelTypes] = None
+    atmospheric_model_type: AtmosphericModelTypes = (
+        AtmosphericModelTypes.STANDARD_ATMOSPHERE
+    )
     atmospheric_model_file: Optional[str] = None
     date: Optional[datetime.datetime] = (
         datetime.datetime.today() + datetime.timedelta(days=1)
