@@ -5,10 +5,9 @@ import dill
 from rocketpy.simulation.flight import Flight as RocketPyFlight
 from rocketpy.utilities import get_instance_attributes
 
-from lib.models.flight import Flight
 from lib.services.environment import EnvironmentService
 from lib.services.rocket import RocketService
-from lib.views.flight import FlightSummary
+from lib.views.flight import FlightSummary, FlightView
 
 
 class FlightService:
@@ -18,7 +17,7 @@ class FlightService:
         self._flight = flight
 
     @classmethod
-    def from_flight_model(cls, flight: Flight) -> Self:
+    def from_flight_model(cls, flight: FlightView) -> Self:
         """
         Get the rocketpy flight object.
 
