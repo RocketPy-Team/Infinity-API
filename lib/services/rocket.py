@@ -14,10 +14,10 @@ from rocketpy.rocket.aero_surface import (
 from rocketpy.utilities import get_instance_attributes
 
 from lib import logger
-from lib.models.rocket import Rocket, Parachute
+from lib.models.rocket import Parachute
 from lib.models.aerosurfaces import NoseCone, Tail, Fins
 from lib.services.motor import MotorService
-from lib.views.rocket import RocketSummary
+from lib.views.rocket import RocketView, RocketSummary
 
 
 class RocketService:
@@ -27,7 +27,7 @@ class RocketService:
         self._rocket = rocket
 
     @classmethod
-    def from_rocket_model(cls, rocket: Rocket) -> Self:
+    def from_rocket_model(cls, rocket: RocketView) -> Self:
         """
         Get the rocketpy rocket object.
 

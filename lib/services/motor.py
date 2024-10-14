@@ -15,8 +15,8 @@ from rocketpy import (
     TankGeometry,
 )
 
-from lib.models.motor import Motor, MotorKinds, TankKinds
-from lib.views.motor import MotorSummary
+from lib.models.motor import MotorKinds, TankKinds
+from lib.views.motor import MotorSummary, MotorView
 
 
 class MotorService:
@@ -26,7 +26,7 @@ class MotorService:
         self._motor = motor
 
     @classmethod
-    def from_motor_model(cls, motor: Motor) -> Self:
+    def from_motor_model(cls, motor: MotorView) -> Self:
         """
         Get the rocketpy motor object.
 
@@ -46,7 +46,7 @@ class MotorService:
             "reshape_thrust_curve": False or motor.reshape_thrust_curve,
         }
 
-        match motor.motor_kind:
+        match MotorKinds(motor.selected_motor_kind):
             case MotorKinds.LIQUID:
                 rocketpy_motor = LiquidMotor(**motor_core)
             case MotorKinds.HYBRID:
