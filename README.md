@@ -138,28 +138,27 @@ sequenceDiagram
     participant MongoDB
 
     User ->> API: POST /model    
-    API ->> MongoDB: Persist API Model
+    API ->> MongoDB: Persist API Model as a document
     MongoDB -->> API: Model ID
-    API -->> User: Model ID
+    API -->> User: ModelCreated View
 
     User ->> API: GET /model/:id
-    API ->> MongoDB: Retrieve API Model
-    MongoDB -->> API: Rocketpy Model
-    API -->> User: Rocketpy Model
+    API ->> MongoDB: Read API Model document
+    MongoDB -->> API: API Model document
+    API -->> User: API ModelView
 
     User ->> API: PUT /model/:id
-    API ->> MongoDB: Update API Model
-    MongoDB -->> API: Updated Model
-    API -->> User: Updated Model
+    API ->> MongoDB: Update API Model document
+    API -->> User: ModelUpdated View
 
     User ->> API: DELETE /model/:id
-    API ->> MongoDB: Delete API Model
+    API ->> MongoDB: Delete API Model document
     MongoDB -->> API: Deletion Confirmation
-    API -->> User: Deletion Confirmation
+    API -->> User: ModelDeleted View
 
 ```
 
-### Simulating and extracting RocketPY native class 
+### Simulating and extracting RocketPY native classes
 ```mermaid
 sequenceDiagram
     participant User
