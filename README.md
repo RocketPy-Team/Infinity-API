@@ -137,23 +137,23 @@ sequenceDiagram
     participant API
     participant MongoDB
 
-    User ->> API: POST /rocketpy-model    
-    API ->> MongoDB: Persist Rocketpy Model
+    User ->> API: POST /model    
+    API ->> MongoDB: Persist API Model
     MongoDB -->> API: Model ID
     API -->> User: Model ID
 
-    User ->> API: GET /rocketpy-model/:id
-    API ->> MongoDB: Retrieve Rocketpy Model
+    User ->> API: GET /model/:id
+    API ->> MongoDB: Retrieve API Model
     MongoDB -->> API: Rocketpy Model
     API -->> User: Rocketpy Model
 
-    User ->> API: PUT /rocketpy-model/:id
-    API ->> MongoDB: Update Rocketpy Model
+    User ->> API: PUT /model/:id
+    API ->> MongoDB: Update API Model
     MongoDB -->> API: Updated Model
     API -->> User: Updated Model
 
-    User ->> API: DELETE /rocketpy-model/:id
-    API ->> MongoDB: Delete Rocketpy Model
+    User ->> API: DELETE /model/:id
+    API ->> MongoDB: Delete API Model
     MongoDB -->> API: Deletion Confirmation
     API -->> User: Deletion Confirmation
 
@@ -168,9 +168,9 @@ sequenceDiagram
     participant Rocketpy lib
 
     User ->> API: POST /summary/rocketpy-model/:id
-    API -->> MongoDB: Retrieve Rocketpy Model
-    MongoDB -->> API: Rocketpy Model
-    API ->> Rocketpy lib: Simulate Rocketpy Model
+    API -->> MongoDB: Retrieve Rocketpy native class
+    MongoDB -->> API: Rocketpy native class
+    API ->> Rocketpy lib: Simulate Rocketpy native class
     Rocketpy lib -->> API:  Simulation Results
     API -->> User: Simulation Results
 
@@ -178,6 +178,6 @@ sequenceDiagram
     API -->> MongoDB: Retrieve Rocketpy Model
     MongoDB -->> API: Rocketpy Model
     API ->> Rocketpy lib: Rocketpy Model
-    Rocketpy lib -->> API:  Rocketpy native class as json pickle string
-    API -->> User: Rocketpy native class as json pickle string
+    Rocketpy lib -->> API:  Rocketpy native class as .dill binary
+    API -->> User: Rocketpy native class as .dill binary
 ```
