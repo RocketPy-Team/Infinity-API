@@ -61,8 +61,7 @@ class RocketService:
         # NoseCone
         if rocket.nose:
             nose = cls.get_rocketpy_nose(rocket.nose)
-            rocketpy_rocket.aerodynamic_surfaces.add(nose, nose.position)
-            rocketpy_rocket.evaluate_static_margin()
+            rocketpy_rocket.add_surfaces(nose, nose.position)
 
         # FinSet
         if rocket.fins:
@@ -70,16 +69,12 @@ class RocketService:
                 rocket.fins
             )
             for finset in rocketpy_finset_list:
-                rocketpy_rocket.aerodynamic_surfaces.add(
-                    finset, finset.position
-                )
-            rocketpy_rocket.evaluate_static_margin()
+                rocketpy_rocket.add_surfaces(finset, finset.position)
 
         # Tail
         if rocket.tail:
             tail = cls.get_rocketpy_tail(rocket.tail)
-            rocketpy_rocket.aerodynamic_surfaces.add(tail, tail.position)
-            rocketpy_rocket.evaluate_static_margin()
+            rocketpy_rocket.add_surfaces(tail, tail.position)
 
         # Air Brakes
 
