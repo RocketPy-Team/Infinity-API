@@ -1,6 +1,6 @@
+from unittest.mock import patch
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import patch
 from lib.models.environment import Env
 from lib.controllers.environment import EnvController
 from lib.views.environment import (
@@ -24,7 +24,7 @@ def mock_env_summary():
     return EnvSummary()
 
 
-def test_create_env(mock_env):
+def test_create_env():
     with patch.object(
         EnvController, "create_env", return_value=EnvCreated(env_id="123")
     ) as mock_create_env:
@@ -103,7 +103,7 @@ def test_simulate_env(mock_env_summary):
         mock_simulate_env.assert_called_once_with("123")
 
 
-def test_read_rocketpy_env(mock_env):
+def test_read_rocketpy_env():
     with patch.object(
         EnvController, "get_rocketpy_env_binary", return_value=b'rocketpy'
     ) as mock_read_rocketpy_env:
