@@ -1,15 +1,7 @@
-[build-system]
-requires = ["setuptools", "setuptools_scm"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
-
 [project]
 name = "Infinity-API"
-version = "2.2.0"
+version = "2.3.0"
 description = "RESTFULL open API for rocketpy"
-dynamic = ["dependencies"]
 requires-python = ">=3.12"
 authors = [
   {name = "Gabriel Barberini", email = "gabrielbarberinirc@gmail.com"}
@@ -21,7 +13,7 @@ maintainers = [
 readme = "README.md"
 keywords = ["rocketpy", "API", "simulation", "rocket", "flight"]
 classifiers = [
-  "Development Status :: Alpha",
+  "Development Status :: Production",
   "Programming Language :: Python"
 ]
 
@@ -52,3 +44,14 @@ disable = """
     raise-missing-from,
     too-many-instance-attributes,
 """
+
+[tool.ruff]
+line-length = 79
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "N", "Q"]
+ignore = ["N815", "E501", "Q000", "E402"]
+fixable = [
+    "F401",
+]

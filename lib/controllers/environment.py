@@ -27,18 +27,8 @@ class EnvController:
         - CRUD operations over models.Env on the database
     """
 
-    def __init__(self, env: Env):
-        self._env = env
-
-    @property
-    def env(self) -> Env:
-        return self._env
-
-    @env.setter
-    def env(self, env: Env):
-        self._env = env
-
-    async def create_env(self) -> Union[EnvCreated, HTTPException]:
+    @staticmethod
+    async def create_env(env: Env) -> Union[EnvCreated, HTTPException]:
         """
         Create a env in the database.
 
@@ -46,7 +36,7 @@ class EnvController:
             views.EnvCreated
         """
         try:
-            async with EnvRepository(self.env) as env_repo:
+            async with EnvRepository(env) as env_repo:
                 await env_repo.create_env()
         except PyMongoError as e:
             logger.error(
@@ -157,8 +147,9 @@ class EnvController:
                 f"Call to controllers.environment.get_rocketpy_env_binary completed for Env {env_id}"
             )
 
+    @staticmethod
     async def update_env_by_id(
-        self, env_id: str
+        env_id: str, env: Env
     ) -> Union[EnvUpdated, HTTPException]:
         """
         Update a models.Env in the database.
@@ -173,7 +164,7 @@ class EnvController:
             HTTP 404 Not Found: If the env is not found in the database.
         """
         try:
-            async with EnvRepository(self.env) as env_repo:
+            async with EnvRepository(env) as env_repo:
                 await env_repo.update_env_by_id(env_id)
         except PyMongoError as e:
             logger.error(

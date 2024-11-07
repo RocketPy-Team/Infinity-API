@@ -25,4 +25,4 @@ def parse_error(error):
     return f"{exc_type}: {exc_obj}"
 
 
-from lib.api import app  # pylint: disable=wrong-import-position,cyclic-import
+from lib.api import app as app  # pylint: disable=wrong-import-position,cyclic-import

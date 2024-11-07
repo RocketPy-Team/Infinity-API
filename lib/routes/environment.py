@@ -36,7 +36,7 @@ async def create_env(env: Env) -> EnvCreated:
     ``` models.Env JSON ```
     """
     with tracer.start_as_current_span("create_env"):
-        return await EnvController(env).create_env()
+        return await EnvController.create_env(env)
 
 
 @router.get("/{env_id}")
@@ -63,11 +63,11 @@ async def update_env(env_id: str, env: Env) -> EnvUpdated:
     ```
     """
     with tracer.start_as_current_span("update_env"):
-        return await EnvController(env).update_env_by_id(env_id)
+        return await EnvController.update_env_by_id(env_id, env)
 
 
 @router.get(
-    "/rocketpy/{env_id}",
+    "/{env_id}/rocketpy",
     responses={
         203: {
             "description": "Binary file download",
@@ -118,4 +118,4 @@ async def delete_env(env_id: str) -> EnvDeleted:
     ``` env_id: str ```
     """
     with tracer.start_as_current_span("delete_env"):
-        return await EnvController(env_id).delete_env_by_id(env_id)
+        return await EnvController.delete_env_by_id(env_id)
