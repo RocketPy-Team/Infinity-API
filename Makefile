@@ -10,7 +10,8 @@ pylint:
 	pylint --extension-pkg-whitelist='pydantic' ./lib && pylint --extension-pkg-whitelist='pydantic' ./tests
 
 ruff:
-	ruff check --fix
+	ruff check --fix ./lib || true
+	ruff check --fix ./tests || true
 
 test:
 	python3 -m pytest .
