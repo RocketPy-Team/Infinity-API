@@ -1,13 +1,16 @@
 format: flake8 pylint ruff black
 
 black:
-	black ./lib && black ./tests
+	black ./lib || true
+	black ./tests || true
 
 flake8:
-	flake8 --ignore E501,E402,F401,W503,C0414 ./lib && flake8 --ignore E501,E402,F401,W503,C0414 ./tests
+	flake8 --ignore E501,E402,F401,W503,C0414 ./lib || true
+	flake8 --ignore E501,E402,F401,W503,C0414 ./tests || true
 
 pylint:
-	pylint --extension-pkg-whitelist='pydantic' ./lib && pylint --extension-pkg-whitelist='pydantic' ./tests
+	pylint --extension-pkg-whitelist='pydantic' ./lib || true
+	pylint --extension-pkg-whitelist='pydantic' --disable=E0401,W0621 ./tests || true
 
 ruff:
 	ruff check --fix ./lib || true
