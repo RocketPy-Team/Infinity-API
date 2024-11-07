@@ -10,9 +10,10 @@
 - Install dependencies `python3 -m pip install -r requirements.txt`
 
 ## Development
-- black ./lib
-- pylint --extension-pkg-whitelist='pydantic' ./lib/*
-- flake8 --ignore E501,E402,F401,W503 ./lib
+- make format
+- make test
+- make clean
+- make build
 
 ## Starting the server
 - Setup MONGODB_CONNECTION_STRING:
