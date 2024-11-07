@@ -26,4 +26,4 @@ clean:
 build:
 	docker build -t infinity-api . --no-cache
 
-@PHONY: black lint flake8 pylint test dev clean build ruff
+.PHONY: black flake8 pylint test dev clean build ruff format
