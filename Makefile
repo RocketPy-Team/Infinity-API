@@ -1,4 +1,4 @@
-format: flake8 pylint ruff black
+format: black flake8 pylint ruff
 
 black:
 	black ./lib || true
