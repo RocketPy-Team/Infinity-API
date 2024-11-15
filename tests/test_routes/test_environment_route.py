@@ -1,4 +1,5 @@
 from unittest.mock import patch
+import json
 import pytest
 from fastapi.testclient import TestClient
 from fastapi import HTTPException
@@ -17,27 +18,50 @@ client = TestClient(app)
 
 @pytest.fixture
 def stub_env():
-    return Env(latitude=0, longitude=0)
+    env = Env(latitude=0, longitude=0)
+    env_json = env.model_dump_json()
+    return json.loads(env_json)
 
 
 @pytest.fixture
 def stub_env_summary():
-    return EnvSummary()
+    env_summary = EnvSummary()
+    env_summary_json = env_summary.model_dump_json()
+    return json.loads(env_summary_json)
 
 
-def test_create_env():
+def test_create_env(stub_env):
     with patch.object(
         EnvController, "create_env", return_value=EnvCreated(env_id="123")
     ) as mock_create_env:
-        response = client.post(
-            "/environments/", json={"latitude": 0, "longitude": 0}
-        )
+        response = client.post("/environments/", json=stub_env)
         assert response.status_code == 200
         assert response.json() == {
             "env_id": "123",
             "message": "Environment successfully created",
         }
-        mock_create_env.assert_called_once_with(Env(latitude=0, longitude=0))
+        mock_create_env.assert_called_once_with(Env(**stub_env))
+
+
+def test_create_env_optional_params():
+    test_object = {
+        "latitude": 0,
+        "longitude": 0,
+        "elevation": 1,
+        "atmospheric_model_type": "STANDARD_ATMOSPHERE",
+        "atmospheric_model_file": None,
+        "date": "2021-01-01T00:00:00",
+    }
+    with patch.object(
+        EnvController, "create_env", return_value=EnvCreated(env_id="123")
+    ) as mock_create_env:
+        response = client.post("/environments/", json=test_object)
+        assert response.status_code == 200
+        assert response.json() == {
+            "env_id": "123",
+            "message": "Environment successfully created",
+        }
+        mock_create_env.assert_called_once_with(Env(**test_object))
 
 
 def test_create_env_invalid_input():
@@ -47,14 +71,12 @@ def test_create_env_invalid_input():
     assert response.status_code == 422
 
 
-def test_create_env_server_error():
+def test_create_env_server_error(stub_env):
     with patch.object(
         EnvController, "create_env", side_effect=Exception("error")
     ):
         with pytest.raises(Exception):
-            response = client.post(
-                "/environments/", json={"latitude": 0, "longitude": 0}
-            )
+            response = client.post("/environments/", json=stub_env)
             assert response.status_code == 500
             assert response.json() == {
                 "detail": "Failed to create environment: error"
@@ -63,13 +85,11 @@ def test_create_env_server_error():
 
 def test_read_env(stub_env):
     with patch.object(
-        EnvController, "get_env_by_id", return_value=stub_env
+        EnvController, "get_env_by_id", return_value=Env(**stub_env)
     ) as mock_read_env:
         response = client.get("/environments/123")
         assert response.status_code == 200
-        expected_content = stub_env.model_dump()
-        expected_content["date"] = expected_content["date"].isoformat()
-        assert response.json() == expected_content
+        assert response.json() == stub_env
         mock_read_env.assert_called_once_with("123")
 
 
@@ -99,23 +119,19 @@ def test_read_env_server_error():
             }
 
 
-def test_update_env():
+def test_update_env(stub_env):
     with patch.object(
         EnvController,
         "update_env_by_id",
         return_value=EnvUpdated(env_id="123"),
     ) as mock_update_env:
-        response = client.put(
-            "/environments/123", json={"longitude": 1, "latitude": 1}
-        )
+        response = client.put("/environments/123", json=stub_env)
         assert response.status_code == 200
         assert response.json() == {
             "env_id": "123",
             "message": "Environment successfully updated",
         }
-        mock_update_env.assert_called_once_with(
-            "123", Env(latitude=1, longitude=1)
-        )
+        mock_update_env.assert_called_once_with("123", Env(**stub_env))
 
 
 def test_update_env_invalid_input():
@@ -125,34 +141,27 @@ def test_update_env_invalid_input():
     assert response.status_code == 422
 
 
-def test_update_env_not_found():
+def test_update_env_not_found(stub_env):
     with patch.object(
         EnvController,
         "update_env_by_id",
         side_effect=HTTPException(
             status_code=404, detail="Environment not found"
         ),
-    ) as mock_update_env:
-        response = client.put(
-            "/environments/123", json={"longitude": 1, "latitude": 1}
-        )
+    ):
+        response = client.put("/environments/123", json=stub_env)
         assert response.status_code == 404
         assert response.json() == {"detail": "Environment not found"}
-        mock_update_env.assert_called_once_with(
-            "123", Env(latitude=1, longitude=1)
-        )
 
 
-def test_update_env_server_error():
+def test_update_env_server_error(stub_env):
     with patch.object(
         EnvController,
         "update_env_by_id",
         side_effect=Exception("error"),
     ):
         with pytest.raises(Exception):
-            response = client.put(
-                "/environments/123", json={"longitude": 1, "latitude": 1}
-            )
+            response = client.put("/environments/123", json=stub_env)
             assert response.status_code == 500
             assert response.json() == {
                 "detail": "Failed to update environment: error"
@@ -205,19 +214,13 @@ def test_delete_env_server_error():
 
 def test_simulate_env(stub_env_summary):
     with patch.object(
-        EnvController, "simulate_env", return_value=stub_env_summary
+        EnvController,
+        "simulate_env",
+        return_value=EnvSummary(**stub_env_summary),
     ) as mock_simulate_env:
         response = client.get("/environments/123/summary")
         assert response.status_code == 200
-        expected_content = stub_env_summary.model_dump()
-        expected_content["date"] = expected_content["date"].isoformat()
-        expected_content["local_date"] = expected_content[
-            "local_date"
-        ].isoformat()
-        expected_content["datetime_date"] = expected_content[
-            "datetime_date"
-        ].isoformat()
-        assert response.json() == expected_content
+        assert response.json() == stub_env_summary
         mock_simulate_env.assert_called_once_with("123")
 
 
