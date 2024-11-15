@@ -1,5 +1,5 @@
 from typing import List, Any, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from lib.models.motor import Motor, MotorKinds, CoordinateSystemOrientation
 from lib.utils import to_python_primitive
 
@@ -69,8 +69,9 @@ class MotorSummary(BaseModel):
     total_mass_flow_rate: Optional[Any] = None
     thrust: Optional[Any] = None
 
-    class Config:
-        json_encoders = {Any: to_python_primitive}
+    model_config = ConfigDict(
+        json_encoders={Any: to_python_primitive}
+    )
 
 
 class MotorCreated(BaseModel):

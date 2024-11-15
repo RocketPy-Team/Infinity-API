@@ -1,5 +1,5 @@
 from typing import Any, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from lib.models.rocket import Rocket, CoordinateSystemOrientation
 from lib.views.motor import MotorView, MotorSummary
 from lib.utils import to_python_primitive
@@ -38,8 +38,9 @@ class RocketSummary(MotorSummary):
     thrust_to_weight: Optional[Any] = None
     total_lift_coeff_der: Optional[Any] = None
 
-    class Config:
-        json_encoders = {Any: to_python_primitive}
+    model_config = ConfigDict(
+        json_encoders={Any: to_python_primitive}
+    )
 
 
 class RocketCreated(BaseModel):

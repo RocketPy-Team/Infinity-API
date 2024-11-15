@@ -26,18 +26,6 @@ class MotorController:
         - Create a rocketpy.Motor object from a Motor model object.
     """
 
-    def __init__(self, motor: Motor):
-        self.guard(motor)
-        self._motor = motor
-
-    @property
-    def motor(self) -> Motor:
-        return self._motor
-
-    @motor.setter
-    def motor(self, motor: Motor):
-        self._motor = motor
-
     @staticmethod
     def guard(motor: Motor):
         if (
@@ -51,7 +39,10 @@ class MotorController:
 
         # TODO: extend guard to check motor kinds and tank kinds specifics
 
-    async def create_motor(self) -> Union[MotorCreated, HTTPException]:
+    @classmethod
+    async def create_motor(
+        cls, motor: Motor
+    ) -> Union[MotorCreated, HTTPException]:
         """
         Create a models.Motor in the database.
 
@@ -59,7 +50,8 @@ class MotorController:
             views.MotorCreated
         """
         try:
-            async with MotorRepository(self.motor) as motor_repo:
+            cls.guard(motor)
+            async with MotorRepository(motor) as motor_repo:
                 await motor_repo.create_motor()
         except PyMongoError as e:
             logger.error(f"controllers.motor.create_motor: PyMongoError {e}")
@@ -173,8 +165,9 @@ class MotorController:
                 f"Call to controllers.motor.get_rocketpy_motor_binary completed for Motor {motor_id}"
             )
 
+    @classmethod
     async def update_motor_by_id(
-        self, motor_id: str
+        cls, motor_id: str, motor: Motor
     ) -> Union[MotorUpdated, HTTPException]:
         """
         Update a motor in the database.
@@ -189,7 +182,8 @@ class MotorController:
             HTTP 404 Not Found: If the motor is not found in the database.
         """
         try:
-            async with MotorRepository(self.motor) as motor_repo:
+            cls.guard(motor)
+            async with MotorRepository(motor) as motor_repo:
                 await motor_repo.update_motor_by_id(motor_id)
         except PyMongoError as e:
             logger.error(f"controllers.motor.update_motor: PyMongoError {e}")

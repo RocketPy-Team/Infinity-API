@@ -1,6 +1,6 @@
 from typing import Optional, Any
 from datetime import datetime, timedelta
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from lib.models.environment import AtmosphericModelTypes
 from lib.utils import to_python_primitive
 
@@ -49,8 +49,9 @@ class EnvSummary(BaseModel):
     geodesic_to_utm: Optional[Any] = None
     utm_to_geodesic: Optional[Any] = None
 
-    class Config:
-        json_encoders = {Any: to_python_primitive}
+    model_config = ConfigDict(
+        json_encoders={Any: to_python_primitive}
+    )
 
 
 class EnvCreated(BaseModel):
