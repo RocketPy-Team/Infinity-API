@@ -38,7 +38,7 @@ async def create_motor(motor: Motor, motor_kind: MotorKinds) -> MotorCreated:
     """
     with tracer.start_as_current_span("create_motor"):
         motor.set_motor_kind(motor_kind)
-        return await MotorController(motor).create_motor()
+        return await MotorController.create_motor(motor)
 
 
 @router.get("/{motor_id}")
@@ -68,11 +68,11 @@ async def update_motor(
     """
     with tracer.start_as_current_span("update_motor"):
         motor.set_motor_kind(motor_kind)
-        return await MotorController(motor).update_motor_by_id(motor_id)
+        return await MotorController.update_motor_by_id(motor_id, motor)
 
 
 @router.get(
-    "/rocketpy/{motor_id}",
+    "/{motor_id}/rocketpy",
     responses={
         203: {
             "description": "Binary file download",

@@ -1,5 +1,5 @@
 from typing import Optional, Any
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from lib.models.flight import Flight
 from lib.views.rocket import RocketView, RocketSummary
 from lib.views.environment import EnvSummary
@@ -151,8 +151,9 @@ class FlightSummary(RocketSummary, EnvSummary):
     z_impact: Optional[Any] = None
     flight_phases: Optional[Any] = None
 
-    class Config:
-        json_encoders = {Any: to_python_primitive}
+    model_config = ConfigDict(
+        json_encoders={Any: to_python_primitive}
+    )
 
 
 class FlightCreated(BaseModel):
