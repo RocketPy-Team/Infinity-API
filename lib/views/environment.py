@@ -49,9 +49,7 @@ class EnvSummary(BaseModel):
     geodesic_to_utm: Optional[Any] = None
     utm_to_geodesic: Optional[Any] = None
 
-    model_config = ConfigDict(
-        json_encoders={Any: to_python_primitive}
-    )
+    model_config = ConfigDict(json_encoders={Any: to_python_primitive})
 
 
 class EnvCreated(BaseModel):

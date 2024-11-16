@@ -38,9 +38,7 @@ class RocketSummary(MotorSummary):
     thrust_to_weight: Optional[Any] = None
     total_lift_coeff_der: Optional[Any] = None
 
-    model_config = ConfigDict(
-        json_encoders={Any: to_python_primitive}
-    )
+    model_config = ConfigDict(json_encoders={Any: to_python_primitive})
 
 
 class RocketCreated(BaseModel):
