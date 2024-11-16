@@ -69,9 +69,7 @@ class MotorSummary(BaseModel):
     total_mass_flow_rate: Optional[Any] = None
     thrust: Optional[Any] = None
 
-    model_config = ConfigDict(
-        json_encoders={Any: to_python_primitive}
-    )
+    model_config = ConfigDict(json_encoders={Any: to_python_primitive})
 
 
 class MotorCreated(BaseModel):

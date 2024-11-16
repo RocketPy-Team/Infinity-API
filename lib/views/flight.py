@@ -151,9 +151,7 @@ class FlightSummary(RocketSummary, EnvSummary):
     z_impact: Optional[Any] = None
     flight_phases: Optional[Any] = None
 
-    model_config = ConfigDict(
-        json_encoders={Any: to_python_primitive}
-    )
+    model_config = ConfigDict(json_encoders={Any: to_python_primitive})
 
 
 class FlightCreated(BaseModel):
