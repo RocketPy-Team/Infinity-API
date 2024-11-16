@@ -41,7 +41,7 @@ async def create_rocket(
     """
     with tracer.start_as_current_span("create_rocket"):
         rocket.motor.set_motor_kind(motor_kind)
-        return await RocketController(rocket).create_rocket()
+        return await RocketController.create_rocket(rocket)
 
 
 @router.get("/{rocket_id}")
@@ -73,7 +73,7 @@ async def update_rocket(
     """
     with tracer.start_as_current_span("update_rocket"):
         rocket.motor.set_motor_kind(motor_kind)
-        return await RocketController(rocket).update_rocket_by_id(rocket_id)
+        return await RocketController.update_rocket_by_id(rocket, rocket_id)
 
 
 @router.get(

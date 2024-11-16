@@ -43,7 +43,7 @@ async def create_flight(
     """
     with tracer.start_as_current_span("create_flight"):
         flight.rocket.motor.set_motor_kind(motor_kind)
-        return await FlightController(flight).create_flight()
+        return await FlightController.create_flight(flight)
 
 
 @router.get("/{flight_id}")
@@ -146,7 +146,7 @@ async def update_flight(
     """
     with tracer.start_as_current_span("update_flight"):
         flight.rocket.motor.set_motor_kind(motor_kind)
-        return await FlightController(flight).update_flight_by_id(flight_id)
+        return await FlightController.update_flight_by_id(flight, flight_id)
 
 
 @router.get("/{flight_id}/summary")

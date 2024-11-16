@@ -19,9 +19,6 @@ class MotorController:
     """
     Controller for the motor model.
 
-    Init Attributes:
-        motor (models.Motor): Motor model object.
-
     Enables:
         - Create a rocketpy.Motor object from a Motor model object.
     """

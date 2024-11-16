@@ -19,9 +19,6 @@ class EnvController:
     """
     Controller for the Environment model.
 
-    Init Attributes:
-        env: models.Env
-
     Enables:
         - Simulation of a RocketPy Environment from models.Env
         - CRUD operations over models.Env on the database
