@@ -174,7 +174,7 @@ sequenceDiagram
     Rocketpy lib -->> API:  Simulation Results
     API -->> User: Simulation Results
 
-    User ->> API: POST /rocketpy/model/:id
+    User ->> API: POST /model/:id/rocketpy
     API -->> MongoDB: Retrieve Rocketpy Model
     MongoDB -->> API: Rocketpy Model
     API ->> Rocketpy lib: Rocketpy Model
