@@ -63,9 +63,14 @@ class RocketController:
         else:
             return RocketCreated(rocket_id=rocket_repo.rocket_id)
         finally:
+            rocket_id = (
+                getattr(rocket_repo, 'rocket_id', 'unknown')
+                if rocket_repo
+                else 'unknown'
+            )
             if rocket_repo:
                 logger.info(
-                    f"Call to controllers.rocket.create_rocket completed for Rocket {rocket_repo.rocket_id}"
+                    f"Call to controllers.rocket.create_rocket completed for Rocket {rocket_id}"
                 )
 
     @staticmethod

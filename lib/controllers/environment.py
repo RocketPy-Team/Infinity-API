@@ -56,9 +56,14 @@ class EnvController:
         else:
             return EnvCreated(env_id=env_repo.env_id)
         finally:
+            env_id = (
+                getattr(env_repo, 'env_id', 'unknown')
+                if env_repo
+                else 'unknown'
+            )
             if env_repo:
                 logger.info(
-                    f"Call to controllers.environment.create_env completed for Env {env_repo.env_id}"
+                    f"Call to controllers.environment.create_env completed for Env {env_id}"
                 )
 
     @staticmethod
