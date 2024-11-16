@@ -32,6 +32,7 @@ class EnvController:
         Returns:
             views.EnvCreated
         """
+        env_repo = None
         try:
             async with EnvRepository(env) as env_repo:
                 await env_repo.create_env()
@@ -56,7 +57,7 @@ class EnvController:
             return EnvCreated(env_id=env_repo.env_id)
         finally:
             logger.info(
-                f"Call to controllers.environment.create_env completed for Env {env_repo.env_id}"
+                f"Call to controllers.environment.create_env completed for Env {None or env_repo.env_id}"
             )
 
     @staticmethod

@@ -40,6 +40,7 @@ class RocketController:
         Returns:
             views.RocketCreated
         """
+        rocket_repo = None
         try:
             cls.guard(rocket)
             async with RocketRepository(rocket) as rocket_repo:
@@ -63,7 +64,7 @@ class RocketController:
             return RocketCreated(rocket_id=rocket_repo.rocket_id)
         finally:
             logger.info(
-                f"Call to controllers.rocket.create_rocket completed for Rocket {rocket_repo.rocket_id}"
+                f"Call to controllers.rocket.create_rocket completed for Rocket {None or rocket_repo.rocket_id}"
             )
 
     @staticmethod

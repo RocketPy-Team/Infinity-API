@@ -50,6 +50,7 @@ class FlightController:
         Returns:
             views.FlightCreated
         """
+        flight_repo = None
         try:
             cls.guard(flight)
             async with FlightRepository(flight) as flight_repo:
@@ -73,7 +74,7 @@ class FlightController:
             return FlightCreated(flight_id=flight_repo.flight_id)
         finally:
             logger.info(
-                f"Call to controllers.flight.create_flight completed for Flight {flight_repo.flight_id}"
+                f"Call to controllers.flight.create_flight completed for Flight {None or flight_repo.flight_id}"
             )
 
     @staticmethod

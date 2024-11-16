@@ -46,6 +46,7 @@ class MotorController:
         Returns:
             views.MotorCreated
         """
+        motor_repo = None
         try:
             cls.guard(motor)
             async with MotorRepository(motor) as motor_repo:
@@ -69,7 +70,7 @@ class MotorController:
             return MotorCreated(motor_id=motor_repo.motor_id)
         finally:
             logger.info(
-                f"Call to controllers.motor.create_motor completed for Motor {motor_repo.motor_id}"
+                f"Call to controllers.motor.create_motor completed for Motor {None or motor_repo.motor_id}"
             )
 
     @staticmethod
