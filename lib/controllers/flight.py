@@ -25,9 +25,6 @@ class FlightController:
     """
     Controller for the Flight model.
 
-    Init Attributes:
-        flight (models.Flight): Flight model object.
-
     Enables:
         - Create a RocketPyFlight object from a Flight model object.
         - Generate trajectory simulation from a RocketPyFlight object.
@@ -39,26 +36,14 @@ class FlightController:
 
     """
 
-    def __init__(
-        self,
-        flight: Flight,
-    ):
-        self.guard(flight)
-        self._flight = flight
-
-    @property
-    def flight(self) -> Flight:
-        return self._flight
-
-    @flight.setter
-    def flight(self, flight: Flight):
-        self._flight = flight
-
     @staticmethod
     def guard(flight: Flight):
         RocketController.guard(flight.rocket)
 
-    async def create_flight(self) -> Union[FlightCreated, HTTPException]:
+    @classmethod
+    async def create_flight(
+        cls, flight: Flight
+    ) -> Union[FlightCreated, HTTPException]:
         """
         Create a flight in the database.
 
@@ -66,7 +51,8 @@ class FlightController:
             views.FlightCreated
         """
         try:
-            async with FlightRepository(self.flight) as flight_repo:
+            cls.guard(flight)
+            async with FlightRepository(flight) as flight_repo:
                 await flight_repo.create_flight()
         except PyMongoError as e:
             logger.error(f"controllers.flight.create_flight: PyMongoError {e}")
@@ -189,8 +175,9 @@ class FlightController:
                 f"Call to controllers.flight.get_rocketpy_flight_binary completed for Flight {flight_id}"
             )
 
+    @classmethod
     async def update_flight_by_id(
-        self, flight_id: str
+        cls, flight: Flight, flight_id: str
     ) -> Union[FlightUpdated, HTTPException]:
         """
         Update a models.Flight in the database.
@@ -205,7 +192,8 @@ class FlightController:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
         try:
-            async with FlightRepository(self.flight) as flight_repo:
+            cls.guard(flight)
+            async with FlightRepository(flight) as flight_repo:
                 await flight_repo.update_flight_by_id(flight_id)
         except PyMongoError as e:
             logger.error(f"controllers.flight.update_flight: PyMongoError {e}")

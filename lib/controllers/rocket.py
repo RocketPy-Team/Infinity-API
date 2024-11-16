@@ -22,33 +22,18 @@ class RocketController:
     """
     Controller for the Rocket model.
 
-    Init Attributes:
-        rocket: models.Rocket.
-
     Enables:
        - CRUD operations over models.Rocket on the database.
     """
-
-    def __init__(
-        self,
-        rocket: Rocket,
-    ):
-        self.guard(rocket)
-        self._rocket = rocket
-
-    @property
-    def rocket(self) -> Rocket:
-        return self._rocket
-
-    @rocket.setter
-    def rocket(self, rocket: Rocket):
-        self._rocket = rocket
 
     @staticmethod
     def guard(rocket: Rocket):
         MotorController.guard(rocket.motor)
 
-    async def create_rocket(self) -> Union[RocketCreated, HTTPException]:
+    @classmethod
+    async def create_rocket(
+        cls, rocket: Rocket
+    ) -> Union[RocketCreated, HTTPException]:
         """
         Create a models.Rocket in the database.
 
@@ -56,7 +41,8 @@ class RocketController:
             views.RocketCreated
         """
         try:
-            async with RocketRepository(self.rocket) as rocket_repo:
+            cls.guard(rocket)
+            async with RocketRepository(rocket) as rocket_repo:
                 await rocket_repo.create_rocket()
         except PyMongoError as e:
             logger.error(f"controllers.rocket.create_rocket: PyMongoError {e}")
@@ -175,8 +161,9 @@ class RocketController:
                 f"Call to controllers.rocket.get_rocketpy_rocket_binary completed for Rocket {rocket_id}"
             )
 
+    @classmethod
     async def update_rocket_by_id(
-        self, rocket_id: str
+        cls, rocket: Rocket, rocket_id: str
     ) -> Union[RocketUpdated, HTTPException]:
         """
         Update a models.Rocket in the database.
@@ -191,7 +178,8 @@ class RocketController:
             HTTP 404 Not Found: If the rocket is not found in the database.
         """
         try:
-            async with RocketRepository(self.rocket) as rocket_repo:
+            cls.guard(rocket)
+            async with RocketRepository(rocket) as rocket_repo:
                 await rocket_repo.update_rocket_by_id(rocket_id)
         except PyMongoError as e:
             logger.error(f"controllers.rocket.update_rocket: PyMongoError {e}")
