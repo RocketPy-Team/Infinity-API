@@ -69,9 +69,10 @@ class MotorController:
         else:
             return MotorCreated(motor_id=motor_repo.motor_id)
         finally:
-            logger.info(
-                f"Call to controllers.motor.create_motor completed for Motor {None or motor_repo.motor_id}"
-            )
+            if motor_repo:
+                logger.info(
+                    f"Call to controllers.motor.create_motor completed for Motor {motor_repo.motor_id}"
+                )
 
     @staticmethod
     async def get_motor_by_id(
