@@ -59,7 +59,7 @@ async def read_flight(flight_id: str) -> FlightView:
 
 
 @router.get(
-    "/rocketpy/{flight_id}",
+    "/{flight_id}/rocketpy",
     responses={
         203: {
             "description": "Binary file download",
@@ -146,7 +146,7 @@ async def update_flight(
     """
     with tracer.start_as_current_span("update_flight"):
         flight.rocket.motor.set_motor_kind(motor_kind)
-        return await FlightController.update_flight_by_id(flight, flight_id)
+        return await FlightController.update_flight_by_id(flight_id, flight)
 
 
 @router.get("/{flight_id}/summary")

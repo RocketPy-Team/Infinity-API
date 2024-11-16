@@ -170,7 +170,7 @@ class RocketController:
 
     @classmethod
     async def update_rocket_by_id(
-        cls, rocket: Rocket, rocket_id: str
+        cls, rocket_id: str, rocket: Rocket
     ) -> Union[RocketUpdated, HTTPException]:
         """
         Update a models.Rocket in the database.
