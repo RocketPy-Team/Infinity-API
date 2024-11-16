@@ -183,7 +183,7 @@ class FlightController:
 
     @classmethod
     async def update_flight_by_id(
-        cls, flight: Flight, flight_id: str
+        cls, flight_id: str, flight: Flight
     ) -> Union[FlightUpdated, HTTPException]:
         """
         Update a models.Flight in the database.

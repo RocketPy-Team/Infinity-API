@@ -7,21 +7,13 @@ from lib.models.aerosurfaces import (
     NoseCone,
     Tail,
     RailButtons,
+    Parachute,
 )
 
 
 class CoordinateSystemOrientation(str, Enum):
     TAIL_TO_NOSE: str = "TAIL_TO_NOSE"
     NOSE_TO_TAIL: str = "NOSE_TO_TAIL"
-
-
-class Parachute(BaseModel):
-    name: str
-    cd_s: float
-    sampling_rate: int
-    lag: float
-    trigger: Union[str, float]
-    noise: Tuple[float, float, float]
 
 
 class Rocket(BaseModel):

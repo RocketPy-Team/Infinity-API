@@ -73,11 +73,11 @@ async def update_rocket(
     """
     with tracer.start_as_current_span("update_rocket"):
         rocket.motor.set_motor_kind(motor_kind)
-        return await RocketController.update_rocket_by_id(rocket, rocket_id)
+        return await RocketController.update_rocket_by_id(rocket_id, rocket)
 
 
 @router.get(
-    "/rocketpy/{rocket_id}",
+    "/{rocket_id}/rocketpy",
     responses={
         203: {
             "description": "Binary file download",

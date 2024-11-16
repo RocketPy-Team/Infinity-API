@@ -1,6 +1,15 @@
 from enum import Enum
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, Union
 from pydantic import BaseModel
+
+
+class Parachute(BaseModel):
+    name: str
+    cd_s: float
+    sampling_rate: int
+    lag: float
+    trigger: Union[str, float]
+    noise: Tuple[float, float, float]
 
 
 class RailButtons(BaseModel):
