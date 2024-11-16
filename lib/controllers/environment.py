@@ -56,9 +56,10 @@ class EnvController:
         else:
             return EnvCreated(env_id=env_repo.env_id)
         finally:
-            logger.info(
-                f"Call to controllers.environment.create_env completed for Env {None or env_repo.env_id}"
-            )
+            if env_repo:
+                logger.info(
+                    f"Call to controllers.environment.create_env completed for Env {env_repo.env_id}"
+                )
 
     @staticmethod
     async def get_env_by_id(env_id: str) -> Union[Env, HTTPException]:

@@ -63,9 +63,10 @@ class RocketController:
         else:
             return RocketCreated(rocket_id=rocket_repo.rocket_id)
         finally:
-            logger.info(
-                f"Call to controllers.rocket.create_rocket completed for Rocket {None or rocket_repo.rocket_id}"
-            )
+            if rocket_repo:
+                logger.info(
+                    f"Call to controllers.rocket.create_rocket completed for Rocket {rocket_repo.rocket_id}"
+                )
 
     @staticmethod
     async def get_rocket_by_id(
