@@ -10,7 +10,7 @@ flake8:
 
 pylint:
 	pylint ./lib || true
-	pylint --disable=E0401,W0621 ./tests || true
+	pylint --disable=E0401,W0621,R0913,R0917 ./tests || true
 
 ruff:
 	ruff check --fix ./lib || true
