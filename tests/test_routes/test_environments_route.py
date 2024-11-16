@@ -180,21 +180,6 @@ def test_delete_env():
         mock_delete_env.assert_called_once_with('123')
 
 
-def test_delete_env_not_found():
-    with patch.object(
-        EnvController,
-        'delete_env_by_id',
-        return_value=EnvDeleted(env_id='123'),
-    ) as mock_delete_env:
-        response = client.delete('/environments/123')
-        assert response.status_code == 200
-        assert response.json() == {
-            'env_id': '123',
-            'message': 'Environment successfully deleted',
-        }
-        mock_delete_env.assert_called_once_with('123')
-
-
 def test_delete_env_server_error():
     with patch.object(
         EnvController,

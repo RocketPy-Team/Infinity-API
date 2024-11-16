@@ -397,21 +397,6 @@ def test_delete_motor():
         mock_delete_motor.assert_called_once_with('123')
 
 
-def test_delete_motor_not_found():
-    with patch.object(
-        MotorController,
-        'delete_motor_by_id',
-        return_value=MotorDeleted(motor_id='123'),
-    ) as mock_delete_motor:
-        response = client.delete('/motors/123')
-        assert response.status_code == 200
-        assert response.json() == {
-            'motor_id': '123',
-            'message': 'Motor successfully deleted',
-        }
-        mock_delete_motor.assert_called_once_with('123')
-
-
 def test_delete_motor_server_error():
     with patch.object(
         MotorController,
