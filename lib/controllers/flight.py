@@ -73,10 +73,10 @@ class FlightController:
         else:
             return FlightCreated(flight_id=flight_repo.flight_id)
         finally:
-            if flight_repo:
-                logger.info(
-                    f"Call to controllers.flight.create_flight completed for Flight {flight_repo.flight_id}"
-                )
+            flight_id = getattr(flight_repo, 'flight_id', 'unknown') if flight_repo else 'unknown'
+            logger.info(
+                f"Call to controllers.flight.create_flight completed for Flight {flight_id}"
+            )
 
     @staticmethod
     async def get_flight_by_id(
