@@ -178,6 +178,6 @@ sequenceDiagram
     API -->> MongoDB: Retrieve Rocketpy Model
     MongoDB -->> API: Rocketpy Model
     API ->> Rocketpy lib: Rocketpy Model
-    Rocketpy lib -->> API:  Rocketpy native class as .dill binary
+    Rocketpy lib -->> API:  Rocketpy native class
     API -->> User: Rocketpy native class as .dill binary
 ```
