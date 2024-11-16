@@ -144,7 +144,7 @@ def test_create_motor_optional_params(stub_motor):
             mock_create_motor.assert_called_once_with(Motor(**stub_motor))
 
 
-def create_generic_motor(stub_motor):
+def test_create_generic_motor(stub_motor):
     stub_motor.update(
         {
             'chamber_radius': 0,
@@ -174,8 +174,74 @@ def create_generic_motor(stub_motor):
             mock_create_motor.assert_called_once_with(Motor(**stub_motor))
 
 
-def create_liquid_motor_level_tank(stub_motor, stub_level_tank):
+def test_create_liquid_motor_level_tank(stub_motor, stub_level_tank):
     stub_motor.update({'tanks': [stub_level_tank]})
+    with patch.object(
+        MotorController,
+        'create_motor',
+        return_value=MotorCreated(motor_id='123'),
+    ) as mock_create_motor:
+        with patch.object(
+            Motor, 'set_motor_kind', side_effect=None
+        ) as mock_set_motor_kind:
+            response = client.post(
+                '/motors/', json=stub_motor, params={'motor_kind': 'LIQUID'}
+            )
+            assert response.status_code == 200
+            assert response.json() == {
+                'motor_id': '123',
+                'message': 'Motor successfully created',
+            }
+            mock_set_motor_kind.assert_called_once_with(MotorKinds.LIQUID)
+            mock_create_motor.assert_called_once_with(Motor(**stub_motor))
+
+
+def test_create_liquid_motor_mass_flow_tank(stub_motor, stub_mass_flow_tank):
+    stub_motor.update({'tanks': [stub_mass_flow_tank]})
+    with patch.object(
+        MotorController,
+        'create_motor',
+        return_value=MotorCreated(motor_id='123'),
+    ) as mock_create_motor:
+        with patch.object(
+            Motor, 'set_motor_kind', side_effect=None
+        ) as mock_set_motor_kind:
+            response = client.post(
+                '/motors/', json=stub_motor, params={'motor_kind': 'LIQUID'}
+            )
+            assert response.status_code == 200
+            assert response.json() == {
+                'motor_id': '123',
+                'message': 'Motor successfully created',
+            }
+            mock_set_motor_kind.assert_called_once_with(MotorKinds.LIQUID)
+            mock_create_motor.assert_called_once_with(Motor(**stub_motor))
+
+
+def test_create_liquid_motor_ullage_tank(stub_motor, stub_ullage_tank):
+    stub_motor.update({'tanks': [stub_ullage_tank]})
+    with patch.object(
+        MotorController,
+        'create_motor',
+        return_value=MotorCreated(motor_id='123'),
+    ) as mock_create_motor:
+        with patch.object(
+            Motor, 'set_motor_kind', side_effect=None
+        ) as mock_set_motor_kind:
+            response = client.post(
+                '/motors/', json=stub_motor, params={'motor_kind': 'LIQUID'}
+            )
+            assert response.status_code == 200
+            assert response.json() == {
+                'motor_id': '123',
+                'message': 'Motor successfully created',
+            }
+            mock_set_motor_kind.assert_called_once_with(MotorKinds.LIQUID)
+            mock_create_motor.assert_called_once_with(Motor(**stub_motor))
+
+
+def test_create_liquid_motor_mass_tank(stub_motor, stub_mass_tank):
+    stub_motor.update({'tanks': [stub_mass_tank]})
     with patch.object(
         MotorController,
         'create_motor',
