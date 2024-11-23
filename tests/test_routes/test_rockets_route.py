@@ -162,7 +162,7 @@ def stub_parachute():
     parachute = Parachute(
         name='parachute',
         cd_s=0,
-        sampling_rate=0,
+        sampling_rate=1,
         lag=0,
         trigger='trigger',
         noise=(0, 0, 0),
