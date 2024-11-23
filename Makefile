@@ -1,4 +1,5 @@
-format: black flake8 pylint ruff
+format: black ruff
+lint: flake8 pylint
 
 black:
 	black ./lib || true
@@ -10,7 +11,7 @@ flake8:
 
 pylint:
 	pylint ./lib || true
-	pylint --disable=E0401,W0621,R0913,R0917 ./tests || true
+	pylint ./tests || true
 
 ruff:
 	ruff check --fix ./lib || true

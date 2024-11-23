@@ -1,13 +1,13 @@
 from enum import Enum
 from typing import Optional, Tuple, List, Union
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Parachute(BaseModel):
     name: str
-    cd_s: float
-    sampling_rate: int
-    lag: float
+    cd_s: float = Field(..., ge=0, description="Must be non-negative")
+    sampling_rate: float = Field(..., gt=0, description="Must be positive")
+    lag: float = Field(..., ge=0, description="Must be non-negative")
     trigger: Union[str, float]
     noise: Tuple[float, float, float]
 
