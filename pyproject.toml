@@ -43,7 +43,6 @@ disable = """
     broad-exception-caught,
     raise-missing-from,
     too-many-instance-attributes,
-    redefined-outer-name,
     import-error,
     too-many-arguments,
     redefined-outer-name,

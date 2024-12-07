@@ -17,13 +17,6 @@ client = TestClient(app)
 
 
 @pytest.fixture
-def stub_env():
-    env = Env(latitude=0, longitude=0)
-    env_json = env.model_dump_json()
-    return json.loads(env_json)
-
-
-@pytest.fixture
 def stub_env_summary():
     env_summary = EnvSummary()
     env_summary_json = env_summary.model_dump_json()
