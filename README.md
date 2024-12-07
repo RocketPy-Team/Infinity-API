@@ -161,14 +161,14 @@ sequenceDiagram
     participant MongoDB
     participant Rocketpy lib
 
-    User ->> API: POST /summary/model/:id
+    User ->> API: GET /summary/model/:id
     API -->> MongoDB: Retrieve Rocketpy native class
     MongoDB -->> API: Rocketpy native class
     API ->> Rocketpy lib: Simulate Rocketpy native class
     Rocketpy lib -->> API:  Simulation Results
     API -->> User: Simulation Results
 
-    User ->> API: POST /model/:id/rocketpy
+    User ->> API: GET /model/:id/rocketpy
     API -->> MongoDB: Retrieve Rocketpy Model
     MongoDB -->> API: Rocketpy Model
     API ->> Rocketpy lib: Rocketpy Model
