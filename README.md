@@ -99,12 +99,6 @@ $ touch .env && echo MONGODB_CONNECTION_STRING="$ConnectionString" > .env
         │   ├── test_motor_service.py
         │   └── test_rocket_serice.py
         │
-        ├── test_routes
-        │   ├── test_environment_route.py
-        │   ├── test_flight_route.py
-        │   ├── test_motor_route.py
-        │   └── test_rocket_route.py
-        │
         ├── test_repositories
         │   ├── test_environment_repo.py
         │   ├── test_flight_repo.py
