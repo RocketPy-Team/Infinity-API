@@ -18,11 +18,6 @@ class CoordinateSystemOrientation(str, Enum):
 
 class Rocket(BaseModel):
 
-    def __eq__(self, other):
-        if not isinstance(other, Rocket):
-            return False
-        return self.dict() == other.dict()
-
     # Required parameters
     motor: Motor
     radius: float
