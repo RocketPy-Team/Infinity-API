@@ -217,9 +217,9 @@ def test_update_rocket_by_flight_id(stub_rocket):
             'flight_id': '123',
             'message': 'Flight successfully updated',
         }
-        mock_update_flight.assert_called_once_with(
-            '123', rocket=Rocket(**stub_rocket)
-        )
+        assert mock_update_flight.call_count == 1
+        assert mock_update_flight.call_args[0][0] == '123'
+        assert mock_update_flight.call_args[1]['rocket'].model_dump() == Rocket(**stub_rocket).model_dump()
 
 
 def test_update_env_by_flight_id_invalid_input():
