@@ -279,7 +279,7 @@ class MotorController:
             logger.error(f"controllers.motor.simulate_motor: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to simulate motor: {exc_str}",
+                detail=f"Failed to simulate motor, parameters may contain data that is not physically coherent: {exc_str}",
             ) from e
         else:
             return motor_summary

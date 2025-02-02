@@ -4,6 +4,7 @@ import pytest
 from lib.models.rocket import Rocket
 from lib.models.motor import Motor, MotorTank, TankFluids, TankKinds
 from lib.models.environment import Env
+from lib.models.aerosurfaces import Fins, NoseCone
 
 
 @pytest.fixture
@@ -79,7 +80,35 @@ def stub_mass_tank(stub_tank):
 
 
 @pytest.fixture
-def stub_rocket(stub_motor):
+def stub_nose_cone():
+    nose_cone = NoseCone(
+        name='nose',
+        length=0,
+        kind='kind',
+        position=0,
+        base_radius=0,
+        rocket_radius=0,
+    )
+    nose_cone_json = nose_cone.model_dump_json()
+    return json.loads(nose_cone_json)
+
+
+@pytest.fixture
+def stub_fins():
+    fins = Fins(
+        fins_kind='TRAPEZOIDAL',
+        name='fins',
+        n=0,
+        root_chord=0,
+        span=0,
+        position=0,
+    )
+    fins_json = fins.model_dump_json()
+    return json.loads(fins_json)
+
+
+@pytest.fixture
+def stub_rocket(stub_motor, stub_nose_cone, stub_fins):
     rocket = Rocket(
         motor=stub_motor,
         radius=0,
@@ -89,6 +118,8 @@ def stub_rocket(stub_motor):
         inertia=[0, 0, 0],
         power_off_drag=[(0, 0)],
         power_on_drag=[(0, 0)],
+        nose=stub_nose_cone,
+        fins=[stub_fins],
         coordinate_system_orientation='TAIL_TO_NOSE',
     )
     rocket_json = rocket.model_dump_json()

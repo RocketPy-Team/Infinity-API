@@ -4,8 +4,6 @@ import pytest
 from fastapi.testclient import TestClient
 from fastapi import HTTPException, status
 from lib.models.aerosurfaces import (
-    Fins,
-    NoseCone,
     Tail,
     RailButtons,
     Parachute,
@@ -34,34 +32,6 @@ def stub_rocket_summary():
     rocket_summary = RocketSummary()
     rocket_summary_json = rocket_summary.model_dump_json()
     return json.loads(rocket_summary_json)
-
-
-@pytest.fixture
-def stub_nose_cone():
-    nose_cone = NoseCone(
-        name='nose',
-        length=0,
-        kind='kind',
-        position=0,
-        base_radius=0,
-        rocket_radius=0,
-    )
-    nose_cone_json = nose_cone.model_dump_json()
-    return json.loads(nose_cone_json)
-
-
-@pytest.fixture
-def stub_fins():
-    fins = Fins(
-        fins_kind='TRAPEZOIDAL',
-        name='fins',
-        n=0,
-        root_chord=0,
-        span=0,
-        position=0,
-    )
-    fins_json = fins.model_dump_json()
-    return json.loads(fins_json)
 
 
 @pytest.fixture
@@ -126,8 +96,6 @@ def test_create_rocket(stub_rocket):
 
 def test_create_rocket_optional_params(
     stub_rocket,
-    stub_nose_cone,
-    stub_fins,
     stub_tail,
     stub_rail_buttons,
     stub_parachute,
@@ -136,8 +104,6 @@ def test_create_rocket_optional_params(
         {
             'parachutes': [stub_parachute],
             'rail_buttons': stub_rail_buttons,
-            'nose': stub_nose_cone,
-            'fins': [stub_fins],
             'tail': stub_tail,
         }
     )

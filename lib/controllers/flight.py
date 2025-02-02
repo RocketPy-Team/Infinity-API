@@ -384,7 +384,7 @@ class FlightController:
             logger.error(f"controllers.flight.simulate_flight: {exc_str}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to simulate flight: {exc_str}",
+                detail=f"Failed to simulate flight, parameters may contain data that is not physically coherent: {exc_str}",
             ) from e
         else:
             return flight_summary
