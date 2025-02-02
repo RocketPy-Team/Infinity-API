@@ -33,10 +33,10 @@ class Rocket(BaseModel):
     coordinate_system_orientation: CoordinateSystemOrientation = (
         CoordinateSystemOrientation.TAIL_TO_NOSE
     )
+    nose: NoseCone
+    fins: List[Fins]
 
     # Optional parameters
     parachutes: Optional[List[Parachute]] = None
     rail_buttons: Optional[RailButtons] = None
-    nose: Optional[NoseCone] = None
-    fins: Optional[List[Fins]] = None
     tail: Optional[Tail] = None
