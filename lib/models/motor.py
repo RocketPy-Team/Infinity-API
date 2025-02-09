@@ -1,76 +1,14 @@
-from enum import Enum
-from typing import Optional, Tuple, List, Union
-from pydantic import BaseModel, PrivateAttr
+from typing import Optional, Tuple, List, Union, Self, ClassVar
+from pydantic import PrivateAttr, model_validator
+
+from lib.models.interface import ApiBaseModel
+from lib.models.sub.tanks import MotorTank, TankFluids, TankKinds, InterpolationMethods, TankCoordinateSystemOrientation, MotorKinds, MotorTank
 
 
-class MotorKinds(str, Enum):
-    HYBRID: str = "HYBRID"
-    SOLID: str = "SOLID"
-    GENERIC: str = "GENERIC"
-    LIQUID: str = "LIQUID"
+class MotorModel(ApiBaseModel):
+    NAME: ClassVar = 'motor'
+    METHODS: ClassVar = ('POST', 'GET', 'PUT', 'DELETE')
 
-
-class TankKinds(str, Enum):
-    LEVEL: str = "LEVEL"
-    MASS: str = "MASS"
-    MASS_FLOW: str = "MASSFLOW"
-    ULLAGE: str = "ULLAGE"
-
-
-class CoordinateSystemOrientation(str, Enum):
-    NOZZLE_TO_COMBUSTION_CHAMBER: str = "NOZZLE_TO_COMBUSTION_CHAMBER"
-    COMBUSTION_CHAMBER_TO_NOZZLE: str = "COMBUSTION_CHAMBER_TO_NOZZLE"
-
-
-class TankFluids(BaseModel):
-    name: str
-    density: float
-
-
-class InterpolationMethods(str, Enum):
-    LINEAR: str = "LINEAR"
-    SPLINE: str = "SPLINE"
-    AKIMA: str = "AKIMA"
-    POLYNOMIAL: str = "POLYNOMIAL"
-    SHEPARD: str = "SHEPARD"
-    RBF: str = "RBF"
-
-
-class MotorTank(BaseModel):
-    # Required parameters
-    geometry: List[Tuple[Tuple[float, float], float]]
-    gas: TankFluids
-    liquid: TankFluids
-    flux_time: Tuple[float, float]
-    position: float
-    discretize: int
-
-    # Level based tank parameters
-    liquid_height: Optional[float] = None
-
-    # Mass based tank parameters
-    liquid_mass: Optional[float] = None
-    gas_mass: Optional[float] = None
-
-    # Mass flow based tank parameters
-    gas_mass_flow_rate_in: Optional[float] = None
-    gas_mass_flow_rate_out: Optional[float] = None
-    liquid_mass_flow_rate_in: Optional[float] = None
-    liquid_mass_flow_rate_out: Optional[float] = None
-    initial_liquid_mass: Optional[float] = None
-    initial_gas_mass: Optional[float] = None
-
-    # Ullage based tank parameters
-    ullage: Optional[float] = None
-
-    # Optional parameters
-    name: Optional[str] = None
-
-    # Computed parameters
-    tank_kind: TankKinds = TankKinds.MASS_FLOW
-
-
-class Motor(BaseModel):
     # Required parameters
     thrust_source: List[List[float]]
     burn_time: float
@@ -103,13 +41,23 @@ class Motor(BaseModel):
 
     # Optional parameters
     interpolation_method: InterpolationMethods = InterpolationMethods.LINEAR
-    coordinate_system_orientation: CoordinateSystemOrientation = (
-        CoordinateSystemOrientation.NOZZLE_TO_COMBUSTION_CHAMBER
+    coordinate_system_orientation: TankCoordinateSystemOrientation = (
+        TankCoordinateSystemOrientation.NOZZLE_TO_COMBUSTION_CHAMBER
     )
     reshape_thrust_curve: Union[bool, tuple] = False
 
     # Computed parameters
     _motor_kind: MotorKinds = PrivateAttr(default=MotorKinds.SOLID)
+
+    @model_validator(mode='after')
+    # TODO: extend guard to check motor kinds and tank kinds specifics
+    def validate_motor_kind(self):
+        if (
+            self._motor_kind not in (MotorKinds.SOLID, MotorKinds.GENERIC)
+            and self.tanks is None
+        ):
+            raise ValueError("Tanks must be provided for liquid and hybrid motors.")
+        return self
 
     @property
     def motor_kind(self) -> MotorKinds:
@@ -117,3 +65,33 @@ class Motor(BaseModel):
 
     def set_motor_kind(self, motor_kind: MotorKinds):
         self._motor_kind = motor_kind
+        return self
+
+    @staticmethod
+    def UPDATED():
+        from lib.views.motor import MotorUpdated
+
+        return MotorUpdated()
+
+    @staticmethod
+    def DELETED():
+        from lib.views.motor import MotorDeleted
+
+        return MotorDeleted()
+
+    @staticmethod
+    def CREATED(model_id: str):
+        from lib.views.motor import MotorCreated
+
+        return MotorCreated(motor_id=model_id)
+
+    @staticmethod
+    def RETRIEVED(model_instance: type(Self)):
+        from lib.views.motor import MotorRetrieved, MotorView
+
+        return MotorRetrieved(
+            motor=MotorView(
+                motor_id=model_instance.get_id(),
+                **model_instance.model_dump(),
+            )
+        )

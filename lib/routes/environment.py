@@ -6,13 +6,14 @@ from fastapi import APIRouter, Response
 from opentelemetry import trace
 
 from lib.views.environment import (
-    EnvSummary,
-    EnvCreated,
-    EnvUpdated,
-    EnvDeleted,
+    EnvironmentSummary,
+    EnvironmentCreated,
+    EnvironmentRetrieved,
+    EnvironmentUpdated,
+    EnvironmentDeleted,
 )
-from lib.models.environment import Env
-from lib.controllers.environment import EnvController
+from lib.models.environment import EnvironmentModel
+from lib.controllers.environment import EnvironmentController
 
 router = APIRouter(
     prefix="/environments",
@@ -28,46 +29,62 @@ tracer = trace.get_tracer(__name__)
 
 
 @router.post("/")
-async def create_env(env: Env) -> EnvCreated:
+async def create_environment(environment: EnvironmentModel) -> EnvironmentCreated:
     """
     Creates a new environment
 
     ## Args
-    ``` models.Env JSON ```
+    ``` models.Environment JSON ```
     """
-    with tracer.start_as_current_span("create_env"):
-        return await EnvController.create_env(env)
+    with tracer.start_as_current_span("create_environment"):
+        controller = EnvironmentController()
+        return await controller.post_environment(environment)
 
 
-@router.get("/{env_id}")
-async def read_env(env_id: str) -> Env:
+@router.get("/{environment_id}")
+async def read_environment(environment_id: str) -> EnvironmentRetrieved:
     """
-    Reads an environment
+    Reads an existing environment
 
     ## Args
-    ``` env_id: str ```
+    ``` environment_id: str ```
     """
-    with tracer.start_as_current_span("read_env"):
-        return await EnvController.get_env_by_id(env_id)
+    with tracer.start_as_current_span("read_environment"):
+        controller = EnvironmentController()
+        return await controller.get_environment_by_id(environment_id)
 
 
-@router.put("/{env_id}")
-async def update_env(env_id: str, env: Env) -> EnvUpdated:
+@router.put("/{environment_id}")
+async def update_environment(environment_id: str, environment: EnvironmentModel) -> EnvironmentUpdated:
     """
-    Updates an environment
+    Updates an existing environment
 
     ## Args
     ```
-        env_id: str
-        env: models.Env JSON
+        environment_id: str
+        becho: models.Becho JSON
     ```
     """
-    with tracer.start_as_current_span("update_env"):
-        return await EnvController.update_env_by_id(env_id, env)
+    with tracer.start_as_current_span("update_becho"):
+        controller = EnvironmentController()
+        return await controller.put_environment_by_id(environment_id, environment)
+
+
+@router.delete("/{environment_id}")
+async def delete_environment(environment_id: str) -> EnvironmentDeleted:
+    """
+    Deletes an existing environment
+
+    ## Args
+    ``` environment_id: str ```
+    """
+    with tracer.start_as_current_span("delete_becho"):
+        controller = EnvironmentController()
+        return await controller.delete_environment_by_id(environment_id)
 
 
 @router.get(
-    "/{env_id}/rocketpy",
+    "/{environment_id}/rocketpy",
     responses={
         203: {
             "description": "Binary file download",
@@ -77,18 +94,19 @@ async def update_env(env_id: str, env: Env) -> EnvUpdated:
     status_code=203,
     response_class=Response,
 )
-async def read_rocketpy_env(env_id: str):
+async def read_rocketpy_env(environment_id: str):
     """
     Loads rocketpy.environment as a dill binary
 
     ## Args
-    ``` env_id: str ```
+    ``` environment_id: str ```
     """
     with tracer.start_as_current_span("read_rocketpy_env"):
         headers = {
-            'Content-Disposition': f'attachment; filename="rocketpy_environment_{env_id}.dill"'
+            'Content-Disposition': f'attachment; filename="rocketpy_environment_{environment_id}.dill"'
         }
-        binary = await EnvController.get_rocketpy_env_binary(env_id)
+        controller = EnvironmentController()
+        binary = await controller.get_rocketpy_environment_binary(environment_id)
         return Response(
             content=binary,
             headers=headers,
@@ -97,25 +115,14 @@ async def read_rocketpy_env(env_id: str):
         )
 
 
-@router.get("/{env_id}/summary")
-async def simulate_env(env_id: str) -> EnvSummary:
+@router.get("/{environment_id}/summary")
+async def simulate_env(environment_id: str) -> EnvironmentSummary:
     """
     Loads rocketpy.environment simulation
 
     ## Args
-    ``` env_id: str ```
+    ``` environment_id: str ```
     """
     with tracer.start_as_current_span("simulate_env"):
-        return await EnvController.simulate_env(env_id)
-
-
-@router.delete("/{env_id}")
-async def delete_env(env_id: str) -> EnvDeleted:
-    """
-    Deletes an environment
-
-    ## Args
-    ``` env_id: str ```
-    """
-    with tracer.start_as_current_span("delete_env"):
-        return await EnvController.delete_env_by_id(env_id)
+        controller = EnvironmentController()
+        return await controller.get_environment_summary(environment_id)

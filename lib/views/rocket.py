@@ -1,6 +1,7 @@
 from typing import Any, Optional
-from pydantic import BaseModel, ConfigDict
-from lib.models.rocket import Rocket, CoordinateSystemOrientation
+from pydantic import ConfigDict
+from lib.models.rocket import RocketModel, RocketCoordinateSystemOrientation
+from lib.views.interface import ApiBaseView
 from lib.views.motor import MotorView, MotorSummary
 from lib.utils import to_python_primitive
 
@@ -8,7 +9,7 @@ from lib.utils import to_python_primitive
 class RocketSummary(MotorSummary):
     area: Optional[float] = None
     coordinate_system_orientation: str = (
-        CoordinateSystemOrientation.TAIL_TO_NOSE.value
+        RocketCoordinateSystemOrientation.TAIL_TO_NOSE.value
     )
     center_of_mass_without_motor: Optional[float] = None
     motor_center_of_dry_mass_position: Optional[float] = None
@@ -41,20 +42,24 @@ class RocketSummary(MotorSummary):
     model_config = ConfigDict(json_encoders={Any: to_python_primitive})
 
 
-class RocketCreated(BaseModel):
-    rocket_id: str
+class RocketView(RocketModel):
+    rocket_id: Optional[str] = None
+    motor: MotorView
+
+
+class RocketCreated(ApiBaseView):
     message: str = "Rocket successfully created"
-
-
-class RocketUpdated(BaseModel):
     rocket_id: str
+
+
+class RocketRetrieved(ApiBaseView):
+    message: str = "Rocket successfully retrieved"
+    rocket: RocketView
+
+
+class RocketUpdated(ApiBaseView):
     message: str = "Rocket successfully updated"
 
 
-class RocketDeleted(BaseModel):
-    rocket_id: str
+class RocketDeleted(ApiBaseView):
     message: str = "Rocket successfully deleted"
-
-
-class RocketView(Rocket):
-    motor: MotorView

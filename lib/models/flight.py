@@ -1,8 +1,8 @@
 from enum import Enum
-from typing import Optional
-from pydantic import BaseModel
-from lib.models.rocket import Rocket
-from lib.models.environment import Env
+from typing import Optional, Self, ClassVar
+from lib.models.interface import ApiBaseModel
+from lib.models.rocket import RocketModel
+from lib.models.environment import EnvironmentModel
 
 
 class EquationsOfMotion(str, Enum):
@@ -10,10 +10,13 @@ class EquationsOfMotion(str, Enum):
     SOLID_PROPULSION: str = "SOLID_PROPULSION"
 
 
-class Flight(BaseModel):
-    name: str = "Flight"
-    environment: Env
-    rocket: Rocket
+class FlightModel(ApiBaseModel):
+    NAME: ClassVar = "flight"
+    METHODS: ClassVar = ("POST", "GET", "PUT", "DELETE")
+
+    name: str = "flight"
+    environment: EnvironmentModel
+    rocket: RocketModel
     rail_length: float = 1
     time_overshoot: bool = True
     terminate_on_apogee: bool = True
@@ -46,3 +49,32 @@ class Flight(BaseModel):
                 "equations_of_motion",
             ]
         }
+
+    @staticmethod
+    def UPDATED():
+        from lib.views.flight import FlightUpdated
+
+        return FlightUpdated()
+
+    @staticmethod
+    def DELETED():
+        from lib.views.flight import FlightDeleted
+
+        return FlightDeleted()
+
+    @staticmethod
+    def CREATED(model_id: str):
+        from lib.views.flight import FlightCreated
+
+        return FlightCreated(flight_id=model_id)
+
+    @staticmethod
+    def RETRIEVED(model_instance: type(Self)):
+        from lib.views.flight import FlightRetrieved, FlightView
+
+        return FlightRetrieved(
+            flight=FlightView(
+                flight_id=model_instance.get_id(),
+                **model_instance.model_dump(),
+            )
+        )

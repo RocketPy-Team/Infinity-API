@@ -15,7 +15,7 @@ from rocketpy.utilities import get_instance_attributes
 
 from lib import logger
 from lib.models.rocket import Parachute
-from lib.models.aerosurfaces import NoseCone, Tail, Fins
+from lib.models.sub.aerosurfaces import NoseCone, Tail, Fins
 from lib.services.motor import MotorService
 from lib.views.rocket import RocketView, RocketSummary
 

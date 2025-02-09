@@ -8,12 +8,12 @@ from opentelemetry import trace
 from lib.views.motor import (
     MotorSummary,
     MotorCreated,
+    MotorRetrieved,
     MotorUpdated,
     MotorDeleted,
 )
-from lib.models.motor import Motor, MotorKinds
+from lib.models.motor import MotorModel, MotorKinds
 from lib.controllers.motor import MotorController
-from lib.views.motor import MotorView
 
 router = APIRouter(
     prefix="/motors",
@@ -29,46 +29,60 @@ tracer = trace.get_tracer(__name__)
 
 
 @router.post("/")
-async def create_motor(motor: Motor, motor_kind: MotorKinds) -> MotorCreated:
+async def create_motor(motor: MotorModel, motor_kind: MotorKinds) -> MotorCreated:
     """
     Creates a new motor
 
     ## Args
-    ``` Motor object as a JSON ```
+    ``` models.Motor JSON ```
     """
     with tracer.start_as_current_span("create_motor"):
+        controller = MotorController()
         motor.set_motor_kind(motor_kind)
-        return await MotorController.create_motor(motor)
+        return await controller.post_motor(motor)
 
 
 @router.get("/{motor_id}")
-async def read_motor(motor_id: str) -> MotorView:
+async def read_motor(motor_id: str) -> MotorRetrieved:
     """
-    Reads a motor
+    Reads an existing motor
 
     ## Args
-    ``` motor_id: Motor ID ```
+    ``` motor_id: str ```
     """
     with tracer.start_as_current_span("read_motor"):
-        return await MotorController.get_motor_by_id(motor_id)
+        controller = MotorController()
+        return await controller.get_motor_by_id(motor_id)
 
 
 @router.put("/{motor_id}")
-async def update_motor(
-    motor_id: str, motor: Motor, motor_kind: MotorKinds
-) -> MotorUpdated:
+async def update_motor(motor_id: str, motor: MotorModel, motor_kind: MotorKinds) -> MotorUpdated:
     """
-    Updates a motor
+    Updates an existing motor
 
     ## Args
     ```
-        motor_id: Motor ID
-        motor: Motor object as JSON
+        motor_id: str
+        motor: models.motor JSON
     ```
     """
     with tracer.start_as_current_span("update_motor"):
+        controller = MotorController()
         motor.set_motor_kind(motor_kind)
-        return await MotorController.update_motor_by_id(motor_id, motor)
+        return await controller.put_motor_by_id(motor_id, motor)
+
+
+@router.delete("/{motor_id}")
+async def delete_motor(motor_id: str) -> MotorDeleted:
+    """
+    Deletes an existing motor
+
+    ## Args
+    ``` motor_id: str ```
+    """
+    with tracer.start_as_current_span("delete_motor"):
+        controller = MotorController()
+        return await controller.delete_motor_by_id(motor_id)
 
 
 @router.get(
@@ -93,7 +107,8 @@ async def read_rocketpy_motor(motor_id: str):
         headers = {
             'Content-Disposition': f'attachment; filename="rocketpy_motor_{motor_id}.dill"'
         }
-        binary = await MotorController.get_rocketpy_motor_binary(motor_id)
+        controller = MotorController()
+        binary = await controller.get_rocketpy_motor_binary(motor_id)
         return Response(
             content=binary,
             headers=headers,
@@ -111,16 +126,5 @@ async def simulate_motor(motor_id: str) -> MotorSummary:
     ``` motor_id: Motor ID ```
     """
     with tracer.start_as_current_span("simulate_motor"):
-        return await MotorController.simulate_motor(motor_id)
-
-
-@router.delete("/{motor_id}")
-async def delete_motor(motor_id: str) -> MotorDeleted:
-    """
-    Deletes a motor
-
-    ## Args
-    ``` motor_id: Motor ID ```
-    """
-    with tracer.start_as_current_span("delete_motor"):
-        return await MotorController.delete_motor_by_id(motor_id)
+        controller = MotorController()
+        return await controller.simulate_motor(motor_id)
