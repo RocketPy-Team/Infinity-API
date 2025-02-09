@@ -22,7 +22,7 @@ def mock_model():
 
 @pytest_asyncio.fixture
 def mock_db_interface(stub_loaded_model):
-    async def async_gen(*args, **kwargs):
+    async def async_gen(*args, **kwargs):  # pylint: disable=unused-argument
         yield stub_loaded_model
         yield stub_loaded_model
 
@@ -39,7 +39,7 @@ def mock_db_interface(stub_loaded_model):
 
 @pytest_asyncio.fixture
 def mock_db_interface_empty_find():
-    async def async_gen(*args, **kwargs):
+    async def async_gen(*args, **kwargs):  # pylint: disable=unused-argument
         if False:  # pylint: disable=using-constant-test
             yield
 
@@ -74,7 +74,7 @@ def stub_repository_invalid_model():
 
 @pytest.mark.asyncio
 async def test_repository_exception_handler_no_exception():
-    async def method(self, *args, **kwargs):
+    async def method(self, *args, **kwargs):  # pylint: disable=unused-argument
         return args, kwargs
 
     mock_kwargs = {'foo': 'bar'}

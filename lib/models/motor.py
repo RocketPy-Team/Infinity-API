@@ -3,7 +3,7 @@ from typing import Optional, Tuple, List, Union, Self, ClassVar
 from pydantic import PrivateAttr, model_validator
 
 from lib.models.interface import ApiBaseModel
-from lib.models.sub.tanks import MotorTank, TankFluids, TankKinds, InterpolationMethods, TankCoordinateSystemOrientation, MotorTank
+from lib.models.sub.tanks import MotorTank, InterpolationMethods, TankCoordinateSystemOrientation
 
 
 class MotorKinds(str, Enum):

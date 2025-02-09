@@ -47,6 +47,8 @@ disable = """
     too-many-arguments,
     redefined-outer-name,
     too-many-positional-arguments,
+    no-member,
+    protected-access,
 """
 
 [tool.ruff]
@@ -55,7 +57,7 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "N", "Q"]
-ignore = ["N815", "E501", "Q000", "E402"]
+ignore = ["N815", "E501", "Q000", "E402", "N802"]
 fixable = [
     "F401",
 ]
