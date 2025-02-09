@@ -2,7 +2,7 @@ from lib.controllers.interface import (
     ControllerInterface,
     controller_exception_handler,
 )
-from lib.views.environment import EnvSummary
+from lib.views.environment import EnvironmentSummary
 from lib.models.environment import EnvironmentModel
 from lib.services.environment import EnvironmentService
 
@@ -43,7 +43,7 @@ class EnvironmentController(ControllerInterface):
     @controller_exception_handler
     async def simulate_env(
         self, env_id: str
-    ) -> EnvSummary:
+    ) -> EnvironmentSummary:
         """
         Simulate a rocket environment.
 
@@ -51,7 +51,7 @@ class EnvironmentController(ControllerInterface):
             env_id: str.
 
         Returns:
-            EnvSummary
+            EnvironmentSummary
 
         Raises:
             HTTP 404 Not Found: If the env does not exist in the database.

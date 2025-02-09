@@ -12,9 +12,9 @@ from lib.views.flight import (
     FlightUpdated,
     FlightDeleted,
 )
-from lib.models.environment import Env
+from lib.models.environment import EnvironmentModel
 from lib.models.flight import FlightModel
-from lib.models.rocket import Rocket
+from lib.models.rocket import RocketModel
 from lib.models.motor import MotorKinds
 from lib.controllers.flight import FlightController
 
@@ -121,7 +121,7 @@ async def read_rocketpy_flight(flight_id: str):
 
 
 @router.put("/{flight_id}/env")
-async def update_flight_env(flight_id: str, env: Env) -> FlightUpdated:
+async def update_flight_env(flight_id: str, env: EnvironmentModel) -> FlightUpdated:
     """
     Updates flight environment
 
@@ -141,7 +141,7 @@ async def update_flight_env(flight_id: str, env: Env) -> FlightUpdated:
 @router.put("/{flight_id}/rocket")
 async def update_flight_rocket(
     flight_id: str,
-    rocket: Rocket,
+    rocket: RocketModel,
     motor_kind: MotorKinds,
 ) -> FlightUpdated:
     """
@@ -150,7 +150,7 @@ async def update_flight_rocket(
     ## Args
     ```
         flight_id: Flight ID
-        rocket: Rocket object as JSON
+        rocket: RocketModel object as JSON
     ```
     """
     with tracer.start_as_current_span("update_flight_rocket"):

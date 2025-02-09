@@ -1,7 +1,8 @@
 from typing import List, Any, Optional
 from pydantic import BaseModel, ConfigDict
 from lib.views.interface import ApiBaseView
-from lib.models.sub.motor import MotorModel, MotorKinds, MotorCoordinateSystemOrientation
+from lib.models.sub.tanks import TankCoordinateSystemOrientation
+from lib.models.motor import MotorModel, MotorKinds
 from lib.utils import to_python_primitive
 
 
@@ -12,7 +13,7 @@ class MotorSummary(BaseModel):
     burn_start_time: Optional[float] = None
     center_of_dry_mass_position: Optional[float] = None
     coordinate_system_orientation: str = (
-        MotorCoordinateSystemOrientation.NOZZLE_TO_COMBUSTION_CHAMBER.value
+        TankCoordinateSystemOrientation.NOZZLE_TO_COMBUSTION_CHAMBER.value
     )
     dry_I_11: Optional[float] = None
     dry_I_12: Optional[float] = None

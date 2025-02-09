@@ -3,13 +3,6 @@ from typing import Optional, Tuple, List
 from pydantic import BaseModel
 
 
-class MotorKinds(str, Enum):
-    HYBRID: str = "HYBRID"
-    SOLID: str = "SOLID"
-    GENERIC: str = "GENERIC"
-    LIQUID: str = "LIQUID"
-
-
 class TankKinds(str, Enum):
     LEVEL: str = "LEVEL"
     MASS: str = "MASS"

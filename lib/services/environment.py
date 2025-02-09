@@ -4,8 +4,8 @@ import dill
 
 from rocketpy.environment.environment import Environment as RocketPyEnvironment
 from rocketpy.utilities import get_instance_attributes
-from lib.models.environment import Env
-from lib.views.environment import EnvSummary
+from lib.models.environment import EnvironmentModel
+from lib.views.environment import EnvironmentSummary
 
 
 class EnvironmentService:
@@ -15,7 +15,7 @@ class EnvironmentService:
         self._environment = environment
 
     @classmethod
-    def from_env_model(cls, env: Env) -> Self:
+    def from_env_model(cls, env: EnvironmentModel) -> Self:
         """
         Get the rocketpy env object.
 
@@ -42,16 +42,16 @@ class EnvironmentService:
     def environment(self, environment: RocketPyEnvironment):
         self._environment = environment
 
-    def get_env_summary(self) -> EnvSummary:
+    def get_env_summary(self) -> EnvironmentSummary:
         """
         Get the summary of the environment.
 
         Returns:
-            EnvSummary
+            EnvironmentSummary
         """
 
         attributes = get_instance_attributes(self.environment)
-        env_summary = EnvSummary(**attributes)
+        env_summary = EnvironmentSummary(**attributes)
         return env_summary
 
     def get_env_binary(self) -> bytes:

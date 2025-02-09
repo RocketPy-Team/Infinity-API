@@ -1,8 +1,16 @@
+from enum import Enum
 from typing import Optional, Tuple, List, Union, Self, ClassVar
 from pydantic import PrivateAttr, model_validator
 
 from lib.models.interface import ApiBaseModel
-from lib.models.sub.tanks import MotorTank, TankFluids, TankKinds, InterpolationMethods, TankCoordinateSystemOrientation, MotorKinds, MotorTank
+from lib.models.sub.tanks import MotorTank, TankFluids, TankKinds, InterpolationMethods, TankCoordinateSystemOrientation, MotorTank
+
+
+class MotorKinds(str, Enum):
+    HYBRID: str = "HYBRID"
+    SOLID: str = "SOLID"
+    GENERIC: str = "GENERIC"
+    LIQUID: str = "LIQUID"
 
 
 class MotorModel(ApiBaseModel):

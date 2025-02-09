@@ -9,7 +9,7 @@ from lib.views.environment import (
     EnvCreated,
     EnvUpdated,
     EnvDeleted,
-    EnvSummary,
+    EnvironmentSummary,
 )
 from lib import app
 
@@ -18,7 +18,7 @@ client = TestClient(app)
 
 @pytest.fixture
 def stub_env_summary():
-    env_summary = EnvSummary()
+    env_summary = EnvironmentSummary()
     env_summary_json = env_summary.model_dump_json()
     return json.loads(env_summary_json)
 
@@ -190,7 +190,7 @@ def test_simulate_env(stub_env_summary):
     with patch.object(
         EnvController,
         'simulate_env',
-        return_value=EnvSummary(**stub_env_summary),
+        return_value=EnvironmentSummary(**stub_env_summary),
     ) as mock_simulate_env:
         response = client.get('/environments/123/summary')
         assert response.status_code == 200
