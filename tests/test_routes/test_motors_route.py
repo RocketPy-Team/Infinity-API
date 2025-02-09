@@ -4,7 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 from fastapi import HTTPException, status
 from lib.models.motor import (
-    Motor,
+    MotorModel,
     MotorKinds,
 )
 from lib.controllers.motor import MotorController
@@ -45,7 +45,7 @@ def test_create_motor(stub_motor):
                 'message': 'Motor successfully created',
             }
             mock_set_motor_kind.assert_called_once_with(MotorKinds.HYBRID)
-            mock_create_motor.assert_called_once_with(Motor(**stub_motor))
+            mock_create_motor.assert_called_once_with(MotorModel(**stub_motor))
 
 
 def test_create_motor_optional_params(stub_motor):
@@ -73,7 +73,7 @@ def test_create_motor_optional_params(stub_motor):
                 'message': 'Motor successfully created',
             }
             mock_set_motor_kind.assert_called_once_with(MotorKinds.HYBRID)
-            mock_create_motor.assert_called_once_with(Motor(**stub_motor))
+            mock_create_motor.assert_called_once_with(MotorModel(**stub_motor))
 
 
 def test_create_generic_motor(stub_motor):
@@ -103,7 +103,7 @@ def test_create_generic_motor(stub_motor):
                 'message': 'Motor successfully created',
             }
             mock_set_motor_kind.assert_called_once_with(MotorKinds.GENERIC)
-            mock_create_motor.assert_called_once_with(Motor(**stub_motor))
+            mock_create_motor.assert_called_once_with(MotorModel(**stub_motor))
 
 
 def test_create_liquid_motor_level_tank(stub_motor, stub_level_tank):
@@ -125,7 +125,7 @@ def test_create_liquid_motor_level_tank(stub_motor, stub_level_tank):
                 'message': 'Motor successfully created',
             }
             mock_set_motor_kind.assert_called_once_with(MotorKinds.LIQUID)
-            mock_create_motor.assert_called_once_with(Motor(**stub_motor))
+            mock_create_motor.assert_called_once_with(MotorModel(**stub_motor))
 
 
 def test_create_liquid_motor_mass_flow_tank(stub_motor, stub_mass_flow_tank):
@@ -147,7 +147,7 @@ def test_create_liquid_motor_mass_flow_tank(stub_motor, stub_mass_flow_tank):
                 'message': 'Motor successfully created',
             }
             mock_set_motor_kind.assert_called_once_with(MotorKinds.LIQUID)
-            mock_create_motor.assert_called_once_with(Motor(**stub_motor))
+            mock_create_motor.assert_called_once_with(MotorModel(**stub_motor))
 
 
 def test_create_liquid_motor_ullage_tank(stub_motor, stub_ullage_tank):
@@ -169,7 +169,7 @@ def test_create_liquid_motor_ullage_tank(stub_motor, stub_ullage_tank):
                 'message': 'Motor successfully created',
             }
             mock_set_motor_kind.assert_called_once_with(MotorKinds.LIQUID)
-            mock_create_motor.assert_called_once_with(Motor(**stub_motor))
+            mock_create_motor.assert_called_once_with(MotorModel(**stub_motor))
 
 
 def test_create_liquid_motor_mass_tank(stub_motor, stub_mass_tank):
@@ -191,7 +191,7 @@ def test_create_liquid_motor_mass_tank(stub_motor, stub_mass_tank):
                 'message': 'Motor successfully created',
             }
             mock_set_motor_kind.assert_called_once_with(MotorKinds.LIQUID)
-            mock_create_motor.assert_called_once_with(Motor(**stub_motor))
+            mock_create_motor.assert_called_once_with(MotorModel(**stub_motor))
 
 
 def test_create_hybrid_motor(stub_motor, stub_level_tank):
@@ -225,7 +225,7 @@ def test_create_hybrid_motor(stub_motor, stub_level_tank):
                 'message': 'Motor successfully created',
             }
             mock_set_motor_kind.assert_called_once_with(MotorKinds.HYBRID)
-            mock_create_motor.assert_called_once_with(Motor(**stub_motor))
+            mock_create_motor.assert_called_once_with(MotorModel(**stub_motor))
 
 
 def test_create_solid_motor(stub_motor):
@@ -257,7 +257,7 @@ def test_create_solid_motor(stub_motor):
                 'message': 'Motor successfully created',
             }
             mock_set_motor_kind.assert_called_once_with(MotorKinds.SOLID)
-            mock_create_motor.assert_called_once_with(Motor(**stub_motor))
+            mock_create_motor.assert_called_once_with(MotorModel(**stub_motor))
 
 
 def test_create_motor_invalid_input():
@@ -338,7 +338,7 @@ def test_update_motor(stub_motor):
                 'message': 'Motor successfully updated',
             }
             mock_update_motor.assert_called_once_with(
-                '123', Motor(**stub_motor)
+                '123', MotorModel(**stub_motor)
             )
             mock_set_motor_kind.assert_called_once_with(MotorKinds.HYBRID)
 

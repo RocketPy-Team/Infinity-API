@@ -3,14 +3,14 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 from fastapi import HTTPException, status
-from lib.models.aerosurfaces import (
+from lib.models.sub.aerosurfaces import (
     Tail,
     RailButtons,
     Parachute,
 )
-from lib.models.rocket import Rocket
+from lib.models.rocket import RocketModel
 from lib.models.motor import (
-    Motor,
+    MotorModel,
     MotorKinds,
 )
 from lib.controllers.rocket import RocketController
@@ -80,7 +80,7 @@ def test_create_rocket(stub_rocket):
         return_value=RocketCreated(rocket_id='123'),
     ) as mock_create_rocket:
         with patch.object(
-            Motor, 'set_motor_kind', side_effect=None
+            MotorModel, 'set_motor_kind', side_effect=None
         ) as mock_set_motor_kind:
             response = client.post(
                 '/rockets/', json=stub_rocket, params={'motor_kind': 'HYBRID'}
@@ -91,7 +91,7 @@ def test_create_rocket(stub_rocket):
                 'message': 'Rocket successfully created',
             }
             mock_set_motor_kind.assert_called_once_with(MotorKinds.HYBRID)
-            mock_create_rocket.assert_called_once_with(Rocket(**stub_rocket))
+            mock_create_rocket.assert_called_once_with(RocketModel(**stub_rocket))
 
 
 def test_create_rocket_optional_params(
@@ -113,7 +113,7 @@ def test_create_rocket_optional_params(
         return_value=RocketCreated(rocket_id='123'),
     ) as mock_create_rocket:
         with patch.object(
-            Motor, 'set_motor_kind', side_effect=None
+            MotorModel, 'set_motor_kind', side_effect=None
         ) as mock_set_motor_kind:
             response = client.post(
                 '/rockets/', json=stub_rocket, params={'motor_kind': 'HYBRID'}
@@ -124,7 +124,7 @@ def test_create_rocket_optional_params(
                 'message': 'Rocket successfully created',
             }
             mock_set_motor_kind.assert_called_once_with(MotorKinds.HYBRID)
-            mock_create_rocket.assert_called_once_with(Rocket(**stub_rocket))
+            mock_create_rocket.assert_called_once_with(RocketModel(**stub_rocket))
 
 
 def test_create_generic_motor_rocket(stub_rocket, stub_motor):
@@ -144,7 +144,7 @@ def test_create_generic_motor_rocket(stub_rocket, stub_motor):
         return_value=RocketCreated(rocket_id='123'),
     ) as mock_create_rocket:
         with patch.object(
-            Motor, 'set_motor_kind', side_effect=None
+            MotorModel, 'set_motor_kind', side_effect=None
         ) as mock_set_motor_kind:
             response = client.post(
                 '/rockets/', json=stub_rocket, params={'motor_kind': 'GENERIC'}
@@ -155,7 +155,7 @@ def test_create_generic_motor_rocket(stub_rocket, stub_motor):
                 'message': 'Rocket successfully created',
             }
             mock_set_motor_kind.assert_called_once_with(MotorKinds.GENERIC)
-            mock_create_rocket.assert_called_once_with(Rocket(**stub_rocket))
+            mock_create_rocket.assert_called_once_with(RocketModel(**stub_rocket))
 
 
 def test_create_liquid_motor_level_tank_rocket(
@@ -169,7 +169,7 @@ def test_create_liquid_motor_level_tank_rocket(
         return_value=RocketCreated(rocket_id='123'),
     ) as mock_create_rocket:
         with patch.object(
-            Motor, 'set_motor_kind', side_effect=None
+            MotorModel, 'set_motor_kind', side_effect=None
         ) as mock_set_motor_kind:
             response = client.post(
                 '/rockets/', json=stub_rocket, params={'motor_kind': 'LIQUID'}
@@ -180,7 +180,7 @@ def test_create_liquid_motor_level_tank_rocket(
                 'message': 'Rocket successfully created',
             }
             mock_set_motor_kind.assert_called_once_with(MotorKinds.LIQUID)
-            mock_create_rocket.assert_called_once_with(Rocket(**stub_rocket))
+            mock_create_rocket.assert_called_once_with(RocketModel(**stub_rocket))
 
 
 def test_create_liquid_motor_mass_flow_tank_rocket(
@@ -194,7 +194,7 @@ def test_create_liquid_motor_mass_flow_tank_rocket(
         return_value=RocketCreated(rocket_id='123'),
     ) as mock_create_rocket:
         with patch.object(
-            Motor, 'set_motor_kind', side_effect=None
+            MotorModel, 'set_motor_kind', side_effect=None
         ) as mock_set_motor_kind:
             response = client.post(
                 '/rockets/', json=stub_rocket, params={'motor_kind': 'LIQUID'}
@@ -205,7 +205,7 @@ def test_create_liquid_motor_mass_flow_tank_rocket(
                 'message': 'Rocket successfully created',
             }
             mock_set_motor_kind.assert_called_once_with(MotorKinds.LIQUID)
-            mock_create_rocket.assert_called_once_with(Rocket(**stub_rocket))
+            mock_create_rocket.assert_called_once_with(RocketModel(**stub_rocket))
 
 
 def test_create_liquid_motor_ullage_tank_rocket(
@@ -219,7 +219,7 @@ def test_create_liquid_motor_ullage_tank_rocket(
         return_value=RocketCreated(rocket_id='123'),
     ) as mock_create_rocket:
         with patch.object(
-            Motor, 'set_motor_kind', side_effect=None
+            MotorModel, 'set_motor_kind', side_effect=None
         ) as mock_set_motor_kind:
             response = client.post(
                 '/rockets/', json=stub_rocket, params={'motor_kind': 'LIQUID'}
@@ -230,7 +230,7 @@ def test_create_liquid_motor_ullage_tank_rocket(
                 'message': 'Rocket successfully created',
             }
             mock_set_motor_kind.assert_called_once_with(MotorKinds.LIQUID)
-            mock_create_rocket.assert_called_once_with(Rocket(**stub_rocket))
+            mock_create_rocket.assert_called_once_with(RocketModel(**stub_rocket))
 
 
 def test_create_liquid_motor_mass_tank_rocket(
@@ -244,7 +244,7 @@ def test_create_liquid_motor_mass_tank_rocket(
         return_value=RocketCreated(rocket_id='123'),
     ) as mock_create_rocket:
         with patch.object(
-            Motor, 'set_motor_kind', side_effect=None
+            MotorModel, 'set_motor_kind', side_effect=None
         ) as mock_set_motor_kind:
             response = client.post(
                 '/rockets/', json=stub_rocket, params={'motor_kind': 'LIQUID'}
@@ -255,7 +255,7 @@ def test_create_liquid_motor_mass_tank_rocket(
                 'message': 'Rocket successfully created',
             }
             mock_set_motor_kind.assert_called_once_with(MotorKinds.LIQUID)
-            mock_create_rocket.assert_called_once_with(Rocket(**stub_rocket))
+            mock_create_rocket.assert_called_once_with(RocketModel(**stub_rocket))
 
 
 def test_create_hybrid_motor_rocket(stub_rocket, stub_motor, stub_level_tank):
@@ -279,7 +279,7 @@ def test_create_hybrid_motor_rocket(stub_rocket, stub_motor, stub_level_tank):
         return_value=RocketCreated(rocket_id='123'),
     ) as mock_create_rocket:
         with patch.object(
-            Motor, 'set_motor_kind', side_effect=None
+            MotorModel, 'set_motor_kind', side_effect=None
         ) as mock_set_motor_kind:
             response = client.post(
                 '/rockets/', json=stub_rocket, params={'motor_kind': 'HYBRID'}
@@ -290,7 +290,7 @@ def test_create_hybrid_motor_rocket(stub_rocket, stub_motor, stub_level_tank):
                 'message': 'Rocket successfully created',
             }
             mock_set_motor_kind.assert_called_once_with(MotorKinds.HYBRID)
-            mock_create_rocket.assert_called_once_with(Rocket(**stub_rocket))
+            mock_create_rocket.assert_called_once_with(RocketModel(**stub_rocket))
 
 
 def test_create_solid_motor_rocket(stub_rocket, stub_motor):
@@ -312,7 +312,7 @@ def test_create_solid_motor_rocket(stub_rocket, stub_motor):
         return_value=RocketCreated(rocket_id='123'),
     ) as mock_create_rocket:
         with patch.object(
-            Motor, 'set_motor_kind', side_effect=None
+            MotorModel, 'set_motor_kind', side_effect=None
         ) as mock_set_motor_kind:
             response = client.post(
                 '/rockets/', json=stub_rocket, params={'motor_kind': 'SOLID'}
@@ -323,7 +323,7 @@ def test_create_solid_motor_rocket(stub_rocket, stub_motor):
                 'message': 'Rocket successfully created',
             }
             mock_set_motor_kind.assert_called_once_with(MotorKinds.SOLID)
-            mock_create_rocket.assert_called_once_with(Rocket(**stub_rocket))
+            mock_create_rocket.assert_called_once_with(RocketModel(**stub_rocket))
 
 
 def test_create_rocket_invalid_input():
@@ -393,7 +393,7 @@ def test_update_rocket(stub_rocket):
         return_value=RocketUpdated(rocket_id='123'),
     ) as mock_update_rocket:
         with patch.object(
-            Motor, 'set_motor_kind', side_effect=None
+            MotorModel, 'set_motor_kind', side_effect=None
         ) as mock_set_motor_kind:
             response = client.put(
                 '/rockets/123',
@@ -406,7 +406,7 @@ def test_update_rocket(stub_rocket):
                 'message': 'Rocket successfully updated',
             }
             mock_update_rocket.assert_called_once_with(
-                '123', Rocket(**stub_rocket)
+                '123', RocketModel(**stub_rocket)
             )
             mock_set_motor_kind.assert_called_once_with(MotorKinds.GENERIC)
 

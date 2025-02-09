@@ -15,7 +15,8 @@ from rocketpy import (
     TankGeometry,
 )
 
-from lib.models.motor import MotorKinds, TankKinds
+from lib.models.sub.tanks import TankKinds
+from lib.models.motor import MotorKinds
 from lib.views.motor import MotorSummary, MotorView
 
 

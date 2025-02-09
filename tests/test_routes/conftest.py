@@ -1,22 +1,23 @@
 import json
 import pytest
 
-from lib.models.rocket import Rocket
-from lib.models.motor import Motor, MotorTank, TankFluids, TankKinds
-from lib.models.environment import Env
-from lib.models.aerosurfaces import Fins, NoseCone
+from lib.models.rocket import RocketModel
+from lib.models.sub.tanks import MotorTank, TankFluids, TankKinds
+from lib.models.motor import MotorModel
+from lib.models.environment import EnvironmentModel
+from lib.models.sub.aerosurfaces import Fins, NoseCone
 
 
 @pytest.fixture
 def stub_env():
-    env = Env(latitude=0, longitude=0)
+    env = EnvironmentModel(latitude=0, longitude=0)
     env_json = env.model_dump_json()
     return json.loads(env_json)
 
 
 @pytest.fixture
 def stub_motor():
-    motor = Motor(
+    motor = MotorModel(
         thrust_source=[[0, 0]],
         burn_time=0,
         nozzle_radius=0,
@@ -109,7 +110,7 @@ def stub_fins():
 
 @pytest.fixture
 def stub_rocket(stub_motor, stub_nose_cone, stub_fins):
-    rocket = Rocket(
+    rocket = RocketModel(
         motor=stub_motor,
         radius=0,
         mass=0,
