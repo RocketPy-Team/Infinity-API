@@ -3,12 +3,12 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 from fastapi import HTTPException, status
-from lib.models.environment import Env
-from lib.controllers.environment import EnvController
+from lib.models.environment import EnvironmentModel
+from lib.controllers.environment import EnvironmentController
 from lib.views.environment import (
-    EnvCreated,
-    EnvUpdated,
-    EnvDeleted,
+    EnvironmentCreated,
+    EnvironmentUpdated,
+    EnvironmentDeleted,
     EnvironmentSummary,
 )
 from lib import app
@@ -25,7 +25,7 @@ def stub_env_summary():
 
 def test_create_env(stub_env):
     with patch.object(
-        EnvController, 'create_env', return_value=EnvCreated(env_id='123')
+        EnvironmentController, 'create_env', return_value=EnvironmentCreated(env_id='123')
     ) as mock_create_env:
         response = client.post('/environments/', json=stub_env)
         assert response.status_code == 200
@@ -33,7 +33,7 @@ def test_create_env(stub_env):
             'env_id': '123',
             'message': 'Environment successfully created',
         }
-        mock_create_env.assert_called_once_with(Env(**stub_env))
+        mock_create_env.assert_called_once_with(EnvironmentModel(**stub_env))
 
 
 def test_create_env_optional_params():
@@ -46,7 +46,7 @@ def test_create_env_optional_params():
         'date': '2021-01-01T00:00:00',
     }
     with patch.object(
-        EnvController, 'create_env', return_value=EnvCreated(env_id='123')
+        EnvironmentController, 'create_env', return_value=EnvironmentCreated(env_id='123')
     ) as mock_create_env:
         response = client.post('/environments/', json=test_object)
         assert response.status_code == 200
@@ -54,7 +54,7 @@ def test_create_env_optional_params():
             'env_id': '123',
             'message': 'Environment successfully created',
         }
-        mock_create_env.assert_called_once_with(Env(**test_object))
+        mock_create_env.assert_called_once_with(EnvironmentModel(**test_object))
 
 
 def test_create_env_invalid_input():
@@ -66,7 +66,7 @@ def test_create_env_invalid_input():
 
 def test_create_env_server_error(stub_env):
     with patch.object(
-        EnvController,
+        EnvironmentController,
         'create_env',
         side_effect=HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -79,7 +79,7 @@ def test_create_env_server_error(stub_env):
 
 def test_read_env(stub_env):
     with patch.object(
-        EnvController, 'get_env_by_id', return_value=Env(**stub_env)
+        EnvironmentController, 'get_env_by_id', return_value=EnvironmentModel(**stub_env)
     ) as mock_read_env:
         response = client.get('/environments/123')
         assert response.status_code == 200
@@ -89,7 +89,7 @@ def test_read_env(stub_env):
 
 def test_read_env_not_found():
     with patch.object(
-        EnvController,
+        EnvironmentController,
         'get_env_by_id',
         side_effect=HTTPException(status_code=status.HTTP_404_NOT_FOUND),
     ) as mock_read_env:
@@ -101,7 +101,7 @@ def test_read_env_not_found():
 
 def test_read_env_server_error():
     with patch.object(
-        EnvController,
+        EnvironmentController,
         'get_env_by_id',
         side_effect=HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -114,9 +114,9 @@ def test_read_env_server_error():
 
 def test_update_env(stub_env):
     with patch.object(
-        EnvController,
+        EnvironmentController,
         'update_env_by_id',
-        return_value=EnvUpdated(env_id='123'),
+        return_value=EnvironmentUpdated(env_id='123'),
     ) as mock_update_env:
         response = client.put('/environments/123', json=stub_env)
         assert response.status_code == 200
@@ -124,7 +124,7 @@ def test_update_env(stub_env):
             'env_id': '123',
             'message': 'Environment successfully updated',
         }
-        mock_update_env.assert_called_once_with('123', Env(**stub_env))
+        mock_update_env.assert_called_once_with('123', EnvironmentModel(**stub_env))
 
 
 def test_update_env_invalid_input():
@@ -136,7 +136,7 @@ def test_update_env_invalid_input():
 
 def test_update_env_not_found(stub_env):
     with patch.object(
-        EnvController,
+        EnvironmentController,
         'update_env_by_id',
         side_effect=HTTPException(status_code=status.HTTP_404_NOT_FOUND),
     ):
@@ -147,7 +147,7 @@ def test_update_env_not_found(stub_env):
 
 def test_update_env_server_error(stub_env):
     with patch.object(
-        EnvController,
+        EnvironmentController,
         'update_env_by_id',
         side_effect=HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -160,9 +160,9 @@ def test_update_env_server_error(stub_env):
 
 def test_delete_env():
     with patch.object(
-        EnvController,
+        EnvironmentController,
         'delete_env_by_id',
-        return_value=EnvDeleted(env_id='123'),
+        return_value=EnvironmentDeleted(env_id='123'),
     ) as mock_delete_env:
         response = client.delete('/environments/123')
         assert response.status_code == 200
@@ -175,7 +175,7 @@ def test_delete_env():
 
 def test_delete_env_server_error():
     with patch.object(
-        EnvController,
+        EnvironmentController,
         'delete_env_by_id',
         side_effect=HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -188,7 +188,7 @@ def test_delete_env_server_error():
 
 def test_simulate_env(stub_env_summary):
     with patch.object(
-        EnvController,
+        EnvironmentController,
         'simulate_env',
         return_value=EnvironmentSummary(**stub_env_summary),
     ) as mock_simulate_env:
@@ -200,7 +200,7 @@ def test_simulate_env(stub_env_summary):
 
 def test_simulate_env_not_found():
     with patch.object(
-        EnvController,
+        EnvironmentController,
         'simulate_env',
         side_effect=HTTPException(status_code=status.HTTP_404_NOT_FOUND),
     ) as mock_simulate_env:
@@ -212,7 +212,7 @@ def test_simulate_env_not_found():
 
 def test_simulate_env_server_error():
     with patch.object(
-        EnvController,
+        EnvironmentController,
         'simulate_env',
         side_effect=HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -225,7 +225,7 @@ def test_simulate_env_server_error():
 
 def test_read_rocketpy_env():
     with patch.object(
-        EnvController, 'get_rocketpy_env_binary', return_value=b'rocketpy'
+        EnvironmentController, 'get_rocketpy_env_binary', return_value=b'rocketpy'
     ) as mock_read_rocketpy_env:
         response = client.get('/environments/123/rocketpy')
         assert response.status_code == 203
@@ -236,7 +236,7 @@ def test_read_rocketpy_env():
 
 def test_read_rocketpy_env_not_found():
     with patch.object(
-        EnvController,
+        EnvironmentController,
         'get_rocketpy_env_binary',
         side_effect=HTTPException(status_code=status.HTTP_404_NOT_FOUND),
     ) as mock_read_rocketpy_env:
@@ -248,7 +248,7 @@ def test_read_rocketpy_env_not_found():
 
 def test_read_rocketpy_env_server_error():
     with patch.object(
-        EnvController,
+        EnvironmentController,
         'get_rocketpy_env_binary',
         side_effect=HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR

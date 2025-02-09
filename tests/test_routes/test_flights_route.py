@@ -3,10 +3,10 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 from fastapi import HTTPException, status
-from lib.models.environment import Env
-from lib.models.flight import Flight
-from lib.models.motor import Motor, MotorKinds
-from lib.models.rocket import Rocket
+from lib.models.environment import EnvironmentModel
+from lib.models.flight import FlightModel
+from lib.models.motor import MotorModel, MotorKinds
+from lib.models.rocket import RocketModel
 from lib.controllers.flight import FlightController
 from lib.views.motor import MotorView
 from lib.views.rocket import RocketView
@@ -50,7 +50,7 @@ def test_create_flight(stub_flight):
         return_value=FlightCreated(flight_id='123'),
     ) as mock_create_flight:
         with patch.object(
-            Motor, 'set_motor_kind', side_effect=None
+            MotorModel, 'set_motor_kind', side_effect=None
         ) as mock_set_motor_kind:
             response = client.post(
                 '/flights/', json=stub_flight, params={'motor_kind': 'HYBRID'}
@@ -61,7 +61,7 @@ def test_create_flight(stub_flight):
                 'message': 'Flight successfully created',
             }
             mock_set_motor_kind.assert_called_once_with(MotorKinds.HYBRID)
-            mock_create_flight.assert_called_once_with(Flight(**stub_flight))
+            mock_create_flight.assert_called_once_with(FlightModel(**stub_flight))
 
 
 def test_create_flight_optional_params(stub_flight):
@@ -83,7 +83,7 @@ def test_create_flight_optional_params(stub_flight):
         return_value=FlightCreated(flight_id='123'),
     ) as mock_create_flight:
         with patch.object(
-            Motor, 'set_motor_kind', side_effect=None
+            MotorModel, 'set_motor_kind', side_effect=None
         ) as mock_set_motor_kind:
             response = client.post(
                 '/flights/', json=stub_flight, params={'motor_kind': 'HYBRID'}
@@ -94,7 +94,7 @@ def test_create_flight_optional_params(stub_flight):
                 'message': 'Flight successfully created',
             }
             mock_set_motor_kind.assert_called_once_with(MotorKinds.HYBRID)
-            mock_create_flight.assert_called_once_with(Flight(**stub_flight))
+            mock_create_flight.assert_called_once_with(FlightModel(**stub_flight))
 
 
 def test_create_flight_invalid_input():
@@ -168,7 +168,7 @@ def test_update_flight(stub_flight):
         return_value=FlightUpdated(flight_id='123'),
     ) as mock_update_flight:
         with patch.object(
-            Motor, 'set_motor_kind', side_effect=None
+            MotorModel, 'set_motor_kind', side_effect=None
         ) as mock_set_motor_kind:
             response = client.put(
                 '/flights/123',
@@ -181,7 +181,7 @@ def test_update_flight(stub_flight):
                 'message': 'Flight successfully updated',
             }
             mock_update_flight.assert_called_once_with(
-                '123', Flight(**stub_flight)
+                '123', FlightModel(**stub_flight)
             )
             mock_set_motor_kind.assert_called_once_with(MotorKinds.GENERIC)
 
@@ -198,7 +198,7 @@ def test_update_env_by_flight_id(stub_env):
             'flight_id': '123',
             'message': 'Flight successfully updated',
         }
-        mock_update_flight.assert_called_once_with('123', env=Env(**stub_env))
+        mock_update_flight.assert_called_once_with('123', env=EnvironmentModel(**stub_env))
 
 
 def test_update_rocket_by_flight_id(stub_rocket):
@@ -219,7 +219,7 @@ def test_update_rocket_by_flight_id(stub_rocket):
         }
         assert mock_update_flight.call_count == 1
         assert mock_update_flight.call_args[0][0] == '123'
-        assert mock_update_flight.call_args[1]['rocket'].model_dump() == Rocket(**stub_rocket).model_dump()
+        assert mock_update_flight.call_args[1]['rocket'].model_dump() == RocketModel(**stub_rocket).model_dump()
 
 
 def test_update_env_by_flight_id_invalid_input():
