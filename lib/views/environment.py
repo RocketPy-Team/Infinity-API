@@ -1,11 +1,11 @@
 from typing import Optional, Any
 from datetime import datetime, timedelta
-from pydantic import BaseModel, ConfigDict
-from lib.models.environment import AtmosphericModelTypes
+from pydantic import ApiBaseView, ConfigDict
+from lib.models.environment import AtmosphericModelTypes, EnvironmentModel
 from lib.utils import to_python_primitive
 
 
-class EnvSummary(BaseModel):
+class EnvironmentSummary(ApiBaseView):
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     elevation: Optional[float] = 1
@@ -52,16 +52,23 @@ class EnvSummary(BaseModel):
     model_config = ConfigDict(json_encoders={Any: to_python_primitive})
 
 
-class EnvCreated(BaseModel):
-    env_id: str
+class EnvironmentView(EnvironmentModel):
+    environment_id: Optional[str] = None
+
+
+class EnvironmentCreated(ApiBaseView):
     message: str = "Environment successfully created"
+    environment_id: str
 
 
-class EnvUpdated(BaseModel):
-    env_id: str
+class EnvironmentRetrieved(ApiBaseView):
+    message: str = "Environment successfully retrieved"
+    environment: EnvironmentView
+
+
+class EnvironmentUpdated(ApiBaseView):
     message: str = "Environment successfully updated"
 
 
-class EnvDeleted(BaseModel):
-    env_id: str
+class EnvironmentDeleted(ApiBaseView):
     message: str = "Environment successfully deleted"

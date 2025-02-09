@@ -1,6 +1,7 @@
 from typing import Optional, Any
-from pydantic import BaseModel, ConfigDict
-from lib.models.flight import Flight
+from pydantic import ConfigDict
+from lib.models.flight import FlightModel
+from lib.views.interface import ApiBaseView
 from lib.views.rocket import RocketView, RocketSummary
 from lib.views.environment import EnvSummary
 from lib.utils import to_python_primitive
@@ -154,20 +155,24 @@ class FlightSummary(RocketSummary, EnvSummary):
     model_config = ConfigDict(json_encoders={Any: to_python_primitive})
 
 
-class FlightCreated(BaseModel):
+class FlightView(FlightModel):
     flight_id: str
+    rocket: RocketView
+
+
+class FlightCreated(ApiBaseView):
     message: str = "Flight successfully created"
-
-
-class FlightUpdated(BaseModel):
     flight_id: str
+
+
+class FlightRetrieved(ApiBaseView):
+    message: str = "Flight successfully retrieved"
+    flight: FlightView
+
+
+class FlightUpdated(ApiBaseView):
     message: str = "Flight successfully updated"
 
 
-class FlightDeleted(BaseModel):
-    flight_id: str
+class FlightDeleted(ApiBaseView):
     message: str = "Flight successfully deleted"
-
-
-class FlightView(Flight):
-    rocket: RocketView

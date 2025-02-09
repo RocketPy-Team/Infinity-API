@@ -1,10 +1,5 @@
-"""
-This is the main API file for the RocketPy API.
-"""
-
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import RedirectResponse, JSONResponse
 
@@ -20,14 +15,6 @@ app = FastAPI(
         "defaultModelsExpandDepth": 0,
         "syntaxHighlight.theme": "obsidian",
     }
-)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
 )
 app.include_router(flight.router)
 app.include_router(environment.router)
@@ -46,7 +33,7 @@ def custom_openapi():
         return app.openapi_schema
     openapi_schema = get_openapi(
         title="RocketPy Infinity-API",
-        version="2.2.0",
+        version="3.0.0",
         description=(
             "<p style='font-size: 18px;'>RocketPy Infinity-API is a RESTful Open API for RocketPy, a rocket flight simulator.</p>"
             "<br/>"
@@ -87,7 +74,7 @@ async def __perform_healthcheck():
     return {"health": "Everything OK!"}
 
 
-# Errors
+# Global exception handler
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(
     request: Request, exc: RequestValidationError

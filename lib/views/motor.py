@@ -1,6 +1,7 @@
 from typing import List, Any, Optional
 from pydantic import BaseModel, ConfigDict
-from lib.models.motor import Motor, MotorKinds, CoordinateSystemOrientation
+from lib.views.interface import ApiBaseView
+from lib.models.sub.motor import MotorModel, MotorKinds, MotorCoordinateSystemOrientation
 from lib.utils import to_python_primitive
 
 
@@ -11,7 +12,7 @@ class MotorSummary(BaseModel):
     burn_start_time: Optional[float] = None
     center_of_dry_mass_position: Optional[float] = None
     coordinate_system_orientation: str = (
-        CoordinateSystemOrientation.NOZZLE_TO_COMBUSTION_CHAMBER.value
+        MotorCoordinateSystemOrientation.NOZZLE_TO_COMBUSTION_CHAMBER.value
     )
     dry_I_11: Optional[float] = None
     dry_I_12: Optional[float] = None
@@ -72,20 +73,24 @@ class MotorSummary(BaseModel):
     model_config = ConfigDict(json_encoders={Any: to_python_primitive})
 
 
-class MotorCreated(BaseModel):
-    motor_id: str
+class MotorView(MotorModel):
+    motor_id: Optional[str] = None
+    selected_motor_kind: MotorKinds
+
+
+class MotorCreated(ApiBaseView):
     message: str = "Motor successfully created"
-
-
-class MotorUpdated(BaseModel):
     motor_id: str
+
+
+class MotorRetrieved(ApiBaseView):
+    message: str = "Motor successfully retrieved"
+    motor: MotorView
+
+
+class MotorUpdated(ApiBaseView):
     message: str = "Motor successfully updated"
 
 
-class MotorDeleted(BaseModel):
-    motor_id: str
+class MotorDeleted(ApiBaseView):
     message: str = "Motor successfully deleted"
-
-
-class MotorView(Motor):
-    selected_motor_kind: MotorKinds
