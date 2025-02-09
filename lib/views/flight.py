@@ -3,11 +3,11 @@ from pydantic import ConfigDict
 from lib.models.flight import FlightModel
 from lib.views.interface import ApiBaseView
 from lib.views.rocket import RocketView, RocketSummary
-from lib.views.environment import EnvSummary
+from lib.views.environment import EnvironmentSummary
 from lib.utils import to_python_primitive
 
 
-class FlightSummary(RocketSummary, EnvSummary):
+class FlightSummary(RocketSummary, EnvironmentSummary):
     name: Optional[str] = None
     max_time: Optional[int] = None
     min_time_step: Optional[int] = None

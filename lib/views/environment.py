@@ -1,6 +1,7 @@
 from typing import Optional, Any
 from datetime import datetime, timedelta
-from pydantic import ApiBaseView, ConfigDict
+from pydantic import ConfigDict
+from lib.views.interface import ApiBaseView
 from lib.models.environment import AtmosphericModelTypes, EnvironmentModel
 from lib.utils import to_python_primitive
 
