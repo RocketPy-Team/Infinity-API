@@ -27,7 +27,7 @@ def stub_controller(stub_model):
 
 @pytest.mark.asyncio
 async def test_controller_exception_handler_no_exception(stub_model):
-    async def method(self, model, *args, **kwargs):
+    async def method(self, model, *args, **kwargs):  # pylint: disable=unused-argument
         return stub_model, args, kwargs
 
     test_controller = Mock(method=method)
