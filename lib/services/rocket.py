@@ -45,6 +45,10 @@ class RocketService:
             center_of_mass_without_motor=rocket.center_of_mass_without_motor,
             coordinate_system_orientation=rocket.coordinate_system_orientation.value.lower(),
         )
+        rocketpy_rocket.add_motor(
+            MotorService.from_motor_model(rocket.motor).motor,
+            rocket.motor_position,
+        )
 
         # RailButtons
         if rocket.rail_buttons:
@@ -52,10 +56,6 @@ class RocketService:
                 upper_button_position=rocket.rail_buttons.upper_button_position,
                 lower_button_position=rocket.rail_buttons.lower_button_position,
                 angular_position=rocket.rail_buttons.angular_position,
-            )
-            rocketpy_rocket.add_motor(
-                MotorService.from_motor_model(rocket.motor).motor,
-                rocket.motor_position,
             )
 
         # NoseCone
