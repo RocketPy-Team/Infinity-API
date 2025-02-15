@@ -1,6 +1,6 @@
 from typing import Any, Optional
 from pydantic import ConfigDict
-from lib.models.rocket import RocketModel, RocketCoordinateSystemOrientation
+from lib.models.rocket import RocketModel
 from lib.views.interface import ApiBaseView
 from lib.views.motor import MotorView, MotorSummary
 from lib.utils import to_python_primitive
@@ -8,9 +8,7 @@ from lib.utils import to_python_primitive
 
 class RocketSummary(MotorSummary):
     area: Optional[float] = None
-    coordinate_system_orientation: str = (
-        RocketCoordinateSystemOrientation.TAIL_TO_NOSE.value
-    )
+    coordinate_system_orientation: str = 'tail_to_nose'
     center_of_mass_without_motor: Optional[float] = None
     motor_center_of_dry_mass_position: Optional[float] = None
     motor_position: Optional[float] = None

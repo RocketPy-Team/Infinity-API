@@ -41,7 +41,7 @@ class EnvironmentController(ControllerInterface):
         return env_service.get_env_binary()
 
     @controller_exception_handler
-    async def simulate_env(
+    async def get_environment_simulation(
         self, env_id: str
     ) -> EnvironmentSummary:
         """

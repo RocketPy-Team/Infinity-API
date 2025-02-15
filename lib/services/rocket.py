@@ -43,7 +43,7 @@ class RocketService:
             power_off_drag=rocket.power_off_drag,
             power_on_drag=rocket.power_on_drag,
             center_of_mass_without_motor=rocket.center_of_mass_without_motor,
-            coordinate_system_orientation=rocket.coordinate_system_orientation.value.lower(),
+            coordinate_system_orientation=rocket.coordinate_system_orientation,
         )
         rocketpy_rocket.add_motor(
             MotorService.from_motor_model(rocket.motor).motor,
@@ -157,7 +157,7 @@ class RocketService:
             RocketPyEllipticalFins
         """
         match kind:
-            case "TRAPEZOIDAL":
+            case "trapezoidal":
                 rocketpy_finset = RocketPyTrapezoidalFins(
                     n=fins.n,
                     name=fins.name,
@@ -165,7 +165,7 @@ class RocketService:
                     span=fins.span,
                     **fins.get_additional_parameters(),
                 )
-            case "ELLIPTICAL":
+            case "elliptical":
                 rocketpy_finset = RocketPyEllipticalFins(
                     n=fins.n,
                     name=fins.name,

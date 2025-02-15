@@ -9,14 +9,14 @@ from lib.models.sub.aerosurfaces import Fins, NoseCone
 
 
 @pytest.fixture
-def stub_env():
+def stub_environment_dump():
     env = EnvironmentModel(latitude=0, longitude=0)
     env_json = env.model_dump_json()
     return json.loads(env_json)
 
 
 @pytest.fixture
-def stub_motor():
+def stub_motor_dump():
     motor = MotorModel(
         thrust_source=[[0, 0]],
         burn_time=0,
@@ -30,7 +30,7 @@ def stub_motor():
 
 
 @pytest.fixture
-def stub_tank():
+def stub_tank_dump():
     tank = MotorTank(
         geometry=[[(0, 0), 0]],
         gas=TankFluids(name='gas', density=0),
@@ -81,7 +81,7 @@ def stub_mass_tank(stub_tank):
 
 
 @pytest.fixture
-def stub_nose_cone():
+def stub_nose_cone_dump():
     nose_cone = NoseCone(
         name='nose',
         length=0,
@@ -95,9 +95,9 @@ def stub_nose_cone():
 
 
 @pytest.fixture
-def stub_fins():
+def stub_fins_dump():
     fins = Fins(
-        fins_kind='TRAPEZOIDAL',
+        fins_kind='trapezoidal',
         name='fins',
         n=0,
         root_chord=0,
@@ -109,7 +109,7 @@ def stub_fins():
 
 
 @pytest.fixture
-def stub_rocket(stub_motor, stub_nose_cone, stub_fins):
+def stub_rocket_dump(stub_motor, stub_nose_cone, stub_fins):
     rocket = RocketModel(
         motor=stub_motor,
         radius=0,
@@ -121,7 +121,7 @@ def stub_rocket(stub_motor, stub_nose_cone, stub_fins):
         power_on_drag=[(0, 0)],
         nose=stub_nose_cone,
         fins=[stub_fins],
-        coordinate_system_orientation='TAIL_TO_NOSE',
+        coordinate_system_orientation='tail_to_nose',
     )
     rocket_json = rocket.model_dump_json()
     return json.loads(rocket_json)

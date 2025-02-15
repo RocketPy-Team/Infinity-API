@@ -31,7 +31,7 @@ def stub_flight(stub_env, stub_rocket):
         'rail_length': 1,
         'time_overshoot': True,
         'terminate_on_apogee': True,
-        'equations_of_motion': 'STANDARD',
+        'equations_of_motion': 'standard',
     }
     return flight
 
