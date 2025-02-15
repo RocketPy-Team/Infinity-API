@@ -96,14 +96,15 @@ async def delete_motor(motor_id: str) -> MotorDeleted:
     status_code=203,
     response_class=Response,
 )
-async def read_rocketpy_motor(motor_id: str):
+async def get_rocketpy_motor_binary(motor_id: str):
     """
-    Loads rocketpy.motor as a dill binary
+    Loads rocketpy.motor as a dill binary.
+    Currently only amd64 architecture is supported.
 
     ## Args
     ``` motor_id: str ```
     """
-    with tracer.start_as_current_span("read_rocketpy_motor"):
+    with tracer.start_as_current_span("get_rocketpy_motor_binary"):
         headers = {
             'Content-Disposition': f'attachment; filename="rocketpy_motor_{motor_id}.dill"'
         }

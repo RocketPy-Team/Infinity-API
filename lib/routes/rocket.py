@@ -97,14 +97,15 @@ async def delete_rocket(rocket_id: str) -> RocketDeleted:
     status_code=203,
     response_class=Response,
 )
-async def read_rocketpy_rocket(rocket_id: str):
+async def get_rocketpy_rocket_binary(rocket_id: str):
     """
-    Loads rocketpy.rocket as a dill binary
+    Loads rocketpy.rocket as a dill binary.
+    Currently only amd64 architecture is supported.
 
     ## Args
     ``` rocket_id: str ```
     """
-    with tracer.start_as_current_span("read_rocketpy_rocket"):
+    with tracer.start_as_current_span("get_rocketpy_rocket_binary"):
         headers = {
             'Content-Disposition': f'attachment; filename="rocketpy_rocket_{rocket_id}.dill"'
         }

@@ -23,11 +23,11 @@ client = TestClient(app)
 
 
 @pytest.fixture
-def stub_flight(stub_env, stub_rocket):
+def stub_flight(stub_environment_dump, stub_rocket_dump):
     flight = {
         'name': 'Test Flight',
-        'environment': stub_env,
-        'rocket': stub_rocket,
+        'environment': stub_environment_dump,
+        'rocket': stub_rocket_dump,
         'rail_length': 1,
         'time_overshoot': True,
         'terminate_on_apogee': True,
@@ -119,11 +119,11 @@ def test_create_flight_server_error(stub_flight):
         assert response.json() == {'detail': 'Internal Server Error'}
 
 
-def test_read_flight(stub_flight, stub_rocket, stub_motor):
-    del stub_rocket['motor']
+def test_read_flight(stub_flight, stub_rocket_dump, stub_motor_dump):
+    del stub_rocket_dump['motor']
     del stub_flight['rocket']
-    motor_view = MotorView(**stub_motor, selected_motor_kind=MotorKinds.HYBRID)
-    rocket_view = RocketView(**stub_rocket, motor=motor_view)
+    motor_view = MotorView(**stub_motor_dump, selected_motor_kind=MotorKinds.HYBRID)
+    rocket_view = RocketView(**stub_rocket_dump, motor=motor_view)
     flight_view = FlightView(**stub_flight, rocket=rocket_view)
     with patch.object(
         FlightController,
@@ -186,22 +186,22 @@ def test_update_flight(stub_flight):
             mock_set_motor_kind.assert_called_once_with(MotorKinds.GENERIC)
 
 
-def test_update_env_by_flight_id(stub_env):
+def test_update_env_by_flight_id(stub_environment_dump):
     with patch.object(
         FlightController,
         'update_env_by_flight_id',
         return_value=FlightUpdated(flight_id='123'),
     ) as mock_update_flight:
-        response = client.put('/flights/123/env', json=stub_env)
+        response = client.put('/flights/123/env', json=stub_environment_dump)
         assert response.status_code == 200
         assert response.json() == {
             'flight_id': '123',
             'message': 'Flight successfully updated',
         }
-        mock_update_flight.assert_called_once_with('123', env=EnvironmentModel(**stub_env))
+        mock_update_flight.assert_called_once_with('123', env=EnvironmentModel(**stub_environment_dump))
 
 
-def test_update_rocket_by_flight_id(stub_rocket):
+def test_update_rocket_by_flight_id(stub_rocket_dump):
     with patch.object(
         FlightController,
         'update_rocket_by_flight_id',
@@ -209,7 +209,7 @@ def test_update_rocket_by_flight_id(stub_rocket):
     ) as mock_update_flight:
         response = client.put(
             '/flights/123/rocket',
-            json=stub_rocket,
+            json=stub_rocket_dump,
             params={'motor_kind': 'GENERIC'},
         )
         assert response.status_code == 200
@@ -219,7 +219,7 @@ def test_update_rocket_by_flight_id(stub_rocket):
         }
         assert mock_update_flight.call_count == 1
         assert mock_update_flight.call_args[0][0] == '123'
-        assert mock_update_flight.call_args[1]['rocket'].model_dump() == RocketModel(**stub_rocket).model_dump()
+        assert mock_update_flight.call_args[1]['rocket'].model_dump() == RocketModel(**stub_rocket_dump).model_dump()
 
 
 def test_update_env_by_flight_id_invalid_input():

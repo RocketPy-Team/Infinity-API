@@ -22,15 +22,15 @@ class FlightController(ControllerInterface):
         super().__init__(models=[FlightModel])
 
     @controller_exception_handler
-    async def update_env_by_flight_id(
-        self, flight_id: str, *, env: EnvironmentModel
+    async def update_environment_by_flight_id(
+        self, flight_id: str, *, environment: EnvironmentModel
     ) -> FlightUpdated:
         """
-        Update a models.Flight.env in the database.
+        Update a models.Flight.environment in the database.
 
         Args:
             flight_id: str
-            env: models.Env
+            environment: models.Environment
 
         Returns:
             views.FlightUpdated
@@ -39,7 +39,7 @@ class FlightController(ControllerInterface):
             HTTP 404 Not Found: If the flight is not found in the database.
         """
         flight = await self.get_flight_by_id(flight_id)
-        flight.environment = env
+        flight.environment = environment
         self.update_flight_by_id(flight_id, flight)
         return FlightUpdated(flight_id=flight_id)
 

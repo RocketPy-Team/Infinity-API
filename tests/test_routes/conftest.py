@@ -45,14 +45,14 @@ def stub_tank_dump():
 
 
 @pytest.fixture
-def stub_level_tank(stub_tank):
-    stub_tank.update({'tank_kind': TankKinds.LEVEL, 'liquid_height': 0})
-    return stub_tank
+def stub_level_tank_dump(stub_tank_dump):
+    stub_tank_dump.update({'tank_kind': TankKinds.LEVEL, 'liquid_height': 0})
+    return stub_tank_dump
 
 
 @pytest.fixture
-def stub_mass_flow_tank(stub_tank):
-    stub_tank.update(
+def stub_mass_flow_tank_dump(stub_tank_dump):
+    stub_tank_dump.update(
         {
             'tank_kind': TankKinds.MASS_FLOW,
             'gas_mass_flow_rate_in': 0,
@@ -63,21 +63,21 @@ def stub_mass_flow_tank(stub_tank):
             'initial_gas_mass': 0,
         }
     )
-    return stub_tank
+    return stub_tank_dump
 
 
 @pytest.fixture
-def stub_ullage_tank(stub_tank):
-    stub_tank.update({'tank_kind': TankKinds.ULLAGE, 'ullage': 0})
-    return stub_tank
+def stub_ullage_tank_dump(stub_tank_dump):
+    stub_tank_dump.update({'tank_kind': TankKinds.ULLAGE, 'ullage': 0})
+    return stub_tank_dump
 
 
 @pytest.fixture
-def stub_mass_tank(stub_tank):
-    stub_tank.update(
+def stub_mass_tank_dump(stub_tank_dump):
+    stub_tank_dump.update(
         {'tank_kind': TankKinds.MASS, 'liquid_mass': 0, 'gas_mass': 0}
     )
-    return stub_tank
+    return stub_tank_dump
 
 
 @pytest.fixture
@@ -109,9 +109,9 @@ def stub_fins_dump():
 
 
 @pytest.fixture
-def stub_rocket_dump(stub_motor, stub_nose_cone, stub_fins):
+def stub_rocket_dump(stub_motor_dump, stub_nose_cone_dump, stub_fins_dump):
     rocket = RocketModel(
-        motor=stub_motor,
+        motor=stub_motor_dump,
         radius=0,
         mass=0,
         motor_position=0,
@@ -119,8 +119,8 @@ def stub_rocket_dump(stub_motor, stub_nose_cone, stub_fins):
         inertia=[0, 0, 0],
         power_off_drag=[(0, 0)],
         power_on_drag=[(0, 0)],
-        nose=stub_nose_cone,
-        fins=[stub_fins],
+        nose=stub_nose_cone_dump,
+        fins=[stub_fins_dump],
         coordinate_system_orientation='tail_to_nose',
     )
     rocket_json = rocket.model_dump_json()
