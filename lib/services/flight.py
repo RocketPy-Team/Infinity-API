@@ -34,7 +34,7 @@ class FlightService:
             rail_length=flight.rail_length,
             terminate_on_apogee=flight.terminate_on_apogee,
             time_overshoot=flight.time_overshoot,
-            equations_of_motion=flight.equations_of_motion.value.lower(),
+            equations_of_motion=flight.equations_of_motion,
             **flight.get_additional_parameters(),
         )
         return cls(flight=rocketpy_flight)

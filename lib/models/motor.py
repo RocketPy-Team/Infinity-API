@@ -3,7 +3,7 @@ from typing import Optional, Tuple, List, Union, Self, ClassVar
 from pydantic import PrivateAttr, model_validator
 
 from lib.models.interface import ApiBaseModel
-from lib.models.sub.tanks import MotorTank, InterpolationMethods, TankCoordinateSystemOrientation
+from lib.models.sub.tanks import MotorTank
 
 
 class MotorKinds(str, Enum):
@@ -48,10 +48,8 @@ class MotorModel(ApiBaseModel):
     throat_radius: Optional[float] = None
 
     # Optional parameters
-    interpolation_method: InterpolationMethods = InterpolationMethods.LINEAR
-    coordinate_system_orientation: TankCoordinateSystemOrientation = (
-        TankCoordinateSystemOrientation.NOZZLE_TO_COMBUSTION_CHAMBER
-    )
+    interpolation_method: Literal['linear', 'spline', 'akima', 'polynomial', 'shepard', 'rbf'] = 'linear'
+    coordinate_system_orientation: Literal['nozzle_to_combustion_chamber', 'combustion_chamber_to_nozzle'] = 'nose_to_combustion_chamber'
     reshape_thrust_curve: Union[bool, tuple] = False
 
     # Computed parameters

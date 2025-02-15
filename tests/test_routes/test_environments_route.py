@@ -17,243 +17,200 @@ client = TestClient(app)
 
 
 @pytest.fixture
-def stub_env_summary():
+def stub_environment_summary_dump():
     env_summary = EnvironmentSummary()
     env_summary_json = env_summary.model_dump_json()
     return json.loads(env_summary_json)
 
+@pytest.fixture(autouse=True)
+def mock_controller_instance():
+    with patch(
+        "lib.routes.environment.EnvironmentController", autospec=True
+    ) as mock_controller:
+        mock_controller_instance = mock_controller.return_value
+        mock_controller_instance.post_environment = Mock()
+        mock_controller_instance.get_environment_by_id = Mock()
+        mock_controller_instance.put_environment_by_id = Mock()
+        mock_controller_instance.delete_environment_by_id = Mock()
+        yield mock_controller_instance
 
-def test_create_env(stub_env):
-    with patch.object(
-        EnvironmentController, 'create_env', return_value=EnvironmentCreated(env_id='123')
-    ) as mock_create_env:
-        response = client.post('/environments/', json=stub_env)
-        assert response.status_code == 200
-        assert response.json() == {
-            'env_id': '123',
-            'message': 'Environment successfully created',
-        }
-        mock_create_env.assert_called_once_with(EnvironmentModel(**stub_env))
+def test_create_environment(stub_environment_dump, mock_controller_instance):
+    mock_response = AsyncMock(return_value=EnvironmentCreated(environment_id='123'))
+    mock_controller_instance.post_environment = mock_response
+    response = client.post('/environments/', json=stub_environment_dump)
+    assert response.status_code == 200
+    assert response.json() == {
+        'environment_id': '123',
+        'message': 'environment successfully created',
+    }
+    mock_controller_instance.post_environment.assert_called_once_with(
+        EnvironmentModel(**stub_environment_dump)
+    )
 
-
-def test_create_env_optional_params():
-    test_object = {
+def test_create_environment_optional_params(stub_environment_dump, mock_controller_instance):
+    stub_environment_dump.update({
         'latitude': 0,
         'longitude': 0,
         'elevation': 1,
         'atmospheric_model_type': 'STANDARD_ATMOSPHERE',
         'atmospheric_model_file': None,
         'date': '2021-01-01T00:00:00',
+    })
+    mock_response = AsyncMock(return_value=EnvironmentCreated(environment_id='123'))
+    mock_controller_instance.post_environment = mock_response
+    response = client.post('/environments/', json=stub_environment_dump)
+    assert response.status_code == 200
+    assert response.json() == {
+        'environment_id': '123',
+        'message': 'Environment successfully created',
     }
-    with patch.object(
-        EnvironmentController, 'create_env', return_value=EnvironmentCreated(env_id='123')
-    ) as mock_create_env:
-        response = client.post('/environments/', json=test_object)
-        assert response.status_code == 200
-        assert response.json() == {
-            'env_id': '123',
-            'message': 'Environment successfully created',
-        }
-        mock_create_env.assert_called_once_with(EnvironmentModel(**test_object))
 
-
-def test_create_env_invalid_input():
+def test_create_environment_invalid_input():
     response = client.post(
         '/environments/', json={'latitude': 'foo', 'longitude': 'bar'}
     )
     assert response.status_code == 422
 
+def test_create_environment_server_error(
+    stub_environment_dump, mock_controller_instance
+):
+    mock_response = AsyncMock(side_effect=HTTPException(status_code=500))
+    mock_controller_instance.post_environment = mock_response
+    response = client.post('/environments/', json=stub_environment_dump)
+    assert response.status_code == 500
+    assert response.json() == {'detail': 'Internal Server Error'}
 
-def test_create_env_server_error(stub_env):
-    with patch.object(
-        EnvironmentController,
-        'create_env',
-        side_effect=HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-        ),
-    ):
-        response = client.post('/environments/', json=stub_env)
-        assert response.status_code == 500
-        assert response.json() == {'detail': 'Internal Server Error'}
+def test_read_environment(stub_env):
+    stub_environment_out = EnvironmentModelOut(environment_id='123', **stub_environment_dump)
+    mock_response = AsyncMock(
+        return_value=EnvironmentRetrieved(environment=stub_environment_out)
+    )
+    mock_controller_instance.get_environment_by_id = mock_response
+    response = client.get('/environments/123')
+    assert response.status_code == 200
+    assert response.json() == {
+        'message': 'Environment successfully retrieved',
+        'environment': json.loads(stub_environment_out.model_dump_json()),
+    }
 
+def test_read_environment_not_found(mock_controller_instance):
+    mock_response = AsyncMock(side_effect=HTTPException(status_code=404))
+    mock_controller_instance.get_environment_by_id = mock_response
+    response = client.get('/environments/123')
+    assert response.status_code == 404
+    assert response.json() == {'detail': 'Not Found'}
+    mock_controller_instance.get_environment_by_id.assert_called_once_with('123')
 
-def test_read_env(stub_env):
-    with patch.object(
-        EnvironmentController, 'get_env_by_id', return_value=EnvironmentModel(**stub_env)
-    ) as mock_read_env:
-        response = client.get('/environments/123')
-        assert response.status_code == 200
-        assert response.json() == stub_env
-        mock_read_env.assert_called_once_with('123')
+def test_read_environment_server_error(mock_controller_instance):
+    mock_response = AsyncMock(side_effect=HTTPException(status_code=500))
+    mock_controller_instance.get_environment_by_id = mock_response
+    response = client.get('/environments/123')
+    assert response.status_code == 500
+    assert response.json() == {'detail': 'Internal Server Error'}
 
+def test_update_environment(stub_environment_dump, mock_controller_instance):
+    mock_reponse = AsyncMock(return_value=EnvironmentUpdated(environment_id='123'))
+    mock_controller_instance.put_environment_by_id = mock_reponse
+    response = client.put('/environments/123', json=stub_environment_dump)
+    assert response.status_code == 200
+    assert response.json() == {
+        'message': 'Environment successfully updated',
+    }
+    mock_controller_instance.put_environment_by_id.assert_called_once_with(
+        '123', EnvironmentModel(**stub_environment_dump)
+    )
 
-def test_read_env_not_found():
-    with patch.object(
-        EnvironmentController,
-        'get_env_by_id',
-        side_effect=HTTPException(status_code=status.HTTP_404_NOT_FOUND),
-    ) as mock_read_env:
-        response = client.get('/environments/123')
-        assert response.status_code == 404
-        assert response.json() == {'detail': 'Not Found'}
-        mock_read_env.assert_called_once_with('123')
-
-
-def test_read_env_server_error():
-    with patch.object(
-        EnvironmentController,
-        'get_env_by_id',
-        side_effect=HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-        ),
-    ):
-        response = client.get('/environments/123')
-        assert response.status_code == 500
-        assert response.json() == {'detail': 'Internal Server Error'}
-
-
-def test_update_env(stub_env):
-    with patch.object(
-        EnvironmentController,
-        'update_env_by_id',
-        return_value=EnvironmentUpdated(env_id='123'),
-    ) as mock_update_env:
-        response = client.put('/environments/123', json=stub_env)
-        assert response.status_code == 200
-        assert response.json() == {
-            'env_id': '123',
-            'message': 'Environment successfully updated',
-        }
-        mock_update_env.assert_called_once_with('123', EnvironmentModel(**stub_env))
-
-
-def test_update_env_invalid_input():
+def test_update_environment_invalid_input():
     response = client.put(
-        '/environments/123', json={'latitude': 'foo', 'longitude': 'bar'}
+        '/environments/123', json={'consignment': 'foo', 'delivery': 'bar'}
     )
     assert response.status_code == 422
 
+def test_update_environment_not_found(stub_environment_dump, mock_controller_instance):
+    mock_reponse = AsyncMock(side_effect=HTTPException(status_code=404))
+    mock_controller_instance.put_environment_by_id = mock_reponse
+    response = client.put('/environments/123', json=stub_environment_dump)
+    assert response.status_code == 404
+    assert response.json() == {'detail': 'Not Found'}
+    mock_controller_instance.put_environment_by_id.assert_called_once_with(
+        '123', EnvironmentModel(**stub_environment_dump)
+    )
 
-def test_update_env_not_found(stub_env):
-    with patch.object(
-        EnvironmentController,
-        'update_env_by_id',
-        side_effect=HTTPException(status_code=status.HTTP_404_NOT_FOUND),
-    ):
-        response = client.put('/environments/123', json=stub_env)
-        assert response.status_code == 404
-        assert response.json() == {'detail': 'Not Found'}
+def test_update_environment_server_error(
+    stub_environment_dump, mock_controller_instance
+):
+    mock_response = AsyncMock(side_effect=HTTPException(status_code=500))
+    mock_controller_instance.put_environment_by_id = mock_response
+    response = client.put('/environments/123', json=stub_environment_dump)
+    assert response.status_code == 500
+    assert response.json() == {'detail': 'Internal Server Error'}
 
+def test_delete_environment(mock_controller_instance):
+    mock_reponse = AsyncMock(return_value=EnvironmentDeleted(environment_id='123'))
+    mock_controller_instance.delete_environment_by_id = mock_reponse
+    response = client.delete('/environments/123')
+    assert response.status_code == 200
+    assert response.json() == {
+        'message': 'Environment successfully deleted',
+    }
+    mock_controller_instance.delete_environment_by_id.assert_called_once_with('123')
 
-def test_update_env_server_error(stub_env):
-    with patch.object(
-        EnvironmentController,
-        'update_env_by_id',
-        side_effect=HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-        ),
-    ):
-        response = client.put('/environments/123', json=stub_env)
-        assert response.status_code == 500
-        assert response.json() == {'detail': 'Internal Server Error'}
+def test_delete_environment_server_error(mock_controller_instance):
+    mock_response = AsyncMock(side_effect=HTTPException(status_code=500))
+    mock_controller_instance.delete_environment_by_id = mock_response
+    response = client.delete('/environments/123')
+    assert response.status_code == 500
+    assert response.json() == {'detail': 'Internal Server Error'}
 
+def test_simulate_environment_success(
+    stub_environment_summary_dump, mock_controller_instance
+):
+    mock_reponse = AsyncMock(return_value=EnvironmentSummary(**stub_environment_summary_dump))
+    mock_controller_instance.get_environment_simulation = mock_reponse
+    response = client.get('/environments/123/summary')
+    assert response.status_code == 200
+    assert response.json() == stub_environment_summary_dump
+    mock_controller_instance.get_environment_simulation.assert_called_once_with('123')
 
-def test_delete_env():
-    with patch.object(
-        EnvironmentController,
-        'delete_env_by_id',
-        return_value=EnvironmentDeleted(env_id='123'),
-    ) as mock_delete_env:
-        response = client.delete('/environments/123')
-        assert response.status_code == 200
-        assert response.json() == {
-            'env_id': '123',
-            'message': 'Environment successfully deleted',
-        }
-        mock_delete_env.assert_called_once_with('123')
+def test_simulate_environment_not_found(mock_controller_instance):
+    mock_response = AsyncMock(side_effect=HTTPException(status_code=404))
+    mock_controller_instance.get_environment_simulation = mock_response
+    response = client.get('/environments/123/summary')
+    assert response.status_code == 404
+    assert response.json() == {'detail': 'Not Found'}
+    mock_controller_instance.get_environment_simulation.assert_called_once_with('123')
 
+def test_simulate_environment_server_error(mock_controller_instance):
+    mock_response = AsyncMock(side_effect=HTTPException(status_code=500))
+    mock_controller_instance.get_environment_simulation = mock_response
+    response = client.get('/environments/123/summary')
+    assert response.status_code == 500
+    assert response.json() == {'detail': 'Internal Server Error'}
 
-def test_delete_env_server_error():
-    with patch.object(
-        EnvironmentController,
-        'delete_env_by_id',
-        side_effect=HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-        ),
-    ):
-        response = client.delete('/environments/123')
-        assert response.status_code == 500
-        assert response.json() == {'detail': 'Internal Server Error'}
+def test_read_rocketpy_environment(mock_controller_instance):
+    mock_response = AsyncMock(return_value=b'rocketpy')
+    mock_controller_instance.get_rocketpy_environment_binary = mock_response
+    response = client.get('/environments/123/rocketpy')
+    assert response.status_code == 203
+    assert response.content == b'rocketpy'
+    assert response.headers['content-type'] == 'application/octet-stream'
+    mock_controller_instance.get_rocketpy_environment_binary.assert_called_once_with(
+        '123'
+    )
 
+def test_read_rocketpy_environment_not_found(mock_controller_instance):
+    mock_response = AsyncMock(side_effect=HTTPException(status_code=404))
+    mock_controller_instance.get_rocketpy_environment_binary = mock_response
+    response = client.get('/environments/123/rocketpy')
+    assert response.status_code == 404
+    assert response.json() == {'detail': 'Not Found'}
+    mock_controller_instance.get_rocketpy_environment_binary.assert_called_once_with(
+        '123'
+    )
 
-def test_simulate_env(stub_env_summary):
-    with patch.object(
-        EnvironmentController,
-        'simulate_env',
-        return_value=EnvironmentSummary(**stub_env_summary),
-    ) as mock_simulate_env:
-        response = client.get('/environments/123/summary')
-        assert response.status_code == 200
-        assert response.json() == stub_env_summary
-        mock_simulate_env.assert_called_once_with('123')
-
-
-def test_simulate_env_not_found():
-    with patch.object(
-        EnvironmentController,
-        'simulate_env',
-        side_effect=HTTPException(status_code=status.HTTP_404_NOT_FOUND),
-    ) as mock_simulate_env:
-        response = client.get('/environments/123/summary')
-        assert response.status_code == 404
-        assert response.json() == {'detail': 'Not Found'}
-        mock_simulate_env.assert_called_once_with('123')
-
-
-def test_simulate_env_server_error():
-    with patch.object(
-        EnvironmentController,
-        'simulate_env',
-        side_effect=HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-        ),
-    ):
-        response = client.get('/environments/123/summary')
-        assert response.status_code == 500
-        assert response.json() == {'detail': 'Internal Server Error'}
-
-
-def test_read_rocketpy_env():
-    with patch.object(
-        EnvironmentController, 'get_rocketpy_env_binary', return_value=b'rocketpy'
-    ) as mock_read_rocketpy_env:
-        response = client.get('/environments/123/rocketpy')
-        assert response.status_code == 203
-        assert response.content == b'rocketpy'
-        assert response.headers['content-type'] == 'application/octet-stream'
-        mock_read_rocketpy_env.assert_called_once_with('123')
-
-
-def test_read_rocketpy_env_not_found():
-    with patch.object(
-        EnvironmentController,
-        'get_rocketpy_env_binary',
-        side_effect=HTTPException(status_code=status.HTTP_404_NOT_FOUND),
-    ) as mock_read_rocketpy_env:
-        response = client.get('/environments/123/rocketpy')
-        assert response.status_code == 404
-        assert response.json() == {'detail': 'Not Found'}
-        mock_read_rocketpy_env.assert_called_once_with('123')
-
-
-def test_read_rocketpy_env_server_error():
-    with patch.object(
-        EnvironmentController,
-        'get_rocketpy_env_binary',
-        side_effect=HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-        ),
-    ):
-        response = client.get('/environments/123/rocketpy')
-        assert response.status_code == 500
-        assert response.json() == {'detail': 'Internal Server Error'}
+def test_read_rocketpy_environment_server_error(mock_controller_instance):
+    mock_response = AsyncMock(side_effect=HTTPException(status_code=500))
+    mock_controller_instance.get_rocketpy_environment_binary = mock_response
+    response = client.get('/environments/123/rocketpy')
+    assert response.status_code == 500
+    assert response.json() == {'detail': 'Internal Server Error'}

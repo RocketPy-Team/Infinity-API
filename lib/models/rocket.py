@@ -1,5 +1,4 @@
-from enum import Enum
-from typing import Optional, Tuple, List, Union, Self, ClassVar
+from typing import Optional, Tuple, List, Union, Self, ClassVar, Literal
 from lib.models.interface import ApiBaseModel
 from lib.models.motor import MotorModel
 from lib.models.sub.aerosurfaces import (
@@ -9,11 +8,6 @@ from lib.models.sub.aerosurfaces import (
     RailButtons,
     Parachute,
 )
-
-
-class RocketCoordinateSystemOrientation(str, Enum):
-    TAIL_TO_NOSE: str = "TAIL_TO_NOSE"
-    NOSE_TO_TAIL: str = "NOSE_TO_TAIL"
 
 
 class RocketModel(ApiBaseModel):
@@ -32,9 +26,7 @@ class RocketModel(ApiBaseModel):
     ] = (0, 0, 0)
     power_off_drag: List[Tuple[float, float]] = [(0, 0)]
     power_on_drag: List[Tuple[float, float]] = [(0, 0)]
-    coordinate_system_orientation: RocketCoordinateSystemOrientation = (
-        RocketCoordinateSystemOrientation.TAIL_TO_NOSE
-    )
+    coordinate_system_orientation: Literal['tail_to_nose', 'nose_to_tail'] = 'tail_to_nose'
     nose: NoseCone
     fins: List[Fins]
 

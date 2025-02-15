@@ -1,5 +1,4 @@
-from enum import Enum
-from typing import Optional, Tuple, List, Union
+from typing import Optional, Tuple, List, Union, Literal
 from pydantic import BaseModel, Field
 
 
@@ -28,18 +27,8 @@ class NoseCone(BaseModel):
     rocket_radius: float
 
 
-class FinsKinds(str, Enum):
-    TRAPEZOIDAL: str = "TRAPEZOIDAL"
-    ELLIPTICAL: str = "ELLIPTICAL"
-
-
-class AngleUnit(str, Enum):
-    RADIANS: str = "RADIANS"
-    DEGREES: str = "DEGREES"
-
-
 class Fins(BaseModel):
-    fins_kind: FinsKinds
+    fins_kind: Literal['trapezoidal', 'elliptical']
     name: str
     n: int
     root_chord: float
@@ -50,7 +39,7 @@ class Fins(BaseModel):
     tip_chord: Optional[float] = None
     cant_angle: Optional[float] = None
     rocket_radius: Optional[float] = None
-    airfoil: Optional[Tuple[List[Tuple[float, float]], AngleUnit]] = None
+    airfoil: Optional[Tuple[List[Tuple[float, float]], Literal['radians', 'degrees']]] = None
 
     def get_additional_parameters(self):
         return {

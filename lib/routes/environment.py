@@ -116,13 +116,13 @@ async def read_rocketpy_env(environment_id: str):
 
 
 @router.get("/{environment_id}/summary")
-async def simulate_env(environment_id: str) -> EnvironmentSummary:
+async def get_environment_simulation(environment_id: str) -> EnvironmentSummary:
     """
     Loads rocketpy.environment simulation
 
     ## Args
     ``` environment_id: str ```
     """
-    with tracer.start_as_current_span("simulate_env"):
+    with tracer.start_as_current_span("get_environment_simulation"):
         controller = EnvironmentController()
         return await controller.get_environment_summary(environment_id)
