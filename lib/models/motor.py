@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, Tuple, List, Union, Self, ClassVar
+from typing import Optional, Tuple, List, Union, Self, ClassVar, Literal
 from pydantic import PrivateAttr, model_validator
 
 from lib.models.interface import ApiBaseModel

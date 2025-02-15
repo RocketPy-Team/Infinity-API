@@ -94,14 +94,15 @@ async def delete_environment(environment_id: str) -> EnvironmentDeleted:
     status_code=203,
     response_class=Response,
 )
-async def read_rocketpy_env(environment_id: str):
+async def get_rocketpy_environment_binary(environment_id: str):
     """
-    Loads rocketpy.environment as a dill binary
+    Loads rocketpy.environment as a dill binary.
+    Currently only amd64 architecture is supported.
 
     ## Args
     ``` environment_id: str ```
     """
-    with tracer.start_as_current_span("read_rocketpy_env"):
+    with tracer.start_as_current_span("get_rocketpy_environment_binary"):
         headers = {
             'Content-Disposition': f'attachment; filename="rocketpy_environment_{environment_id}.dill"'
         }

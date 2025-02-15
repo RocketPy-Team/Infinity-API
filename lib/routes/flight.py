@@ -99,14 +99,15 @@ async def delete_flight(flight_id: str) -> FlightDeleted:
     status_code=203,
     response_class=Response,
 )
-async def read_rocketpy_flight(flight_id: str):
+async def get_rocketpy_flight_binary(flight_id: str):
     """
-    Loads rocketpy.flight as a dill binary
+    Loads rocketpy.flight as a dill binary.
+    Currently only amd64 architecture is supported.
 
     ## Args
     ``` flight_id: str ```
     """
-    with tracer.start_as_current_span("read_rocketpy_flight"):
+    with tracer.start_as_current_span("get_rocketpy_flight_binary"):
         controller = FlightController()
         headers = {
             'Content-Disposition': f'attachment; filename="rocketpy_flight_{flight_id}.dill"'
@@ -120,21 +121,21 @@ async def read_rocketpy_flight(flight_id: str):
         )
 
 
-@router.put("/{flight_id}/env")
-async def update_flight_env(flight_id: str, env: EnvironmentModel) -> FlightUpdated:
+@router.put("/{flight_id}/environment")
+async def update_flight_environment(flight_id: str, environment: EnvironmentModel) -> FlightUpdated:
     """
     Updates flight environment
 
     ## Args
     ```
         flight_id: Flight ID
-        env: env object as JSON
+        environment: env object as JSON
     ```
     """
-    with tracer.start_as_current_span("update_flight_env"):
+    with tracer.start_as_current_span("update_flight_environment"):
         controller = FlightController()
-        return await controller.update_env_by_flight_id(
-            flight_id, env=env
+        return await controller.update_environment_by_flight_id(
+            flight_id, environment=environment
         )
 
 
