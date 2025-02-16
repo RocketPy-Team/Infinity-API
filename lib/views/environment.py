@@ -6,6 +6,7 @@ from lib.utils import AnyToPrimitive
 
 
 class EnvironmentSimulation(ApiBaseView):
+    message: str = "Environment successfully simulated"
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     elevation: Optional[float] = 1

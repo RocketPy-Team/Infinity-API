@@ -33,8 +33,10 @@ class RocketController(ControllerInterface):
         Raises:
             HTTP 404 Not Found: If the rocket is not found in the database.
         """
-        rocket = await self.get_rocket_by_id(rocket_id)
-        rocket_service = RocketService.from_rocket_model(rocket)
+        rocket_retrieved = await self.get_rocket_by_id(rocket_id)
+        rocket_service = RocketService.from_rocket_model(
+            rocket_retrieved.rocket
+        )
         return rocket_service.get_rocket_binary()
 
     @controller_exception_handler
@@ -54,6 +56,8 @@ class RocketController(ControllerInterface):
         Raises:
             HTTP 404 Not Found: If the rocket does not exist in the database.
         """
-        rocket = await self.get_rocket_by_id(rocket_id)
-        rocket_service = RocketService.from_rocket_model(rocket)
+        rocket_retrieved = await self.get_rocket_by_id(rocket_id)
+        rocket_service = RocketService.from_rocket_model(
+            rocket_retrieved.rocket
+        )
         return rocket_service.get_rocket_simulation()

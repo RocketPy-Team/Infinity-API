@@ -7,6 +7,7 @@ from lib.utils import AnyToPrimitive
 
 
 class FlightSimulation(RocketSimulation, EnvironmentSimulation):
+    message: str = "Flight successfully simulated"
     name: Optional[str] = None
     max_time: Optional[int] = None
     min_time_step: Optional[int] = None

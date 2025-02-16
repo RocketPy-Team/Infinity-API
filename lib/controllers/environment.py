@@ -20,7 +20,7 @@ class EnvironmentController(ControllerInterface):
         super().__init__(models=[EnvironmentModel])
 
     @controller_exception_handler
-    async def get_rocketpy_env_binary(
+    async def get_rocketpy_environment_binary(
         self,
         env_id: str,
     ) -> bytes:
@@ -36,8 +36,10 @@ class EnvironmentController(ControllerInterface):
         Raises:
             HTTP 404 Not Found: If the env is not found in the database.
         """
-        env = await self.get_environment_by_id(env_id)
-        env_service = EnvironmentService.from_env_model(env)
+        env_retrieved = await self.get_environment_by_id(env_id)
+        env_service = EnvironmentService.from_env_model(
+            env_retrieved.environment
+        )
         return env_service.get_environment_binary()
 
     @controller_exception_handler
@@ -56,6 +58,8 @@ class EnvironmentController(ControllerInterface):
         Raises:
             HTTP 404 Not Found: If the env does not exist in the database.
         """
-        env = await self.get_environment_by_id(env_id)
-        env_service = EnvironmentService.from_env_model(env)
+        env_retrieved = await self.get_environment_by_id(env_id)
+        env_service = EnvironmentService.from_env_model(
+            env_retrieved.environment
+        )
         return env_service.get_environment_simulation()

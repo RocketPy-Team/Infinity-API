@@ -36,8 +36,8 @@ class MotorController(ControllerInterface):
         Raises:
             HTTP 404 Not Found: If the motor is not found in the database.
         """
-        motor = await self.get_motor_by_id(motor_id)
-        motor_service = MotorService.from_motor_model(motor)
+        motor_retrieved = await self.get_motor_by_id(motor_id)
+        motor_service = MotorService.from_motor_model(motor_retrieved.motor)
         return motor_service.get_motor_binary()
 
     @controller_exception_handler
@@ -54,6 +54,6 @@ class MotorController(ControllerInterface):
         Raises:
             HTTP 404 Not Found: If the motor does not exist in the database.
         """
-        motor = await self.get_motor_by_id(motor_id)
-        motor_service = MotorService.from_motor_model(motor)
+        motor_retrieved = await self.get_motor_by_id(motor_id)
+        motor_service = MotorService.from_motor_model(motor_retrieved.motor)
         return motor_service.get_motor_simulation()
