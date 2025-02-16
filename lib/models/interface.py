@@ -7,6 +7,7 @@ from bson import ObjectId
 class ApiBaseModel(BaseModel, ABC):
     _id: Optional[ObjectId] = PrivateAttr(default=None)
     model_config = ConfigDict(
+        extra="allow",
         json_encoders={ObjectId: str},
         use_enum_values=True,
         validate_default=True,
