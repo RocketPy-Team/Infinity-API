@@ -4,13 +4,11 @@ from pydantic import (
     BaseModel,
     PrivateAttr,
     ConfigDict,
-    model_validator,
 )
-from bson import ObjectId
 
 
 class ApiBaseModel(BaseModel, ABC):
-    _id: Optional[ObjectId] = PrivateAttr(default=None)
+    _id: Optional[str] = PrivateAttr(default=None)
     model_config = ConfigDict(
         extra="allow",
         use_enum_values=True,
@@ -24,17 +22,6 @@ class ApiBaseModel(BaseModel, ABC):
 
     def get_id(self):
         return self._id
-
-    @model_validator(mode='after')
-    def validate_computed_id(self):
-        """Validate _id after model instantiation"""
-        if self._id is not None:
-            if not isinstance(self._id, ObjectId):
-                try:
-                    self._id = ObjectId(str(self._id))
-                except Exception as e:
-                    raise ValueError(f"Invalid ObjectId: {e}")
-        return self
 
     @property
     @abstractmethod
