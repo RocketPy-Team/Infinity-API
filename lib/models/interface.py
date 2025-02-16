@@ -10,7 +10,6 @@ from pydantic import (
 class ApiBaseModel(BaseModel, ABC):
     _id: Optional[str] = PrivateAttr(default=None)
     model_config = ConfigDict(
-        extra="allow",
         use_enum_values=True,
         validate_default=True,
         validate_all_in_root=True,

@@ -6,6 +6,7 @@ from lib.utils import AnyToPrimitive
 
 
 class MotorSimulation(BaseModel):
+    message: str = "Motor successfully simulated"
     average_thrust: Optional[float] = None
     burn_duration: Optional[float] = None
     burn_out_time: Optional[float] = None

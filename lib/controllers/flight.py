@@ -82,8 +82,10 @@ class FlightController(ControllerInterface):
         Raises:
             HTTP 404 Not Found: If the flight is not found in the database.
         """
-        flight = await self.get_flight_by_id(flight_id)
-        flight_service = FlightService.from_flight_model(flight)
+        flight_retrieved = await self.get_flight_by_id(flight_id)
+        flight_service = FlightService.from_flight_model(
+            flight_retrieved.flight
+        )
         return flight_service.get_flight_binary()
 
     @controller_exception_handler
@@ -103,6 +105,8 @@ class FlightController(ControllerInterface):
         Raises:
             HTTP 404 Not Found: If the flight does not exist in the database.
         """
-        flight = await self.get_flight_by_id(flight_id=flight_id)
-        flight_service = FlightService.from_flight_model(flight)
+        flight_retrieved = await self.get_flight_by_id(flight_id=flight_id)
+        flight_service = FlightService.from_flight_model(
+            flight_retrieved.flight
+        )
         return flight_service.get_flight_simmulation()

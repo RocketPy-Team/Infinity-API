@@ -6,6 +6,7 @@ from lib.utils import AnyToPrimitive
 
 
 class RocketSimulation(MotorSimulation):
+    message: str = "Rocket successfully simulated"
     area: Optional[float] = None
     coordinate_system_orientation: str = 'tail_to_nose'
     center_of_mass_without_motor: Optional[float] = None
