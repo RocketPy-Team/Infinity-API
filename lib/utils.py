@@ -95,7 +95,7 @@ class GZipResponder:
             self.started = True
             body = message.get("body", b"")
             more_body = message.get("more_body", False)
-            if len(body) < (self.minimum_size and not more_body) or any(
+            if (len(body) < (self.minimum_size and not more_body)) or any(
                 value == b'application/octet-stream'
                 for header, value in self.initial_message["headers"]
             ):
