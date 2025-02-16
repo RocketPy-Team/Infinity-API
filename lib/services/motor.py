@@ -16,8 +16,8 @@ from rocketpy import (
 )
 
 from lib.models.sub.tanks import TankKinds
-from lib.models.motor import MotorKinds
-from lib.views.motor import MotorSummary, MotorView
+from lib.models.motor import MotorKinds, MotorModel
+from lib.views.motor import MotorSummary
 
 
 class MotorService:
@@ -27,7 +27,7 @@ class MotorService:
         self._motor = motor
 
     @classmethod
-    def from_motor_model(cls, motor: MotorView) -> Self:
+    def from_motor_model(cls, motor: MotorModel) -> Self:
         """
         Get the rocketpy motor object.
 

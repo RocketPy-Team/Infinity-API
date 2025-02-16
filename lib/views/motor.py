@@ -73,7 +73,7 @@ class MotorSummary(BaseModel):
 
 class MotorView(MotorModel):
     motor_id: Optional[str] = None
-    selected_motor_kind: MotorKinds
+    selected_motor_kind: str
 
 
 class MotorCreated(ApiBaseView):

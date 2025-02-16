@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import Optional, Tuple, List, Union, Self, ClassVar, Literal
-from pydantic import PrivateAttr, model_validator
+from pydantic import PrivateAttr, model_validator, computed_field
 
 from lib.models.interface import ApiBaseModel
 from lib.models.sub.tanks import MotorTank
@@ -65,9 +65,10 @@ class MotorModel(ApiBaseModel):
             raise ValueError("Tanks must be provided for liquid and hybrid motors.")
         return self
 
+    @computed_field
     @property
-    def motor_kind(self) -> MotorKinds:
-        return self._motor_kind
+    def selected_motor_kind(self) -> str:
+        return self._motor_kind.value
 
     def set_motor_kind(self, motor_kind: MotorKinds):
         self._motor_kind = motor_kind
