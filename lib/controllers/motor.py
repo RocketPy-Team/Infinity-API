@@ -2,7 +2,7 @@ from lib.controllers.interface import (
     ControllerInterface,
     controller_exception_handler,
 )
-from lib.views.motor import MotorSummary
+from lib.views.motor import MotorSimulation
 from lib.models.motor import MotorModel
 from lib.services.motor import MotorService
 
@@ -41,9 +41,7 @@ class MotorController(ControllerInterface):
         return motor_service.get_motor_binary()
 
     @controller_exception_handler
-    async def simulate_motor(
-        self, motor_id: str
-    ) -> MotorSummary:
+    async def get_motor_simulation(self, motor_id: str) -> MotorSimulation:
         """
         Simulate a rocketpy motor.
 
@@ -51,11 +49,11 @@ class MotorController(ControllerInterface):
             motor_id: str
 
         Returns:
-            views.MotorSummary
+            views.MotorSimulation
 
         Raises:
             HTTP 404 Not Found: If the motor does not exist in the database.
         """
         motor = await self.get_motor_by_id(motor_id)
         motor_service = MotorService.from_motor_model(motor)
-        return motor_service.get_motor_summary()
+        return motor_service.get_motor_simulation()

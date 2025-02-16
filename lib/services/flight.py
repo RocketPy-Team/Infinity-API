@@ -8,7 +8,7 @@ from rocketpy.utilities import get_instance_attributes
 from lib.services.environment import EnvironmentService
 from lib.services.rocket import RocketService
 from lib.models.flight import FlightModel
-from lib.views.flight import FlightSummary
+from lib.views.flight import FlightSimulation
 
 
 class FlightService:
@@ -48,16 +48,16 @@ class FlightService:
     def flight(self, flight: RocketPyFlight):
         self._flight = flight
 
-    def get_flight_summary(self) -> FlightSummary:
+    def get_flight_simulation(self) -> FlightSimulation:
         """
-        Get the summary of the flight.
+        Get the simulation of the flight.
 
         Returns:
-            FlightSummary
+            FlightSimulation
         """
         attributes = get_instance_attributes(self.flight)
-        flight_summary = FlightSummary(**attributes)
-        return flight_summary
+        flight_simulation = FlightSimulation(**attributes)
+        return flight_simulation
 
     def get_flight_binary(self) -> bytes:
         """

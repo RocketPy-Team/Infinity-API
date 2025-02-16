@@ -2,7 +2,7 @@ from lib.controllers.interface import (
     ControllerInterface,
     controller_exception_handler,
 )
-from lib.views.flight import FlightSummary, FlightUpdated
+from lib.views.flight import FlightSimulation, FlightUpdated
 from lib.models.flight import FlightModel
 from lib.models.environment import EnvironmentModel
 from lib.models.rocket import RocketModel
@@ -87,10 +87,10 @@ class FlightController(ControllerInterface):
         return flight_service.get_flight_binary()
 
     @controller_exception_handler
-    async def simulate_flight(
+    async def get_flight_simulation(
         self,
         flight_id: str,
-    ) -> FlightSummary:
+    ) -> FlightSimulation:
         """
         Simulate a rocket flight.
 
@@ -98,11 +98,11 @@ class FlightController(ControllerInterface):
             flight_id: str
 
         Returns:
-            Flight summary view.
+            Flight simulation view.
 
         Raises:
             HTTP 404 Not Found: If the flight does not exist in the database.
         """
         flight = await self.get_flight_by_id(flight_id=flight_id)
         flight_service = FlightService.from_flight_model(flight)
-        return flight_service.get_flight_summary()
+        return flight_service.get_flight_simmulation()

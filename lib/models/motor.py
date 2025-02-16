@@ -48,8 +48,12 @@ class MotorModel(ApiBaseModel):
     throat_radius: Optional[float] = None
 
     # Optional parameters
-    interpolation_method: Literal['linear', 'spline', 'akima', 'polynomial', 'shepard', 'rbf'] = 'linear'
-    coordinate_system_orientation: Literal['nozzle_to_combustion_chamber', 'combustion_chamber_to_nozzle'] = 'nose_to_combustion_chamber'
+    interpolation_method: Literal[
+        'linear', 'spline', 'akima', 'polynomial', 'shepard', 'rbf'
+    ] = 'linear'
+    coordinate_system_orientation: Literal[
+        'nozzle_to_combustion_chamber', 'combustion_chamber_to_nozzle'
+    ] = 'nozzle_to_combustion_chamber'
     reshape_thrust_curve: Union[bool, tuple] = False
 
     # Computed parameters
@@ -62,7 +66,9 @@ class MotorModel(ApiBaseModel):
             self._motor_kind not in (MotorKinds.SOLID, MotorKinds.GENERIC)
             and self.tanks is None
         ):
-            raise ValueError("Tanks must be provided for liquid and hybrid motors.")
+            raise ValueError(
+                "Tanks must be provided for liquid and hybrid motors."
+            )
         return self
 
     @computed_field

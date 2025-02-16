@@ -6,7 +6,7 @@ from fastapi import APIRouter, Response
 from opentelemetry import trace
 
 from lib.views.flight import (
-    FlightSummary,
+    FlightSimulation,
     FlightCreated,
     FlightRetrieved,
     FlightUpdated,
@@ -32,7 +32,9 @@ tracer = trace.get_tracer(__name__)
 
 
 @router.post("/")
-async def create_flight(flight: FlightModel, motor_kind: MotorKinds) -> FlightCreated:
+async def create_flight(
+    flight: FlightModel, motor_kind: MotorKinds
+) -> FlightCreated:
     """
     Creates a new flight
 
@@ -59,7 +61,9 @@ async def read_flight(flight_id: str) -> FlightRetrieved:
 
 
 @router.put("/{flight_id}")
-async def update_flight(flight_id: str, flight: FlightModel, motor_kind: MotorKinds) -> FlightUpdated:
+async def update_flight(
+    flight_id: str, flight: FlightModel, motor_kind: MotorKinds
+) -> FlightUpdated:
     """
     Updates an existing flight
 
@@ -122,7 +126,9 @@ async def get_rocketpy_flight_binary(flight_id: str):
 
 
 @router.put("/{flight_id}/environment")
-async def update_flight_environment(flight_id: str, environment: EnvironmentModel) -> FlightUpdated:
+async def update_flight_environment(
+    flight_id: str, environment: EnvironmentModel
+) -> FlightUpdated:
     """
     Updates flight environment
 
@@ -163,14 +169,14 @@ async def update_flight_rocket(
         )
 
 
-@router.get("/{flight_id}/summary")
-async def simulate_flight(flight_id: str) -> FlightSummary:
+@router.get("/{flight_id}/simulate")
+async def get_flight_simulation(flight_id: str) -> FlightSimulation:
     """
     Simulates a flight
 
     ## Args
     ``` flight_id: Flight ID ```
     """
-    with tracer.start_as_current_span("simulate_flight"):
+    with tracer.start_as_current_span("get_flight_simulation"):
         controller = FlightController()
-        return await controller.simulate_flight(flight_id)
+        return await controller.get_flight_simulation(flight_id)

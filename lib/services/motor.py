@@ -17,7 +17,7 @@ from rocketpy import (
 
 from lib.models.sub.tanks import TankKinds
 from lib.models.motor import MotorKinds, MotorModel
-from lib.views.motor import MotorSummary
+from lib.views.motor import MotorSimulation
 
 
 class MotorService:
@@ -133,16 +133,16 @@ class MotorService:
     def motor(self, motor: RocketPyMotor):
         self._motor = motor
 
-    def get_motor_summary(self) -> MotorSummary:
+    def get_motor_simulation(self) -> MotorSimulation:
         """
-        Get the summary of the motor.
+        Get the simulation of the motor.
 
         Returns:
-            MotorSummary
+            MotorSimulation
         """
         attributes = get_instance_attributes(self.motor)
-        motor_summary = MotorSummary(**attributes)
-        return motor_summary
+        motor_simulation = MotorSimulation(**attributes)
+        return motor_simulation
 
     def get_motor_binary(self) -> bytes:
         """

@@ -2,7 +2,7 @@ from lib.controllers.interface import (
     ControllerInterface,
     controller_exception_handler,
 )
-from lib.views.rocket import RocketSummary
+from lib.views.rocket import RocketSimulation
 from lib.models.rocket import RocketModel
 from lib.services.rocket import RocketService
 
@@ -20,9 +20,7 @@ class RocketController(ControllerInterface):
         super().__init__(models=[RocketModel])
 
     @controller_exception_handler
-    async def get_rocketpy_rocket_binary(
-        self, rocket_id: str
-    ) -> bytes:
+    async def get_rocketpy_rocket_binary(self, rocket_id: str) -> bytes:
         """
         Get a rocketpy.Rocket object as dill binary.
 
@@ -40,10 +38,10 @@ class RocketController(ControllerInterface):
         return rocket_service.get_rocket_binary()
 
     @controller_exception_handler
-    async def simulate_rocket(
+    async def get_rocket_simulation(
         self,
         rocket_id: str,
-    ) -> RocketSummary:
+    ) -> RocketSimulation:
         """
         Simulate a rocketpy rocket.
 
@@ -51,11 +49,11 @@ class RocketController(ControllerInterface):
             rocket_id: str
 
         Returns:
-            views.RocketSummary
+            views.RocketSimulation
 
         Raises:
             HTTP 404 Not Found: If the rocket does not exist in the database.
         """
         rocket = await self.get_rocket_by_id(rocket_id)
         rocket_service = RocketService.from_rocket_model(rocket)
-        return rocket_service.get_rocket_summary()
+        return rocket_service.get_rocket_simulation()

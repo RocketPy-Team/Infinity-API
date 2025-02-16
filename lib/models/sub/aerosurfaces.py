@@ -39,7 +39,9 @@ class Fins(BaseModel):
     tip_chord: Optional[float] = None
     cant_angle: Optional[float] = None
     rocket_radius: Optional[float] = None
-    airfoil: Optional[Tuple[List[Tuple[float, float]], Literal['radians', 'degrees']]] = None
+    airfoil: Optional[
+        Tuple[List[Tuple[float, float]], Literal['radians', 'degrees']]
+    ] = None
 
     def get_additional_parameters(self):
         return {

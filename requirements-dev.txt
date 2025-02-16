@@ -4,3 +4,4 @@ pylint
 ruff
 pytest
 httpx
+black
