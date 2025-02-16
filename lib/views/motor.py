@@ -1,7 +1,7 @@
 from typing import List, Any, Optional
 from pydantic import BaseModel, ConfigDict
 from lib.views.interface import ApiBaseView
-from lib.models.motor import MotorModel, MotorKinds
+from lib.models.motor import MotorModel
 from lib.utils import to_python_primitive
 
 

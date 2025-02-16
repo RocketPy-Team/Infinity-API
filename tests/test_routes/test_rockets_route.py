@@ -78,10 +78,10 @@ def mock_controller_instance():
         "lib.routes.rocket.RocketController", autospec=True
     ) as mock_controller:
         mock_controller_instance = mock_controller.return_value
-        mock_controller_instance.post_brecho = Mock()
-        mock_controller_instance.get_brecho_by_id = Mock()
-        mock_controller_instance.put_brecho_by_id = Mock()
-        mock_controller_instance.delete_brecho_by_id = Mock()
+        mock_controller_instance.post_rocket = Mock()
+        mock_controller_instance.get_rocket_by_id = Mock()
+        mock_controller_instance.put_rocket_by_id = Mock()
+        mock_controller_instance.delete_rocket_by_id = Mock()
         yield mock_controller_instance
 
 
