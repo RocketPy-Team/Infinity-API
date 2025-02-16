@@ -6,7 +6,7 @@ from fastapi import APIRouter, Response
 from opentelemetry import trace
 
 from lib.views.motor import (
-    MotorSummary,
+    MotorSimulation,
     MotorCreated,
     MotorRetrieved,
     MotorUpdated,
@@ -29,7 +29,9 @@ tracer = trace.get_tracer(__name__)
 
 
 @router.post("/")
-async def create_motor(motor: MotorModel, motor_kind: MotorKinds) -> MotorCreated:
+async def create_motor(
+    motor: MotorModel, motor_kind: MotorKinds
+) -> MotorCreated:
     """
     Creates a new motor
 
@@ -56,7 +58,9 @@ async def read_motor(motor_id: str) -> MotorRetrieved:
 
 
 @router.put("/{motor_id}")
-async def update_motor(motor_id: str, motor: MotorModel, motor_kind: MotorKinds) -> MotorUpdated:
+async def update_motor(
+    motor_id: str, motor: MotorModel, motor_kind: MotorKinds
+) -> MotorUpdated:
     """
     Updates an existing motor
 
@@ -118,14 +122,14 @@ async def get_rocketpy_motor_binary(motor_id: str):
         )
 
 
-@router.get("/{motor_id}/summary")
-async def simulate_motor(motor_id: str) -> MotorSummary:
+@router.get("/{motor_id}/simulate")
+async def get_motor_simulation(motor_id: str) -> MotorSimulation:
     """
     Simulates a motor
 
     ## Args
     ``` motor_id: Motor ID ```
     """
-    with tracer.start_as_current_span("simulate_motor"):
+    with tracer.start_as_current_span("get_motor_simulation"):
         controller = MotorController()
-        return await controller.simulate_motor(motor_id)
+        return await controller.get_motor_simulation(motor_id)

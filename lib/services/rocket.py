@@ -17,7 +17,7 @@ from lib import logger
 from lib.models.rocket import RocketModel, Parachute
 from lib.models.sub.aerosurfaces import NoseCone, Tail, Fins
 from lib.services.motor import MotorService
-from lib.views.rocket import RocketSummary
+from lib.views.rocket import RocketSimulation
 
 
 class RocketService:
@@ -100,16 +100,16 @@ class RocketService:
     def rocket(self, rocket: RocketPyRocket):
         self._rocket = rocket
 
-    def get_rocket_summary(self) -> RocketSummary:
+    def get_rocket_simulation(self) -> RocketSimulation:
         """
-        Get the summary of the rocket.
+        Get the simulation of the rocket.
 
         Returns:
-            RocketSummary
+            RocketSimulation
         """
         attributes = get_instance_attributes(self.rocket)
-        rocket_summary = RocketSummary(**attributes)
-        return rocket_summary
+        rocket_simulation = RocketSimulation(**attributes)
+        return rocket_simulation
 
     def get_rocket_binary(self) -> bytes:
         """

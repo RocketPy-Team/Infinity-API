@@ -5,7 +5,7 @@ import dill
 from rocketpy.environment.environment import Environment as RocketPyEnvironment
 from rocketpy.utilities import get_instance_attributes
 from lib.models.environment import EnvironmentModel
-from lib.views.environment import EnvironmentSummary
+from lib.views.environment import EnvironmentSimulation
 
 
 class EnvironmentService:
@@ -42,19 +42,19 @@ class EnvironmentService:
     def environment(self, environment: RocketPyEnvironment):
         self._environment = environment
 
-    def get_env_summary(self) -> EnvironmentSummary:
+    def get_environment_simulation(self) -> EnvironmentSimulation:
         """
-        Get the summary of the environment.
+        Get the simulation of the environment.
 
         Returns:
-            EnvironmentSummary
+            EnvironmentSimulation
         """
 
         attributes = get_instance_attributes(self.environment)
-        env_summary = EnvironmentSummary(**attributes)
-        return env_summary
+        env_simulation = EnvironmentSimulation(**attributes)
+        return env_simulation
 
-    def get_env_binary(self) -> bytes:
+    def get_environment_binary(self) -> bytes:
         """
         Get the binary representation of the environment.
 

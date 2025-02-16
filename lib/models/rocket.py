@@ -26,7 +26,9 @@ class RocketModel(ApiBaseModel):
     ] = (0, 0, 0)
     power_off_drag: List[Tuple[float, float]] = [(0, 0)]
     power_on_drag: List[Tuple[float, float]] = [(0, 0)]
-    coordinate_system_orientation: Literal['tail_to_nose', 'nose_to_tail'] = 'tail_to_nose'
+    coordinate_system_orientation: Literal['tail_to_nose', 'nose_to_tail'] = (
+        'tail_to_nose'
+    )
     nose: NoseCone
     fins: List[Fins]
 

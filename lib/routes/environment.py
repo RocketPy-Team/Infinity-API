@@ -6,7 +6,7 @@ from fastapi import APIRouter, Response
 from opentelemetry import trace
 
 from lib.views.environment import (
-    EnvironmentSummary,
+    EnvironmentSimulation,
     EnvironmentCreated,
     EnvironmentRetrieved,
     EnvironmentUpdated,
@@ -29,7 +29,9 @@ tracer = trace.get_tracer(__name__)
 
 
 @router.post("/")
-async def create_environment(environment: EnvironmentModel) -> EnvironmentCreated:
+async def create_environment(
+    environment: EnvironmentModel,
+) -> EnvironmentCreated:
     """
     Creates a new environment
 
@@ -55,7 +57,9 @@ async def read_environment(environment_id: str) -> EnvironmentRetrieved:
 
 
 @router.put("/{environment_id}")
-async def update_environment(environment_id: str, environment: EnvironmentModel) -> EnvironmentUpdated:
+async def update_environment(
+    environment_id: str, environment: EnvironmentModel
+) -> EnvironmentUpdated:
     """
     Updates an existing environment
 
@@ -67,7 +71,9 @@ async def update_environment(environment_id: str, environment: EnvironmentModel)
     """
     with tracer.start_as_current_span("update_becho"):
         controller = EnvironmentController()
-        return await controller.put_environment_by_id(environment_id, environment)
+        return await controller.put_environment_by_id(
+            environment_id, environment
+        )
 
 
 @router.delete("/{environment_id}")
@@ -107,7 +113,9 @@ async def get_rocketpy_environment_binary(environment_id: str):
             'Content-Disposition': f'attachment; filename="rocketpy_environment_{environment_id}.dill"'
         }
         controller = EnvironmentController()
-        binary = await controller.get_rocketpy_environment_binary(environment_id)
+        binary = await controller.get_rocketpy_environment_binary(
+            environment_id
+        )
         return Response(
             content=binary,
             headers=headers,
@@ -116,14 +124,16 @@ async def get_rocketpy_environment_binary(environment_id: str):
         )
 
 
-@router.get("/{environment_id}/summary")
-async def get_environment_simulation(environment_id: str) -> EnvironmentSummary:
+@router.get("/{environment_id}/simulate")
+async def get_environment_simulation(
+    environment_id: str,
+) -> EnvironmentSimulation:
     """
-    Loads rocketpy.environment simulation
+    Simulates an environment
 
     ## Args
-    ``` environment_id: str ```
+    ``` environment_id: Environment ID```
     """
     with tracer.start_as_current_span("get_environment_simulation"):
         controller = EnvironmentController()
-        return await controller.get_environment_summary(environment_id)
+        return await controller.get_environment_simulation(environment_id)

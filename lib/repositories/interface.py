@@ -40,9 +40,12 @@ def repository_exception_handler(method):
             return await method(self, *args, **kwargs)
         except PyMongoError as e:
             logger.exception(f"{method.__name__} - caught PyMongoError: {e}")
-            raise e from e
+            raise
         except RepositoryNotInitializedException as e:
-            raise e from e
+            logger.exception(
+                f"{method.__name__} - Repository not initialized: {e}"
+            )
+            raise
         except Exception as e:
             logger.exception(
                 f"{method.__name__} - caught unexpected error: {e}"

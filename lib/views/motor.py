@@ -1,11 +1,11 @@
-from typing import List, Any, Optional
-from pydantic import BaseModel, ConfigDict
+from typing import List, Optional
+from pydantic import BaseModel
 from lib.views.interface import ApiBaseView
 from lib.models.motor import MotorModel
-from lib.utils import to_python_primitive
+from lib.utils import AnyToPrimitive
 
 
-class MotorSummary(BaseModel):
+class MotorSimulation(BaseModel):
     average_thrust: Optional[float] = None
     burn_duration: Optional[float] = None
     burn_out_time: Optional[float] = None
@@ -39,41 +39,38 @@ class MotorSummary(BaseModel):
     throat_radius: Optional[float] = None
     thrust_source: Optional[List[List[float]]] = None
     total_impulse: Optional[float] = None
-    Kn: Optional[Any] = None
-    I_11: Optional[Any] = None
-    I_12: Optional[Any] = None
-    I_13: Optional[Any] = None
-    I_22: Optional[Any] = None
-    I_23: Optional[Any] = None
-    I_33: Optional[Any] = None
-    burn_area: Optional[Any] = None
-    burn_rate: Optional[Any] = None
-    burn_time: Optional[Any] = None
-    center_of_mass: Optional[Any] = None
-    center_of_propellant_mass: Optional[Any] = None
-    exhaust_velocity: Optional[Any] = None
-    grain_height: Optional[Any] = None
-    grain_volume: Optional[Any] = None
-    grain_inner_radius: Optional[Any] = None
-    mass_flow_rate: Optional[Any] = None
-    propellant_I_11: Optional[Any] = None
-    propellant_I_12: Optional[Any] = None
-    propellant_I_13: Optional[Any] = None
-    propellant_I_22: Optional[Any] = None
-    propellant_I_23: Optional[Any] = None
-    propellant_I_33: Optional[Any] = None
-    propellant_mass: Optional[Any] = None
-    reshape_thrust_curve: Optional[Any] = None
-    total_mass: Optional[Any] = None
-    total_mass_flow_rate: Optional[Any] = None
-    thrust: Optional[Any] = None
-
-    model_config = ConfigDict(json_encoders={Any: to_python_primitive})
+    Kn: Optional[AnyToPrimitive] = None
+    I_11: Optional[AnyToPrimitive] = None
+    I_12: Optional[AnyToPrimitive] = None
+    I_13: Optional[AnyToPrimitive] = None
+    I_22: Optional[AnyToPrimitive] = None
+    I_23: Optional[AnyToPrimitive] = None
+    I_33: Optional[AnyToPrimitive] = None
+    burn_area: Optional[AnyToPrimitive] = None
+    burn_rate: Optional[AnyToPrimitive] = None
+    burn_time: Optional[AnyToPrimitive] = None
+    center_of_mass: Optional[AnyToPrimitive] = None
+    center_of_propellant_mass: Optional[AnyToPrimitive] = None
+    exhaust_velocity: Optional[AnyToPrimitive] = None
+    grain_height: Optional[AnyToPrimitive] = None
+    grain_volume: Optional[AnyToPrimitive] = None
+    grain_inner_radius: Optional[AnyToPrimitive] = None
+    mass_flow_rate: Optional[AnyToPrimitive] = None
+    propellant_I_11: Optional[AnyToPrimitive] = None
+    propellant_I_12: Optional[AnyToPrimitive] = None
+    propellant_I_13: Optional[AnyToPrimitive] = None
+    propellant_I_22: Optional[AnyToPrimitive] = None
+    propellant_I_23: Optional[AnyToPrimitive] = None
+    propellant_I_33: Optional[AnyToPrimitive] = None
+    propellant_mass: Optional[AnyToPrimitive] = None
+    reshape_thrust_curve: Optional[AnyToPrimitive] = None
+    total_mass: Optional[AnyToPrimitive] = None
+    total_mass_flow_rate: Optional[AnyToPrimitive] = None
+    thrust: Optional[AnyToPrimitive] = None
 
 
 class MotorView(MotorModel):
     motor_id: Optional[str] = None
-    selected_motor_kind: str
 
 
 class MotorCreated(ApiBaseView):

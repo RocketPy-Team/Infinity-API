@@ -22,12 +22,18 @@ class EnvironmentRepository(RepositoryInterface):
         return await self.insert(environment.model_dump())
 
     @repository_exception_handler
-    async def read_environment_by_id(self, environment_id: str) -> Optional[EnvironmentModel]:
+    async def read_environment_by_id(
+        self, environment_id: str
+    ) -> Optional[EnvironmentModel]:
         return await self.find_by_id(data_id=environment_id)
 
     @repository_exception_handler
-    async def update_environment_by_id(self, environment_id: str, environment: EnvironmentModel):
-        await self.update_by_id(environment.model_dump(), data_id=environment_id)
+    async def update_environment_by_id(
+        self, environment_id: str, environment: EnvironmentModel
+    ):
+        await self.update_by_id(
+            environment.model_dump(), data_id=environment_id
+        )
 
     @repository_exception_handler
     async def delete_environment_by_id(self, environment_id: str):

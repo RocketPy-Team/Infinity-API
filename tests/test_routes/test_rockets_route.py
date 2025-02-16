@@ -18,7 +18,7 @@ from lib.views.rocket import (
     RocketUpdated,
     RocketRetrieved,
     RocketDeleted,
-    RocketSummary,
+    RocketSimulation,
     RocketView,
 )
 from lib import app
@@ -27,10 +27,10 @@ client = TestClient(app)
 
 
 @pytest.fixture
-def stub_rocket_summary_dump():
-    rocket_summary = RocketSummary()
-    rocket_summary_json = rocket_summary.model_dump_json()
-    return json.loads(rocket_summary_json)
+def stub_rocket_simulation_dump():
+    rocket_simulation = RocketSimulation()
+    rocket_simulation_json = rocket_simulation.model_dump_json()
+    return json.loads(rocket_simulation_json)
 
 
 @pytest.fixture
@@ -82,6 +82,8 @@ def mock_controller_instance():
         mock_controller_instance.get_rocket_by_id = Mock()
         mock_controller_instance.put_rocket_by_id = Mock()
         mock_controller_instance.delete_rocket_by_id = Mock()
+        mock_controller_instance.get_rocket_simulation = Mock()
+        mock_controller_instance.get_rocketpy_rocket_binary = Mock()
         yield mock_controller_instance
 
 
@@ -89,21 +91,28 @@ def test_create_rocket(stub_rocket_dump, mock_controller_instance):
     mock_response = AsyncMock(return_value=RocketCreated(rocket_id='123'))
     mock_controller_instance.post_rocket = mock_response
     with patch.object(
-            MotorModel, 'set_motor_kind', side_effect=None
+        MotorModel, 'set_motor_kind', side_effect=None
     ) as mock_set_motor_kind:
-        response = client.post('/rockets/', json=stub_rocket_dump, params={'motor_kind': 'HYBRID'})
+        response = client.post(
+            '/rockets/', json=stub_rocket_dump, params={'motor_kind': 'HYBRID'}
+        )
         assert response.status_code == 200
         assert response.json() == {
             'rocket_id': '123',
-            'message': 'rocket successfully created',
+            'message': 'Rocket successfully created',
         }
         mock_set_motor_kind.assert_called_once_with(MotorKinds.HYBRID)
         mock_controller_instance.post_rocket.assert_called_once_with(
-            RocketModel(**stub_rocket_dump))
+            RocketModel(**stub_rocket_dump)
+        )
 
 
 def test_create_rocket_optional_params(
-    stub_rocket_dump, stub_tail_dump, stub_rail_buttons_dump, stub_parachute_dump, mock_controller_instance
+    stub_rocket_dump,
+    stub_tail_dump,
+    stub_rail_buttons_dump,
+    stub_parachute_dump,
+    mock_controller_instance,
 ):
     stub_rocket_dump.update(
         {
@@ -115,7 +124,7 @@ def test_create_rocket_optional_params(
     mock_response = AsyncMock(return_value=RocketCreated(rocket_id='123'))
     mock_controller_instance.post_rocket = mock_response
     with patch.object(
-            MotorModel, 'set_motor_kind', side_effect=None
+        MotorModel, 'set_motor_kind', side_effect=None
     ) as mock_set_motor_kind:
         response = client.post(
             '/rockets/', json=stub_rocket_dump, params={'motor_kind': 'HYBRID'}
@@ -123,13 +132,17 @@ def test_create_rocket_optional_params(
         assert response.status_code == 200
         assert response.json() == {
             'rocket_id': '123',
-            'message': 'rocket successfully created',
+            'message': 'Rocket successfully created',
         }
         mock_set_motor_kind.assert_called_once_with(MotorKinds.HYBRID)
-        mock_controller_instance.post_rocket.assert_called_once_with(RocketModel(**stub_rocket_dump))
+        mock_controller_instance.post_rocket.assert_called_once_with(
+            RocketModel(**stub_rocket_dump)
+        )
 
 
-def test_create_generic_motor_rocket(stub_rocket_dump, stub_motor_dump, mock_controller_instance):
+def test_create_generic_motor_rocket(
+    stub_rocket_dump, stub_motor_dump, mock_controller_instance
+):
     stub_motor_dump.update(
         {
             'chamber_radius': 0,
@@ -143,29 +156,36 @@ def test_create_generic_motor_rocket(stub_rocket_dump, stub_motor_dump, mock_con
     mock_response = AsyncMock(return_value=RocketCreated(rocket_id='123'))
     mock_controller_instance.post_rocket = mock_response
     with patch.object(
-            MotorModel, 'set_motor_kind', side_effect=None
+        MotorModel, 'set_motor_kind', side_effect=None
     ) as mock_set_motor_kind:
         response = client.post(
-            '/rockets/', json=stub_rocket_dump, params={'motor_kind': 'GENERIC'}
+            '/rockets/',
+            json=stub_rocket_dump,
+            params={'motor_kind': 'GENERIC'},
         )
         assert response.status_code == 200
         assert response.json() == {
             'rocket_id': '123',
-            'message': 'rocket successfully created',
+            'message': 'Rocket successfully created',
         }
         mock_set_motor_kind.assert_called_once_with(MotorKinds.GENERIC)
-        mock_controller_instance.post_rocket.assert_called_once_with(RocketModel(**stub_rocket_dump))
+        mock_controller_instance.post_rocket.assert_called_once_with(
+            RocketModel(**stub_rocket_dump)
+        )
 
 
 def test_create_liquid_motor_level_tank_rocket(
-    stub_rocket_dump, stub_motor_dump, stub_level_tank_dump, mock_controller_instance
+    stub_rocket_dump,
+    stub_motor_dump,
+    stub_level_tank_dump,
+    mock_controller_instance,
 ):
     stub_motor_dump.update({'tanks': [stub_level_tank_dump]})
     stub_rocket_dump.update({'motor': stub_motor_dump})
     mock_response = AsyncMock(return_value=RocketCreated(rocket_id='123'))
     mock_controller_instance.post_rocket = mock_response
     with patch.object(
-            MotorModel, 'set_motor_kind', side_effect=None
+        MotorModel, 'set_motor_kind', side_effect=None
     ) as mock_set_motor_kind:
         response = client.post(
             '/rockets/', json=stub_rocket_dump, params={'motor_kind': 'LIQUID'}
@@ -173,21 +193,26 @@ def test_create_liquid_motor_level_tank_rocket(
         assert response.status_code == 200
         assert response.json() == {
             'rocket_id': '123',
-            'message': 'rocket successfully created',
+            'message': 'Rocket successfully created',
         }
         mock_set_motor_kind.assert_called_once_with(MotorKinds.LIQUID)
-        mock_controller_instance.post_rocket.assert_called_once_with(RocketModel(**stub_rocket_dump))
+        mock_controller_instance.post_rocket.assert_called_once_with(
+            RocketModel(**stub_rocket_dump)
+        )
 
 
 def test_create_liquid_motor_mass_flow_tank_rocket(
-    stub_rocket_dump, stub_motor_dump, stub_mass_flow_tank_dump, mock_controller_instance
+    stub_rocket_dump,
+    stub_motor_dump,
+    stub_mass_flow_tank_dump,
+    mock_controller_instance,
 ):
     stub_motor_dump.update({'tanks': [stub_mass_flow_tank_dump]})
     stub_rocket_dump.update({'motor': stub_motor_dump})
     mock_response = AsyncMock(return_value=RocketCreated(rocket_id='123'))
     mock_controller_instance.post_rocket = mock_response
     with patch.object(
-            MotorModel, 'set_motor_kind', side_effect=None
+        MotorModel, 'set_motor_kind', side_effect=None
     ) as mock_set_motor_kind:
         response = client.post(
             '/rockets/', json=stub_rocket_dump, params={'motor_kind': 'LIQUID'}
@@ -195,21 +220,26 @@ def test_create_liquid_motor_mass_flow_tank_rocket(
         assert response.status_code == 200
         assert response.json() == {
             'rocket_id': '123',
-            'message': 'rocket successfully created',
+            'message': 'Rocket successfully created',
         }
         mock_set_motor_kind.assert_called_once_with(MotorKinds.LIQUID)
-        mock_controller_instance.post_rocket.assert_called_once_with(RocketModel(**stub_rocket_dump))
+        mock_controller_instance.post_rocket.assert_called_once_with(
+            RocketModel(**stub_rocket_dump)
+        )
 
 
 def test_create_liquid_motor_ullage_tank_rocket(
-    stub_rocket_dump, stub_motor_dump, stub_ullage_tank_dump, mock_controller_instance
+    stub_rocket_dump,
+    stub_motor_dump,
+    stub_ullage_tank_dump,
+    mock_controller_instance,
 ):
     stub_motor_dump.update({'tanks': [stub_ullage_tank_dump]})
     stub_rocket_dump.update({'motor': stub_motor_dump})
     mock_response = AsyncMock(return_value=RocketCreated(rocket_id='123'))
     mock_controller_instance.post_rocket = mock_response
     with patch.object(
-            MotorModel, 'set_motor_kind', side_effect=None
+        MotorModel, 'set_motor_kind', side_effect=None
     ) as mock_set_motor_kind:
         response = client.post(
             '/rockets/', json=stub_rocket_dump, params={'motor_kind': 'LIQUID'}
@@ -217,21 +247,26 @@ def test_create_liquid_motor_ullage_tank_rocket(
         assert response.status_code == 200
         assert response.json() == {
             'rocket_id': '123',
-            'message': 'rocket successfully created',
+            'message': 'Rocket successfully created',
         }
         mock_set_motor_kind.assert_called_once_with(MotorKinds.LIQUID)
-        mock_controller_instance.post_rocket.assert_called_once_with(RocketModel(**stub_rocket_dump))
+        mock_controller_instance.post_rocket.assert_called_once_with(
+            RocketModel(**stub_rocket_dump)
+        )
 
 
 def test_create_liquid_motor_mass_tank_rocket(
-    stub_rocket_dump, stub_motor_dump, stub_mass_tank_dump, mock_controller_instance
+    stub_rocket_dump,
+    stub_motor_dump,
+    stub_mass_tank_dump,
+    mock_controller_instance,
 ):
     stub_motor_dump.update({'tanks': [stub_mass_tank_dump]})
     stub_rocket_dump.update({'motor': stub_motor_dump})
     mock_response = AsyncMock(return_value=RocketCreated(rocket_id='123'))
     mock_controller_instance.post_rocket = mock_response
     with patch.object(
-            MotorModel, 'set_motor_kind', side_effect=None
+        MotorModel, 'set_motor_kind', side_effect=None
     ) as mock_set_motor_kind:
         response = client.post(
             '/rockets/', json=stub_rocket_dump, params={'motor_kind': 'LIQUID'}
@@ -239,13 +274,20 @@ def test_create_liquid_motor_mass_tank_rocket(
         assert response.status_code == 200
         assert response.json() == {
             'rocket_id': '123',
-            'message': 'rocket successfully created',
+            'message': 'Rocket successfully created',
         }
         mock_set_motor_kind.assert_called_once_with(MotorKinds.LIQUID)
-        mock_controller_instance.post_rocket.assert_called_once_with(RocketModel(**stub_rocket_dump))
+        mock_controller_instance.post_rocket.assert_called_once_with(
+            RocketModel(**stub_rocket_dump)
+        )
 
 
-def test_create_hybrid_motor_rocket(stub_rocket_dump, stub_motor_dump, stub_level_tank_dump, mock_controller_instance):
+def test_create_hybrid_motor_rocket(
+    stub_rocket_dump,
+    stub_motor_dump,
+    stub_level_tank_dump,
+    mock_controller_instance,
+):
     stub_motor_dump.update(
         {
             'grain_number': 0,
@@ -263,7 +305,7 @@ def test_create_hybrid_motor_rocket(stub_rocket_dump, stub_motor_dump, stub_leve
     mock_response = AsyncMock(return_value=RocketCreated(rocket_id='123'))
     mock_controller_instance.post_rocket = mock_response
     with patch.object(
-            MotorModel, 'set_motor_kind', side_effect=None
+        MotorModel, 'set_motor_kind', side_effect=None
     ) as mock_set_motor_kind:
         response = client.post(
             '/rockets/', json=stub_rocket_dump, params={'motor_kind': 'HYBRID'}
@@ -271,13 +313,17 @@ def test_create_hybrid_motor_rocket(stub_rocket_dump, stub_motor_dump, stub_leve
         assert response.status_code == 200
         assert response.json() == {
             'rocket_id': '123',
-            'message': 'rocket successfully created',
+            'message': 'Rocket successfully created',
         }
         mock_set_motor_kind.assert_called_once_with(MotorKinds.HYBRID)
-        mock_controller_instance.post_rocket.assert_called_once_with(RocketModel(**stub_rocket_dump))
+        mock_controller_instance.post_rocket.assert_called_once_with(
+            RocketModel(**stub_rocket_dump)
+        )
 
 
-def test_create_solid_motor_rocket(stub_rocket_dump, stub_motor_dump, mock_controller_instance):
+def test_create_solid_motor_rocket(
+    stub_rocket_dump, stub_motor_dump, mock_controller_instance
+):
     stub_motor_dump.update(
         {
             'grain_number': 0,
@@ -293,7 +339,7 @@ def test_create_solid_motor_rocket(stub_rocket_dump, stub_motor_dump, mock_contr
     mock_response = AsyncMock(return_value=RocketCreated(rocket_id='123'))
     mock_controller_instance.post_rocket = mock_response
     with patch.object(
-            MotorModel, 'set_motor_kind', side_effect=None
+        MotorModel, 'set_motor_kind', side_effect=None
     ) as mock_set_motor_kind:
         response = client.post(
             '/rockets/', json=stub_rocket_dump, params={'motor_kind': 'SOLID'}
@@ -301,10 +347,12 @@ def test_create_solid_motor_rocket(stub_rocket_dump, stub_motor_dump, mock_contr
         assert response.status_code == 200
         assert response.json() == {
             'rocket_id': '123',
-            'message': 'rocket successfully created',
+            'message': 'Rocket successfully created',
         }
         mock_set_motor_kind.assert_called_once_with(MotorKinds.SOLID)
-        mock_controller_instance.post_rocket.assert_called_once_with(RocketModel(**stub_rocket_dump))
+        mock_controller_instance.post_rocket.assert_called_once_with(
+            RocketModel(**stub_rocket_dump)
+        )
 
 
 def test_create_rocket_invalid_input():
@@ -312,7 +360,9 @@ def test_create_rocket_invalid_input():
     assert response.status_code == 422
 
 
-def test_create_rocket_server_error(stub_rocket_dump, mock_controller_instance):
+def test_create_rocket_server_error(
+    stub_rocket_dump, mock_controller_instance
+):
     mock_controller_instance.post_rocket.side_effect = HTTPException(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
     )
@@ -323,16 +373,18 @@ def test_create_rocket_server_error(stub_rocket_dump, mock_controller_instance):
     assert response.json() == {'detail': 'Internal Server Error'}
 
 
-def test_read_rocket(stub_rocket_dump, stub_motor_dump, mock_controller_instance):
+def test_read_rocket(
+    stub_rocket_dump, stub_motor_dump, mock_controller_instance
+):
     stub_rocket_dump.update({'motor': stub_motor_dump})
-    stub_rocket_out = RocketView(rocket_id='123', **stub_rocket_dump)
-    mock_response = AsyncMock(return_value=RocketRetrieved(rocket=stub_rocket_out))
+    rocket_view = RocketView(rocket_id='123', **stub_rocket_dump)
+    mock_response = AsyncMock(return_value=RocketRetrieved(rocket=rocket_view))
     mock_controller_instance.get_rocket_by_id = mock_response
     response = client.get('/rockets/123')
     assert response.status_code == 200
     assert response.json() == {
-        'message': 'rocket successfully retrieved',
-        'rocket': json.loads(stub_rocket_out.model_dump_json()),
+        'message': 'Rocket successfully retrieved',
+        'rocket': json.loads(rocket_view.model_dump_json()),
     }
     mock_controller_instance.get_rocket_by_id.assert_called_once_with('123')
 
@@ -359,7 +411,7 @@ def test_update_rocket(stub_rocket_dump, mock_controller_instance):
     mock_response = AsyncMock(return_value=RocketUpdated(rocket_id='123'))
     mock_controller_instance.put_rocket_by_id = mock_response
     with patch.object(
-            MotorModel, 'set_motor_kind', side_effect=None
+        MotorModel, 'set_motor_kind', side_effect=None
     ) as mock_set_motor_kind:
         response = client.put(
             '/rockets/123',
@@ -368,11 +420,12 @@ def test_update_rocket(stub_rocket_dump, mock_controller_instance):
         )
         assert response.status_code == 200
         assert response.json() == {
-            'rocket_id': '123',
             'message': 'Rocket successfully updated',
         }
         mock_set_motor_kind.assert_called_once_with(MotorKinds.HYBRID)
-        mock_controller_instance.put_rocket_by_id.assert_called_once_with('123', RocketModel(**stub_rocket_dump))
+        mock_controller_instance.put_rocket_by_id.assert_called_once_with(
+            '123', RocketModel(**stub_rocket_dump)
+        )
 
 
 def test_update_rocket_invalid_input():
@@ -397,7 +450,9 @@ def test_update_rocket_not_found(stub_rocket_dump, mock_controller_instance):
     assert response.json() == {'detail': 'Not Found'}
 
 
-def test_update_rocket_server_error(stub_rocket_dump, mock_controller_instance):
+def test_update_rocket_server_error(
+    stub_rocket_dump, mock_controller_instance
+):
     mock_controller_instance.put_rocket_by_id.side_effect = HTTPException(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
     )
@@ -416,7 +471,6 @@ def test_delete_rocket(mock_controller_instance):
     response = client.delete('/rockets/123')
     assert response.status_code == 200
     assert response.json() == {
-        'rocket_id': '123',
         'message': 'Rocket successfully deleted',
     }
     mock_controller_instance.delete_rocket_by_id.assert_called_once_with('123')
@@ -431,45 +485,54 @@ def test_delete_rocket_server_error(mock_controller_instance):
     assert response.json() == {'detail': 'Internal Server Error'}
 
 
-def test_simulate_rocket(stub_rocket_summary_dump, mock_controller_instance):
-    mock_response = AsyncMock(return_value=RocketSummary(**stub_rocket_summary_dump))
-    mock_controller_instance.simulate_rocket = mock_response
-    response = client.get('/rockets/123/summary')
+def test_get_rocket_simulation(
+    stub_rocket_simulation_dump, mock_controller_instance
+):
+    mock_response = AsyncMock(
+        return_value=RocketSimulation(**stub_rocket_simulation_dump)
+    )
+    mock_controller_instance.get_rocket_simulation = mock_response
+    response = client.get('/rockets/123/simulate')
     assert response.status_code == 200
-    assert response.json() == stub_rocket_summary_dump
-    mock_controller_instance.simulate_rocket.assert_called_once_with('123')
+    assert response.json() == stub_rocket_simulation_dump
+    mock_controller_instance.get_rocket_simulation.assert_called_once_with(
+        '123'
+    )
 
 
-def test_simulate_rocket_not_found(mock_controller_instance):
-    mock_controller_instance.simulate_rocket.side_effect = HTTPException(
+def test_get_rocket_simulation_not_found(mock_controller_instance):
+    mock_controller_instance.get_rocket_simulation.side_effect = HTTPException(
         status_code=status.HTTP_404_NOT_FOUND
     )
-    response = client.get('/rockets/123/summary')
+    response = client.get('/rockets/123/simulate')
     assert response.status_code == 404
     assert response.json() == {'detail': 'Not Found'}
 
 
-def test_simulate_rocket_server_error(mock_controller_instance):
-    mock_controller_instance.simulate_rocket.side_effect = HTTPException(
+def test_get_rocket_simulation_server_error(mock_controller_instance):
+    mock_controller_instance.get_rocket_simulation.side_effect = HTTPException(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
     )
-    response = client.get('/rockets/123/summary')
+    response = client.get('/rockets/123/simulate')
     assert response.status_code == 500
     assert response.json() == {'detail': 'Internal Server Error'}
 
 
 def test_read_rocketpy_rocket_binary(mock_controller_instance):
-    mock_controller_instance.get_rocketpy_rocket_binary.return_value = b'rocketpy'
+    mock_response = AsyncMock(return_value=b'rocketpy')
+    mock_controller_instance.get_rocketpy_rocket_binary = mock_response
     response = client.get('/rockets/123/rocketpy')
     assert response.status_code == 203
     assert response.content == b'rocketpy'
     assert response.headers['content-type'] == 'application/octet-stream'
-    mock_controller_instance.get_rocketpy_rocket_binary.assert_called_once_with('123')
+    mock_controller_instance.get_rocketpy_rocket_binary.assert_called_once_with(
+        '123'
+    )
 
 
 def test_read_rocketpy_rocket_binary_not_found(mock_controller_instance):
-    mock_controller_instance.get_rocketpy_rocket_binary.side_effect = HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND
+    mock_controller_instance.get_rocketpy_rocket_binary.side_effect = (
+        HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     )
     response = client.get('/rockets/123/rocketpy')
     assert response.status_code == 404
@@ -477,8 +540,8 @@ def test_read_rocketpy_rocket_binary_not_found(mock_controller_instance):
 
 
 def test_read_rocketpy_rocket_binary_server_error(mock_controller_instance):
-    mock_controller_instance.get_rocketpy_rocket_binary.side_effect = HTTPException(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+    mock_controller_instance.get_rocketpy_rocket_binary.side_effect = (
+        HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     )
     response = client.get('/rockets/123/rocketpy')
     assert response.status_code == 500

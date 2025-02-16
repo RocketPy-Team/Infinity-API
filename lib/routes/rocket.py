@@ -6,7 +6,7 @@ from fastapi import APIRouter, Response
 from opentelemetry import trace
 
 from lib.views.rocket import (
-    RocketSummary,
+    RocketSimulation,
     RocketCreated,
     RocketRetrieved,
     RocketUpdated,
@@ -30,7 +30,9 @@ tracer = trace.get_tracer(__name__)
 
 
 @router.post("/")
-async def create_rocket(rocket: RocketModel, motor_kind: MotorKinds) -> RocketCreated:
+async def create_rocket(
+    rocket: RocketModel, motor_kind: MotorKinds
+) -> RocketCreated:
     """
     Creates a new rocket
 
@@ -57,7 +59,9 @@ async def read_rocket(rocket_id: str) -> RocketRetrieved:
 
 
 @router.put("/{rocket_id}")
-async def update_rocket(rocket_id: str, rocket: RocketModel, motor_kind: MotorKinds) -> RocketUpdated:
+async def update_rocket(
+    rocket_id: str, rocket: RocketModel, motor_kind: MotorKinds
+) -> RocketUpdated:
     """
     Updates an existing rocket
 
@@ -119,14 +123,14 @@ async def get_rocketpy_rocket_binary(rocket_id: str):
         )
 
 
-@router.get("/{rocket_id}/summary")
-async def simulate_rocket(rocket_id: str) -> RocketSummary:
+@router.get("/{rocket_id}/simulate")
+async def simulate_rocket(rocket_id: str) -> RocketSimulation:
     """
     Simulates a rocket
 
     ## Args
     ``` rocket_id: Rocket ID ```
     """
-    with tracer.start_as_current_span("simulate_rocket"):
+    with tracer.start_as_current_span("get_rocket_simulation"):
         controller = RocketController()
-        return await controller.simulate_rocket(rocket_id)
+        return await controller.get_rocket_simulation(rocket_id)
