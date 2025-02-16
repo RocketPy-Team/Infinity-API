@@ -39,6 +39,7 @@ $ touch .env && echo MONGODB_CONNECTION_STRING="$ConnectionString" > .env
 │   │── secrets.py
 │   │   
 │   ├── controllers
+│   │   ├── interface.py
 │   │   ├── environment.py
 │   │   ├── flight.py
 │   │   ├── motor.py
@@ -57,65 +58,31 @@ $ touch .env && echo MONGODB_CONNECTION_STRING="$ConnectionString" > .env
 │   │   └── rocket.py
 │   │   
 │   ├── repositories
-│   │   ├── repo.py
+│   │   ├── interface.py
 │   │   ├── environment.py
 │   │   ├── flight.py
 │   │   ├── motor.py
 │   │   └── rocket.py
 │   │   
 │   ├── models
-│   │   ├── aerosurfaces.py
+│   │   ├── interface.py
 │   │   ├── environment.py
 │   │   ├── flight.py
 │   │   ├── motor.py
-│   │   └── rocket.py
+│   │   ├── rocket.py
+│   │   │   
+│   │   └── sub
+│   │       ├── aerosurfaces.py
+│   │       └── tanks.py
 │   │   
 │   └── views
+│       ├── interface.py
 │       ├── environment.py
 │       ├── flight.py
 │       ├── motor.py
 │       └── rocket.py
 │   
 └── tests
-    ├── integration 
-    │   ├── test_environment_integration.py
-    │   ├── test_motor_integration.py
-    │   ├── test_rocket_integration.py
-    │   └── test_flight_integration.py
-    │   
-    └── unit
-        ├── test_secrets.py
-        ├── test_api.py
-        │   
-        ├── test_controllers
-        │   ├── test_environment_controller.py
-        │   ├── test_flight_controller.py
-        │   ├── test_motor_controller.py
-        │   └── test_rocket_controller.py
-        │   
-        ├── test_services
-        │   ├── test_environment_service.py
-        │   ├── test_flight_service.py
-        │   ├── test_motor_service.py
-        │   └── test_rocket_serice.py
-        │
-        ├── test_repositories
-        │   ├── test_environment_repo.py
-        │   ├── test_flight_repo.py
-        │   ├── test_motor_repo.py
-        │   └── test_rocket_repo.py
-        │
-        ├── test_models
-        │   ├── test_environment_model.py
-        │   ├── test_flight_model.py
-        │   ├── test_motor_model.py
-        │   └── test_rocket_model.py
-        │   
-        └── test_views
-            ├── test_environment_view.py
-            ├── test_flight_view.py
-            ├── test_motor_view.py
-            └── test_rocket_view.py
 ```
 
 ## DOCS
