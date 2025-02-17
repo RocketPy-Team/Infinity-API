@@ -15,9 +15,7 @@ from lib.models.motor import (
 )
 from lib.views.rocket import (
     RocketCreated,
-    RocketUpdated,
     RocketRetrieved,
-    RocketDeleted,
     RocketSimulation,
     RocketView,
 )
@@ -96,7 +94,7 @@ def test_create_rocket(stub_rocket_dump, mock_controller_instance):
         response = client.post(
             '/rockets/', json=stub_rocket_dump, params={'motor_kind': 'HYBRID'}
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert response.json() == {
             'rocket_id': '123',
             'message': 'Rocket successfully created',
@@ -129,7 +127,7 @@ def test_create_rocket_optional_params(
         response = client.post(
             '/rockets/', json=stub_rocket_dump, params={'motor_kind': 'HYBRID'}
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert response.json() == {
             'rocket_id': '123',
             'message': 'Rocket successfully created',
@@ -163,7 +161,7 @@ def test_create_generic_motor_rocket(
             json=stub_rocket_dump,
             params={'motor_kind': 'GENERIC'},
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert response.json() == {
             'rocket_id': '123',
             'message': 'Rocket successfully created',
@@ -190,7 +188,7 @@ def test_create_liquid_motor_level_tank_rocket(
         response = client.post(
             '/rockets/', json=stub_rocket_dump, params={'motor_kind': 'LIQUID'}
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert response.json() == {
             'rocket_id': '123',
             'message': 'Rocket successfully created',
@@ -217,7 +215,7 @@ def test_create_liquid_motor_mass_flow_tank_rocket(
         response = client.post(
             '/rockets/', json=stub_rocket_dump, params={'motor_kind': 'LIQUID'}
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert response.json() == {
             'rocket_id': '123',
             'message': 'Rocket successfully created',
@@ -244,7 +242,7 @@ def test_create_liquid_motor_ullage_tank_rocket(
         response = client.post(
             '/rockets/', json=stub_rocket_dump, params={'motor_kind': 'LIQUID'}
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert response.json() == {
             'rocket_id': '123',
             'message': 'Rocket successfully created',
@@ -271,7 +269,7 @@ def test_create_liquid_motor_mass_tank_rocket(
         response = client.post(
             '/rockets/', json=stub_rocket_dump, params={'motor_kind': 'LIQUID'}
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert response.json() == {
             'rocket_id': '123',
             'message': 'Rocket successfully created',
@@ -310,7 +308,7 @@ def test_create_hybrid_motor_rocket(
         response = client.post(
             '/rockets/', json=stub_rocket_dump, params={'motor_kind': 'HYBRID'}
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert response.json() == {
             'rocket_id': '123',
             'message': 'Rocket successfully created',
@@ -344,7 +342,7 @@ def test_create_solid_motor_rocket(
         response = client.post(
             '/rockets/', json=stub_rocket_dump, params={'motor_kind': 'SOLID'}
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert response.json() == {
             'rocket_id': '123',
             'message': 'Rocket successfully created',
@@ -408,7 +406,7 @@ def test_read_rocket_server_error(mock_controller_instance):
 
 
 def test_update_rocket(stub_rocket_dump, mock_controller_instance):
-    mock_response = AsyncMock(return_value=RocketUpdated(rocket_id='123'))
+    mock_response = AsyncMock(return_value=None)
     mock_controller_instance.put_rocket_by_id = mock_response
     with patch.object(
         MotorModel, 'set_motor_kind', side_effect=None
@@ -418,10 +416,7 @@ def test_update_rocket(stub_rocket_dump, mock_controller_instance):
             json=stub_rocket_dump,
             params={'motor_kind': 'HYBRID'},
         )
-        assert response.status_code == 200
-        assert response.json() == {
-            'message': 'Rocket successfully updated',
-        }
+        assert response.status_code == 204
         mock_set_motor_kind.assert_called_once_with(MotorKinds.HYBRID)
         mock_controller_instance.put_rocket_by_id.assert_called_once_with(
             '123', RocketModel(**stub_rocket_dump)
@@ -466,13 +461,10 @@ def test_update_rocket_server_error(
 
 
 def test_delete_rocket(mock_controller_instance):
-    mock_response = AsyncMock(return_value=RocketDeleted(rocket_id='123'))
+    mock_response = AsyncMock(return_value=None)
     mock_controller_instance.delete_rocket_by_id = mock_response
     response = client.delete('/rockets/123')
-    assert response.status_code == 200
-    assert response.json() == {
-        'message': 'Rocket successfully deleted',
-    }
+    assert response.status_code == 204
     mock_controller_instance.delete_rocket_by_id.assert_called_once_with('123')
 
 

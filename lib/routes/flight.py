@@ -9,8 +9,6 @@ from lib.views.flight import (
     FlightSimulation,
     FlightCreated,
     FlightRetrieved,
-    FlightUpdated,
-    FlightDeleted,
 )
 from lib.models.environment import EnvironmentModel
 from lib.models.flight import FlightModel
@@ -31,7 +29,7 @@ router = APIRouter(
 tracer = trace.get_tracer(__name__)
 
 
-@router.post("/")
+@router.post("/", status_code=201)
 async def create_flight(
     flight: FlightModel, motor_kind: MotorKinds
 ) -> FlightCreated:
@@ -60,10 +58,10 @@ async def read_flight(flight_id: str) -> FlightRetrieved:
         return await controller.get_flight_by_id(flight_id)
 
 
-@router.put("/{flight_id}")
+@router.put("/{flight_id}", status_code=204)
 async def update_flight(
     flight_id: str, flight: FlightModel, motor_kind: MotorKinds
-) -> FlightUpdated:
+) -> None:
     """
     Updates an existing flight
 
@@ -79,8 +77,8 @@ async def update_flight(
         return await controller.put_flight_by_id(flight_id, flight)
 
 
-@router.delete("/{flight_id}")
-async def delete_flight(flight_id: str) -> FlightDeleted:
+@router.delete("/{flight_id}", status_code=204)
+async def delete_flight(flight_id: str) -> None:
     """
     Deletes an existing flight
 
@@ -125,10 +123,10 @@ async def get_rocketpy_flight_binary(flight_id: str):
         )
 
 
-@router.put("/{flight_id}/environment")
+@router.put("/{flight_id}/environment", status_code=204)
 async def update_flight_environment(
     flight_id: str, environment: EnvironmentModel
-) -> FlightUpdated:
+) -> None:
     """
     Updates flight environment
 
@@ -145,12 +143,12 @@ async def update_flight_environment(
         )
 
 
-@router.put("/{flight_id}/rocket")
+@router.put("/{flight_id}/rocket", status_code=204)
 async def update_flight_rocket(
     flight_id: str,
     rocket: RocketModel,
     motor_kind: MotorKinds,
-) -> FlightUpdated:
+) -> None:
     """
     Updates flight rocket.
 

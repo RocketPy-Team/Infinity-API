@@ -166,11 +166,3 @@ class FlightCreated(ApiBaseView):
 class FlightRetrieved(ApiBaseView):
     message: str = "Flight successfully retrieved"
     flight: FlightView
-
-
-class FlightUpdated(ApiBaseView):
-    message: str = "Flight successfully updated"
-
-
-class FlightDeleted(ApiBaseView):
-    message: str = "Flight successfully deleted"

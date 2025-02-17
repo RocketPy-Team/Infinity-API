@@ -9,8 +9,6 @@ from lib.views.environment import (
     EnvironmentSimulation,
     EnvironmentCreated,
     EnvironmentRetrieved,
-    EnvironmentUpdated,
-    EnvironmentDeleted,
 )
 from lib.models.environment import EnvironmentModel
 from lib.controllers.environment import EnvironmentController
@@ -28,7 +26,7 @@ router = APIRouter(
 tracer = trace.get_tracer(__name__)
 
 
-@router.post("/")
+@router.post("/", status_code=201)
 async def create_environment(
     environment: EnvironmentModel,
 ) -> EnvironmentCreated:
@@ -56,10 +54,10 @@ async def read_environment(environment_id: str) -> EnvironmentRetrieved:
         return await controller.get_environment_by_id(environment_id)
 
 
-@router.put("/{environment_id}")
+@router.put("/{environment_id}", status_code=204)
 async def update_environment(
     environment_id: str, environment: EnvironmentModel
-) -> EnvironmentUpdated:
+) -> None:
     """
     Updates an existing environment
 
@@ -76,8 +74,8 @@ async def update_environment(
         )
 
 
-@router.delete("/{environment_id}")
-async def delete_environment(environment_id: str) -> EnvironmentDeleted:
+@router.delete("/{environment_id}", status_code=204)
+async def delete_environment(environment_id: str) -> None:
     """
     Deletes an existing environment
 

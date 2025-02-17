@@ -46,15 +46,11 @@ class FlightModel(ApiBaseModel):
 
     @staticmethod
     def UPDATED():
-        from lib.views.flight import FlightUpdated
-
-        return FlightUpdated()
+        return
 
     @staticmethod
     def DELETED():
-        from lib.views.flight import FlightDeleted
-
-        return FlightDeleted()
+        return
 
     @staticmethod
     def CREATED(model_id: str):

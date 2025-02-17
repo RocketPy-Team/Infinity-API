@@ -10,8 +10,6 @@ from lib.models.motor import (
 from lib.views.motor import (
     MotorCreated,
     MotorRetrieved,
-    MotorUpdated,
-    MotorDeleted,
     MotorSimulation,
     MotorView,
 )
@@ -51,7 +49,7 @@ def test_create_motor(stub_motor_dump, mock_controller_instance):
         response = client.post(
             '/motors/', json=stub_motor_dump, params={'motor_kind': 'HYBRID'}
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert response.json() == {
             'motor_id': '123',
             'message': 'Motor successfully created',
@@ -80,7 +78,7 @@ def test_create_motor_optional_params(
         response = client.post(
             '/motors/', json=stub_motor_dump, params={'motor_kind': 'HYBRID'}
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert response.json() == {
             'motor_id': '123',
             'message': 'Motor successfully created',
@@ -109,7 +107,7 @@ def test_create_generic_motor(stub_motor_dump, mock_controller_instance):
         response = client.post(
             '/motors/', json=stub_motor_dump, params={'motor_kind': 'GENERIC'}
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert response.json() == {
             'motor_id': '123',
             'message': 'Motor successfully created',
@@ -132,7 +130,7 @@ def test_create_liquid_motor_level_tank(
         response = client.post(
             '/motors/', json=stub_motor_dump, params={'motor_kind': 'LIQUID'}
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert response.json() == {
             'motor_id': '123',
             'message': 'Motor successfully created',
@@ -155,7 +153,7 @@ def test_create_liquid_motor_mass_flow_tank(
         response = client.post(
             '/motors/', json=stub_motor_dump, params={'motor_kind': 'LIQUID'}
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert response.json() == {
             'motor_id': '123',
             'message': 'Motor successfully created',
@@ -178,7 +176,7 @@ def test_create_liquid_motor_ullage_tank(
         response = client.post(
             '/motors/', json=stub_motor_dump, params={'motor_kind': 'LIQUID'}
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert response.json() == {
             'motor_id': '123',
             'message': 'Motor successfully created',
@@ -201,7 +199,7 @@ def test_create_liquid_motor_mass_tank(
         response = client.post(
             '/motors/', json=stub_motor_dump, params={'motor_kind': 'LIQUID'}
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert response.json() == {
             'motor_id': '123',
             'message': 'Motor successfully created',
@@ -236,7 +234,7 @@ def test_create_hybrid_motor(
         response = client.post(
             '/motors/', json=stub_motor_dump, params={'motor_kind': 'HYBRID'}
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert response.json() == {
             'motor_id': '123',
             'message': 'Motor successfully created',
@@ -267,7 +265,7 @@ def test_create_solid_motor(stub_motor_dump, mock_controller_instance):
         response = client.post(
             '/motors/', json=stub_motor_dump, params={'motor_kind': 'SOLID'}
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert response.json() == {
             'motor_id': '123',
             'message': 'Motor successfully created',
@@ -333,7 +331,7 @@ def test_read_motor_server_error(mock_controller_instance):
 
 
 def test_update_motor(stub_motor_dump, mock_controller_instance):
-    mock_response = AsyncMock(return_value=MotorUpdated(motor_id='123'))
+    mock_response = AsyncMock(return_value=None)
     mock_controller_instance.put_motor_by_id = mock_response
     with patch.object(
         MotorModel, 'set_motor_kind', side_effect=None
@@ -343,10 +341,7 @@ def test_update_motor(stub_motor_dump, mock_controller_instance):
             json=stub_motor_dump,
             params={'motor_kind': 'HYBRID'},
         )
-        assert response.status_code == 200
-        assert response.json() == {
-            'message': 'Motor successfully updated',
-        }
+        assert response.status_code == 204
         mock_set_motor_kind.assert_called_once_with(MotorKinds.HYBRID)
         mock_controller_instance.put_motor_by_id.assert_called_once_with(
             '123', MotorModel(**stub_motor_dump)
@@ -401,13 +396,10 @@ def test_update_motor_server_error(stub_motor_dump, mock_controller_instance):
 
 
 def test_delete_motor(mock_controller_instance):
-    mock_response = AsyncMock(return_value=MotorDeleted(motor_id='123'))
+    mock_response = AsyncMock(return_value=None)
     mock_controller_instance.delete_motor_by_id = mock_response
     response = client.delete('/motors/123')
-    assert response.status_code == 200
-    assert response.json() == {
-        'message': 'Motor successfully deleted',
-    }
+    assert response.status_code == 204
     mock_controller_instance.delete_motor_by_id.assert_called_once_with('123')
 
 

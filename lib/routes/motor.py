@@ -9,8 +9,6 @@ from lib.views.motor import (
     MotorSimulation,
     MotorCreated,
     MotorRetrieved,
-    MotorUpdated,
-    MotorDeleted,
 )
 from lib.models.motor import MotorModel, MotorKinds
 from lib.controllers.motor import MotorController
@@ -28,7 +26,7 @@ router = APIRouter(
 tracer = trace.get_tracer(__name__)
 
 
-@router.post("/")
+@router.post("/", status_code=201)
 async def create_motor(
     motor: MotorModel, motor_kind: MotorKinds
 ) -> MotorCreated:
@@ -57,10 +55,10 @@ async def read_motor(motor_id: str) -> MotorRetrieved:
         return await controller.get_motor_by_id(motor_id)
 
 
-@router.put("/{motor_id}")
+@router.put("/{motor_id}", status_code=204)
 async def update_motor(
     motor_id: str, motor: MotorModel, motor_kind: MotorKinds
-) -> MotorUpdated:
+) -> None:
     """
     Updates an existing motor
 
@@ -76,8 +74,8 @@ async def update_motor(
         return await controller.put_motor_by_id(motor_id, motor)
 
 
-@router.delete("/{motor_id}")
-async def delete_motor(motor_id: str) -> MotorDeleted:
+@router.delete("/{motor_id}", status_code=204)
+async def delete_motor(motor_id: str) -> None:
     """
     Deletes an existing motor
 

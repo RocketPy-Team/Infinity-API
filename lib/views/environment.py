@@ -61,11 +61,3 @@ class EnvironmentCreated(ApiBaseView):
 class EnvironmentRetrieved(ApiBaseView):
     message: str = "Environment successfully retrieved"
     environment: EnvironmentView
-
-
-class EnvironmentUpdated(ApiBaseView):
-    message: str = "Environment successfully updated"
-
-
-class EnvironmentDeleted(ApiBaseView):
-    message: str = "Environment successfully deleted"

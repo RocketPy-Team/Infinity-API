@@ -102,21 +102,21 @@ sequenceDiagram
     User ->> API: POST /model    
     API ->> MongoDB: Persist API Model as a document
     MongoDB -->> API: Model ID
-    API -->> User: ModelCreated View
+    API -->> User: 201 ModelCreated View
 
     User ->> API: GET /model/:id
     API ->> MongoDB: Read API Model document
     MongoDB -->> API: API Model document
-    API -->> User: API ModelView
+    API -->> User: 200 API ModelView
 
     User ->> API: PUT /model/:id
     API ->> MongoDB: Update API Model document
-    API -->> User: ModelUpdated View
+    API -->> User: 204
 
     User ->> API: DELETE /model/:id
     API ->> MongoDB: Delete API Model document
     MongoDB -->> API: Deletion Confirmation
-    API -->> User: ModelDeleted View
+    API -->> User: 204
 
 ```
 
@@ -126,19 +126,19 @@ sequenceDiagram
     participant User
     participant API
     participant MongoDB
-    participant Rocketpy lib
+    participant RocketPy lib
 
-    User ->> API: GET /summary/model/:id
-    API -->> MongoDB: Retrieve Rocketpy native class
-    MongoDB -->> API: Rocketpy native class
-    API ->> Rocketpy lib: Simulate Rocketpy native class
-    Rocketpy lib -->> API:  Simulation Results
+    User ->> API: GET model/:id/simulate/
+    API -->> MongoDB: Retrieve API Model document
+    MongoDB -->> API: API Model document 
+    API ->> RocketPy: Initialize RocketPy native class and simulate
+    RocketPy lib -->> API: Simulation Results
     API -->> User: Simulation Results
 
     User ->> API: GET /model/:id/rocketpy
-    API -->> MongoDB: Retrieve Rocketpy Model
-    MongoDB -->> API: Rocketpy Model
-    API ->> Rocketpy lib: Rocketpy Model
-    Rocketpy lib -->> API:  Rocketpy native class
-    API -->> User: Rocketpy native class as .dill binary
+    API -->> MongoDB: Retrieve API Model document
+    MongoDB -->> API: API Model document 
+    API ->> RocketPy: Initialize RocketPy native class
+    RocketPy lib -->> API: RocketPy native class
+    API -->> User: RocketPy native class as .dill binary (amd64)
 ```

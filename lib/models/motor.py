@@ -82,15 +82,11 @@ class MotorModel(ApiBaseModel):
 
     @staticmethod
     def UPDATED():
-        from lib.views.motor import MotorUpdated
-
-        return MotorUpdated()
+        return
 
     @staticmethod
     def DELETED():
-        from lib.views.motor import MotorDeleted
-
-        return MotorDeleted()
+        return
 
     @staticmethod
     def CREATED(model_id: str):

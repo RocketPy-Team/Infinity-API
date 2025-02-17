@@ -82,11 +82,3 @@ class MotorCreated(ApiBaseView):
 class MotorRetrieved(ApiBaseView):
     message: str = "Motor successfully retrieved"
     motor: MotorView
-
-
-class MotorUpdated(ApiBaseView):
-    message: str = "Motor successfully updated"
-
-
-class MotorDeleted(ApiBaseView):
-    message: str = "Motor successfully deleted"

@@ -51,11 +51,3 @@ class RocketCreated(ApiBaseView):
 class RocketRetrieved(ApiBaseView):
     message: str = "Rocket successfully retrieved"
     rocket: RocketView
-
-
-class RocketUpdated(ApiBaseView):
-    message: str = "Rocket successfully updated"
-
-
-class RocketDeleted(ApiBaseView):
-    message: str = "Rocket successfully deleted"
