@@ -39,15 +39,11 @@ class RocketModel(ApiBaseModel):
 
     @staticmethod
     def UPDATED():
-        from lib.views.rocket import RocketUpdated
-
-        return RocketUpdated()
+        return
 
     @staticmethod
     def DELETED():
-        from lib.views.rocket import RocketDeleted
-
-        return RocketDeleted()
+        return
 
     @staticmethod
     def CREATED(model_id: str):

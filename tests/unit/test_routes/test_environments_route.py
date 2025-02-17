@@ -7,9 +7,7 @@ from lib.models.environment import EnvironmentModel
 from lib.views.environment import (
     EnvironmentView,
     EnvironmentCreated,
-    EnvironmentUpdated,
     EnvironmentRetrieved,
-    EnvironmentDeleted,
     EnvironmentSimulation,
 )
 from lib import app
@@ -45,7 +43,7 @@ def test_create_environment(stub_environment_dump, mock_controller_instance):
     )
     mock_controller_instance.post_environment = mock_response
     response = client.post('/environments/', json=stub_environment_dump)
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert response.json() == {
         'environment_id': '123',
         'message': 'Environment successfully created',
@@ -73,7 +71,7 @@ def test_create_environment_optional_params(
     )
     mock_controller_instance.post_environment = mock_response
     response = client.post('/environments/', json=stub_environment_dump)
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert response.json() == {
         'environment_id': '123',
         'message': 'Environment successfully created',
@@ -136,15 +134,10 @@ def test_read_environment_server_error(mock_controller_instance):
 
 
 def test_update_environment(stub_environment_dump, mock_controller_instance):
-    mock_reponse = AsyncMock(
-        return_value=EnvironmentUpdated(environment_id='123')
-    )
+    mock_reponse = AsyncMock(return_value=None)
     mock_controller_instance.put_environment_by_id = mock_reponse
     response = client.put('/environments/123', json=stub_environment_dump)
-    assert response.status_code == 200
-    assert response.json() == {
-        'message': 'Environment successfully updated',
-    }
+    assert response.status_code == 204
     mock_controller_instance.put_environment_by_id.assert_called_once_with(
         '123', EnvironmentModel(**stub_environment_dump)
     )
@@ -181,15 +174,10 @@ def test_update_environment_server_error(
 
 
 def test_delete_environment(mock_controller_instance):
-    mock_reponse = AsyncMock(
-        return_value=EnvironmentDeleted(environment_id='123')
-    )
+    mock_reponse = AsyncMock(return_value=None)
     mock_controller_instance.delete_environment_by_id = mock_reponse
     response = client.delete('/environments/123')
-    assert response.status_code == 200
-    assert response.json() == {
-        'message': 'Environment successfully deleted',
-    }
+    assert response.status_code == 204
     mock_controller_instance.delete_environment_by_id.assert_called_once_with(
         '123'
     )

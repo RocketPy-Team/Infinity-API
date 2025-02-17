@@ -9,8 +9,6 @@ from lib.views.rocket import (
     RocketSimulation,
     RocketCreated,
     RocketRetrieved,
-    RocketUpdated,
-    RocketDeleted,
 )
 from lib.models.rocket import RocketModel
 from lib.models.motor import MotorKinds
@@ -29,7 +27,7 @@ router = APIRouter(
 tracer = trace.get_tracer(__name__)
 
 
-@router.post("/")
+@router.post("/", status_code=201)
 async def create_rocket(
     rocket: RocketModel, motor_kind: MotorKinds
 ) -> RocketCreated:
@@ -58,10 +56,10 @@ async def read_rocket(rocket_id: str) -> RocketRetrieved:
         return await controller.get_rocket_by_id(rocket_id)
 
 
-@router.put("/{rocket_id}")
+@router.put("/{rocket_id}", status_code=204)
 async def update_rocket(
     rocket_id: str, rocket: RocketModel, motor_kind: MotorKinds
-) -> RocketUpdated:
+) -> None:
     """
     Updates an existing rocket
 
@@ -77,8 +75,8 @@ async def update_rocket(
         return await controller.put_rocket_by_id(rocket_id, rocket)
 
 
-@router.delete("/{rocket_id}")
-async def delete_rocket(rocket_id: str) -> RocketDeleted:
+@router.delete("/{rocket_id}", status_code=204)
+async def delete_rocket(rocket_id: str) -> None:
     """
     Deletes an existing rocket
 

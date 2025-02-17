@@ -11,9 +11,7 @@ from lib.views.motor import MotorView
 from lib.views.rocket import RocketView
 from lib.views.flight import (
     FlightCreated,
-    FlightUpdated,
     FlightRetrieved,
-    FlightDeleted,
     FlightSimulation,
     FlightView,
 )
@@ -69,7 +67,7 @@ def test_create_flight(stub_flight_dump, mock_controller_instance):
         response = client.post(
             '/flights/', json=stub_flight_dump, params={'motor_kind': 'HYBRID'}
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert response.json() == {
             'flight_id': '123',
             'message': 'Flight successfully created',
@@ -103,7 +101,7 @@ def test_create_flight_optional_params(
         response = client.post(
             '/flights/', json=stub_flight_dump, params={'motor_kind': 'HYBRID'}
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert response.json() == {
             'flight_id': '123',
             'message': 'Flight successfully created',
@@ -181,7 +179,7 @@ def test_read_flight_server_error(mock_controller_instance):
 
 
 def test_update_flight_by_id(stub_flight_dump, mock_controller_instance):
-    mock_response = AsyncMock(return_value=FlightUpdated(flight_id='123'))
+    mock_response = AsyncMock(return_value=None)
     mock_controller_instance.put_flight_by_id = mock_response
     with patch.object(
         MotorModel, 'set_motor_kind', side_effect=None
@@ -191,10 +189,7 @@ def test_update_flight_by_id(stub_flight_dump, mock_controller_instance):
             json=stub_flight_dump,
             params={'motor_kind': 'HYBRID'},
         )
-        assert response.status_code == 200
-        assert response.json() == {
-            'message': 'Flight successfully updated',
-        }
+        assert response.status_code == 204
         mock_set_motor_kind.assert_called_once_with(MotorKinds.HYBRID)
         mock_controller_instance.put_flight_by_id.assert_called_once_with(
             '123', FlightModel(**stub_flight_dump)
@@ -204,15 +199,12 @@ def test_update_flight_by_id(stub_flight_dump, mock_controller_instance):
 def test_update_environment_by_flight_id(
     stub_environment_dump, mock_controller_instance
 ):
-    mock_response = AsyncMock(return_value=FlightUpdated(flight_id='123'))
+    mock_response = AsyncMock(return_value=None)
     mock_controller_instance.update_environment_by_flight_id = mock_response
     response = client.put(
         '/flights/123/environment', json=stub_environment_dump
     )
-    assert response.status_code == 200
-    assert response.json() == {
-        'message': 'Flight successfully updated',
-    }
+    assert response.status_code == 204
     mock_controller_instance.update_environment_by_flight_id.assert_called_once_with(
         '123', environment=EnvironmentModel(**stub_environment_dump)
     )
@@ -221,7 +213,7 @@ def test_update_environment_by_flight_id(
 def test_update_rocket_by_flight_id(
     stub_rocket_dump, mock_controller_instance
 ):
-    mock_response = AsyncMock(return_value=FlightUpdated(flight_id='123'))
+    mock_response = AsyncMock(return_value=None)
     mock_controller_instance.update_rocket_by_flight_id = mock_response
     with patch.object(
         MotorModel, 'set_motor_kind', side_effect=None
@@ -231,10 +223,7 @@ def test_update_rocket_by_flight_id(
             json=stub_rocket_dump,
             params={'motor_kind': 'HYBRID'},
         )
-        assert response.status_code == 200
-        assert response.json() == {
-            'message': 'Flight successfully updated',
-        }
+        assert response.status_code == 204
         mock_set_motor_kind.assert_called_once_with(MotorKinds.HYBRID)
         mock_controller_instance.update_rocket_by_flight_id.assert_called_once_with(
             '123', rocket=RocketModel(**stub_rocket_dump)
@@ -345,13 +334,10 @@ def test_update_rocket_by_flight_id_server_error(
 
 
 def test_delete_flight(mock_controller_instance):
-    mock_response = AsyncMock(return_value=FlightDeleted(flight_id='123'))
+    mock_response = AsyncMock(return_value=None)
     mock_controller_instance.delete_flight_by_id = mock_response
     response = client.delete('/flights/123')
-    assert response.status_code == 200
-    assert response.json() == {
-        'message': 'Flight successfully deleted',
-    }
+    assert response.status_code == 204
     mock_controller_instance.delete_flight_by_id.assert_called_once_with('123')
 
 

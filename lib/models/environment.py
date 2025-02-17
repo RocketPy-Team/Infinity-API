@@ -26,15 +26,11 @@ class EnvironmentModel(ApiBaseModel):
 
     @staticmethod
     def UPDATED():
-        from lib.views.environment import EnvironmentUpdated
-
-        return EnvironmentUpdated()
+        return
 
     @staticmethod
     def DELETED():
-        from lib.views.environment import EnvironmentDeleted
-
-        return EnvironmentDeleted()
+        return
 
     @staticmethod
     def CREATED(model_id: str):
