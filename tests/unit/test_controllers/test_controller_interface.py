@@ -2,7 +2,7 @@ from unittest.mock import patch, Mock
 import pytest
 from pymongo.errors import PyMongoError
 from fastapi import HTTPException, status
-from lib.controllers.interface import (
+from src.controllers.interface import (
     ControllerInterface,
     controller_exception_handler,
 )
@@ -37,7 +37,7 @@ async def test_controller_exception_handler_no_exception(stub_model):
     mock_kwargs = {'foo': 'bar'}
     mock_args = ('foo', 'bar')
     wrapped_method = controller_exception_handler(method)
-    with patch('lib.controllers.interface.logger') as mock_logger:
+    with patch('src.controllers.interface.logger') as mock_logger:
         assert await wrapped_method(
             test_controller, stub_model, *mock_args, **mock_kwargs
         ) == (stub_model, mock_args, mock_kwargs)
@@ -53,7 +53,7 @@ async def test_controller_exception_handler_db_exception(stub_model):
         raise PyMongoError
 
     wrapped_method = controller_exception_handler(method)
-    with patch('lib.controllers.interface.logger') as mock_logger:
+    with patch('src.controllers.interface.logger') as mock_logger:
         with pytest.raises(HTTPException) as exc:
             await wrapped_method(None, stub_model)
         assert exc.value.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
@@ -71,7 +71,7 @@ async def test_controller_exception_handler_http_exception(stub_model):
         )
 
     wrapped_method = controller_exception_handler(method)
-    with patch('lib.controllers.interface.logger') as mock_logger:
+    with patch('src.controllers.interface.logger') as mock_logger:
         with pytest.raises(HTTPException) as exc:
             await wrapped_method(None, stub_model)
         assert exc.value.status_code == status.HTTP_404_NOT_FOUND
@@ -85,7 +85,7 @@ async def test_controller_exception_handler_unexpected_exception(stub_model):
         raise ValueError('Test Error')
 
     wrapped_method = controller_exception_handler(method)
-    with patch('lib.controllers.interface.logger') as mock_logger:
+    with patch('src.controllers.interface.logger') as mock_logger:
         with pytest.raises(HTTPException) as exc:
             await wrapped_method(None, stub_model)
         assert exc.value.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -97,7 +97,7 @@ async def test_controller_exception_handler_unexpected_exception(stub_model):
 
 def test_controller_interface_init(stub_model):
     with patch(
-        'lib.controllers.interface.ControllerInterface._generate_method'
+        'src.controllers.interface.ControllerInterface._generate_method'
     ) as mock_gen:
         mock_gen.return_value = lambda *args, **kwargs: True
         stub_controller = ControllerInterface([stub_model])
@@ -118,9 +118,9 @@ def test_controller_interface_init(stub_model):
 async def test_controller_interface_generate_available_method(
     stub_controller, stub_model
 ):
-    with patch('lib.controllers.interface.RepositoryInterface') as mock_repo:
+    with patch('src.controllers.interface.RepositoryInterface') as mock_repo:
         with patch(
-            'lib.controllers.interface.ControllerInterface._get_model'
+            'src.controllers.interface.ControllerInterface._get_model'
         ) as mock_get:
             mock_get.return_value = stub_model
             method = stub_controller._generate_method('get', stub_model)
@@ -134,7 +134,7 @@ async def test_controller_interface_generate_available_method(
 async def test_controller_interface_generate_unavailable_method(
     stub_controller, stub_model
 ):
-    with patch('lib.controllers.interface.RepositoryInterface') as mock_repo:
+    with patch('src.controllers.interface.RepositoryInterface') as mock_repo:
         with pytest.raises(NotImplementedError):
             method = stub_controller._generate_method('foo', stub_model)
             await method(None, stub_model, mock_repo, 'arg', key='bar')
@@ -142,9 +142,9 @@ async def test_controller_interface_generate_unavailable_method(
 
 @pytest.mark.asyncio
 async def test_controller_interface_post_model(stub_controller, stub_model):
-    with patch('lib.controllers.interface.RepositoryInterface') as mock_repo:
+    with patch('src.controllers.interface.RepositoryInterface') as mock_repo:
         with patch(
-            'lib.controllers.interface.RepositoryInterface.get_model_repo'
+            'src.controllers.interface.RepositoryInterface.get_model_repo'
         ) as mock_get_repo:
             mock_get_repo.return_value = mock_repo
             assert (
@@ -159,9 +159,9 @@ async def test_controller_interface_post_model(stub_controller, stub_model):
 async def test_controller_interface_get_model_found(
     stub_controller, stub_model
 ):
-    with patch('lib.controllers.interface.RepositoryInterface') as mock_repo:
+    with patch('src.controllers.interface.RepositoryInterface') as mock_repo:
         with patch(
-            'lib.controllers.interface.RepositoryInterface.get_model_repo'
+            'src.controllers.interface.RepositoryInterface.get_model_repo'
         ) as mock_get_repo:
             mock_get_repo.return_value = mock_repo
             mock_repo.return_value.__aenter__.return_value.read_test_model_by_id.return_value = (
@@ -177,9 +177,9 @@ async def test_controller_interface_get_model_found(
 async def test_controller_interface_get_model_not_found(
     stub_controller, stub_model
 ):
-    with patch('lib.controllers.interface.RepositoryInterface') as mock_repo:
+    with patch('src.controllers.interface.RepositoryInterface') as mock_repo:
         with patch(
-            'lib.controllers.interface.RepositoryInterface.get_model_repo'
+            'src.controllers.interface.RepositoryInterface.get_model_repo'
         ) as mock_get_repo:
             mock_get_repo.return_value = mock_repo
             mock_repo.return_value.__aenter__.return_value.read_test_model_by_id.return_value = (
@@ -193,9 +193,9 @@ async def test_controller_interface_get_model_not_found(
 
 @pytest.mark.asyncio
 async def test_controller_interface_update_model(stub_controller, stub_model):
-    with patch('lib.controllers.interface.RepositoryInterface') as mock_repo:
+    with patch('src.controllers.interface.RepositoryInterface') as mock_repo:
         with patch(
-            'lib.controllers.interface.RepositoryInterface.get_model_repo'
+            'src.controllers.interface.RepositoryInterface.get_model_repo'
         ) as mock_get_repo:
             mock_get_repo.return_value = mock_repo
             mock_repo.return_value.__aenter__.return_value.update_test_model_by_id.return_value = (
@@ -211,9 +211,9 @@ async def test_controller_interface_update_model(stub_controller, stub_model):
 
 @pytest.mark.asyncio
 async def test_controller_interface_delete_model(stub_controller, stub_model):
-    with patch('lib.controllers.interface.RepositoryInterface') as mock_repo:
+    with patch('src.controllers.interface.RepositoryInterface') as mock_repo:
         with patch(
-            'lib.controllers.interface.RepositoryInterface.get_model_repo'
+            'src.controllers.interface.RepositoryInterface.get_model_repo'
         ) as mock_get_repo:
             mock_get_repo.return_value = mock_repo
             mock_repo.return_value.__aenter__.return_value.delete_test_model_by_id.return_value = (

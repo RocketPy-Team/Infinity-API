@@ -25,8 +25,8 @@ $ touch .env && echo MONGODB_CONNECTION_STRING="$ConnectionString" > .env
 - run docker compose: `docker-compose up --build -d`
 
 ### Standalone 
-- Dev: `python3 -m uvicorn lib:app --reload --port 3000`
-- Prod: `gunicorn -k uvicorn.workers.UvicornWorker lib:app -b 0.0.0.0:3000`
+- Dev: `python3 -m uvicorn src:app --reload --port 3000`
+- Prod: `gunicorn -k uvicorn.workers.UvicornWorker src:app -b 0.0.0.0:3000`
 
 ## Project structure
 ```

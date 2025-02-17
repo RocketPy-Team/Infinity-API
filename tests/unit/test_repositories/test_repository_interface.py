@@ -3,7 +3,7 @@ import pytest
 import pytest_asyncio
 from pymongo.errors import PyMongoError
 from fastapi import HTTPException, status
-from lib.repositories.interface import (
+from src.repositories.interface import (
     RepositoryInterface,
     repository_exception_handler,
     RepositoryNotInitializedException,
@@ -81,7 +81,7 @@ async def test_repository_exception_handler_no_exception():
     mock_args = ('foo', 'bar')
     mock_repo = Mock(model=Mock(NAME='mock_model'))
     wrapped_method = repository_exception_handler(method)
-    with patch('lib.repositories.interface.logger') as mock_logger:
+    with patch('src.repositories.interface.logger') as mock_logger:
         assert await wrapped_method(mock_repo, *mock_args, **mock_kwargs) == (
             mock_args,
             mock_kwargs,
@@ -136,7 +136,7 @@ async def test_repository_interface_init(stub_repository):
 
 def test_get_model_repo(stub_repository):
     with patch(
-        'lib.repositories.interface.importlib.import_module'
+        'src.repositories.interface.importlib.import_module'
     ) as mock_import_module:
         mock_import_module.return_value = Mock(MockmodelRepository='mock_repo')
         assert (
@@ -148,7 +148,7 @@ def test_get_model_repo(stub_repository):
 @pytest.mark.asyncio
 async def test_repository_insert_data(stub_repository, mock_db_interface):
     with patch(
-        'lib.repositories.interface.RepositoryInterface.get_collection',
+        'src.repositories.interface.RepositoryInterface.get_collection',
         return_value=mock_db_interface,
     ):
         assert await stub_repository.insert('mock_data') == 'mock_id'
@@ -158,7 +158,7 @@ async def test_repository_insert_data(stub_repository, mock_db_interface):
 @pytest.mark.asyncio
 async def test_repository_insert_invalid_data(stub_repository_invalid_model):
     with patch(
-        'lib.repositories.interface.RepositoryInterface.get_collection',
+        'src.repositories.interface.RepositoryInterface.get_collection',
         return_value=mock_db_interface,
     ):
         with pytest.raises(HTTPException):
@@ -168,11 +168,11 @@ async def test_repository_insert_invalid_data(stub_repository_invalid_model):
 @pytest.mark.asyncio
 async def test_repository_update_data(stub_repository, mock_db_interface):
     with patch(
-        'lib.repositories.interface.RepositoryInterface.get_collection',
+        'src.repositories.interface.RepositoryInterface.get_collection',
         return_value=mock_db_interface,
     ):
         with patch(
-            'lib.repositories.interface.ObjectId', side_effect=lambda x: x
+            'src.repositories.interface.ObjectId', side_effect=lambda x: x
         ):
             assert (
                 await stub_repository.update_by_id(
@@ -188,7 +188,7 @@ async def test_repository_update_data(stub_repository, mock_db_interface):
 @pytest.mark.asyncio
 async def test_repository_update_invalid_data(stub_repository_invalid_model):
     with patch(
-        'lib.repositories.interface.RepositoryInterface.get_collection',
+        'src.repositories.interface.RepositoryInterface.get_collection',
         return_value=mock_db_interface,
     ):
         with pytest.raises(HTTPException):
@@ -202,11 +202,11 @@ async def test_repository_find_data_found(
     stub_repository, mock_db_interface, stub_loaded_model
 ):
     with patch(
-        'lib.repositories.interface.RepositoryInterface.get_collection',
+        'src.repositories.interface.RepositoryInterface.get_collection',
         return_value=mock_db_interface,
     ):
         with patch(
-            'lib.repositories.interface.ObjectId', side_effect=lambda x: x
+            'src.repositories.interface.ObjectId', side_effect=lambda x: x
         ):
             assert (
                 await stub_repository.find_by_id(data_id='mock_id')
@@ -226,11 +226,11 @@ async def test_repository_find_data_not_found(
 ):
     mock_db_interface.find_one.return_value = None
     with patch(
-        'lib.repositories.interface.RepositoryInterface.get_collection',
+        'src.repositories.interface.RepositoryInterface.get_collection',
         return_value=mock_db_interface,
     ):
         with patch(
-            'lib.repositories.interface.ObjectId', side_effect=lambda x: x
+            'src.repositories.interface.ObjectId', side_effect=lambda x: x
         ):
             assert await stub_repository.find_by_id(data_id='mock_id') is None
             mock_db_interface.find_one.assert_called_once_with(
@@ -241,11 +241,11 @@ async def test_repository_find_data_not_found(
 @pytest.mark.asyncio
 async def test_repository_delete_data(stub_repository, mock_db_interface):
     with patch(
-        'lib.repositories.interface.RepositoryInterface.get_collection',
+        'src.repositories.interface.RepositoryInterface.get_collection',
         return_value=mock_db_interface,
     ):
         with patch(
-            'lib.repositories.interface.ObjectId', side_effect=lambda x: x
+            'src.repositories.interface.ObjectId', side_effect=lambda x: x
         ):
             assert (
                 await stub_repository.delete_by_id(data_id='mock_id')
@@ -261,7 +261,7 @@ async def test_repository_find_by_query_found(
     stub_repository, mock_db_interface, stub_loaded_model
 ):
     with patch(
-        'lib.repositories.interface.RepositoryInterface.get_collection',
+        'src.repositories.interface.RepositoryInterface.get_collection',
         return_value=mock_db_interface,
     ):
         assert await stub_repository.find_by_query('mock_query') == [
@@ -279,7 +279,7 @@ async def test_repository_find_by_query_not_found(
     stub_repository, mock_db_interface_empty_find
 ):
     with patch(
-        'lib.repositories.interface.RepositoryInterface.get_collection',
+        'src.repositories.interface.RepositoryInterface.get_collection',
         return_value=mock_db_interface_empty_find,
     ):
         assert await stub_repository.find_by_query('mock_query') == []
