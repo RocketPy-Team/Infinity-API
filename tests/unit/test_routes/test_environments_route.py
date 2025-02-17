@@ -3,14 +3,14 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 from fastapi import HTTPException
-from lib.models.environment import EnvironmentModel
-from lib.views.environment import (
+from src.models.environment import EnvironmentModel
+from src.views.environment import (
     EnvironmentView,
     EnvironmentCreated,
     EnvironmentRetrieved,
     EnvironmentSimulation,
 )
-from lib import app
+from src import app
 
 client = TestClient(app)
 
@@ -25,7 +25,7 @@ def stub_environment_simulation_dump():
 @pytest.fixture(autouse=True)
 def mock_controller_instance():
     with patch(
-        "lib.routes.environment.EnvironmentController", autospec=True
+        "src.routes.environment.EnvironmentController", autospec=True
     ) as mock_controller:
         mock_controller_instance = mock_controller.return_value
         mock_controller_instance.post_environment = Mock()

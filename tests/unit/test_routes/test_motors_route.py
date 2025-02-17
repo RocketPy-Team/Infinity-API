@@ -3,17 +3,17 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 from fastapi import HTTPException
-from lib.models.motor import (
+from src.models.motor import (
     MotorModel,
     MotorKinds,
 )
-from lib.views.motor import (
+from src.views.motor import (
     MotorCreated,
     MotorRetrieved,
     MotorSimulation,
     MotorView,
 )
-from lib import app
+from src import app
 
 client = TestClient(app)
 
@@ -28,7 +28,7 @@ def stub_motor_dump_simulation():
 @pytest.fixture(autouse=True)
 def mock_controller_instance():
     with patch(
-        "lib.routes.motor.MotorController", autospec=True
+        "src.routes.motor.MotorController", autospec=True
     ) as mock_controller:
         mock_controller_instance = mock_controller.return_value
         mock_controller_instance.post_motor = Mock()

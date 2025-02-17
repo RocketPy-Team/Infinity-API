@@ -1,11 +1,11 @@
 import json
 import pytest
 
-from lib.models.rocket import RocketModel
-from lib.models.sub.tanks import MotorTank, TankFluids, TankKinds
-from lib.models.motor import MotorModel
-from lib.models.environment import EnvironmentModel
-from lib.models.sub.aerosurfaces import Fins, NoseCone
+from src.models.rocket import RocketModel
+from src.models.sub.tanks import MotorTank, TankFluids, TankKinds
+from src.models.motor import MotorModel
+from src.models.environment import EnvironmentModel
+from src.models.sub.aerosurfaces import Fins, NoseCone
 
 
 @pytest.fixture

@@ -3,19 +3,19 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 from fastapi import HTTPException, status
-from lib.models.environment import EnvironmentModel
-from lib.models.flight import FlightModel
-from lib.models.motor import MotorModel, MotorKinds
-from lib.models.rocket import RocketModel
-from lib.views.motor import MotorView
-from lib.views.rocket import RocketView
-from lib.views.flight import (
+from src.models.environment import EnvironmentModel
+from src.models.flight import FlightModel
+from src.models.motor import MotorModel, MotorKinds
+from src.models.rocket import RocketModel
+from src.views.motor import MotorView
+from src.views.rocket import RocketView
+from src.views.flight import (
     FlightCreated,
     FlightRetrieved,
     FlightSimulation,
     FlightView,
 )
-from lib import app
+from src import app
 
 client = TestClient(app)
 
@@ -44,7 +44,7 @@ def stub_flight_simulate_dump():
 @pytest.fixture(autouse=True)
 def mock_controller_instance():
     with patch(
-        "lib.routes.flight.FlightController", autospec=True
+        "src.routes.flight.FlightController", autospec=True
     ) as mock_controller:
         mock_controller_instance = mock_controller.return_value
         mock_controller_instance.post_flight = Mock()

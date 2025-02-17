@@ -3,23 +3,23 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 from fastapi import HTTPException, status
-from lib.models.sub.aerosurfaces import (
+from src.models.sub.aerosurfaces import (
     Tail,
     RailButtons,
     Parachute,
 )
-from lib.models.rocket import RocketModel
-from lib.models.motor import (
+from src.models.rocket import RocketModel
+from src.models.motor import (
     MotorModel,
     MotorKinds,
 )
-from lib.views.rocket import (
+from src.views.rocket import (
     RocketCreated,
     RocketRetrieved,
     RocketSimulation,
     RocketView,
 )
-from lib import app
+from src import app
 
 client = TestClient(app)
 
@@ -73,7 +73,7 @@ def stub_parachute_dump():
 @pytest.fixture(autouse=True)
 def mock_controller_instance():
     with patch(
-        "lib.routes.rocket.RocketController", autospec=True
+        "src.routes.rocket.RocketController", autospec=True
     ) as mock_controller:
         mock_controller_instance = mock_controller.return_value
         mock_controller_instance.post_rocket = Mock()
