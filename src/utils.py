@@ -95,13 +95,13 @@ class GZipResponder:
             self.started = True
             body = message.get("body", b"")
             more_body = message.get("more_body", False)
-            if (len(body) < (self.minimum_size and not more_body)) or any(
+            if ((len(body) < self.minimum_size) and not more_body) or any(
                 value == b'application/octet-stream'
                 for header, value in self.initial_message["headers"]
             ):
                 # Don't apply GZip to small outgoing responses or octet-streams.
                 await self.send(self.initial_message)
-                await self.send(message)
+                await self.send(message)  # pylint: disable=unreachable
             elif not more_body:
                 # Standard GZip response.
                 self.gzip_file.write(body)
@@ -115,7 +115,7 @@ class GZipResponder:
                 message["body"] = body
 
                 await self.send(self.initial_message)
-                await self.send(message)
+                await self.send(message)  # pylint: disable=unreachable
             else:
                 # Initial body in streaming GZip response.
                 headers = MutableHeaders(raw=self.initial_message["headers"])
@@ -129,7 +129,7 @@ class GZipResponder:
                 self.gzip_buffer.truncate()
 
                 await self.send(self.initial_message)
-                await self.send(message)
+                await self.send(message)  # pylint: disable=unreachable
 
         elif message_type == "http.response.body":
             # Remaining body in streaming GZip response.

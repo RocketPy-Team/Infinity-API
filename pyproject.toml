@@ -54,6 +54,7 @@ disable = """
     too-many-positional-arguments,
     no-member,
     protected-access,
+    import-outside-toplevel,
 """
 
 [tool.ruff]
