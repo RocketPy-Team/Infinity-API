@@ -21,7 +21,7 @@ test:
 	python3 -m pytest .
 
 dev:
-	python3 -m uvicorn src.app --reload --port 3000
+	python3 -m uvicorn src:app --reload --port 3000
 
 clean:
 	docker stop infinity-api
