@@ -62,7 +62,7 @@ class FlightController(ControllerInterface):
         """
         flight = await self.get_flight_by_id(flight_id)
         flight.rocket = rocket
-        self.update_flight_by_id(flight_id, flight)
+        await self.update_flight_by_id(flight_id, flight)
         return
 
     @controller_exception_handler
