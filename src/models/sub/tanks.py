@@ -6,7 +6,7 @@ from pydantic import BaseModel
 class TankKinds(str, Enum):
     LEVEL: str = "LEVEL"
     MASS: str = "MASS"
-    MASS_FLOW: str = "MASSFLOW"
+    MASS_FLOW: str = "MASS_FLOW"
     ULLAGE: str = "ULLAGE"
 
 
