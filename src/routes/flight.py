@@ -13,7 +13,6 @@ from src.views.flight import (
 from src.models.environment import EnvironmentModel
 from src.models.flight import FlightModel
 from src.models.rocket import RocketModel
-from src.models.motor import MotorKinds
 from src.controllers.flight import FlightController
 
 router = APIRouter(
@@ -30,9 +29,7 @@ tracer = trace.get_tracer(__name__)
 
 
 @router.post("/", status_code=201)
-async def create_flight(
-    flight: FlightModel, motor_kind: MotorKinds
-) -> FlightCreated:
+async def create_flight(flight: FlightModel) -> FlightCreated:
     """
     Creates a new flight
 
@@ -41,7 +38,6 @@ async def create_flight(
     """
     with tracer.start_as_current_span("create_flight"):
         controller = FlightController()
-        flight.rocket.motor.set_motor_kind(motor_kind)
         return await controller.post_flight(flight)
 
 
@@ -59,9 +55,7 @@ async def read_flight(flight_id: str) -> FlightRetrieved:
 
 
 @router.put("/{flight_id}", status_code=204)
-async def update_flight(
-    flight_id: str, flight: FlightModel, motor_kind: MotorKinds
-) -> None:
+async def update_flight(flight_id: str, flight: FlightModel) -> None:
     """
     Updates an existing flight
 
@@ -73,7 +67,6 @@ async def update_flight(
     """
     with tracer.start_as_current_span("update_flight"):
         controller = FlightController()
-        flight.rocket.motor.set_motor_kind(motor_kind)
         return await controller.put_flight_by_id(flight_id, flight)
 
 
@@ -144,11 +137,7 @@ async def update_flight_environment(
 
 
 @router.put("/{flight_id}/rocket", status_code=204)
-async def update_flight_rocket(
-    flight_id: str,
-    rocket: RocketModel,
-    motor_kind: MotorKinds,
-) -> None:
+async def update_flight_rocket(flight_id: str, rocket: RocketModel) -> None:
     """
     Updates flight rocket.
 
@@ -160,7 +149,6 @@ async def update_flight_rocket(
     """
     with tracer.start_as_current_span("update_flight_rocket"):
         controller = FlightController()
-        rocket.motor.set_motor_kind(motor_kind)
         return await controller.update_rocket_by_flight_id(
             flight_id,
             rocket=rocket,

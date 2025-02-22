@@ -47,7 +47,7 @@ class MotorService:
             "reshape_thrust_curve": False or motor.reshape_thrust_curve,
         }
 
-        match MotorKinds(motor.selected_motor_kind):
+        match MotorKinds(motor.motor_kind):
             case MotorKinds.LIQUID:
                 rocketpy_motor = LiquidMotor(**motor_core)
             case MotorKinds.HYBRID:

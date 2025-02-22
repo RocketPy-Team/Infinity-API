@@ -11,7 +11,6 @@ from src.views.rocket import (
     RocketRetrieved,
 )
 from src.models.rocket import RocketModel
-from src.models.motor import MotorKinds
 from src.controllers.rocket import RocketController
 
 router = APIRouter(
@@ -28,9 +27,7 @@ tracer = trace.get_tracer(__name__)
 
 
 @router.post("/", status_code=201)
-async def create_rocket(
-    rocket: RocketModel, motor_kind: MotorKinds
-) -> RocketCreated:
+async def create_rocket(rocket: RocketModel) -> RocketCreated:
     """
     Creates a new rocket
 
@@ -39,7 +36,6 @@ async def create_rocket(
     """
     with tracer.start_as_current_span("create_rocket"):
         controller = RocketController()
-        rocket.motor.set_motor_kind(motor_kind)
         return await controller.post_rocket(rocket)
 
 
@@ -57,9 +53,7 @@ async def read_rocket(rocket_id: str) -> RocketRetrieved:
 
 
 @router.put("/{rocket_id}", status_code=204)
-async def update_rocket(
-    rocket_id: str, rocket: RocketModel, motor_kind: MotorKinds
-) -> None:
+async def update_rocket(rocket_id: str, rocket: RocketModel) -> None:
     """
     Updates an existing rocket
 
@@ -71,7 +65,6 @@ async def update_rocket(
     """
     with tracer.start_as_current_span("update_rocket"):
         controller = RocketController()
-        rocket.motor.set_motor_kind(motor_kind)
         return await controller.put_rocket_by_id(rocket_id, rocket)
 
 
