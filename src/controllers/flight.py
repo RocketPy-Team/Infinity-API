@@ -109,4 +109,4 @@ class FlightController(ControllerInterface):
         flight_service = FlightService.from_flight_model(
             flight_retrieved.flight
         )
-        return flight_service.get_flight_simmulation()
+        return flight_service.get_flight_simulation()
