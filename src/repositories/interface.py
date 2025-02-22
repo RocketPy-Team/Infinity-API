@@ -215,10 +215,12 @@ class RepositoryInterface:
     @repository_exception_handler
     async def insert(self, data: dict):
         collection = self.get_collection()
-        assert self.model.model_validate(data)
+        try:
+            self.model.model_validate(data)
+        except ValidationError as e:
+            raise HTTPException(status_code=422, detail=str(e))
         result = await collection.insert_one(data)
         return str(result.inserted_id)
-
     @repository_exception_handler
     async def update_by_id(self, data: dict, *, data_id: str):
         collection = self.get_collection()
