@@ -9,7 +9,7 @@ from tenacity import (
     wait_fixed,
     retry,
 )
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 from pymongo.errors import PyMongoError
 from pymongo.server_api import ServerApi
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -221,6 +221,7 @@ class RepositoryInterface:
             raise HTTPException(status_code=422, detail=str(e))
         result = await collection.insert_one(data)
         return str(result.inserted_id)
+
     @repository_exception_handler
     async def update_by_id(self, data: dict, *, data_id: str):
         collection = self.get_collection()

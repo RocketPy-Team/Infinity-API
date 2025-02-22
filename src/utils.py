@@ -5,12 +5,22 @@ import io
 from typing import Annotated, NoReturn, Any
 import numpy as np
 
-from pydantic import BeforeValidator, PlainSerializer
+from pydantic import PlainSerializer
 from starlette.datastructures import Headers, MutableHeaders
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 
-def to_python_primitive(v):
+def to_python_primitive(v: Any) -> Any:
+    """
+    Convert complex types to Python primitives.
+
+    Args:
+        v: Any value, particularly those with a 'source' attribute
+           containing numpy arrays or generic types.
+
+    Returns:
+        The primitive representation of the input value.
+    """
     if hasattr(v, "source"):
         if isinstance(v.source, np.ndarray):
             return v.source.tolist()
@@ -19,13 +29,11 @@ def to_python_primitive(v):
             return v.source.item()
 
         return str(v.source)
-
     return str(v)
 
 
 AnyToPrimitive = Annotated[
     Any,
-    BeforeValidator(lambda v: v),
     PlainSerializer(to_python_primitive),
 ]
 
@@ -145,7 +153,6 @@ class GZipResponder:
             self.gzip_buffer.truncate()
 
             await self.send(message)
-        return
 
 
 async def unattached_send(message: Message) -> NoReturn:
