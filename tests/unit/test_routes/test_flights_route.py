@@ -5,7 +5,6 @@ from fastapi.testclient import TestClient
 from fastapi import HTTPException, status
 from src.models.environment import EnvironmentModel
 from src.models.flight import FlightModel
-from src.models.motor import MotorModel, MotorKinds
 from src.models.rocket import RocketModel
 from src.views.motor import MotorView
 from src.views.rocket import RocketView
@@ -61,21 +60,15 @@ def mock_controller_instance():
 def test_create_flight(stub_flight_dump, mock_controller_instance):
     mock_response = AsyncMock(return_value=FlightCreated(flight_id='123'))
     mock_controller_instance.post_flight = mock_response
-    with patch.object(
-        MotorModel, 'set_motor_kind', side_effect=None
-    ) as mock_set_motor_kind:
-        response = client.post(
-            '/flights/', json=stub_flight_dump, params={'motor_kind': 'HYBRID'}
-        )
-        assert response.status_code == 201
-        assert response.json() == {
-            'flight_id': '123',
-            'message': 'Flight successfully created',
-        }
-        mock_set_motor_kind.assert_called_once_with(MotorKinds.HYBRID)
-        mock_controller_instance.post_flight.assert_called_once_with(
-            FlightModel(**stub_flight_dump)
-        )
+    response = client.post('/flights/', json=stub_flight_dump)
+    assert response.status_code == 201
+    assert response.json() == {
+        'flight_id': '123',
+        'message': 'Flight successfully created',
+    }
+    mock_controller_instance.post_flight.assert_called_once_with(
+        FlightModel(**stub_flight_dump)
+    )
 
 
 def test_create_flight_optional_params(
@@ -95,21 +88,15 @@ def test_create_flight_optional_params(
     )
     mock_response = AsyncMock(return_value=FlightCreated(flight_id='123'))
     mock_controller_instance.post_flight = mock_response
-    with patch.object(
-        MotorModel, 'set_motor_kind', side_effect=None
-    ) as mock_set_motor_kind:
-        response = client.post(
-            '/flights/', json=stub_flight_dump, params={'motor_kind': 'HYBRID'}
-        )
-        assert response.status_code == 201
-        assert response.json() == {
-            'flight_id': '123',
-            'message': 'Flight successfully created',
-        }
-        mock_set_motor_kind.assert_called_once_with(MotorKinds.HYBRID)
-        mock_controller_instance.post_flight.assert_called_once_with(
-            FlightModel(**stub_flight_dump)
-        )
+    response = client.post('/flights/', json=stub_flight_dump)
+    assert response.status_code == 201
+    assert response.json() == {
+        'flight_id': '123',
+        'message': 'Flight successfully created',
+    }
+    mock_controller_instance.post_flight.assert_called_once_with(
+        FlightModel(**stub_flight_dump)
+    )
 
 
 def test_create_flight_invalid_input():
@@ -128,9 +115,7 @@ def test_create_flight_server_error(
         )
     )
     mock_controller_instance.post_flight = mock_response
-    response = client.post(
-        '/flights/', json=stub_flight_dump, params={'motor_kind': 'HYBRID'}
-    )
+    response = client.post('/flights/', json=stub_flight_dump)
     assert response.status_code == 500
     assert response.json() == {'detail': 'Internal Server Error'}
 
@@ -143,7 +128,7 @@ def test_read_flight(
 ):
     del stub_rocket_dump['motor']
     del stub_flight_dump['rocket']
-    stub_motor_dump.update({'selected_motor_kind': 'HYBRID'})
+    stub_motor_dump.update({'motor_kind': 'SOLID'})
     motor_view = MotorView(**stub_motor_dump)
     rocket_view = RocketView(**stub_rocket_dump, motor=motor_view)
     flight_view = FlightView(
@@ -181,19 +166,11 @@ def test_read_flight_server_error(mock_controller_instance):
 def test_update_flight_by_id(stub_flight_dump, mock_controller_instance):
     mock_response = AsyncMock(return_value=None)
     mock_controller_instance.put_flight_by_id = mock_response
-    with patch.object(
-        MotorModel, 'set_motor_kind', side_effect=None
-    ) as mock_set_motor_kind:
-        response = client.put(
-            '/flights/123',
-            json=stub_flight_dump,
-            params={'motor_kind': 'HYBRID'},
-        )
-        assert response.status_code == 204
-        mock_set_motor_kind.assert_called_once_with(MotorKinds.HYBRID)
-        mock_controller_instance.put_flight_by_id.assert_called_once_with(
-            '123', FlightModel(**stub_flight_dump)
-        )
+    response = client.put('/flights/123', json=stub_flight_dump)
+    assert response.status_code == 204
+    mock_controller_instance.put_flight_by_id.assert_called_once_with(
+        '123', FlightModel(**stub_flight_dump)
+    )
 
 
 def test_update_environment_by_flight_id(
@@ -215,19 +192,11 @@ def test_update_rocket_by_flight_id(
 ):
     mock_response = AsyncMock(return_value=None)
     mock_controller_instance.update_rocket_by_flight_id = mock_response
-    with patch.object(
-        MotorModel, 'set_motor_kind', side_effect=None
-    ) as mock_set_motor_kind:
-        response = client.put(
-            '/flights/123/rocket',
-            json=stub_rocket_dump,
-            params={'motor_kind': 'HYBRID'},
-        )
-        assert response.status_code == 204
-        mock_set_motor_kind.assert_called_once_with(MotorKinds.HYBRID)
-        mock_controller_instance.update_rocket_by_flight_id.assert_called_once_with(
-            '123', rocket=RocketModel(**stub_rocket_dump)
-        )
+    response = client.put('/flights/123/rocket', json=stub_rocket_dump)
+    assert response.status_code == 204
+    mock_controller_instance.update_rocket_by_flight_id.assert_called_once_with(
+        '123', rocket=RocketModel(**stub_rocket_dump)
+    )
 
 
 def test_update_environment_by_flight_id_invalid_input():
@@ -242,9 +211,7 @@ def test_update_rocket_by_flight_id_invalid_input():
 
 def test_update_flight_invalid_input():
     response = client.put(
-        '/flights/123',
-        json={'environment': 'foo', 'rocket': 'bar'},
-        params={'motor_kind': 'GENERIC'},
+        '/flights/123', json={'environment': 'foo', 'rocket': 'bar'}
     )
     assert response.status_code == 422
 
@@ -253,11 +220,7 @@ def test_update_flight_not_found(stub_flight_dump, mock_controller_instance):
     mock_controller_instance.put_flight_by_id.side_effect = HTTPException(
         status_code=status.HTTP_404_NOT_FOUND
     )
-    response = client.put(
-        '/flights/123',
-        json=stub_flight_dump,
-        params={'motor_kind': 'HYBRID'},
-    )
+    response = client.put('/flights/123', json=stub_flight_dump)
     assert response.status_code == 404
     assert response.json() == {'detail': 'Not Found'}
 
@@ -268,11 +231,7 @@ def test_update_flight_server_error(
     mock_controller_instance.put_flight_by_id.side_effect = HTTPException(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
     )
-    response = client.put(
-        '/flights/123',
-        json=stub_flight_dump,
-        params={'motor_kind': 'HYBRID'},
-    )
+    response = client.put('/flights/123', json=stub_flight_dump)
     assert response.status_code == 500
     assert response.json() == {'detail': 'Internal Server Error'}
 
@@ -309,11 +268,7 @@ def test_update_rocket_by_flight_id_not_found(
     mock_controller_instance.update_rocket_by_flight_id.side_effect = (
         HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     )
-    response = client.put(
-        '/flights/123/rocket',
-        json=stub_rocket_dump,
-        params={'motor_kind': 'HYBRID'},
-    )
+    response = client.put('/flights/123/rocket', json=stub_rocket_dump)
     assert response.status_code == 404
     assert response.json() == {'detail': 'Not Found'}
 
@@ -324,11 +279,7 @@ def test_update_rocket_by_flight_id_server_error(
     mock_controller_instance.update_rocket_by_flight_id.side_effect = (
         HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     )
-    response = client.put(
-        '/flights/123/rocket',
-        json=stub_rocket_dump,
-        params={'motor_kind': 'HYBRID'},
-    )
+    response = client.put('/flights/123/rocket', json=stub_rocket_dump)
     assert response.status_code == 500
     assert response.json() == {'detail': 'Internal Server Error'}
 

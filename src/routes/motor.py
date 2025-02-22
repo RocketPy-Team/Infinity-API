@@ -10,7 +10,7 @@ from src.views.motor import (
     MotorCreated,
     MotorRetrieved,
 )
-from src.models.motor import MotorModel, MotorKinds
+from src.models.motor import MotorModel
 from src.controllers.motor import MotorController
 
 router = APIRouter(
@@ -27,9 +27,7 @@ tracer = trace.get_tracer(__name__)
 
 
 @router.post("/", status_code=201)
-async def create_motor(
-    motor: MotorModel, motor_kind: MotorKinds
-) -> MotorCreated:
+async def create_motor(motor: MotorModel) -> MotorCreated:
     """
     Creates a new motor
 
@@ -38,7 +36,6 @@ async def create_motor(
     """
     with tracer.start_as_current_span("create_motor"):
         controller = MotorController()
-        motor.set_motor_kind(motor_kind)
         return await controller.post_motor(motor)
 
 
@@ -56,9 +53,7 @@ async def read_motor(motor_id: str) -> MotorRetrieved:
 
 
 @router.put("/{motor_id}", status_code=204)
-async def update_motor(
-    motor_id: str, motor: MotorModel, motor_kind: MotorKinds
-) -> None:
+async def update_motor(motor_id: str, motor: MotorModel) -> None:
     """
     Updates an existing motor
 
@@ -70,7 +65,6 @@ async def update_motor(
     """
     with tracer.start_as_current_span("update_motor"):
         controller = MotorController()
-        motor.set_motor_kind(motor_kind)
         return await controller.put_motor_by_id(motor_id, motor)
 
 

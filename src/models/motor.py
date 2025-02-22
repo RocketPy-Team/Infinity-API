@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import Optional, Tuple, List, Union, Self, ClassVar, Literal
-from pydantic import PrivateAttr, model_validator, computed_field
+from pydantic import model_validator
 
 from src.models.interface import ApiBaseModel
 from src.models.sub.tanks import MotorTank
@@ -24,6 +24,7 @@ class MotorModel(ApiBaseModel):
     dry_mass: float
     dry_inertia: Tuple[float, float, float] = (0, 0, 0)
     center_of_dry_mass_position: float
+    motor_kind: MotorKinds
 
     # Generic motor parameters
     chamber_radius: Optional[float] = None
@@ -56,28 +57,16 @@ class MotorModel(ApiBaseModel):
     ] = 'nozzle_to_combustion_chamber'
     reshape_thrust_curve: Union[bool, tuple] = False
 
-    # Computed parameters
-    _motor_kind: MotorKinds = PrivateAttr(default=MotorKinds.SOLID)
-
     @model_validator(mode='after')
     # TODO: extend guard to check motor kinds and tank kinds specifics
     def validate_motor_kind(self):
         if (
-            self._motor_kind not in (MotorKinds.SOLID, MotorKinds.GENERIC)
+            self.motor_kind not in (MotorKinds.SOLID, MotorKinds.GENERIC)
             and self.tanks is None
         ):
             raise ValueError(
                 "Tanks must be provided for liquid and hybrid motors."
             )
-        return self
-
-    @computed_field
-    @property
-    def selected_motor_kind(self) -> str:
-        return self._motor_kind.value
-
-    def set_motor_kind(self, motor_kind: MotorKinds):
-        self._motor_kind = motor_kind
         return self
 
     @staticmethod

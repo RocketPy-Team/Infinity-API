@@ -24,6 +24,7 @@ def stub_motor_dump():
         dry_mass=0,
         dry_inertia=[0, 0, 0],
         center_of_dry_mass_position=0,
+        motor_kind='GENERIC',
     )
     motor_json = motor.model_dump_json()
     return json.loads(motor_json)
