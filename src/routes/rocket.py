@@ -84,12 +84,12 @@ async def delete_rocket(rocket_id: str) -> None:
 @router.get(
     "/{rocket_id}/rocketpy",
     responses={
-        203: {
+        200: {
             "description": "Binary file download",
             "content": {"application/octet-stream": {}},
         }
     },
-    status_code=203,
+    status_code=200,
     response_class=Response,
 )
 async def get_rocketpy_rocket_binary(rocket_id: str):
@@ -110,7 +110,7 @@ async def get_rocketpy_rocket_binary(rocket_id: str):
             content=binary,
             headers=headers,
             media_type="application/octet-stream",
-            status_code=203,
+            status_code=200,
         )
 
 

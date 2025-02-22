@@ -86,12 +86,12 @@ async def delete_flight(flight_id: str) -> None:
 @router.get(
     "/{flight_id}/rocketpy",
     responses={
-        203: {
+        200: {
             "description": "Binary file download",
             "content": {"application/octet-stream": {}},
         }
     },
-    status_code=203,
+    status_code=200,
     response_class=Response,
 )
 async def get_rocketpy_flight_binary(flight_id: str):
@@ -112,7 +112,7 @@ async def get_rocketpy_flight_binary(flight_id: str):
             content=binary,
             headers=headers,
             media_type="application/octet-stream",
-            status_code=203,
+            status_code=200,
         )
 
 

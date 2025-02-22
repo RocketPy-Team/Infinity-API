@@ -385,7 +385,7 @@ def test_read_rocketpy_motor_binary(mock_controller_instance):
     mock_response = AsyncMock(return_value=b'rocketpy')
     mock_controller_instance.get_rocketpy_motor_binary = mock_response
     response = client.get('/motors/123/rocketpy')
-    assert response.status_code == 203
+    assert response.status_code == 200
     assert response.content == b'rocketpy'
     assert response.headers['content-type'] == 'application/octet-stream'
     mock_controller_instance.get_rocketpy_motor_binary.assert_called_once_with(
