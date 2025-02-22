@@ -1,5 +1,7 @@
+pytest_asyncio
 flake8
 pylint
 ruff
 pytest
 httpx
+black

@@ -25,8 +25,8 @@ $ touch .env && echo MONGODB_CONNECTION_STRING="$ConnectionString" > .env
 - run docker compose: `docker-compose up --build -d`
 
 ### Standalone 
-- Dev: `python3 -m uvicorn lib:app --reload --port 3000`
-- Prod: `gunicorn -k uvicorn.workers.UvicornWorker lib:app -b 0.0.0.0:3000`
+- Dev: `python3 -m uvicorn src:app --reload --port 3000`
+- Prod: `gunicorn -k uvicorn.workers.UvicornWorker src:app -b 0.0.0.0:3000`
 
 ## Project structure
 ```
@@ -39,6 +39,7 @@ $ touch .env && echo MONGODB_CONNECTION_STRING="$ConnectionString" > .env
 │   │── secrets.py
 │   │   
 │   ├── controllers
+│   │   ├── interface.py
 │   │   ├── environment.py
 │   │   ├── flight.py
 │   │   ├── motor.py
@@ -57,65 +58,31 @@ $ touch .env && echo MONGODB_CONNECTION_STRING="$ConnectionString" > .env
 │   │   └── rocket.py
 │   │   
 │   ├── repositories
-│   │   ├── repo.py
+│   │   ├── interface.py
 │   │   ├── environment.py
 │   │   ├── flight.py
 │   │   ├── motor.py
 │   │   └── rocket.py
 │   │   
 │   ├── models
-│   │   ├── aerosurfaces.py
+│   │   ├── interface.py
 │   │   ├── environment.py
 │   │   ├── flight.py
 │   │   ├── motor.py
-│   │   └── rocket.py
+│   │   ├── rocket.py
+│   │   │   
+│   │   └── sub
+│   │       ├── aerosurfaces.py
+│   │       └── tanks.py
 │   │   
 │   └── views
+│       ├── interface.py
 │       ├── environment.py
 │       ├── flight.py
 │       ├── motor.py
 │       └── rocket.py
 │   
 └── tests
-    ├── integration 
-    │   ├── test_environment_integration.py
-    │   ├── test_motor_integration.py
-    │   ├── test_rocket_integration.py
-    │   └── test_flight_integration.py
-    │   
-    └── unit
-        ├── test_secrets.py
-        ├── test_api.py
-        │   
-        ├── test_controllers
-        │   ├── test_environment_controller.py
-        │   ├── test_flight_controller.py
-        │   ├── test_motor_controller.py
-        │   └── test_rocket_controller.py
-        │   
-        ├── test_services
-        │   ├── test_environment_service.py
-        │   ├── test_flight_service.py
-        │   ├── test_motor_service.py
-        │   └── test_rocket_serice.py
-        │
-        ├── test_repositories
-        │   ├── test_environment_repo.py
-        │   ├── test_flight_repo.py
-        │   ├── test_motor_repo.py
-        │   └── test_rocket_repo.py
-        │
-        ├── test_models
-        │   ├── test_environment_model.py
-        │   ├── test_flight_model.py
-        │   ├── test_motor_model.py
-        │   └── test_rocket_model.py
-        │   
-        └── test_views
-            ├── test_environment_view.py
-            ├── test_flight_view.py
-            ├── test_motor_view.py
-            └── test_rocket_view.py
 ```
 
 ## DOCS
@@ -135,21 +102,21 @@ sequenceDiagram
     User ->> API: POST /model    
     API ->> MongoDB: Persist API Model as a document
     MongoDB -->> API: Model ID
-    API -->> User: ModelCreated View
+    API -->> User: 201 ModelCreated View
 
     User ->> API: GET /model/:id
     API ->> MongoDB: Read API Model document
     MongoDB -->> API: API Model document
-    API -->> User: API ModelView
+    API -->> User: 200 API ModelView
 
     User ->> API: PUT /model/:id
     API ->> MongoDB: Update API Model document
-    API -->> User: ModelUpdated View
+    API -->> User: 204
 
     User ->> API: DELETE /model/:id
     API ->> MongoDB: Delete API Model document
     MongoDB -->> API: Deletion Confirmation
-    API -->> User: ModelDeleted View
+    API -->> User: 204
 
 ```
 
@@ -159,19 +126,19 @@ sequenceDiagram
     participant User
     participant API
     participant MongoDB
-    participant Rocketpy lib
+    participant RocketPy lib
 
-    User ->> API: GET /summary/model/:id
-    API -->> MongoDB: Retrieve Rocketpy native class
-    MongoDB -->> API: Rocketpy native class
-    API ->> Rocketpy lib: Simulate Rocketpy native class
-    Rocketpy lib -->> API:  Simulation Results
+    User ->> API: GET model/:id/simulate/
+    API -->> MongoDB: Retrieve API Model document
+    MongoDB -->> API: API Model document 
+    API ->> RocketPy: Initialize RocketPy native class and simulate
+    RocketPy lib -->> API: Simulation Results
     API -->> User: Simulation Results
 
     User ->> API: GET /model/:id/rocketpy
-    API -->> MongoDB: Retrieve Rocketpy Model
-    MongoDB -->> API: Rocketpy Model
-    API ->> Rocketpy lib: Rocketpy Model
-    Rocketpy lib -->> API:  Rocketpy native class
-    API -->> User: Rocketpy native class as .dill binary
+    API -->> MongoDB: Retrieve API Model document
+    MongoDB -->> API: API Model document 
+    API ->> RocketPy: Initialize RocketPy native class
+    RocketPy lib -->> API: RocketPy native class
+    API -->> User: RocketPy native class as .dill binary (amd64)
 ```

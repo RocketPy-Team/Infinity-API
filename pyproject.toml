@@ -23,6 +23,11 @@ Documentation = "http://api.rocketpy.org/docs"
 Repository = "https://github.com/RocketPy-Team/infinity-api"
 "Bug Tracker" = "https://github.com/RocketPy-Team/Infinity-API/issues"
 
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "--import-mode=importlib"
+
 [tool.black]
 line-length = 79
 include = '\.py$'
@@ -47,6 +52,9 @@ disable = """
     too-many-arguments,
     redefined-outer-name,
     too-many-positional-arguments,
+    no-member,
+    protected-access,
+    import-outside-toplevel,
 """
 
 [tool.ruff]
@@ -55,7 +63,7 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "N", "Q"]
-ignore = ["N815", "E501", "Q000", "E402"]
+ignore = ["N815", "E501", "Q000", "E402", "N802"]
 fixable = [
     "F401",
 ]
