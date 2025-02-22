@@ -339,7 +339,7 @@ def test_read_rocketpy_flight_binary(mock_controller_instance):
         return_value=b'rocketpy'
     )
     response = client.get('/flights/123/rocketpy')
-    assert response.status_code == 203
+    assert response.status_code == 200
     assert response.content == b'rocketpy'
     assert response.headers['content-type'] == 'application/octet-stream'
     mock_controller_instance.get_rocketpy_flight_binary.assert_called_once_with(
