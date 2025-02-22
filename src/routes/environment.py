@@ -64,10 +64,10 @@ async def update_environment(
     ## Args
     ```
         environment_id: str
-        becho: models.Becho JSON
+        environment: models.Environment JSON
     ```
     """
-    with tracer.start_as_current_span("update_becho"):
+    with tracer.start_as_current_span("update_environment"):
         controller = EnvironmentController()
         return await controller.put_environment_by_id(
             environment_id, environment
@@ -82,7 +82,7 @@ async def delete_environment(environment_id: str) -> None:
     ## Args
     ``` environment_id: str ```
     """
-    with tracer.start_as_current_span("delete_becho"):
+    with tracer.start_as_current_span("delete_environment"):
         controller = EnvironmentController()
         return await controller.delete_environment_by_id(environment_id)
 
