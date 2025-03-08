@@ -8,6 +8,13 @@ from pydantic import (
 
 
 class ApiBaseModel(BaseModel, ABC):
+    """
+    Base class for all models in the API.
+
+    This class is used to define the common attributes and
+    methods that all models in the API should have.
+    """
+
     _id: Optional[str] = PrivateAttr(default=None)
     model_config = ConfigDict(
         use_enum_values=True,
