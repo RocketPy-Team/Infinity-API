@@ -37,6 +37,19 @@ def controller_exception_handler(method):
 
 
 class ControllerBase:
+    """
+    ControllerBase is a base class for all controllers. It provides a set of
+    methods to handle the CRUD operations for the models provided in the
+    constructor. CRUD methods are generated dynamically based on the model
+    methods and the model name.
+
+    The methods are named as follows:
+        - post_{model_name} for POST method
+        - get_{model_name}_by_id for GET method
+        - put_{model_name}_by_id for PUT method
+        - delete_{model_name}_by_id for DELETE method
+
+    """
 
     def __init__(self, models: List[ApiBaseModel]):
         self._initialized_models = {}

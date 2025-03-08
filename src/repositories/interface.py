@@ -82,6 +82,15 @@ class RepoInstances(BaseModel):
 class RepositoryInterface:
     """
     Interface class for all repositories (singleton)
+
+    This class is used to define the common attributes and
+    methods that all repositories should have.
+
+    The class is a singleton, meaning that only one instance
+    of the class is created and shared among all instances
+    of the class. This is done to ensure that only one
+    connection per collection in the database is created
+    and shared among all repositories.
     """
 
     _global_instances = {}
