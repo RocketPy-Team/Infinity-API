@@ -17,8 +17,8 @@ class FlightModel(ApiBaseModel):
     equations_of_motion: Literal['standard', 'solid_propulsion'] = 'standard'
 
     # Optional parameters
-    inclination: Optional[int] = None
-    heading: Optional[int] = None
+    inclination: float = 90.0
+    heading: float = 0.0
     # TODO: implement initial_solution
     max_time: Optional[int] = None
     max_time_step: Optional[float] = None
