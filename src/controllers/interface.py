@@ -36,7 +36,7 @@ def controller_exception_handler(method):
     return wrapper
 
 
-class ControllerInterface:
+class ControllerBase:
 
     def __init__(self, models: List[ApiBaseModel]):
         self._initialized_models = {}

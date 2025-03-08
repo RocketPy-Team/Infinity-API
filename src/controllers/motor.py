@@ -1,5 +1,5 @@
 from src.controllers.interface import (
-    ControllerInterface,
+    ControllerBase,
     controller_exception_handler,
 )
 from src.views.motor import MotorSimulation
@@ -7,7 +7,7 @@ from src.models.motor import MotorModel
 from src.services.motor import MotorService
 
 
-class MotorController(ControllerInterface):
+class MotorController(ControllerBase):
     """
     Controller for the motor model.
 

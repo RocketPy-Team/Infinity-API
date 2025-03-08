@@ -1,5 +1,5 @@
 from src.controllers.interface import (
-    ControllerInterface,
+    ControllerBase,
     controller_exception_handler,
 )
 from src.views.flight import FlightSimulation
@@ -9,7 +9,7 @@ from src.models.rocket import RocketModel
 from src.services.flight import FlightService
 
 
-class FlightController(ControllerInterface):
+class FlightController(ControllerBase):
     """
     Controller for the Flight model.
 

@@ -1,5 +1,5 @@
 from src.controllers.interface import (
-    ControllerInterface,
+    ControllerBase,
     controller_exception_handler,
 )
 from src.views.environment import EnvironmentSimulation
@@ -7,7 +7,7 @@ from src.models.environment import EnvironmentModel
 from src.services.environment import EnvironmentService
 
 
-class EnvironmentController(ControllerInterface):
+class EnvironmentController(ControllerBase):
     """
     Controller for the Environment model.
 

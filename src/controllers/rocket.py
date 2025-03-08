@@ -1,5 +1,5 @@
 from src.controllers.interface import (
-    ControllerInterface,
+    ControllerBase,
     controller_exception_handler,
 )
 from src.views.rocket import RocketSimulation
@@ -7,7 +7,7 @@ from src.models.rocket import RocketModel
 from src.services.rocket import RocketService
 
 
-class RocketController(ControllerInterface):
+class RocketController(ControllerBase):
     """
     Controller for the Rocket model.
 
