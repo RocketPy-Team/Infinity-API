@@ -13,7 +13,7 @@ class FlightModel(ApiBaseModel):
     rocket: RocketModel
     rail_length: float = 1
     time_overshoot: bool = True
-    terminate_on_apogee: bool = True
+    terminate_on_apogee: bool = False
     equations_of_motion: Literal['standard', 'solid_propulsion'] = 'standard'
 
     # Optional parameters
