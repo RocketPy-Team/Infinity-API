@@ -2,6 +2,7 @@ motor
 dill
 python-dotenv
 fastapi
+uvloop
 pydantic
 numpy==1.26.4
 pymongo
