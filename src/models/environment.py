@@ -8,7 +8,7 @@ class EnvironmentModel(ApiBaseModel):
     METHODS: ClassVar = ('POST', 'GET', 'PUT', 'DELETE')
     latitude: float
     longitude: float
-    elevation: Optional[int] = 1
+    elevation: Optional[float] = 0.0
 
     # Optional parameters
     atmospheric_model_type: Literal[
