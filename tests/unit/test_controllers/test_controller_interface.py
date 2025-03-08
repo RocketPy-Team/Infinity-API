@@ -3,7 +3,7 @@ import pytest
 from pymongo.errors import PyMongoError
 from fastapi import HTTPException, status
 from src.controllers.interface import (
-    ControllerInterface,
+    ControllerBase,
     controller_exception_handler,
 )
 
@@ -22,7 +22,7 @@ def stub_model():
 
 @pytest.fixture
 def stub_controller(stub_model):
-    return ControllerInterface([stub_model])
+    return ControllerBase([stub_model])
 
 
 @pytest.mark.asyncio
@@ -97,10 +97,10 @@ async def test_controller_exception_handler_unexpected_exception(stub_model):
 
 def test_controller_interface_init(stub_model):
     with patch(
-        'src.controllers.interface.ControllerInterface._generate_method'
+        'src.controllers.interface.ControllerBase._generate_method'
     ) as mock_gen:
         mock_gen.return_value = lambda *args, **kwargs: True
-        stub_controller = ControllerInterface([stub_model])
+        stub_controller = ControllerBase([stub_model])
         assert stub_controller._initialized_models == {
             'test_model': stub_model
         }
@@ -120,7 +120,7 @@ async def test_controller_interface_generate_available_method(
 ):
     with patch('src.controllers.interface.RepositoryInterface') as mock_repo:
         with patch(
-            'src.controllers.interface.ControllerInterface._get_model'
+            'src.controllers.interface.ControllerBase._get_model'
         ) as mock_get:
             mock_get.return_value = stub_model
             method = stub_controller._generate_method('get', stub_model)
