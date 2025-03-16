@@ -1,5 +1,6 @@
 import uptrace
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from uvicorn.workers import UvicornWorker
 from src.secrets import Secrets
 
 
@@ -15,3 +16,7 @@ def post_fork(server, worker):  # pylint: disable=unused-argument
     )
 
     FastAPIInstrumentor.instrument_app(fastapi_server)
+
+
+class UvloopUvicornWorker(UvicornWorker):
+    CONFIG_KWARGS = {"loop": "uvloop"}
