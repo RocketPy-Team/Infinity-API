@@ -16,4 +16,4 @@ RUN apt-get update && \
 
 COPY ./src /app/src
 
-CMD ["gunicorn", "-c", "src/settings/gunicorn.py", "-w", "1", "--threads=2", "-k", "uvicorn.workers.UvicornWorker", "src.api:app", "--log-level", "Debug", "-b", "0.0.0.0:3000", "--timeout", "60", "--loop", "uvloop"]
+CMD ["gunicorn", "-c", "src/settings/gunicorn.py", "-w", "1", "--threads=2", "-k", "uvicorn.workers.UvicornWorker", "src.api:app", "--log-level", "Debug", "-b", "0.0.0.0:3000", "--timeout", "60"]
