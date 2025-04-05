@@ -34,6 +34,7 @@ class FlightModel(ApiBaseModel):
             if value is not None
             and key
             not in [
+                "flight_id",
                 "name",
                 "environment",
                 "rocket",
