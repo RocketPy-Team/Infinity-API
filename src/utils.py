@@ -16,7 +16,7 @@ def to_python_primitive(v: Any) -> Any:
 
     Args:
         v: Any value, particularly those with a 'source' attribute
-           containing numpy arrays or generic types.
+       containing numpy arrays or generic types.
 
     Returns:
         The primitive representation of the input value.
@@ -29,6 +29,13 @@ def to_python_primitive(v: Any) -> Any:
             return v.source.item()
 
         return str(v.source)
+
+    if isinstance(v, (np.generic,)):
+        return v.item()
+
+    if isinstance(v, (np.ndarray,)):
+        return v.tolist()
+
     return str(v)
 
 
