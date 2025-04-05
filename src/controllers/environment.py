@@ -36,10 +36,8 @@ class EnvironmentController(ControllerBase):
         Raises:
             HTTP 404 Not Found: If the env is not found in the database.
         """
-        env_retrieved = await self.get_environment_by_id(env_id)
-        env_service = EnvironmentService.from_env_model(
-            env_retrieved.environment
-        )
+        env = await self.get_environment_by_id(env_id)
+        env_service = EnvironmentService.from_env_model(env.environment)
         return env_service.get_environment_binary()
 
     @controller_exception_handler
@@ -58,8 +56,6 @@ class EnvironmentController(ControllerBase):
         Raises:
             HTTP 404 Not Found: If the env does not exist in the database.
         """
-        env_retrieved = await self.get_environment_by_id(env_id)
-        env_service = EnvironmentService.from_env_model(
-            env_retrieved.environment
-        )
+        env = await self.get_environment_by_id(env_id)
+        env_service = EnvironmentService.from_env_model(env.environment)
         return env_service.get_environment_simulation()
