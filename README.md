@@ -1,5 +1,7 @@
 # Infinity-API
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/RocketPy-Team/Infinity-API)
+
 ## Capabilities
 - Performs rocket simulations and returns simulation data
 - Stores simulation input data in mongo-db
