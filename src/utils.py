@@ -49,7 +49,7 @@ def rocketpy_encoder(obj, config: DiscretizeConfig = DiscretizeConfig()):
     """
     Encode a RocketPy object using official RocketPy encoders.
 
-    This function creates a shallow copy of the object, discretizes callable Function
+    This function creates a copy of the object, discretizes callable Function
     attributes on the copy, and then uses RocketPy's official RocketPyEncoder for
     complete object serialization. The original object remains unchanged.
 
@@ -61,7 +61,7 @@ def rocketpy_encoder(obj, config: DiscretizeConfig = DiscretizeConfig()):
         Dictionary of encoded attributes
     """
 
-    # Create a shallow copy to avoid mutating the original object
+    # Create a copy to avoid mutating the original object
     obj_copy = copy.deepcopy(obj)
 
     for attr_name in dir(obj_copy):
