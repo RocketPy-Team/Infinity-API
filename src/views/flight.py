@@ -78,14 +78,34 @@ class FlightSimulation(RocketSimulation, EnvironmentSimulation):
     time: Optional[Any] = None
     solution: Optional[Any] = None
 
-    def __init__(self, **data):
-        """
-        Initialize with dynamic attribute handling.
-
-        Any additional attributes returned by rocketpy_encoder will be stored
-        as extra fields thanks to the 'allow' extra configuration.
-        """
-        super().__init__(**data)
+    # Function attributes (discretized by rocketpy_encoder, serialized by RocketPyEncoder)
+    angular_position: Optional[Any] = None
+    attitude_angle: Optional[Any] = None
+    attitude_vector_x: Optional[Any] = None
+    attitude_vector_y: Optional[Any] = None
+    attitude_vector_z: Optional[Any] = None
+    trajectory: Optional[Any] = None
+    velocity: Optional[Any] = None
+    acceleration: Optional[Any] = None
+    acceleration_power_on: Optional[Any] = None
+    acceleration_power_off: Optional[Any] = None
+    stream_velocity: Optional[Any] = None
+    free_stream_speed: Optional[Any] = None
+    apogee_freestream_speed: Optional[Any] = None
+    reynolds_number: Optional[Any] = None
+    total_pressure: Optional[Any] = None
+    rail_button_normal_force: Optional[Any] = None
+    max_rail_button_normal_force: Optional[Any] = None
+    rail_button_shear_force: Optional[Any] = None
+    max_rail_button_shear_force: Optional[Any] = None
+    rotational_energy: Optional[Any] = None
+    translational_energy: Optional[Any] = None
+    kinetic_energy: Optional[Any] = None
+    potential_energy: Optional[Any] = None
+    total_energy: Optional[Any] = None
+    thrust_power: Optional[Any] = None
+    drag_power: Optional[Any] = None
+    drift: Optional[Any] = None
 
 
 class FlightView(FlightModel):
