@@ -1,8 +1,8 @@
-# fork of https://github.com/encode/starlette/blob/master/starlette/middleware/gzip.py
 import gzip
 import io
 import logging
 import json
+import copy
 
 from typing import NoReturn, Tuple
 
@@ -49,8 +49,9 @@ def rocketpy_encoder(obj, config: DiscretizeConfig = DiscretizeConfig()):
     """
     Encode a RocketPy object using official RocketPy encoders.
 
-    This function discretizes callable Function attributes and then uses
-    RocketPy's official RocketPyEncoder for complete object serialization.
+    This function creates a shallow copy of the object, discretizes callable Function
+    attributes on the copy, and then uses RocketPy's official RocketPyEncoder for
+    complete object serialization. The original object remains unchanged.
 
     Args:
         obj: RocketPy object (Environment, Motor, Rocket, Flight)
@@ -60,22 +61,20 @@ def rocketpy_encoder(obj, config: DiscretizeConfig = DiscretizeConfig()):
         Dictionary of encoded attributes
     """
 
-    for attr_name in dir(obj):
+    # Create a shallow copy to avoid mutating the original object
+    obj_copy = copy.copy(obj)
+
+    for attr_name in dir(obj_copy):
         if attr_name.startswith('_'):
             continue
 
         try:
-            attr_value = getattr(obj, attr_name)
+            attr_value = getattr(obj_copy, attr_name)
         except Exception:
             continue
 
         if callable(attr_value) and isinstance(attr_value, Function):
             try:
-                # Create a new Function from the source to avoid mutating the original object.
-                # This is important because:
-                # 1. The original RocketPy object should remain unchanged for reusability
-                # 2. Multiple simulations might need different discretization parameters
-                # 3. Other parts of the system might depend on the original continuous function
                 discretized_func = Function(attr_value.source)
                 discretized_func.set_discrete(
                     lower=config.bounds[0],
@@ -84,14 +83,14 @@ def rocketpy_encoder(obj, config: DiscretizeConfig = DiscretizeConfig()):
                     mutate_self=True,
                 )
 
-                setattr(obj, attr_name, discretized_func)
+                setattr(obj_copy, attr_name, discretized_func)
 
             except Exception as e:
                 logger.warning(f"Failed to discretize {attr_name}: {e}")
 
     try:
         json_str = json.dumps(
-            obj,
+            obj_copy,
             cls=RocketPyEncoder,
             include_outputs=True,
             include_function_data=True,
@@ -100,10 +99,10 @@ def rocketpy_encoder(obj, config: DiscretizeConfig = DiscretizeConfig()):
     except Exception as e:
         logger.warning(f"Failed to encode with RocketPyEncoder: {e}")
         attributes = {}
-        for attr_name in dir(obj):
+        for attr_name in dir(obj_copy):
             if not attr_name.startswith('_'):
                 try:
-                    attr_value = getattr(obj, attr_name)
+                    attr_value = getattr(obj_copy, attr_name)
                     if not callable(attr_value):
                         attributes[attr_name] = str(attr_value)
                 except Exception:
@@ -136,6 +135,7 @@ class RocketPyGZipMiddleware:
 
 
 class GZipResponder:
+    # fork of https://github.com/encode/starlette/blob/master/starlette/middleware/gzip.py
     def __init__(
         self, app: ASGIApp, minimum_size: int, compresslevel: int = 9
     ) -> None:
