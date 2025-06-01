@@ -6,7 +6,6 @@ from rocketpy.motors.motor import GenericMotor, Motor as RocketPyMotor
 from rocketpy.motors.solid_motor import SolidMotor
 from rocketpy.motors.liquid_motor import LiquidMotor
 from rocketpy.motors.hybrid_motor import HybridMotor
-from rocketpy.utilities import get_instance_attributes
 from rocketpy import (
     LevelBasedTank,
     MassBasedTank,
@@ -18,6 +17,7 @@ from rocketpy import (
 from src.models.sub.tanks import TankKinds
 from src.models.motor import MotorKinds, MotorModel
 from src.views.motor import MotorSimulation
+from src.utils import rocketpy_encoder, DiscretizeConfig
 
 
 class MotorService:
@@ -140,7 +140,7 @@ class MotorService:
         Returns:
             MotorSimulation
         """
-        attributes = get_instance_attributes(self.motor)
+        attributes = rocketpy_encoder(self.motor, DiscretizeConfig.for_motor())
         motor_simulation = MotorSimulation(**attributes)
         return motor_simulation
 
