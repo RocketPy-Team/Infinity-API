@@ -62,7 +62,7 @@ def rocketpy_encoder(obj, config: DiscretizeConfig = DiscretizeConfig()):
     """
 
     # Create a shallow copy to avoid mutating the original object
-    obj_copy = copy.copy(obj)
+    obj_copy = copy.deepcopy(obj)
 
     for attr_name in dir(obj_copy):
         if attr_name.startswith('_'):
