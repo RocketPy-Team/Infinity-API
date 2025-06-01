@@ -1,41 +1,61 @@
-from typing import Optional
+from typing import Optional, Any
+from pydantic import ConfigDict
 from src.models.rocket import RocketModel
 from src.views.interface import ApiBaseView
 from src.views.motor import MotorView, MotorSimulation
-from src.utils import AnyToPrimitive
 
 
 class RocketSimulation(MotorSimulation):
+    """
+    Rocket simulation view that handles dynamically encoded RocketPy Rocket attributes.
+
+    Inherits from MotorSimulation and adds rocket-specific attributes. Uses the new
+    rocketpy_encoder which may return different attributes based on the actual
+    RocketPy Rocket object. The model allows extra fields to accommodate any new
+    attributes that might be encoded.
+    """
+
+    model_config = ConfigDict(extra='allow', arbitrary_types_allowed=True)
+
     message: str = "Rocket successfully simulated"
-    area: Optional[float] = None
-    coordinate_system_orientation: str = 'tail_to_nose'
+
+    # Core Rocket attributes (always present)
+    radius: Optional[float] = None
+    mass: Optional[float] = None
+    inertia: Optional[tuple] = None
+    power_off_drag: Optional[float] = None
+    power_on_drag: Optional[float] = None
     center_of_mass_without_motor: Optional[float] = None
-    motor_center_of_dry_mass_position: Optional[float] = None
-    motor_position: Optional[float] = None
-    nozzle_position: Optional[float] = None
-    nozzle_to_cdm: Optional[float] = None
-    cp_eccentricity_x: Optional[float] = None
-    cp_eccentricity_y: Optional[float] = None
-    thrust_eccentricity_x: Optional[float] = None
-    thrust_eccentricity_y: Optional[float] = None
-    I_11_without_motor: Optional[AnyToPrimitive] = None
-    I_12_without_motor: Optional[AnyToPrimitive] = None
-    I_13_without_motor: Optional[AnyToPrimitive] = None
-    I_22_without_motor: Optional[AnyToPrimitive] = None
-    I_23_without_motor: Optional[AnyToPrimitive] = None
-    I_33_without_motor: Optional[AnyToPrimitive] = None
-    check_parachute_trigger: Optional[AnyToPrimitive] = None
-    com_to_cdm_function: Optional[AnyToPrimitive] = None
-    cp_position: Optional[AnyToPrimitive] = None
-    motor_center_of_mass_position: Optional[AnyToPrimitive] = None
-    nozzle_gyration_tensor: Optional[AnyToPrimitive] = None
-    power_off_drag: Optional[AnyToPrimitive] = None
-    power_on_drag: Optional[AnyToPrimitive] = None
-    reduced_mass: Optional[AnyToPrimitive] = None
-    stability_margin: Optional[AnyToPrimitive] = None
-    static_margin: Optional[AnyToPrimitive] = None
-    thrust_to_weight: Optional[AnyToPrimitive] = None
-    total_lift_coeff_der: Optional[AnyToPrimitive] = None
+    coordinate_system_orientation: Optional[str] = None
+    parachutes: Optional[list] = None
+    motor: Optional[MotorSimulation] = None
+
+    # Function attributes (discretized by rocketpy_encoder, serialized by RocketPyEncoder)
+    I_11_without_motor: Optional[Any] = None
+    I_12_without_motor: Optional[Any] = None
+    I_13_without_motor: Optional[Any] = None
+    I_22_without_motor: Optional[Any] = None
+    I_23_without_motor: Optional[Any] = None
+    I_33_without_motor: Optional[Any] = None
+    check_parachute_trigger: Optional[Any] = None
+    com_to_cdm_function: Optional[Any] = None
+    cp_position: Optional[Any] = None
+    motor_center_of_mass_position: Optional[Any] = None
+    nozzle_gyration_tensor: Optional[Any] = None
+    reduced_mass: Optional[Any] = None
+    stability_margin: Optional[Any] = None
+    static_margin: Optional[Any] = None
+    thrust_to_weight: Optional[Any] = None
+    total_lift_coeff_der: Optional[Any] = None
+
+    def __init__(self, **data):
+        """
+        Initialize with dynamic attribute handling.
+
+        Any additional attributes returned by rocketpy_encoder will be stored
+        as extra fields thanks to the 'allow' extra configuration.
+        """
+        super().__init__(**data)
 
 
 class RocketView(RocketModel):

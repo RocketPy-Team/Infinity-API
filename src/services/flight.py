@@ -3,12 +3,12 @@ from typing import Self
 import dill
 
 from rocketpy.simulation.flight import Flight as RocketPyFlight
-from rocketpy.utilities import get_instance_attributes
 
 from src.services.environment import EnvironmentService
 from src.services.rocket import RocketService
 from src.models.flight import FlightModel
 from src.views.flight import FlightSimulation
+from src.utils import rocketpy_encoder, DiscretizeConfig
 
 
 class FlightService:
@@ -55,7 +55,9 @@ class FlightService:
         Returns:
             FlightSimulation
         """
-        attributes = get_instance_attributes(self.flight)
+        attributes = rocketpy_encoder(
+            self.flight, DiscretizeConfig.for_flight()
+        )
         flight_simulation = FlightSimulation(**attributes)
         return flight_simulation
 
