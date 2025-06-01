@@ -70,10 +70,6 @@ class FlightSimulation(RocketSimulation, EnvironmentSimulation):
     dynamic_pressure: Optional[Any] = None
     max_dynamic_pressure: Optional[Any] = None
 
-    # Stability
-    stability_margin: Optional[Any] = None
-    static_margin: Optional[Any] = None
-
     # Time and simulation data
     time: Optional[Any] = None
     solution: Optional[Any] = None
@@ -86,7 +82,6 @@ class FlightSimulation(RocketSimulation, EnvironmentSimulation):
     attitude_vector_z: Optional[Any] = None
     trajectory: Optional[Any] = None
     velocity: Optional[Any] = None
-    acceleration: Optional[Any] = None
     acceleration_power_on: Optional[Any] = None
     acceleration_power_off: Optional[Any] = None
     stream_velocity: Optional[Any] = None
