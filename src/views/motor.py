@@ -66,15 +66,6 @@ class MotorSimulation(ApiBaseView):
     total_mass_flow_rate: Optional[Any] = None
     thrust: Optional[Any] = None
 
-    def __init__(self, **data):
-        """
-        Initialize with dynamic attribute handling.
-
-        Any additional attributes returned by rocketpy_encoder will be stored
-        as extra fields thanks to the 'allow' extra configuration.
-        """
-        super().__init__(**data)
-
 
 class MotorView(MotorModel):
     motor_id: Optional[str] = None

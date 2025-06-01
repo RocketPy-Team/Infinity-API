@@ -62,15 +62,6 @@ class EnvironmentSimulation(ApiBaseView):
     geodesic_to_utm: Optional[Any] = None
     utm_to_geodesic: Optional[Any] = None
 
-    def __init__(self, **data):
-        """
-        Initialize with dynamic attribute handling.
-
-        Any additional attributes returned by rocketpy_encoder will be stored
-        as extra fields thanks to the 'allow' extra configuration.
-        """
-        super().__init__(**data)
-
 
 class EnvironmentView(EnvironmentModel):
     environment_id: Optional[str] = None
