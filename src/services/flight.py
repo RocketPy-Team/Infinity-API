@@ -8,7 +8,7 @@ from src.services.environment import EnvironmentService
 from src.services.rocket import RocketService
 from src.models.flight import FlightModel
 from src.views.flight import FlightSimulation
-from src.utils import rocketpy_encoder, DiscretizeConfig
+from src.utils import rocketpy_encoder
 
 
 class FlightService:
@@ -55,9 +55,7 @@ class FlightService:
         Returns:
             FlightSimulation
         """
-        attributes = rocketpy_encoder(
-            self.flight, DiscretizeConfig.for_flight()
-        )
+        attributes = rocketpy_encoder(self.flight)
         flight_simulation = FlightSimulation(**attributes)
         return flight_simulation
 

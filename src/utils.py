@@ -2,11 +2,9 @@ import gzip
 import io
 import logging
 import json
-import copy
 
-from typing import NoReturn, Tuple
+from typing import NoReturn
 
-from rocketpy import Function
 from rocketpy._encoders import RocketPyEncoder
 from starlette.datastructures import Headers, MutableHeaders
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
@@ -14,100 +12,29 @@ from starlette.types import ASGIApp, Message, Receive, Scope, Send
 logger = logging.getLogger(__name__)
 
 
-class DiscretizeConfig:
-    """
-    Configuration class for RocketPy function discretization.
-
-    This class allows easy configuration of discretization parameters
-    for different types of RocketPy objects and their callable attributes.
-    """
-
-    def __init__(
-        self, bounds: Tuple[float, float] = (0, 10), samples: int = 200
-    ):
-        self.bounds = bounds
-        self.samples = samples
-
-    @classmethod
-    def for_environment(cls) -> 'DiscretizeConfig':
-        return cls(bounds=(0, 50000), samples=100)
-
-    @classmethod
-    def for_motor(cls) -> 'DiscretizeConfig':
-        return cls(bounds=(0, 10), samples=150)
-
-    @classmethod
-    def for_rocket(cls) -> 'DiscretizeConfig':
-        return cls(bounds=(0, 1), samples=100)
-
-    @classmethod
-    def for_flight(cls) -> 'DiscretizeConfig':
-        return cls(bounds=(0, 30), samples=200)
-
-
-def rocketpy_encoder(obj, config: DiscretizeConfig = DiscretizeConfig()):
+def rocketpy_encoder(obj):
     """
     Encode a RocketPy object using official RocketPy encoders.
 
-    This function creates a copy of the object, discretizes callable Function
-    attributes on the copy, and then uses RocketPy's official RocketPyEncoder for
-    complete object serialization. The original object remains unchanged.
+    This function uses RocketPy's official RocketPyEncoder for complete
+    object serialization.
 
     Args:
         obj: RocketPy object (Environment, Motor, Rocket, Flight)
-        config: DiscretizeConfig object with discretization parameters (optional)
 
     Returns:
         Dictionary of encoded attributes
     """
 
-    # Create a copy to avoid mutating the original object
-    obj_copy = copy.deepcopy(obj)
-
-    for attr_name in dir(obj_copy):
-        if attr_name.startswith('_'):
-            continue
-
-        try:
-            attr_value = getattr(obj_copy, attr_name)
-        except Exception:
-            continue
-
-        if callable(attr_value) and isinstance(attr_value, Function):
-            try:
-                discretized_func = Function(attr_value.source)
-                discretized_func.set_discrete(
-                    lower=config.bounds[0],
-                    upper=config.bounds[1],
-                    samples=config.samples,
-                    mutate_self=True,
-                )
-
-                setattr(obj_copy, attr_name, discretized_func)
-
-            except Exception as e:
-                logger.warning(f"Failed to discretize {attr_name}: {e}")
-
-    try:
-        json_str = json.dumps(
-            obj_copy,
-            cls=RocketPyEncoder,
-            include_outputs=True,
-            include_function_data=True,
-        )
-        return json.loads(json_str)
-    except Exception as e:
-        logger.warning(f"Failed to encode with RocketPyEncoder: {e}")
-        attributes = {}
-        for attr_name in dir(obj_copy):
-            if not attr_name.startswith('_'):
-                try:
-                    attr_value = getattr(obj_copy, attr_name)
-                    if not callable(attr_value):
-                        attributes[attr_name] = str(attr_value)
-                except Exception:
-                    continue
-        return attributes
+    json_str = json.dumps(
+        obj,
+        cls=RocketPyEncoder,
+        include_outputs=True,
+        include_function_data=True,
+        discretize=True,
+        pickle_callables=False,
+    )
+    return json.loads(json_str)
 
 
 class RocketPyGZipMiddleware:

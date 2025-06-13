@@ -17,7 +17,7 @@ from src.models.rocket import RocketModel, Parachute
 from src.models.sub.aerosurfaces import NoseCone, Tail, Fins
 from src.services.motor import MotorService
 from src.views.rocket import RocketSimulation
-from src.utils import rocketpy_encoder, DiscretizeConfig
+from src.utils import rocketpy_encoder
 
 
 class RocketService:
@@ -107,9 +107,7 @@ class RocketService:
         Returns:
             RocketSimulation
         """
-        attributes = rocketpy_encoder(
-            self.rocket, DiscretizeConfig.for_rocket()
-        )
+        attributes = rocketpy_encoder(self.rocket)
         rocket_simulation = RocketSimulation(**attributes)
         return rocket_simulation
 

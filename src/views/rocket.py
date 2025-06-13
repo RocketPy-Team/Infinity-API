@@ -1,11 +1,11 @@
-from typing import Optional, Any
+from typing import Optional, Any, List, Tuple
 from pydantic import ConfigDict
 from src.models.rocket import RocketModel
 from src.views.interface import ApiBaseView
 from src.views.motor import MotorView, MotorSimulation
 
 
-class RocketSimulation(MotorSimulation):
+class RocketSimulation(ApiBaseView):
     """
     Rocket simulation view that handles dynamically encoded RocketPy Rocket attributes.
 
@@ -15,7 +15,7 @@ class RocketSimulation(MotorSimulation):
     attributes that might be encoded.
     """
 
-    model_config = ConfigDict(extra='allow', arbitrary_types_allowed=True)
+    model_config = ConfigDict(extra='ignore', arbitrary_types_allowed=True)
 
     message: str = "Rocket successfully simulated"
 
@@ -23,8 +23,8 @@ class RocketSimulation(MotorSimulation):
     radius: Optional[float] = None
     mass: Optional[float] = None
     inertia: Optional[tuple] = None
-    power_off_drag: Optional[float] = None
-    power_on_drag: Optional[float] = None
+    power_off_drag: Optional[List[Tuple[float, float]]] = None
+    power_on_drag: Optional[List[Tuple[float, float]]] = None
     center_of_mass_without_motor: Optional[float] = None
     coordinate_system_orientation: Optional[str] = None
     parachutes: Optional[list] = None
