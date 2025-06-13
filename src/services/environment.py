@@ -5,7 +5,7 @@ import dill
 from rocketpy.environment.environment import Environment as RocketPyEnvironment
 from src.models.environment import EnvironmentModel
 from src.views.environment import EnvironmentSimulation
-from src.utils import rocketpy_encoder, DiscretizeConfig
+from src.utils import rocketpy_encoder
 
 
 class EnvironmentService:
@@ -50,9 +50,7 @@ class EnvironmentService:
             EnvironmentSimulation
         """
 
-        attributes = rocketpy_encoder(
-            self.environment, DiscretizeConfig.for_environment()
-        )
+        attributes = rocketpy_encoder(self.environment)
         env_simulation = EnvironmentSimulation(**attributes)
         return env_simulation
 

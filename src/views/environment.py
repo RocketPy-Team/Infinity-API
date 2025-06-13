@@ -14,7 +14,7 @@ class EnvironmentSimulation(ApiBaseView):
     any new attributes that might be encoded.
     """
 
-    model_config = ConfigDict(extra='allow', arbitrary_types_allowed=True)
+    model_config = ConfigDict(extra='ignore', arbitrary_types_allowed=True)
 
     message: str = "Environment successfully simulated"
 
@@ -35,9 +35,9 @@ class EnvironmentSimulation(ApiBaseView):
     initial_hemisphere: Optional[str] = None
     initial_ew: Optional[str] = None
     max_expected_height: Optional[int] = None
-    date: Optional[datetime] = datetime.today() + timedelta(days=1)
-    local_date: Optional[datetime] = datetime.today() + timedelta(days=1)
-    datetime_date: Optional[datetime] = datetime.today() + timedelta(days=1)
+    date: Optional[Any] = datetime.today() + timedelta(days=1)
+    local_date: Optional[Any] = datetime.today() + timedelta(days=1)
+    datetime_date: Optional[Any] = datetime.today() + timedelta(days=1)
 
     # Function attributes (discretized by rocketpy_encoder, serialized by RocketPyEncoder)
     ellipsoid: Optional[Any] = None

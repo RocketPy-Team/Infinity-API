@@ -6,7 +6,7 @@ from src.views.rocket import RocketView, RocketSimulation
 from src.views.environment import EnvironmentSimulation
 
 
-class FlightSimulation(RocketSimulation, EnvironmentSimulation):
+class FlightSimulation(ApiBaseView):
     """
     Flight simulation view that handles dynamically encoded RocketPy Flight attributes.
 
@@ -16,7 +16,7 @@ class FlightSimulation(RocketSimulation, EnvironmentSimulation):
     any new attributes that might be encoded.
     """
 
-    model_config = ConfigDict(extra='allow', arbitrary_types_allowed=True)
+    model_config = ConfigDict(extra='ignore', arbitrary_types_allowed=True)
 
     message: str = "Flight successfully simulated"
 

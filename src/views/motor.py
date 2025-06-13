@@ -13,7 +13,7 @@ class MotorSimulation(ApiBaseView):
     any new attributes that might be encoded.
     """
 
-    model_config = ConfigDict(extra='allow', arbitrary_types_allowed=True)
+    model_config = ConfigDict(extra='ignore', arbitrary_types_allowed=True)
 
     message: str = "Motor successfully simulated"
 
