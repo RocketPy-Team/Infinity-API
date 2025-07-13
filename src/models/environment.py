@@ -1,5 +1,5 @@
 import datetime
-from typing import Optional, ClassVar, Self, Literal
+from typing import Optional, ClassVar, Self, Literal, Tuple, List
 from src.models.interface import ApiBaseModel
 
 
@@ -9,6 +9,10 @@ class EnvironmentModel(ApiBaseModel):
     latitude: float
     longitude: float
     elevation: Optional[float] = 0.0
+    pressure: Optional[float | List[Tuple[float, float]]] = None
+    temperature: Optional[float | List[Tuple[float, float]]] = None
+    wind_u: Optional[float | List[Tuple[float, float]]] = None
+    wind_v: Optional[float | List[Tuple[float, float]]] = None
 
     # Optional parameters
     atmospheric_model_type: Literal[
