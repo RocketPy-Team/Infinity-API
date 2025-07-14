@@ -34,7 +34,7 @@ class EnvironmentService:
             pressure=env.pressure,
             temperature=env.temperature,
             wind_u=env.wind_u,
-            wind_v=env.wind_v
+            wind_v=env.wind_v,
         )
         return cls(environment=rocketpy_env)
 
