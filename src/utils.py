@@ -32,7 +32,7 @@ def rocketpy_encoder(obj):
         include_outputs=True,
         include_function_data=True,
         discretize=True,
-        pickle_callables=False,
+        allow_pickle=False,
     )
     return json.loads(json_str)
 

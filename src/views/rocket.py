@@ -23,8 +23,8 @@ class RocketSimulation(ApiBaseView):
     radius: Optional[float] = None
     mass: Optional[float] = None
     inertia: Optional[tuple] = None
-    power_off_drag: Optional[List[Tuple[float, float]]] = None
-    power_on_drag: Optional[List[Tuple[float, float]]] = None
+    power_off_drag: Optional[Any] = None
+    power_on_drag: Optional[Any] = None
     center_of_mass_without_motor: Optional[float] = None
     coordinate_system_orientation: Optional[str] = None
     parachutes: Optional[list] = None
