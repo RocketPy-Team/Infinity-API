@@ -5,7 +5,7 @@ import dill
 from rocketpy.environment.environment import Environment as RocketPyEnvironment
 from src.models.environment import EnvironmentModel
 from src.views.environment import EnvironmentSimulation
-from src.utils import rocketpy_encoder, DiscretizeConfig
+from src.utils import rocketpy_encoder
 
 
 class EnvironmentService:
@@ -31,6 +31,10 @@ class EnvironmentService:
         rocketpy_env.set_atmospheric_model(
             type=env.atmospheric_model_type,
             file=env.atmospheric_model_file,
+            pressure=env.pressure,
+            temperature=env.temperature,
+            wind_u=env.wind_u,
+            wind_v=env.wind_v,
         )
         return cls(environment=rocketpy_env)
 
@@ -50,9 +54,7 @@ class EnvironmentService:
             EnvironmentSimulation
         """
 
-        attributes = rocketpy_encoder(
-            self.environment, DiscretizeConfig.for_environment()
-        )
+        attributes = rocketpy_encoder(self.environment)
         env_simulation = EnvironmentSimulation(**attributes)
         return env_simulation
 
