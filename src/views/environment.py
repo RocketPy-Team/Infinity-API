@@ -34,7 +34,7 @@ class EnvironmentSimulation(ApiBaseView):
     initial_east: Optional[float] = None
     initial_hemisphere: Optional[str] = None
     initial_ew: Optional[str] = None
-    max_expected_height: Optional[int] = None
+    max_expected_height: Optional[float] = None
     date: Optional[Any] = datetime.today() + timedelta(days=1)
     local_date: Optional[Any] = datetime.today() + timedelta(days=1)
     datetime_date: Optional[Any] = datetime.today() + timedelta(days=1)
