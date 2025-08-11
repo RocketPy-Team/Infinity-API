@@ -21,6 +21,7 @@ class ApiBaseModel(BaseModel, ABC):
         validate_default=True,
         validate_all_in_root=True,
         validate_assignment=True,
+        ser_json_exclude_none=True,
     )
 
     def set_id(self, value):

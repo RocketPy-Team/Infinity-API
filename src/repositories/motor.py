@@ -19,7 +19,7 @@ class MotorRepository(RepositoryInterface):
 
     @repository_exception_handler
     async def create_motor(self, motor: MotorModel) -> str:
-        return await self.insert(motor.model_dump())
+        return await self.insert(motor.model_dump(exclude_none=True))
 
     @repository_exception_handler
     async def read_motor_by_id(self, motor_id: str) -> Optional[MotorModel]:
@@ -27,7 +27,9 @@ class MotorRepository(RepositoryInterface):
 
     @repository_exception_handler
     async def update_motor_by_id(self, motor_id: str, motor: MotorModel):
-        await self.update_by_id(motor.model_dump(), data_id=motor_id)
+        await self.update_by_id(
+            motor.model_dump(exclude_none=True), data_id=motor_id
+        )
 
     @repository_exception_handler
     async def delete_motor_by_id(self, motor_id: str):
