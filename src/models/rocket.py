@@ -19,7 +19,7 @@ class RocketModel(ApiBaseModel):
     radius: float
     mass: float
     motor_position: float
-    center_of_mass_without_motor: int
+    center_of_mass_without_motor: float
     inertia: Union[
         Tuple[float, float, float],
         Tuple[float, float, float, float, float, float],
