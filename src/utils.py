@@ -37,6 +37,93 @@ def rocketpy_encoder(obj):
     return json.loads(json_str)
 
 
+def collect_simulation_attributes(flight_obj, flight_simulation_class, rocket_simulation_class, motor_simulation_class, environment_simulation_class):
+    """
+    Collect attributes from various simulation classes and populate them from the flight object.
+    
+    Args:
+        flight_obj: RocketPy Flight object
+        flight_simulation_class: FlightSimulation class
+        rocket_simulation_class: RocketSimulation class  
+        motor_simulation_class: MotorSimulation class
+        environment_simulation_class: EnvironmentSimulation class
+    
+    Returns:
+        Dictionary with all collected attributes
+    """
+    attributes = rocketpy_encoder(flight_obj)
+    
+    flight_attributes_list = [
+        attr for attr in flight_simulation_class.__annotations__.keys() 
+        if attr not in ['message', 'rocket', 'env']
+    ]
+
+    rocket_attributes_list = [
+        attr for attr in rocket_simulation_class.__annotations__.keys() 
+        if attr not in ['message', 'motor']
+    ]
+
+    motor_attributes_list = [
+        attr for attr in motor_simulation_class.__annotations__.keys() 
+        if attr not in ['message']
+    ]
+
+    environment_attributes_list = [
+        attr for attr in environment_simulation_class.__annotations__.keys()
+        if attr not in ['message']
+    ]
+
+    try:
+        for key in flight_attributes_list:
+            try:
+                value = getattr(flight_obj, key)
+                attributes[key] = value
+            except AttributeError as e:
+                logger.warning(f"Flight attribute '{key}' not found: {e}")
+            except Exception as e:
+                logger.error(f"Error getting flight attribute '{key}': {type(e).__name__}: {e}")
+    except Exception as e:
+        logger.error(f"Error processing flight attributes: {type(e).__name__}: {e}")
+
+    try:
+        for key in rocket_attributes_list:
+            try:
+                value = getattr(flight_obj.rocket, key)
+                attributes["rocket"][key] = value
+            except AttributeError as e:
+                logger.warning(f"Rocket attribute '{key}' not found: {e}")
+            except Exception as e:
+                logger.error(f"Error getting rocket attribute '{key}': {type(e).__name__}: {e}")
+    except Exception as e:
+        logger.error(f"Error processing rocket attributes: {type(e).__name__}: {e}")
+
+    try:
+        for key in motor_attributes_list:
+            try:
+                value = getattr(flight_obj.rocket.motor, key)
+                attributes["rocket"]["motor"][key] = value
+            except AttributeError as e:
+                logger.warning(f"Motor attribute '{key}' not found: {e}")
+            except Exception as e:
+                logger.error(f"Error getting motor attribute '{key}': {type(e).__name__}: {e}")
+    except Exception as e:
+        logger.error(f"Error processing motor attributes: {type(e).__name__}: {e}")
+    
+    try:
+        for key in environment_attributes_list:
+            try:
+                value = getattr(flight_obj.env, key)
+                attributes["env"][key] = value
+            except AttributeError as e:
+                logger.warning(f"Environment attribute '{key}' not found: {e}")
+            except Exception as e:
+                logger.error(f"Error getting environment attribute '{key}': {type(e).__name__}: {e}")
+    except Exception as e:
+        logger.error(f"Error processing environment attributes: {type(e).__name__}: {e}")
+
+    return rocketpy_encoder(attributes)
+
+
 class RocketPyGZipMiddleware:
     def __init__(
         self, app: ASGIApp, minimum_size: int = 500, compresslevel: int = 9

@@ -17,8 +17,8 @@ from src.models.rocket import RocketModel, Parachute
 from src.models.sub.aerosurfaces import NoseCone, Tail, Fins
 from src.services.motor import MotorService
 from src.views.rocket import RocketSimulation
-from src.utils import rocketpy_encoder
-
+from src.views.motor import MotorSimulation
+from src.utils import collect_simulation_attributes
 
 class RocketService:
     _rocket: RocketPyRocket
@@ -107,8 +107,12 @@ class RocketService:
         Returns:
             RocketSimulation
         """
-        attributes = rocketpy_encoder(self.rocket)
-        rocket_simulation = RocketSimulation(**attributes)
+        encoded_attributes = collect_simulation_attributes(
+            self.rocket,
+            RocketSimulation, 
+            MotorSimulation,
+        )
+        rocket_simulation = RocketSimulation(**encoded_attributes)
         return rocket_simulation
 
     def get_rocket_binary(self) -> bytes:

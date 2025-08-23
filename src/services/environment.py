@@ -5,7 +5,7 @@ import dill
 from rocketpy.environment.environment import Environment as RocketPyEnvironment
 from src.models.environment import EnvironmentModel
 from src.views.environment import EnvironmentSimulation
-from src.utils import rocketpy_encoder
+from src.utils import collect_simulation_attributes
 
 
 class EnvironmentService:
@@ -54,8 +54,11 @@ class EnvironmentService:
             EnvironmentSimulation
         """
 
-        attributes = rocketpy_encoder(self.environment)
-        env_simulation = EnvironmentSimulation(**attributes)
+        encoded_attributes = collect_simulation_attributes(
+            self.environment,
+            EnvironmentSimulation,
+        )
+        env_simulation = EnvironmentSimulation(**encoded_attributes)
         return env_simulation
 
     def get_environment_binary(self) -> bytes:
