@@ -1,12 +1,33 @@
-from typing import Optional
-from datetime import datetime, timedelta
+from typing import Optional, Any
+from datetime import datetime, timezone, timedelta
+from pydantic import ConfigDict, Field
 from src.views.interface import ApiBaseView
 from src.models.environment import EnvironmentModel
-from src.utils import AnyToPrimitive
+
+
+def _default_future_datetime() -> datetime:
+    """Factory function to create timezone-aware datetime one day in the future."""
+    return datetime.now(timezone.utc) + timedelta(days=1)
 
 
 class EnvironmentSimulation(ApiBaseView):
+    """
+    Environment simulation view that handles dynamically
+    encoded RocketPy Environment attributes.
+
+    Uses the new rocketpy_encoder which may return
+    different attributes based on the actual RocketPy Environment object.
+    The model allows extra fields to accommodate
+    any new attributes that might be encoded.
+    """
+
+    model_config = ConfigDict(
+        ser_json_exclude_none=True, extra='allow', arbitrary_types_allowed=True
+    )
+
     message: str = "Environment successfully simulated"
+
+    # Core Environment attributes (always present)
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     elevation: Optional[float] = 1
@@ -22,31 +43,39 @@ class EnvironmentSimulation(ApiBaseView):
     initial_east: Optional[float] = None
     initial_hemisphere: Optional[str] = None
     initial_ew: Optional[str] = None
-    max_expected_height: Optional[float] = None
-    date: Optional[datetime] = datetime.today() + timedelta(days=1)
-    local_date: Optional[datetime] = datetime.today() + timedelta(days=1)
-    datetime_date: Optional[datetime] = datetime.today() + timedelta(days=1)
-    ellipsoid: Optional[AnyToPrimitive] = None
-    barometric_height: Optional[AnyToPrimitive] = None
-    barometric_height_ISA: Optional[AnyToPrimitive] = None
-    pressure: Optional[AnyToPrimitive] = None
-    pressure_ISA: Optional[AnyToPrimitive] = None
-    temperature: Optional[AnyToPrimitive] = None
-    temperature_ISA: Optional[AnyToPrimitive] = None
-    density: Optional[AnyToPrimitive] = None
-    speed_of_sound: Optional[AnyToPrimitive] = None
-    dynamic_viscosity: Optional[AnyToPrimitive] = None
-    gravity: Optional[AnyToPrimitive] = None
-    somigliana_gravity: Optional[AnyToPrimitive] = None
-    wind_speed: Optional[AnyToPrimitive] = None
-    wind_direction: Optional[AnyToPrimitive] = None
-    wind_heading: Optional[AnyToPrimitive] = None
-    wind_velocity_x: Optional[AnyToPrimitive] = None
-    wind_velocity_y: Optional[AnyToPrimitive] = None
-    calculate_earth_radius: Optional[AnyToPrimitive] = None
-    decimal_degrees_to_arc_seconds: Optional[AnyToPrimitive] = None
-    geodesic_to_utm: Optional[AnyToPrimitive] = None
-    utm_to_geodesic: Optional[AnyToPrimitive] = None
+    max_expected_height: Optional[int] = None
+    date: Optional[datetime] = Field(default_factory=_default_future_datetime)
+    local_date: Optional[datetime] = Field(
+        default_factory=_default_future_datetime
+    )
+    datetime_date: Optional[datetime] = Field(
+        default_factory=_default_future_datetime
+    )
+
+    # Function attributes
+    # discretized by rocketpy_encoder
+    # serialized by RocketPyEncoder
+    ellipsoid: Optional[Any] = None
+    barometric_height: Optional[Any] = None
+    barometric_height_ISA: Optional[Any] = None
+    pressure: Optional[Any] = None
+    pressure_ISA: Optional[Any] = None
+    temperature: Optional[Any] = None
+    temperature_ISA: Optional[Any] = None
+    density: Optional[Any] = None
+    speed_of_sound: Optional[Any] = None
+    dynamic_viscosity: Optional[Any] = None
+    gravity: Optional[Any] = None
+    somigliana_gravity: Optional[Any] = None
+    wind_speed: Optional[Any] = None
+    wind_direction: Optional[Any] = None
+    wind_heading: Optional[Any] = None
+    wind_velocity_x: Optional[Any] = None
+    wind_velocity_y: Optional[Any] = None
+    calculate_earth_radius: Optional[Any] = None
+    decimal_degrees_to_arc_seconds: Optional[Any] = None
+    geodesic_to_utm: Optional[Any] = None
+    utm_to_geodesic: Optional[Any] = None
 
 
 class EnvironmentView(EnvironmentModel):

@@ -3,9 +3,9 @@ from typing import Self
 import dill
 
 from rocketpy.environment.environment import Environment as RocketPyEnvironment
-from rocketpy.utilities import get_instance_attributes
 from src.models.environment import EnvironmentModel
 from src.views.environment import EnvironmentSimulation
+from src.utils import rocketpy_encoder, DiscretizeConfig
 
 
 class EnvironmentService:
@@ -54,7 +54,9 @@ class EnvironmentService:
             EnvironmentSimulation
         """
 
-        attributes = get_instance_attributes(self.environment)
+        attributes = rocketpy_encoder(
+            self.environment, DiscretizeConfig.for_environment()
+        )
         env_simulation = EnvironmentSimulation(**attributes)
         return env_simulation
 

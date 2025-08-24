@@ -1,6 +1,12 @@
-import datetime
+from datetime import datetime, timezone, timedelta
 from typing import Optional, ClassVar, Self, Literal
+from pydantic import Field
 from src.models.interface import ApiBaseModel
+
+
+def _default_future_datetime() -> datetime:
+    """Factory function to create timezone-aware datetime one day in the future."""
+    return datetime.now(timezone.utc) + timedelta(days=1)
 
 
 class EnvironmentModel(ApiBaseModel):
@@ -24,9 +30,7 @@ class EnvironmentModel(ApiBaseModel):
         'ensemble',
     ] = 'standard_atmosphere'
     atmospheric_model_file: Optional[str] = None
-    date: Optional[datetime.datetime] = (
-        datetime.datetime.today() + datetime.timedelta(days=1)
-    )
+    date: Optional[datetime] = Field(default_factory=_default_future_datetime)
 
     @staticmethod
     def UPDATED():
