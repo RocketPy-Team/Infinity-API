@@ -19,9 +19,7 @@ class RocketSimulation(MotorSimulation):
     """
 
     model_config = ConfigDict(
-        ser_json_exclude_none=True,
-        extra='allow',
-        arbitrary_types_allowed=True
+        ser_json_exclude_none=True, extra='allow', arbitrary_types_allowed=True
     )
 
     message: str = "Rocket successfully simulated"
@@ -30,7 +28,8 @@ class RocketSimulation(MotorSimulation):
     radius: Optional[float] = None
     mass: Optional[float] = None
     inertia: Optional[
-        tuple[float, float, float] | tuple[float, float, float, float, float, float]
+        tuple[float, float, float]
+        | tuple[float, float, float, float, float, float]
     ] = None
     power_off_drag: Optional[list[tuple[float, float]]] = None
     power_on_drag: Optional[list[tuple[float, float]]] = None

@@ -19,9 +19,7 @@ class FlightSimulation(RocketSimulation, EnvironmentSimulation):
     """
 
     model_config = ConfigDict(
-        ser_json_exclude_none=True,
-        extra='allow',
-        arbitrary_types_allowed=True
+        ser_json_exclude_none=True, extra='allow', arbitrary_types_allowed=True
     )
 
     message: str = "Flight successfully simulated"

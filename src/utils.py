@@ -62,8 +62,14 @@ def rocketpy_encoder(obj, config: DiscretizeConfig = DiscretizeConfig()):
         Dictionary of encoded attributes
     """
 
-    # Create a copy to avoid mutating the original object
-    obj_copy = copy.deepcopy(obj)
+    if config is None:
+        config = DiscretizeConfig()
+    try:
+        # Create a copy to avoid mutating the original object
+        obj_copy = copy.deepcopy(obj)
+    except Exception:
+        # Fall back to a shallow copy if deep copy is not supported
+        obj_copy = copy.copy(obj)
 
     for attr_name in dir(obj_copy):
         if attr_name.startswith('_'):

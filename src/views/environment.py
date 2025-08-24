@@ -1,8 +1,13 @@
 from typing import Optional, Any
-from datetime import datetime, timedelta
-from pydantic import ConfigDict
+from datetime import datetime, timezone, timedelta
+from pydantic import ConfigDict, Field
 from src.views.interface import ApiBaseView
 from src.models.environment import EnvironmentModel
+
+
+def _default_future_datetime() -> datetime:
+    """Factory function to create timezone-aware datetime one day in the future."""
+    return datetime.now(timezone.utc) + timedelta(days=1)
 
 
 class EnvironmentSimulation(ApiBaseView):
@@ -17,9 +22,7 @@ class EnvironmentSimulation(ApiBaseView):
     """
 
     model_config = ConfigDict(
-        ser_json_exclude_none=True,  # keep parent's behavior
-        extra='allow',
-        arbitrary_types_allowed=True
+        ser_json_exclude_none=True, extra='allow', arbitrary_types_allowed=True
     )
 
     message: str = "Environment successfully simulated"
@@ -41,9 +44,13 @@ class EnvironmentSimulation(ApiBaseView):
     initial_hemisphere: Optional[str] = None
     initial_ew: Optional[str] = None
     max_expected_height: Optional[int] = None
-    date: Optional[datetime] = datetime.today() + timedelta(days=1)
-    local_date: Optional[datetime] = datetime.today() + timedelta(days=1)
-    datetime_date: Optional[datetime] = datetime.today() + timedelta(days=1)
+    date: Optional[datetime] = Field(default_factory=_default_future_datetime)
+    local_date: Optional[datetime] = Field(
+        default_factory=_default_future_datetime
+    )
+    datetime_date: Optional[datetime] = Field(
+        default_factory=_default_future_datetime
+    )
 
     # Function attributes
     # discretized by rocketpy_encoder

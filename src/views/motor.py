@@ -16,9 +16,7 @@ class MotorSimulation(ApiBaseView):
     """
 
     model_config = ConfigDict(
-        ser_json_exclude_none=True,
-        extra='allow',
-        arbitrary_types_allowed=True
+        ser_json_exclude_none=True, extra='allow', arbitrary_types_allowed=True
     )
 
     message: str = "Motor successfully simulated"
