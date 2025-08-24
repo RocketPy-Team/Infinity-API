@@ -16,7 +16,11 @@ class EnvironmentSimulation(ApiBaseView):
     any new attributes that might be encoded.
     """
 
-    model_config = ConfigDict(extra='allow', arbitrary_types_allowed=True)
+    model_config = ConfigDict(
+        ser_json_exclude_none=True,  # keep parent's behavior
+        extra='allow',
+        arbitrary_types_allowed=True
+    )
 
     message: str = "Environment successfully simulated"
 
