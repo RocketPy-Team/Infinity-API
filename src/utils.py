@@ -3,6 +3,7 @@ import io
 import logging
 import json
 import copy
+from datetime import datetime
 
 from typing import NoReturn, Tuple
 
@@ -95,11 +96,10 @@ def rocketpy_encoder(obj, config: DiscretizeConfig = DiscretizeConfig()):
             include_outputs=True,
             include_function_data=True,
         )
-        encoder = RocketPyEncoder(
-            include_outputs=True,
-            include_function_data=True,
-        )
-        return encoder.default(obj_copy)
+        encoded_result = json.loads(json_str)
+
+        # Post-process to fix datetime fields that got converted to lists
+        return _fix_datetime_fields(encoded_result)
     except Exception as e:
         logger.warning(f"Failed to encode with RocketPyEncoder: {e}")
         attributes = {}
@@ -112,6 +112,40 @@ def rocketpy_encoder(obj, config: DiscretizeConfig = DiscretizeConfig()):
                 except Exception:
                     continue
         return attributes
+
+
+def _fix_datetime_fields(data):
+    """
+    Fix datetime fields that RocketPyEncoder converted to lists.
+    """
+    if isinstance(data, dict):
+        fixed = {}
+        for key, value in data.items():
+            if (
+                key in ['date', 'local_date', 'datetime_date']
+                and isinstance(value, list)
+                and len(value) >= 3
+            ):
+                # Convert [year, month, day, hour, ...] back to datetime
+                try:
+                    year, month, day = value[0:3]
+                    hour = value[3] if len(value) > 3 else 0
+                    minute = value[4] if len(value) > 4 else 0
+                    second = value[5] if len(value) > 5 else 0
+                    microsecond = value[6] if len(value) > 6 else 0
+
+                    fixed[key] = datetime(
+                        year, month, day, hour, minute, second, microsecond
+                    )
+                except (ValueError, TypeError, IndexError):
+                    # If conversion fails, keep the original value
+                    fixed[key] = value
+            else:
+                fixed[key] = _fix_datetime_fields(value)
+        return fixed
+    if isinstance(data, (list, tuple)):
+        return [_fix_datetime_fields(item) for item in data]
+    return data
 
 
 class RocketPyGZipMiddleware:
@@ -229,6 +263,13 @@ class GZipResponder:
             self.gzip_buffer.seek(0)
             self.gzip_buffer.truncate()
 
+            await self.send(message)
+
+        else:
+            # Pass through other message types unmodified.
+            if not self.started:
+                self.started = True
+                await self.send(self.initial_message)
             await self.send(message)
 
 
