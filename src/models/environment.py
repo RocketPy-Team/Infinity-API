@@ -15,6 +15,10 @@ class EnvironmentModel(ApiBaseModel):
     latitude: float
     longitude: float
     elevation: Optional[float] = 0.0
+    pressure: Optional[float | list[tuple[float, float]]] = None
+    temperature: Optional[float | list[tuple[float, float]]] = None
+    wind_u: Optional[float | list[tuple[float, float]]] = None
+    wind_v: Optional[float | list[tuple[float, float]]] = None
 
     # Optional parameters
     atmospheric_model_type: Literal[
