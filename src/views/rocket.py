@@ -25,9 +25,11 @@ class RocketSimulation(MotorSimulation):
     # Core Rocket attributes (always present)
     radius: Optional[float] = None
     mass: Optional[float] = None
-    inertia: Optional[tuple] = None
-    power_off_drag: Optional[float] = None
-    power_on_drag: Optional[float] = None
+    inertia: Optional[
+        tuple[float, float, float] | tuple[float, float, float, float, float, float]
+    ] = None
+    power_off_drag: Optional[list[tuple[float, float]]] = None
+    power_on_drag: Optional[list[tuple[float, float]]] = None
     center_of_mass_without_motor: Optional[float] = None
     coordinate_system_orientation: Optional[str] = None
     parachutes: Optional[list] = None
