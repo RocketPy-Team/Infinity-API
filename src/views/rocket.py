@@ -7,12 +7,15 @@ from src.views.motor import MotorView, MotorSimulation
 
 class RocketSimulation(MotorSimulation):
     """
-    Rocket simulation view that handles dynamically encoded RocketPy Rocket attributes.
+    Rocket simulation view that handles dynamically
+    encoded RocketPy Rocket attributes.
 
-    Inherits from MotorSimulation and adds rocket-specific attributes. Uses the new
-    rocketpy_encoder which may return different attributes based on the actual
-    RocketPy Rocket object. The model allows extra fields to accommodate any new
-    attributes that might be encoded.
+    Inherits from MotorSimulation and adds rocket-specific attributes.
+    Uses the new rocketpy_encoder which may return different attributes
+    based on the actual RocketPy Rocket object.
+
+    The model allows extra fields to accommodate any new attributes
+    that might be encoded.
     """
 
     model_config = ConfigDict(extra='allow', arbitrary_types_allowed=True)
@@ -30,7 +33,9 @@ class RocketSimulation(MotorSimulation):
     parachutes: Optional[list] = None
     motor: Optional[MotorSimulation] = None
 
-    # Function attributes (discretized by rocketpy_encoder, serialized by RocketPyEncoder)
+    # Function attributes
+    # discretized by rocketpy_encoder
+    # serialized by RocketPyEncoder
     I_11_without_motor: Optional[Any] = None
     I_12_without_motor: Optional[Any] = None
     I_13_without_motor: Optional[Any] = None

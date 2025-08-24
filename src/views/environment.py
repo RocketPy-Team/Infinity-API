@@ -7,10 +7,12 @@ from src.models.environment import EnvironmentModel
 
 class EnvironmentSimulation(ApiBaseView):
     """
-    Environment simulation view that handles dynamically encoded RocketPy Environment attributes.
+    Environment simulation view that handles dynamically
+    encoded RocketPy Environment attributes.
 
-    Uses the new rocketpy_encoder which may return different attributes based on the
-    actual RocketPy Environment object. The model allows extra fields to accommodate
+    Uses the new rocketpy_encoder which may return
+    different attributes based on the actual RocketPy Environment object.
+    The model allows extra fields to accommodate
     any new attributes that might be encoded.
     """
 
@@ -39,7 +41,9 @@ class EnvironmentSimulation(ApiBaseView):
     local_date: Optional[datetime] = datetime.today() + timedelta(days=1)
     datetime_date: Optional[datetime] = datetime.today() + timedelta(days=1)
 
-    # Function attributes (discretized by rocketpy_encoder, serialized by RocketPyEncoder)
+    # Function attributes
+    # discretized by rocketpy_encoder
+    # serialized by RocketPyEncoder
     ellipsoid: Optional[Any] = None
     barometric_height: Optional[Any] = None
     barometric_height_ISA: Optional[Any] = None

@@ -8,11 +8,13 @@ from src.views.environment import EnvironmentSimulation
 
 class FlightSimulation(RocketSimulation, EnvironmentSimulation):
     """
-    Flight simulation view that handles dynamically encoded RocketPy Flight attributes.
+    Flight simulation view that handles dynamically encoded
+    RocketPy Flight attributes.
 
-    Inherits from both RocketSimulation and EnvironmentSimulation, and adds flight-specific
-    attributes. Uses the new rocketpy_encoder which may return different attributes based
-    on the actual RocketPy Flight object. The model allows extra fields to accommodate
+    Inherits from both RocketSimulation and EnvironmentSimulation,
+    and adds flight-specific attributes. Uses the new rocketpy_encoder
+    which may return different attributes based on the actual
+    RocketPy Flight object. The model allows extra fields to accommodate
     any new attributes that might be encoded.
     """
 
@@ -28,8 +30,6 @@ class FlightSimulation(RocketSimulation, EnvironmentSimulation):
     initial_solution: Optional[list] = None
     rocket: Optional[RocketSimulation] = None
     environment: Optional[EnvironmentSimulation] = None
-
-    # Key Flight Function attributes (discretized by rocketpy_encoder, serialized by RocketPyEncoder)
 
     # Position and trajectory
     latitude: Optional[Any] = None
@@ -74,7 +74,9 @@ class FlightSimulation(RocketSimulation, EnvironmentSimulation):
     time: Optional[Any] = None
     solution: Optional[Any] = None
 
-    # Function attributes (discretized by rocketpy_encoder, serialized by RocketPyEncoder)
+    # Function attributes
+    # discretized by rocketpy_encoder
+    # serialized by RocketPyEncoder
     angular_position: Optional[Any] = None
     attitude_angle: Optional[Any] = None
     attitude_vector_x: Optional[Any] = None
