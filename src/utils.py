@@ -95,7 +95,11 @@ def rocketpy_encoder(obj, config: DiscretizeConfig = DiscretizeConfig()):
             include_outputs=True,
             include_function_data=True,
         )
-        return json.loads(json_str)
+        encoder = RocketPyEncoder(
+            include_outputs=True,
+            include_function_data=True,
+        )
+        return encoder.default(obj_copy)
     except Exception as e:
         logger.warning(f"Failed to encode with RocketPyEncoder: {e}")
         attributes = {}
