@@ -18,7 +18,11 @@ class RocketSimulation(MotorSimulation):
     that might be encoded.
     """
 
-    model_config = ConfigDict(extra='allow', arbitrary_types_allowed=True)
+    model_config = ConfigDict(
+        ser_json_exclude_none=True,
+        extra='allow',
+        arbitrary_types_allowed=True
+    )
 
     message: str = "Rocket successfully simulated"
 
