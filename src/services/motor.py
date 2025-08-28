@@ -17,7 +17,7 @@ from rocketpy import (
 from src.models.sub.tanks import TankKinds
 from src.models.motor import MotorKinds, MotorModel
 from src.views.motor import MotorSimulation
-from src.utils import collect_simulation_attributes
+from src.utils import collect_attributes
 
 
 class MotorService:
@@ -140,9 +140,9 @@ class MotorService:
         Returns:
             MotorSimulation
         """
-        encoded_attributes = collect_simulation_attributes(
+        encoded_attributes = collect_attributes(
             self.motor,
-            MotorSimulation,
+            [MotorSimulation],
         )
         motor_simulation = MotorSimulation(**encoded_attributes)
         return motor_simulation

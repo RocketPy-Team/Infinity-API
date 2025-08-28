@@ -18,7 +18,7 @@ from src.models.sub.aerosurfaces import NoseCone, Tail, Fins
 from src.services.motor import MotorService
 from src.views.rocket import RocketSimulation
 from src.views.motor import MotorSimulation
-from src.utils import collect_simulation_attributes
+from src.utils import collect_attributes
 
 class RocketService:
     _rocket: RocketPyRocket
@@ -107,10 +107,9 @@ class RocketService:
         Returns:
             RocketSimulation
         """
-        encoded_attributes = collect_simulation_attributes(
+        encoded_attributes = collect_attributes(
             self.rocket,
-            RocketSimulation, 
-            MotorSimulation,
+            [RocketSimulation, MotorSimulation]
         )
         rocket_simulation = RocketSimulation(**encoded_attributes)
         return rocket_simulation

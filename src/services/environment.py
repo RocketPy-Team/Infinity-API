@@ -5,7 +5,7 @@ import dill
 from rocketpy.environment.environment import Environment as RocketPyEnvironment
 from src.models.environment import EnvironmentModel
 from src.views.environment import EnvironmentSimulation
-from src.utils import collect_simulation_attributes
+from src.utils import collect_attributes
 
 
 class EnvironmentService:
@@ -54,9 +54,9 @@ class EnvironmentService:
             EnvironmentSimulation
         """
 
-        encoded_attributes = collect_simulation_attributes(
+        encoded_attributes = collect_attributes(
             self.environment,
-            EnvironmentSimulation,
+            [EnvironmentSimulation],
         )
         env_simulation = EnvironmentSimulation(**encoded_attributes)
         return env_simulation
