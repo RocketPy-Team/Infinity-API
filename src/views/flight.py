@@ -135,6 +135,7 @@ class FlightSimulation(ApiBaseView):
     frontal_surface_wind: Optional[Any] = None
     lateral_surface_wind: Optional[Any] = None
 
+
 class FlightView(FlightModel):
     flight_id: str
     rocket: RocketView

@@ -2,19 +2,67 @@ import gzip
 import io
 import logging
 import json
+import numpy as np
+from scipy.interpolate import interp1d
 
 from typing import NoReturn
 
-from views.environment import EnvironmentSimulation
-from views.flight import FlightSimulation
-from views.motor import MotorSimulation
-from views.rocket import RocketSimulation
+from src.views.environment import EnvironmentSimulation
+from src.views.flight import FlightSimulation
+from src.views.motor import MotorSimulation
+from src.views.rocket import RocketSimulation
 
 from rocketpy._encoders import RocketPyEncoder
+from rocketpy import Function, Flight
 from starlette.datastructures import Headers, MutableHeaders
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 logger = logging.getLogger(__name__)
+
+
+class InfinityEncoder(RocketPyEncoder):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def default(self, obj):
+        if (
+            isinstance(obj, Function)
+            and not callable(obj.source)
+            and obj.__dom_dim__ == 1
+        ):
+            size = len(obj._domain)
+            reduction_factor = 1
+            if size > 25:
+                reduction_factor = size // 25
+            if reduction_factor > 1:
+                obj = obj.set_discrete(
+                    obj.x_array[0],
+                    obj.x_array[-1],
+                    size // reduction_factor,
+                    mutate_self=False,
+                )
+        if isinstance(obj, Flight):
+            obj._Flight__evaluate_post_process
+            solution = np.array(obj.solution)
+            size = len(solution)
+            if size > 25:
+                reduction_factor = size // 25
+                reduced_solution = np.zeros(
+                    (size // reduction_factor, solution.shape[1])
+                )
+                reduced_scale = np.linspace(
+                    solution[0, 0], solution[-1, 0], size // reduction_factor
+                )
+                for i, col in enumerate(solution.T):
+                    reduced_solution[:, i] = interp1d(
+                        solution[:, 0], col, assume_sorted=True
+                    )(reduced_scale)
+                obj.solution = reduced_solution.tolist()
+
+            obj.flight_phases = None
+            obj.function_evaluations = None
+
+        return super().default(obj)
 
 
 def rocketpy_encoder(obj):
@@ -33,7 +81,7 @@ def rocketpy_encoder(obj):
 
     json_str = json.dumps(
         obj,
-        cls=RocketPyEncoder,
+        cls=InfinityEncoder,
         include_outputs=True,
         include_function_data=True,
         discretize=True,
@@ -45,7 +93,7 @@ def rocketpy_encoder(obj):
 def collect_attributes(obj, attribute_classes=None):
     """
     Collect attributes from various simulation classes and populate them from the flight object.
-    
+
     Args:
         obj: RocketPy Flight object
         attribute_classes: List of attribute classes to collect from
@@ -61,7 +109,8 @@ def collect_attributes(obj, attribute_classes=None):
     for attribute_class in attribute_classes:
         if issubclass(attribute_class, FlightSimulation):
             flight_attributes_list = [
-                attr for attr in attribute_class.__annotations__.keys() 
+                attr
+                for attr in attribute_class.__annotations__.keys()
                 if attr not in ['message', 'rocket', 'env']
             ]
             try:
@@ -76,10 +125,11 @@ def collect_attributes(obj, attribute_classes=None):
                             pass
             except Exception:
                 pass
-                
+
         elif issubclass(attribute_class, RocketSimulation):
             rocket_attributes_list = [
-                attr for attr in attribute_class.__annotations__.keys() 
+                attr
+                for attr in attribute_class.__annotations__.keys()
                 if attr not in ['message', 'motor']
             ]
             try:
@@ -96,15 +146,18 @@ def collect_attributes(obj, attribute_classes=None):
                             pass
             except Exception:
                 pass
-                
+
         elif issubclass(attribute_class, MotorSimulation):
             motor_attributes_list = [
-                attr for attr in attribute_class.__annotations__.keys() 
+                attr
+                for attr in attribute_class.__annotations__.keys()
                 if attr not in ['message']
             ]
             try:
                 for key in motor_attributes_list:
-                    if key not in attributes.get("rocket", {}).get("motor", {}):
+                    if key not in attributes.get("rocket", {}).get(
+                        "motor", {}
+                    ):
                         try:
                             value = getattr(obj.rocket.motor, key)
                             if "rocket" not in attributes:
@@ -118,10 +171,11 @@ def collect_attributes(obj, attribute_classes=None):
                             pass
             except Exception:
                 pass
-                
+
         elif issubclass(attribute_class, EnvironmentSimulation):
             environment_attributes_list = [
-                attr for attr in attribute_class.__annotations__.keys()
+                attr
+                for attr in attribute_class.__annotations__.keys()
                 if attr not in ['message']
             ]
             try:
@@ -142,6 +196,7 @@ def collect_attributes(obj, attribute_classes=None):
             continue
 
     return rocketpy_encoder(attributes)
+
 
 class RocketPyGZipMiddleware:
     def __init__(

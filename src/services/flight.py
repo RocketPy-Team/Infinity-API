@@ -13,6 +13,7 @@ from src.views.motor import MotorSimulation
 from src.views.environment import EnvironmentSimulation
 from src.utils import collect_attributes
 
+
 class FlightService:
     _flight: RocketPyFlight
 
@@ -59,7 +60,12 @@ class FlightService:
         """
         encoded_attributes = collect_attributes(
             self.flight,
-            [FlightSimulation, RocketSimulation, MotorSimulation, EnvironmentSimulation]
+            [
+                FlightSimulation,
+                RocketSimulation,
+                MotorSimulation,
+                EnvironmentSimulation,
+            ],
         )
         flight_simulation = FlightSimulation(**encoded_attributes)
         return flight_simulation

@@ -20,6 +20,7 @@ from src.views.rocket import RocketSimulation
 from src.views.motor import MotorSimulation
 from src.utils import collect_attributes
 
+
 class RocketService:
     _rocket: RocketPyRocket
 
@@ -108,8 +109,7 @@ class RocketService:
             RocketSimulation
         """
         encoded_attributes = collect_attributes(
-            self.rocket,
-            [RocketSimulation, MotorSimulation]
+            self.rocket, [RocketSimulation, MotorSimulation]
         )
         rocket_simulation = RocketSimulation(**encoded_attributes)
         return rocket_simulation
