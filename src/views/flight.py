@@ -1,5 +1,7 @@
 from typing import Optional, Any
 from pydantic import ConfigDict
+from typing import Optional, Any
+from pydantic import ConfigDict
 from src.models.flight import FlightModel
 from src.views.interface import ApiBaseView
 from src.views.rocket import RocketView, RocketSimulation
@@ -21,7 +23,11 @@ class FlightSimulation(ApiBaseView):
     message: str = "Flight successfully simulated"
 
     # Core Flight attributes (always present)
+
+    # Core Flight attributes (always present)
     rail_length: Optional[float] = None
+    inclination: Optional[float] = None
+    heading: Optional[float] = None
     inclination: Optional[float] = None
     heading: Optional[float] = None
     terminate_on_apogee: Optional[bool] = None
