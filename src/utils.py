@@ -2,20 +2,22 @@ import gzip
 import io
 import logging
 import json
-import numpy as np
-from scipy.interpolate import interp1d
 from datetime import datetime
 from typing import NoReturn, Tuple
+
+import numpy as np
+from scipy.interpolate import interp1d
+
+from rocketpy import Function, Flight
+from rocketpy._encoders import RocketPyEncoder
+
+from starlette.datastructures import Headers, MutableHeaders
+from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from src.views.environment import EnvironmentSimulation
 from src.views.flight import FlightSimulation
 from src.views.motor import MotorSimulation
 from src.views.rocket import RocketSimulation
-
-from rocketpy import Function, Flight
-from rocketpy._encoders import RocketPyEncoder
-from starlette.datastructures import Headers, MutableHeaders
-from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 logger = logging.getLogger(__name__)
 
