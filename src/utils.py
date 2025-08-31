@@ -25,6 +25,9 @@ logger = logging.getLogger(__name__)
 class DiscretizeConfig:
     """
     Configuration class for RocketPy function discretization.
+
+    This class allows easy configuration of discretization parameters
+    for different types of RocketPy objects and their callable attributes.
     """
 
     def __init__(
@@ -34,19 +37,19 @@ class DiscretizeConfig:
         self.samples = samples
 
     @classmethod
-    def for_environment(cls) -> "DiscretizeConfig":
+    def for_environment(cls) -> 'DiscretizeConfig':
         return cls(bounds=(0, 50000), samples=100)
 
     @classmethod
-    def for_motor(cls) -> "DiscretizeConfig":
+    def for_motor(cls) -> 'DiscretizeConfig':
         return cls(bounds=(0, 10), samples=150)
 
     @classmethod
-    def for_rocket(cls) -> "DiscretizeConfig":
+    def for_rocket(cls) -> 'DiscretizeConfig':
         return cls(bounds=(0, 1), samples=100)
 
     @classmethod
-    def for_flight(cls) -> "DiscretizeConfig":
+    def for_flight(cls) -> 'DiscretizeConfig':
         return cls(bounds=(0, 30), samples=200)
 
 
@@ -208,10 +211,11 @@ def _fix_datetime_fields(data):
         fixed = {}
         for key, value in data.items():
             if (
-                key in ["date", "local_date", "datetime_date"]
+                key in ['date', 'local_date', 'datetime_date']
                 and isinstance(value, list)
                 and len(value) >= 3
             ):
+                # Convert [year, month, day, hour, ...] back to datetime
                 try:
                     year, month, day = value[0:3]
                     hour = value[3] if len(value) > 3 else 0
@@ -222,7 +226,8 @@ def _fix_datetime_fields(data):
                     fixed[key] = datetime(
                         year, month, day, hour, minute, second, microsecond
                     )
-                except Exception:
+                except (ValueError, TypeError, IndexError):
+                    # If conversion fails, keep the original value
                     fixed[key] = value
             else:
                 fixed[key] = _fix_datetime_fields(value)
@@ -257,6 +262,7 @@ class RocketPyGZipMiddleware:
 
 
 class GZipResponder:
+    # fork of https://github.com/encode/starlette/blob/master/starlette/middleware/gzip.py
     def __init__(
         self, app: ASGIApp, minimum_size: int, compresslevel: int = 9
     ) -> None:
@@ -281,6 +287,8 @@ class GZipResponder:
     async def send_with_gzip(self, message: Message) -> None:
         message_type = message["type"]
         if message_type == "http.response.start":
+            # Don't send the initial message until we've determined how to
+            # modify the outgoing headers correctly.
             self.initial_message = message
             headers = Headers(raw=self.initial_message["headers"])
             self.content_encoding_set = "content-encoding" in headers
@@ -296,12 +304,14 @@ class GZipResponder:
             body = message.get("body", b"")
             more_body = message.get("more_body", False)
             if ((len(body) < self.minimum_size) and not more_body) or any(
-                value == b"application/octet-stream"
+                value == b'application/octet-stream'
                 for header, value in self.initial_message["headers"]
             ):
+                # Don't apply GZip to small outgoing responses or octet-streams.
                 await self.send(self.initial_message)
-                await self.send(message)
+                await self.send(message)  # pylint: disable=unreachable
             elif not more_body:
+                # Standard GZip response.
                 self.gzip_file.write(body)
                 self.gzip_file.close()
                 body = self.gzip_buffer.getvalue()
@@ -313,8 +323,9 @@ class GZipResponder:
                 message["body"] = body
 
                 await self.send(self.initial_message)
-                await self.send(message)
+                await self.send(message)  # pylint: disable=unreachable
             else:
+                # Initial body in streaming GZip response.
                 headers = MutableHeaders(raw=self.initial_message["headers"])
                 headers["Content-Encoding"] = "gzip"
                 headers.add_vary_header("Accept-Encoding")
@@ -326,9 +337,10 @@ class GZipResponder:
                 self.gzip_buffer.truncate()
 
                 await self.send(self.initial_message)
-                await self.send(message)
+                await self.send(message)  # pylint: disable=unreachable
 
         elif message_type == "http.response.body":
+            # Remaining body in streaming GZip response.
             body = message.get("body", b"")
             more_body = message.get("more_body", False)
 
@@ -341,7 +353,9 @@ class GZipResponder:
             self.gzip_buffer.truncate()
 
             await self.send(message)
+
         else:
+            # Pass through other message types unmodified.
             if not self.started:
                 self.started = True
                 await self.send(self.initial_message)
@@ -349,4 +363,4 @@ class GZipResponder:
 
 
 async def unattached_send(message: Message) -> NoReturn:
-    raise RuntimeError("send awaitable not set")
+    raise RuntimeError("send awaitable not set")  # pragma: no cover
