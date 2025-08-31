@@ -1,7 +1,5 @@
 from typing import Optional, Any
 from pydantic import ConfigDict
-from typing import Optional, Any
-from pydantic import ConfigDict
 from src.models.flight import FlightModel
 from src.views.interface import ApiBaseView
 from src.views.rocket import RocketView, RocketSimulation

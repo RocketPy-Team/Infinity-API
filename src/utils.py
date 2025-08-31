@@ -2,7 +2,6 @@ import gzip
 import io
 import logging
 import json
-import copy
 import numpy as np
 from scipy.interpolate import interp1d
 from datetime import datetime
@@ -26,7 +25,9 @@ class DiscretizeConfig:
     Configuration class for RocketPy function discretization.
     """
 
-    def __init__(self, bounds: Tuple[float, float] = (0, 10), samples: int = 200):
+    def __init__(
+        self, bounds: Tuple[float, float] = (0, 10), samples: int = 200
+    ):
         self.bounds = bounds
         self.samples = samples
 
@@ -162,12 +163,14 @@ def collect_attributes(obj, attribute_classes=None):
             ]
             try:
                 for key in motor_attributes_list:
-                    if key not in attributes.get("rocket", {}).get("motor", {}):
+                    if key not in attributes.get("rocket", {}).get(
+                        "motor", {}
+                    ):
                         try:
                             value = getattr(obj.rocket.motor, key)
-                            attributes.setdefault("rocket", {}).setdefault("motor", {})[
-                                key
-                            ] = value
+                            attributes.setdefault("rocket", {}).setdefault(
+                                "motor", {}
+                            )[key] = value
                         except Exception:
                             pass
             except Exception:
@@ -228,17 +231,23 @@ def _fix_datetime_fields(data):
 
 
 class RocketPyGZipMiddleware:
-    def __init__(self, app: ASGIApp, minimum_size: int = 500, compresslevel: int = 9) -> None:
+    def __init__(
+        self, app: ASGIApp, minimum_size: int = 500, compresslevel: int = 9
+    ) -> None:
         self.app = app
         self.minimum_size = minimum_size
         self.compresslevel = compresslevel
 
-    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+    async def __call__(
+        self, scope: Scope, receive: Receive, send: Send
+    ) -> None:
         if scope["type"] == "http":
             headers = Headers(scope=scope)
             if "gzip" in headers.get("Accept-Encoding", ""):
                 responder = GZipResponder(
-                    self.app, self.minimum_size, compresslevel=self.compresslevel
+                    self.app,
+                    self.minimum_size,
+                    compresslevel=self.compresslevel,
                 )
                 await responder(scope, receive, send)
                 return
@@ -246,7 +255,9 @@ class RocketPyGZipMiddleware:
 
 
 class GZipResponder:
-    def __init__(self, app: ASGIApp, minimum_size: int, compresslevel: int = 9) -> None:
+    def __init__(
+        self, app: ASGIApp, minimum_size: int, compresslevel: int = 9
+    ) -> None:
         self.app = app
         self.minimum_size = minimum_size
         self.send: Send = unattached_send
@@ -258,7 +269,9 @@ class GZipResponder:
             mode="wb", fileobj=self.gzip_buffer, compresslevel=compresslevel
         )
 
-    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+    async def __call__(
+        self, scope: Scope, receive: Receive, send: Send
+    ) -> None:
         self.send = send
         with self.gzip_buffer, self.gzip_file:
             await self.app(scope, receive, self.send_with_gzip)
@@ -269,7 +282,9 @@ class GZipResponder:
             self.initial_message = message
             headers = Headers(raw=self.initial_message["headers"])
             self.content_encoding_set = "content-encoding" in headers
-        elif message_type == "http.response.body" and self.content_encoding_set:
+        elif (
+            message_type == "http.response.body" and self.content_encoding_set
+        ):
             if not self.started:
                 self.started = True
                 await self.send(self.initial_message)
