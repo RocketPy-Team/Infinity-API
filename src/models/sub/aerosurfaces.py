@@ -34,7 +34,6 @@ class Fins(BaseModel):
     root_chord: float
     span: float
     position: float
-
     # Optional parameters
     tip_chord: Optional[float] = None
     cant_angle: Optional[float] = None
@@ -42,6 +41,8 @@ class Fins(BaseModel):
     airfoil: Optional[
         Tuple[List[Tuple[float, float]], Literal['radians', 'degrees']]
     ] = None
+    sweep_length: Optional[float] = None
+    sweep_angle: Optional[float] = None
 
     def get_additional_parameters(self):
         return {
