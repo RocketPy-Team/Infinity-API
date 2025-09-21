@@ -2,15 +2,22 @@ import gzip
 import io
 import logging
 import json
-import copy
 from datetime import datetime
-
 from typing import NoReturn, Tuple
 
-from rocketpy import Function
+import numpy as np
+from scipy.interpolate import interp1d
+
+from rocketpy import Function, Flight
 from rocketpy._encoders import RocketPyEncoder
+
 from starlette.datastructures import Headers, MutableHeaders
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
+
+from src.views.environment import EnvironmentSimulation
+from src.views.flight import FlightSimulation
+from src.views.motor import MotorSimulation
+from src.views.rocket import RocketSimulation
 
 logger = logging.getLogger(__name__)
 
@@ -46,78 +53,154 @@ class DiscretizeConfig:
         return cls(bounds=(0, 30), samples=200)
 
 
-def rocketpy_encoder(obj, config: DiscretizeConfig = DiscretizeConfig()):
+class InfinityEncoder(RocketPyEncoder):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def default(self, obj):
+        if (
+            isinstance(obj, Function)
+            and not callable(obj.source)
+            and obj.__dom_dim__ == 1
+        ):
+            size = len(obj._domain)
+            reduction_factor = 1
+            if size > 25:
+                reduction_factor = size // 25
+            if reduction_factor > 1:
+                obj = obj.set_discrete(
+                    obj.x_array[0],
+                    obj.x_array[-1],
+                    size // reduction_factor,
+                    mutate_self=False,
+                )
+        if isinstance(obj, Flight):
+            obj._Flight__evaluate_post_process
+            solution = np.array(obj.solution)
+            size = len(solution)
+            if size > 25:
+                reduction_factor = size // 25
+                reduced_solution = np.zeros(
+                    (size // reduction_factor, solution.shape[1])
+                )
+                reduced_scale = np.linspace(
+                    solution[0, 0], solution[-1, 0], size // reduction_factor
+                )
+                for i, col in enumerate(solution.T):
+                    reduced_solution[:, i] = interp1d(
+                        solution[:, 0], col, assume_sorted=True
+                    )(reduced_scale)
+                obj.solution = reduced_solution.tolist()
+
+            obj.flight_phases = None
+            obj.function_evaluations = None
+
+        return super().default(obj)
+
+
+def rocketpy_encoder(obj):
     """
     Encode a RocketPy object using official RocketPy encoders.
 
-    This function creates a copy of the object, discretizes callable Function
-    attributes on the copy, and then uses RocketPy's official RocketPyEncoder for
-    complete object serialization. The original object remains unchanged.
-
-    Args:
-        obj: RocketPy object (Environment, Motor, Rocket, Flight)
-        config: DiscretizeConfig object with discretization parameters (optional)
-
-    Returns:
-        Dictionary of encoded attributes
+    Uses InfinityEncoder for serialization and reduction.
     """
+    json_str = json.dumps(
+        obj,
+        cls=InfinityEncoder,
+        include_outputs=True,
+        include_function_data=True,
+        discretize=True,
+        allow_pickle=False,
+    )
+    encoded_result = json.loads(json_str)
+    return _fix_datetime_fields(encoded_result)
 
-    if config is None:
-        config = DiscretizeConfig()
-    try:
-        # Create a copy to avoid mutating the original object
-        obj_copy = copy.deepcopy(obj)
-    except Exception:
-        # Fall back to a shallow copy if deep copy is not supported
-        obj_copy = copy.copy(obj)
 
-    for attr_name in dir(obj_copy):
-        if attr_name.startswith('_'):
-            continue
+def collect_attributes(obj, attribute_classes=None):
+    """
+    Collect attributes from various simulation classes and populate them from the flight object.
+    """
+    if attribute_classes is None:
+        attribute_classes = []
 
-        try:
-            attr_value = getattr(obj_copy, attr_name)
-        except Exception:
-            continue
+    attributes = rocketpy_encoder(obj)
 
-        if callable(attr_value) and isinstance(attr_value, Function):
+    for attribute_class in attribute_classes:
+        if issubclass(attribute_class, FlightSimulation):
+            flight_attributes_list = [
+                attr
+                for attr in attribute_class.__annotations__.keys()
+                if attr not in ["message", "rocket", "env"]
+            ]
             try:
-                discretized_func = Function(attr_value.source)
-                discretized_func.set_discrete(
-                    lower=config.bounds[0],
-                    upper=config.bounds[1],
-                    samples=config.samples,
-                    mutate_self=True,
-                )
+                for key in flight_attributes_list:
+                    if key not in attributes:
+                        try:
+                            value = getattr(obj, key)
+                            attributes[key] = value
+                        except Exception:
+                            pass
+            except Exception:
+                pass
 
-                setattr(obj_copy, attr_name, discretized_func)
+        elif issubclass(attribute_class, RocketSimulation):
+            rocket_attributes_list = [
+                attr
+                for attr in attribute_class.__annotations__.keys()
+                if attr not in ["message", "motor"]
+            ]
+            try:
+                for key in rocket_attributes_list:
+                    if key not in attributes.get("rocket", {}):
+                        try:
+                            value = getattr(obj.rocket, key)
+                            attributes.setdefault("rocket", {})[key] = value
+                        except Exception:
+                            pass
+            except Exception:
+                pass
 
-            except Exception as e:
-                logger.warning(f"Failed to discretize {attr_name}: {e}")
+        elif issubclass(attribute_class, MotorSimulation):
+            motor_attributes_list = [
+                attr
+                for attr in attribute_class.__annotations__.keys()
+                if attr not in ["message"]
+            ]
+            try:
+                for key in motor_attributes_list:
+                    if key not in attributes.get("rocket", {}).get(
+                        "motor", {}
+                    ):
+                        try:
+                            value = getattr(obj.rocket.motor, key)
+                            attributes.setdefault("rocket", {}).setdefault(
+                                "motor", {}
+                            )[key] = value
+                        except Exception:
+                            pass
+            except Exception:
+                pass
 
-    try:
-        json_str = json.dumps(
-            obj_copy,
-            cls=RocketPyEncoder,
-            include_outputs=True,
-            include_function_data=True,
-        )
-        encoded_result = json.loads(json_str)
+        elif issubclass(attribute_class, EnvironmentSimulation):
+            environment_attributes_list = [
+                attr
+                for attr in attribute_class.__annotations__.keys()
+                if attr not in ["message"]
+            ]
+            try:
+                for key in environment_attributes_list:
+                    if key not in attributes.get("env", {}):
+                        try:
+                            value = getattr(obj.env, key)
+                            attributes.setdefault("env", {})[key] = value
+                        except Exception:
+                            pass
+            except Exception:
+                pass
+        else:
+            continue
 
-        # Post-process to fix datetime fields that got converted to lists
-        return _fix_datetime_fields(encoded_result)
-    except Exception as e:
-        logger.warning(f"Failed to encode with RocketPyEncoder: {e}")
-        attributes = {}
-        for attr_name in dir(obj_copy):
-            if not attr_name.startswith('_'):
-                try:
-                    attr_value = getattr(obj_copy, attr_name)
-                    if not callable(attr_value):
-                        attributes[attr_name] = str(attr_value)
-                except Exception:
-                    continue
-        return attributes
+    return rocketpy_encoder(attributes)
 
 
 def _fix_datetime_fields(data):

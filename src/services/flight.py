@@ -8,7 +8,10 @@ from src.services.environment import EnvironmentService
 from src.services.rocket import RocketService
 from src.models.flight import FlightModel
 from src.views.flight import FlightSimulation
-from src.utils import rocketpy_encoder, DiscretizeConfig
+from src.views.rocket import RocketSimulation
+from src.views.motor import MotorSimulation
+from src.views.environment import EnvironmentSimulation
+from src.utils import collect_attributes
 
 
 class FlightService:
@@ -55,10 +58,16 @@ class FlightService:
         Returns:
             FlightSimulation
         """
-        attributes = rocketpy_encoder(
-            self.flight, DiscretizeConfig.for_flight()
+        encoded_attributes = collect_attributes(
+            self.flight,
+            [
+                FlightSimulation,
+                RocketSimulation,
+                MotorSimulation,
+                EnvironmentSimulation,
+            ],
         )
-        flight_simulation = FlightSimulation(**attributes)
+        flight_simulation = FlightSimulation(**encoded_attributes)
         return flight_simulation
 
     def get_flight_binary(self) -> bytes:

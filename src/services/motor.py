@@ -17,7 +17,7 @@ from rocketpy import (
 from src.models.sub.tanks import TankKinds
 from src.models.motor import MotorKinds, MotorModel
 from src.views.motor import MotorSimulation
-from src.utils import rocketpy_encoder, DiscretizeConfig
+from src.utils import collect_attributes
 
 
 class MotorService:
@@ -140,8 +140,11 @@ class MotorService:
         Returns:
             MotorSimulation
         """
-        attributes = rocketpy_encoder(self.motor, DiscretizeConfig.for_motor())
-        motor_simulation = MotorSimulation(**attributes)
+        encoded_attributes = collect_attributes(
+            self.motor,
+            [MotorSimulation],
+        )
+        motor_simulation = MotorSimulation(**encoded_attributes)
         return motor_simulation
 
     def get_motor_binary(self) -> bytes:

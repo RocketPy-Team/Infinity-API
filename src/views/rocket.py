@@ -31,8 +31,8 @@ class RocketSimulation(MotorSimulation):
         tuple[float, float, float]
         | tuple[float, float, float, float, float, float]
     ] = None
-    power_off_drag: Optional[list[tuple[float, float]]] = None
-    power_on_drag: Optional[list[tuple[float, float]]] = None
+    power_off_drag: Optional[Any] = None
+    power_on_drag: Optional[Any] = None
     center_of_mass_without_motor: Optional[float] = None
     coordinate_system_orientation: Optional[str] = None
     parachutes: Optional[list] = None
