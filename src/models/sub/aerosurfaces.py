@@ -42,7 +42,6 @@ class Fins(BaseModel):
         Tuple[List[Tuple[float, float]], Literal['radians', 'degrees']]
     ] = None
     sweep_length: Optional[float] = None
-    sweep_angle: Optional[float] = None
 
     def get_additional_parameters(self):
         return {
