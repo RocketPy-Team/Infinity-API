@@ -1,27 +1,69 @@
+VENV_BIN ?= ./infinity_env/bin
+PYLINTHOME ?= .pylint.d
+
+export PYLINTHOME
+
+ifneq (,$(wildcard $(VENV_BIN)/black))
+BLACK := $(VENV_BIN)/black
+else
+BLACK := black
+endif
+
+ifneq (,$(wildcard $(VENV_BIN)/ruff))
+RUFF := $(VENV_BIN)/ruff
+else
+RUFF := ruff
+endif
+
+ifneq (,$(wildcard $(VENV_BIN)/flake8))
+FLAKE8 := $(VENV_BIN)/flake8
+else
+FLAKE8 := flake8
+endif
+
+ifneq (,$(wildcard $(VENV_BIN)/pylint))
+PYLINT := $(VENV_BIN)/pylint
+else
+PYLINT := pylint
+endif
+
+ifneq (,$(wildcard $(VENV_BIN)/pytest))
+PYTEST := $(VENV_BIN)/pytest
+else
+PYTEST := python3 -m pytest
+endif
+
+ifneq (,$(wildcard $(VENV_BIN)/uvicorn))
+UVICORN := $(VENV_BIN)/uvicorn
+else
+UVICORN := python3 -m uvicorn
+endif
+
 format: black ruff
 lint: flake8 pylint
 
 black:
-	black ./src || true
-	black ./tests || true
+	$(BLACK) ./src || true
+	$(BLACK) ./tests || true
 
 flake8:
-	flake8 --ignore E501,E402,F401,W503,C0414 ./src || true
-	flake8 --ignore E501,E402,F401,W503,C0414 ./tests || true
+	$(FLAKE8) --ignore E501,E402,F401,W503,C0414 ./src || true
+	$(FLAKE8) --ignore E501,E402,F401,W503,C0414 ./tests || true
 
 pylint:
-	pylint ./src || true
-	pylint ./tests || true
+	@mkdir -p $(PYLINTHOME)
+	$(PYLINT) ./src || true
+	$(PYLINT) ./tests || true
 
 ruff:
-	ruff check --fix ./src || true
-	ruff check --fix ./tests || true
+	$(RUFF) check --fix ./src || true
+	$(RUFF) check --fix ./tests || true
 
 test:
-	python3 -m pytest .
+	$(PYTEST) .
 
 dev:
-	python3 -m uvicorn src:app --reload --port 3000 --loop uvloop
+	$(UVICORN) src:app --reload --port 3000 --loop uvloop
 
 clean:
 	docker stop infinity-api

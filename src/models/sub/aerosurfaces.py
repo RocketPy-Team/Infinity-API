@@ -48,7 +48,8 @@ class Fins(BaseModel):
 
     def get_additional_parameters(self):
         params = {
-            k: v for k, v in self.dict().items()
+            k: v
+            for k, v in self.dict().items()
             if v is not None and k not in self._base_keys
         }
         if "sweep_angle" in params and "sweep_length" in params:
