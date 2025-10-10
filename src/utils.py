@@ -54,10 +54,8 @@ class DiscretizeConfig:
 
 
 class InfinityEncoder(RocketPyEncoder):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def default(self, obj):
+    def default(self, o):
+        obj = o
         if (
             isinstance(obj, Function)
             and not callable(obj.source)
@@ -75,7 +73,7 @@ class InfinityEncoder(RocketPyEncoder):
                     mutate_self=False,
                 )
         if isinstance(obj, Flight):
-            obj._Flight__evaluate_post_process
+            obj._Flight__evaluate_post_process()
             solution = np.array(obj.solution)
             size = len(solution)
             if size > 25:
@@ -117,90 +115,78 @@ def rocketpy_encoder(obj):
 
 
 def collect_attributes(obj, attribute_classes=None):
-    """
-    Collect attributes from various simulation classes and populate them from the flight object.
-    """
-    if attribute_classes is None:
-        attribute_classes = []
+    """Collect and serialize attributes from simulation classes."""
+    attribute_classes = attribute_classes or []
 
     attributes = rocketpy_encoder(obj)
-
     for attribute_class in attribute_classes:
-        if issubclass(attribute_class, FlightSimulation):
-            flight_attributes_list = [
-                attr
-                for attr in attribute_class.__annotations__.keys()
-                if attr not in ["message", "rocket", "env"]
-            ]
-            try:
-                for key in flight_attributes_list:
-                    if key not in attributes:
-                        try:
-                            value = getattr(obj, key)
-                            attributes[key] = value
-                        except Exception:
-                            pass
-            except Exception:
-                pass
-
-        elif issubclass(attribute_class, RocketSimulation):
-            rocket_attributes_list = [
-                attr
-                for attr in attribute_class.__annotations__.keys()
-                if attr not in ["message", "motor"]
-            ]
-            try:
-                for key in rocket_attributes_list:
-                    if key not in attributes.get("rocket", {}):
-                        try:
-                            value = getattr(obj.rocket, key)
-                            attributes.setdefault("rocket", {})[key] = value
-                        except Exception:
-                            pass
-            except Exception:
-                pass
-
-        elif issubclass(attribute_class, MotorSimulation):
-            motor_attributes_list = [
-                attr
-                for attr in attribute_class.__annotations__.keys()
-                if attr not in ["message"]
-            ]
-            try:
-                for key in motor_attributes_list:
-                    if key not in attributes.get("rocket", {}).get(
-                        "motor", {}
-                    ):
-                        try:
-                            value = getattr(obj.rocket.motor, key)
-                            attributes.setdefault("rocket", {}).setdefault(
-                                "motor", {}
-                            )[key] = value
-                        except Exception:
-                            pass
-            except Exception:
-                pass
-
-        elif issubclass(attribute_class, EnvironmentSimulation):
-            environment_attributes_list = [
-                attr
-                for attr in attribute_class.__annotations__.keys()
-                if attr not in ["message"]
-            ]
-            try:
-                for key in environment_attributes_list:
-                    if key not in attributes.get("env", {}):
-                        try:
-                            value = getattr(obj.env, key)
-                            attributes.setdefault("env", {})[key] = value
-                        except Exception:
-                            pass
-            except Exception:
-                pass
-        else:
-            continue
+        _populate_simulation_attributes(obj, attribute_class, attributes)
 
     return rocketpy_encoder(attributes)
+
+
+def _populate_simulation_attributes(obj, attribute_class, attributes):
+    if not isinstance(attribute_class, type):
+        return
+
+    mappings = (
+        (FlightSimulation, (), (), {"message", "rocket", "env"}),
+        (RocketSimulation, ("rocket",), ("rocket",), {"message", "motor"}),
+        (
+            MotorSimulation,
+            ("rocket", "motor"),
+            ("rocket", "motor"),
+            {"message"},
+        ),
+        (EnvironmentSimulation, ("env",), ("env",), {"message"}),
+    )
+
+    for klass, source_path, target_path, exclusions in mappings:
+        if not issubclass(attribute_class, klass):
+            continue
+
+        keys = _annotation_keys(attribute_class, exclusions)
+        if not keys:
+            return
+
+        source = _resolve_attribute_path(obj, source_path)
+        if source is None:
+            return
+
+        target = _resolve_attribute_target(attributes, target_path)
+        _copy_missing_attributes(source, target, keys)
+        return
+
+
+def _annotation_keys(attribute_class, exclusions):
+    annotations = getattr(attribute_class, "__annotations__", {})
+    return [key for key in annotations if key not in exclusions]
+
+
+def _resolve_attribute_path(root, path):
+    current = root
+    for attr in path:
+        if current is None:
+            return None
+        current = getattr(current, attr, None)
+    return current
+
+
+def _resolve_attribute_target(attributes, path):
+    target = attributes
+    for key in path:
+        target = target.setdefault(key, {})
+    return target
+
+
+def _copy_missing_attributes(source, target, keys):
+    for key in keys:
+        if key in target:
+            continue
+        try:
+            target[key] = getattr(source, key)
+        except AttributeError:
+            continue
 
 
 def _fix_datetime_fields(data):

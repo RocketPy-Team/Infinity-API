@@ -44,14 +44,18 @@ class Fins(BaseModel):
     sweep_length: Optional[float] = None
     sweep_angle: Optional[float] = None
 
+    _base_keys = {"fins_kind", "name", "n", "root_chord", "span", "position"}
+
     def get_additional_parameters(self):
-        return {
-            key: value
-            for key, value in self.dict().items()
-            if value is not None
-            and key
-            not in ["fins_kind", "name", "n", "root_chord", "span", "position"]
+        params = {
+            k: v
+            for k, v in self.dict().items()
+            if v is not None and k not in self._base_keys
         }
+        if "sweep_angle" in params and "sweep_length" in params:
+            params.pop("sweep_length")
+
+        return params
 
 
 # TODO: implement airbrakes
