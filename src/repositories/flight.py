@@ -28,7 +28,7 @@ class FlightRepository(RepositoryInterface):
     @repository_exception_handler
     async def update_flight_by_id(self, flight_id: str, flight: FlightModel):
         await self.update_by_id(
-            flight.model_dump(exclude_none=True), data_id=flight_id
+            flight.model_dump(exclude_none=False), data_id=flight_id
         )
 
     @repository_exception_handler
