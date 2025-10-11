@@ -99,7 +99,7 @@ class InfinityEncoder(RocketPyEncoder):
                 logger.exception("Error handling Flight object corruption")
             try:
                 solution = np.array(obj.solution)
-            except Exception as e:
+            except (AttributeError, TypeError, ValueError):
                 return super().default(obj)  # Fall back to parent encoder
             size = len(solution)
             if size > 25:
