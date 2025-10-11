@@ -73,7 +73,8 @@ class InfinityEncoder(RocketPyEncoder):
                     mutate_self=False,
                 )
         if isinstance(obj, Flight):
-         if isinstance(obj, Flight):
+     if isinstance(obj, Flight):
+         try:
              try:
 -                evaluate_post_process = getattr(obj, '_Flight__evaluate_post_process', None)
                 evaluate_post_process = getattr(obj, '_Flight__evaluate_post_process', None)
