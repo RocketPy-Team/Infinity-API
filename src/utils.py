@@ -95,9 +95,8 @@ class InfinityEncoder(RocketPyEncoder):
                  elif evaluate_post_process is not None and callable(evaluate_post_process):
                      evaluate_post_process()
 
-             except (AttributeError, TypeError, ValueError) as e:
--                logger.error(f"Error handling Flight object corruption: {e}")
-                logger.exception("Error handling Flight object corruption")
+             except (AttributeError, TypeError, ValueError):
+                 logger.exception("Error handling Flight object corruption")
             try:
                 solution = np.array(obj.solution)
             except (AttributeError, TypeError, ValueError):
