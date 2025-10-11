@@ -73,26 +73,30 @@ class InfinityEncoder(RocketPyEncoder):
                     mutate_self=False,
                 )
         if isinstance(obj, Flight):
-            try:
+         if isinstance(obj, Flight):
+             try:
+-                evaluate_post_process = getattr(obj, '_Flight__evaluate_post_process', None)
                 evaluate_post_process = getattr(obj, '_Flight__evaluate_post_process', None)
-                
-                # Check if it's corrupted (numpy array instead of cached_property)
-                if isinstance(evaluate_post_process, np.ndarray):
-                    try:
-                        delattr(obj, '_Flight__evaluate_post_process')
+
+                 # Check if it's corrupted (numpy array instead of cached_property)
+                 if isinstance(evaluate_post_process, np.ndarray):
+                     try:
+                         delattr(obj, '_Flight__evaluate_post_process')
                         
-                        restored_method = getattr(obj, '_Flight__evaluate_post_process', None)
-                        if restored_method and callable(restored_method):
-                            restored_method()
-                    except Exception as fix_error:
-                        logger.error(f"Error fixing _Flight__evaluate_post_process: {fix_error}")
-                        
-                elif evaluate_post_process is not None and callable(evaluate_post_process):
-                    evaluate_post_process()
-                    
-            except (AttributeError, TypeError, ValueError) as e:
-                logger.error(f"Error handling Flight object corruption: {e}")
-            
+                         restored_method = getattr(obj, '_Flight__evaluate_post_process', None)
+                         if restored_method and callable(restored_method):
+                             restored_method()
+-                    except Exception as fix_error:
+-                        logger.error(f"Error fixing _Flight__evaluate_post_process: {fix_error}")
+                    except (AttributeError, TypeError) as fix_error:
+                        logger.exception("Error fixing _Flight__evaluate_post_process")
+
+                 elif evaluate_post_process is not None and callable(evaluate_post_process):
+                     evaluate_post_process()
+
+             except (AttributeError, TypeError, ValueError) as e:
+-                logger.error(f"Error handling Flight object corruption: {e}")
+                logger.exception("Error handling Flight object corruption")
             try:
                 solution = np.array(obj.solution)
             except Exception as e:
