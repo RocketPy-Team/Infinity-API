@@ -73,7 +73,7 @@ class InfinityEncoder(RocketPyEncoder):
                     mutate_self=False,
                 )
         if isinstance(obj, Flight):
-            obj._Flight__evaluate_post_process()
+            obj._Flight__evaluate_post_process
             solution = np.array(obj.solution)
             size = len(solution)
             if size > 25:
