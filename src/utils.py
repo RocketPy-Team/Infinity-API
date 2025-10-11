@@ -54,8 +54,10 @@ class DiscretizeConfig:
 
 
 class InfinityEncoder(RocketPyEncoder):
-    def default(self, o):
-        obj = o
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def default(self, obj):
         if (
             isinstance(obj, Function)
             and not callable(obj.source)
