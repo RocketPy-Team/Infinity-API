@@ -12,7 +12,8 @@ from tenacity import (
 from pydantic import ValidationError
 from pymongo.errors import PyMongoError
 from pymongo.server_api import ServerApi
-from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import AsyncMongoClient
+
 from fastapi import HTTPException, status
 from bson import ObjectId
 
@@ -135,7 +136,7 @@ class RepositoryInterface:
             self._connection_string = Secrets.get_secret(
                 "MONGODB_CONNECTION_STRING"
             )
-            self._client = AsyncIOMotorClient(
+            self._client = AsyncMongoClient(
                 self._connection_string,
                 server_api=ServerApi("1"),
                 maxIdleTimeMS=30000,
@@ -144,7 +145,10 @@ class RepositoryInterface:
                 serverSelectionTimeoutMS=60000,
             )
             self._collection = self._client.rocketpy[self.model.NAME]
-            logger.info("MongoDB client initialized for %s", self.__class__)
+            logger.info(
+                "AsyncMongoClient initialized for %s",
+                self.__class__,
+            )
         except Exception as e:
             logger.error(
                 f"Failed to initialize MongoDB client: {e}", exc_info=True
