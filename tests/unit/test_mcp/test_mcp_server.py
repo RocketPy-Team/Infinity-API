@@ -14,6 +14,11 @@ from src.mcp.server import build_mcp
 
 @pytest.fixture(autouse=True)
 def reset_mcp_state():
+    """
+    Ensure the FastAPI app has no lingering MCP state before and after a test.
+    
+    This fixture deletes app.state.mcp if it exists, yields control to the test, and then deletes app.state.mcp again to guarantee the MCP state is cleared between tests.
+    """
     if hasattr(app.state, 'mcp'):
         delattr(app.state, 'mcp')
     yield
