@@ -9,17 +9,22 @@ from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from src import logger, parse_error
 from src.routes import flight, environment, motor, rocket
 from src.utils import RocketPyGZipMiddleware
+from src.mcp.server import build_mcp
 
 app = FastAPI(
+    title="Infinity API",
     swagger_ui_parameters={
         "defaultModelsExpandDepth": 0,
         "syntaxHighlight.theme": "obsidian",
-    }
+    },
 )
 app.include_router(flight.router)
 app.include_router(environment.router)
 app.include_router(motor.router)
 app.include_router(rocket.router)
+
+_mcp_server = build_mcp(app)
+app.mount('/mcp', _mcp_server.http_app())
 
 FastAPIInstrumentor.instrument_app(app)
 RequestsInstrumentor().instrument()
