@@ -9,7 +9,7 @@ from tenacity import (
     wait_fixed,
     retry,
 )
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 from pymongo.errors import PyMongoError
 from pymongo.server_api import ServerApi
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -62,23 +62,6 @@ def repository_exception_handler(method):
     return wrapper
 
 
-class RepoInstances(BaseModel):
-    instance: object
-    prospecting: int = 0
-
-    def add_prospecting(self):
-        self.prospecting += 1
-
-    def remove_prospecting(self):
-        self.prospecting -= 1
-
-    def get_prospecting(self):
-        return self.prospecting
-
-    def get_instance(self):
-        return self.instance
-
-
 class RepositoryInterface:
     """
     Interface class for all repositories (singleton)
@@ -94,30 +77,14 @@ class RepositoryInterface:
     """
 
     _global_instances = {}
-    _global_thread_lock = threading.RLock()
-    _global_async_lock = asyncio.Lock()
+    _global_thread_lock = threading.Lock()
 
     def __new__(cls, *args, **kwargs):
-        with (
-            cls._global_thread_lock
-        ):  # Ensure thread safety for singleton instance creation
+        with cls._global_thread_lock:
             if cls not in cls._global_instances:
-                instance = super(RepositoryInterface, cls).__new__(cls)
-                cls._global_instances[cls] = RepoInstances(instance=instance)
-            else:
-                cls._global_instances[cls].add_prospecting()
-        return cls._global_instances[cls].get_instance()
-
-    @classmethod
-    def _stop_prospecting(cls):
-        if cls in cls._global_instances:
-            cls._global_instances[cls].remove_prospecting()
-
-    @classmethod
-    def _get_instance_prospecting(cls):
-        if cls in cls._global_instances:
-            return cls._global_instances[cls].get_prospecting()
-        return 0
+                instance = super().__new__(cls)
+                cls._global_instances[cls] = instance
+        return cls._global_instances[cls]
 
     def __init__(self, model: ApiBaseModel, *, max_pool_size: int = 3):
         if not getattr(self, '_initialized', False):
@@ -128,37 +95,33 @@ class RepositoryInterface:
 
     @retry(stop=stop_after_attempt(5), wait=wait_fixed(0.2))
     async def _async_init(self):
-        async with (
-            self._global_async_lock
-        ):  # Hybrid safe locks for initialization
-            with self._global_thread_lock:
-                try:
-                    self._initialize_connection()
-                    self._initialized = True
-                except Exception as e:
-                    logger.error("Initialization failed: %s", e, exc_info=True)
-                    self._initialized = False
+        if getattr(self, '_initialized', False):
+            return
 
-    def _on_init_done(self, future):
-        try:
-            future.result()
-        finally:
+        if not hasattr(self, '_init_lock'):
+            self._init_lock = asyncio.Lock()
+
+        async with self._init_lock:
+            if getattr(self, '_initialized', False):
+                return
+
+            try:
+                self._initialize_connection()
+            except Exception as e:
+                logger.error("Initialization failed: %s", e, exc_info=True)
+                self._initialized = False
+                raise
+
+            self._initialized = True
             self._initialized_event.set()
 
     def _initialize(self):
-        if not asyncio.get_event_loop().is_running():
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
             asyncio.run(self._async_init())
         else:
-            loop = asyncio.get_event_loop()
-            loop.create_task(self._async_init()).add_done_callback(
-                self._on_init_done
-            )
-
-    def __del__(self):
-        with self._global_thread_lock:
-            self._global_instances.pop(self.__class__, None)
-            self._initialized = False
-            self._stop_prospecting()
+            loop.create_task(self._async_init())
 
     async def __aenter__(self):
         await self._initialized_event.wait()  # Ensure initialization is complete
