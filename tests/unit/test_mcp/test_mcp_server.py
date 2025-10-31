@@ -6,7 +6,7 @@ import pytest
 from fastmcp.client import Client
 from fastapi.routing import APIRoute
 
-from src.api import app, rest_app
+from src.api import app
 from src.mcp.server import build_mcp
 
 
@@ -14,14 +14,15 @@ from src.mcp.server import build_mcp
 def reset_mcp_state():
     """
     Ensure the FastAPI app has no lingering MCP state before and after a test.
-    
-    This fixture deletes app.state.mcp if it exists, yields control to the test, and then deletes app.state.mcp again to guarantee the MCP state is cleared between tests.
+    This fixture deletes app.state.mcp if it exists,
+    yields control to the test, and then deletes app.state.mcp
+    again to guarantee the MCP state is cleared between tests.
     """
-    if hasattr(rest_app.state, 'mcp'):
-        delattr(rest_app.state, 'mcp')
+    if hasattr(app.state, 'mcp'):
+        delattr(app.state, 'mcp')
     yield
-    if hasattr(rest_app.state, 'mcp'):
-        delattr(rest_app.state, 'mcp')
+    if hasattr(app.state, 'mcp'):
+        delattr(app.state, 'mcp')
 
 
 def test_build_mcp_uses_fastapi_adapter():
@@ -29,17 +30,17 @@ def test_build_mcp_uses_fastapi_adapter():
     with patch(
         'src.mcp.server.FastMCP.from_fastapi', return_value=mock_mcp
     ) as mock_factory:
-        result = build_mcp(rest_app)
+        result = build_mcp(app)
         assert result is mock_mcp
-        mock_factory.assert_called_once_with(rest_app, name=rest_app.title)
-        again = build_mcp(rest_app)
+        mock_factory.assert_called_once_with(app, name=app.title)
+        again = build_mcp(app)
         assert again is mock_mcp
         mock_factory.assert_called_once()
 
 
 @pytest.mark.asyncio
 async def test_mcp_tools_cover_registered_routes():
-    mcp_server = build_mcp(rest_app)
+    mcp_server = build_mcp(app)
 
     async with Client(mcp_server) as client:
         tools = await client.list_tools()
@@ -47,7 +48,7 @@ async def test_mcp_tools_cover_registered_routes():
     tool_by_name = {tool.name: tool for tool in tools}
 
     expected = {}
-    for route in rest_app.routes:
+    for route in app.routes:
         if not isinstance(route, APIRoute) or not route.include_in_schema:
             continue
         tag = route.tags[0].lower()
@@ -70,7 +71,7 @@ async def test_mcp_tools_cover_registered_routes():
 @pytest.mark.asyncio
 async def test_combined_app_serves_rest_and_mcp(monkeypatch):
     monkeypatch.setattr('src.mcp.server.FastMCP.from_fastapi', MagicMock())
-    build_mcp(rest_app)
+    build_mcp(app)
 
     from httpx import ASGITransport, AsyncClient
 

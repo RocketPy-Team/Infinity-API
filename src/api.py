@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 
-from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.utils import get_openapi
@@ -18,8 +17,6 @@ from src.utils import RocketPyGZipMiddleware
 
 log = logging.getLogger(__name__)
 
-
-# --- REST application -------------------------------------------------------
 
 rest_app = FastAPI(
     title="Infinity API",
@@ -99,31 +96,15 @@ async def validation_exception_handler(
     )
 
 
-# --- MCP server mounted under /mcp ------------------------------------------
+# --- MCP server mounted under /mcp -------
 mcp_app = build_mcp(rest_app).http_app(path="/")
-
-
-def _combine_lifespans(rest_lifespan, mcp_lifespan):
-    """Combine FastAPI and MCP lifespans."""
-
-    @asynccontextmanager
-    async def lifespan(app: FastAPI):
-        async with rest_lifespan(app):
-            async with mcp_lifespan(app):
-                yield
-
-    return lifespan
-
 
 app = FastAPI(
     docs_url=None,
     redoc_url=None,
     openapi_url=None,
-    lifespan=_combine_lifespans(
-        rest_app.router.lifespan_context, mcp_app.lifespan
-    ),
+    lifespan=mcp_app.lifespan,
 )
+
 app.mount("/mcp", mcp_app)
 app.mount("/", rest_app)
-
-__all__ = ["app", "rest_app"]

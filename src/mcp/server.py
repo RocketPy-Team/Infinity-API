@@ -9,10 +9,10 @@ from fastmcp import FastMCP, settings
 def build_mcp(app: FastAPI) -> FastMCP:
     """
     Create or return a cached FastMCP server that mirrors the given FastAPI app.
-    
+
     Parameters:
         app (FastAPI): FastAPI application to mirror; the created FastMCP instance is cached on `app.state.mcp`.
-    
+
     Returns:
         FastMCP: The FastMCP instance corresponding to the provided FastAPI app.
     """

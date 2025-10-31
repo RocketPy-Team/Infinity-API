@@ -37,10 +37,10 @@ class RepositoryNotInitializedException(HTTPException):
 def repository_exception_handler(method):
     """
     Decorator that standardizes error handling and logging for repository coroutine methods.
-    
+
     Parameters:
         method (Callable): The asynchronous repository method to wrap.
-    
+
     Returns:
         wrapper (Callable): An async wrapper that:
             - re-raises PyMongoError after logging the exception,
@@ -48,6 +48,7 @@ def repository_exception_handler(method):
             - logs any other exception and raises an HTTPException with status 500 and detail 'Unexpected error ocurred',
             - always logs completion of the repository method call with the repository name, method name, and kwargs.
     """
+
     @functools.wraps(method)
     async def wrapper(self, *args, **kwargs):
         try:
@@ -96,9 +97,9 @@ class RepositoryInterface:
     def __new__(cls, *args, **kwargs):
         """
         Ensure a single thread-safe instance exists for the subclass.
-        
+
         Creates and returns the singleton instance for this subclass, creating it if absent while holding a global thread lock to prevent concurrent instantiation.
-        
+
         Returns:
             The singleton instance of the subclass.
         """
@@ -111,11 +112,11 @@ class RepositoryInterface:
     def __init__(self, model: ApiBaseModel, *, max_pool_size: int = 3):
         """
         Initialize the repository instance for a specific API model and configure its connection pool.
-        
+
         Parameters:
             model (ApiBaseModel): The API model used for validation and to determine the repository's collection.
             max_pool_size (int, optional): Maximum size of the MongoDB connection pool. Defaults to 3.
-        
+
         Notes:
             If the instance is already initialized, this constructor will not reconfigure it. Initialization of the underlying connection is started asynchronously.
         """
@@ -129,7 +130,7 @@ class RepositoryInterface:
     async def _async_init(self):
         """
         Perform idempotent, retry-safe asynchronous initialization of the repository instance.
-        
+
         Ensures a per-instance asyncio.Lock exists and acquires it to run initialization exactly once; on success it marks the instance as initialized and sets the internal _initialized_event so awaiters can proceed. If initialization fails, the original exception from _initialize_connection is propagated after logging.
         """
         if getattr(self, '_initialized', False):
@@ -155,7 +156,7 @@ class RepositoryInterface:
     def _initialize(self):
         """
         Ensure the repository's asynchronous initializer is executed: run it immediately if no event loop is active, otherwise schedule it on the running loop.
-        
+
         If there is no running asyncio event loop, this method runs self._async_init() to completion on the current thread, blocking until it finishes. If an event loop is running, it schedules self._async_init() as a background task on that loop and returns immediately.
         """
         try:
@@ -168,7 +169,7 @@ class RepositoryInterface:
     async def __aenter__(self):
         """
         Waits for repository initialization to complete and returns the repository instance.
-        
+
         Returns:
             RepositoryInterface: The initialized repository instance.
         """
@@ -181,9 +182,9 @@ class RepositoryInterface:
     def _initialize_connection(self):
         """
         Initialize the MongoDB async client, store the connection string, and bind the collection for this repository instance.
-        
+
         This method fetches the MongoDB connection string from secrets, creates an AsyncMongoClient configured with pool and timeout settings, and sets self._collection to the repository's collection named by the model. On success it logs the initialized client; on failure it raises a ConnectionError.
-        
+
         Raises:
             ConnectionError: If the client or collection cannot be initialized.
         """
