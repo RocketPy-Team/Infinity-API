@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import logging
-
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.utils import get_openapi
@@ -14,8 +12,6 @@ from src import logger, parse_error
 from src.mcp.server import build_mcp
 from src.routes import environment, flight, motor, rocket
 from src.utils import RocketPyGZipMiddleware
-
-log = logging.getLogger(__name__)
 
 
 rest_app = FastAPI(
