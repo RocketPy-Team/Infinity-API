@@ -55,26 +55,28 @@ class DiscretizeConfig:
 
 class InfinityEncoder(RocketPyEncoder):
     def default(self, o):
-        obj = o
         if (
-            isinstance(obj, Function)
-            and not callable(obj.source)
-            and obj.__dom_dim__ == 1
+            isinstance(o, Function)
+            and not callable(o.source)
+            and o.__dom_dim__ == 1
         ):
-            size = len(obj._domain)
+            size = len(o._domain)
             reduction_factor = 1
             if size > 25:
                 reduction_factor = size // 25
             if reduction_factor > 1:
-                obj = obj.set_discrete(
-                    obj.x_array[0],
-                    obj.x_array[-1],
+                o = o.set_discrete(
+                    o.x_array[0],
+                    o.x_array[-1],
                     size // reduction_factor,
                     mutate_self=False,
                 )
-        if isinstance(obj, Flight):
-            obj._Flight__evaluate_post_process()
-            solution = np.array(obj.solution)
+        if isinstance(o, Flight):
+            try:
+                o._Flight__evaluate_post_process
+            except Exception:
+                pass
+            solution = np.array(o.solution)
             size = len(solution)
             if size > 25:
                 reduction_factor = size // 25
@@ -88,12 +90,12 @@ class InfinityEncoder(RocketPyEncoder):
                     reduced_solution[:, i] = interp1d(
                         solution[:, 0], col, assume_sorted=True
                     )(reduced_scale)
-                obj.solution = reduced_solution.tolist()
+                o.solution = reduced_solution.tolist()
 
-            obj.flight_phases = None
-            obj.function_evaluations = None
+            o.flight_phases = None
+            o.function_evaluations = None
 
-        return super().default(obj)
+        return super().default(o)
 
 
 def rocketpy_encoder(obj):

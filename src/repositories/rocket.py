@@ -28,7 +28,7 @@ class RocketRepository(RepositoryInterface):
     @repository_exception_handler
     async def update_rocket_by_id(self, rocket_id: str, rocket: RocketModel):
         await self.update_by_id(
-            rocket.model_dump(exclude_none=True), data_id=rocket_id
+            rocket.model_dump(exclude_none=False), data_id=rocket_id
         )
 
     @repository_exception_handler
