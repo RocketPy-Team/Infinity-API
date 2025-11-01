@@ -1,11 +1,10 @@
-motor
 dill
 python-dotenv
 fastapi
 uvloop
 pydantic
 numpy==1.26.4
-pymongo
+pymongo>=4.15
 jsonpickle
 gunicorn
 uvicorn
@@ -16,3 +15,4 @@ opentelemetry.instrumentation.requests
 opentelemetry-api
 opentelemetry-sdk
 tenacity
+fastmcp

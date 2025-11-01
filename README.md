@@ -30,6 +30,10 @@ $ touch .env && echo MONGODB_CONNECTION_STRING="$ConnectionString" > .env
 - Dev: `python3 -m uvicorn src:app --reload --port 3000`
 - Prod: `gunicorn -k uvicorn.workers.UvicornWorker src:app -b 0.0.0.0:3000`
 
+## MCP Server
+- The MCP bridge is mounted directly on the FastAPI app and is available at `/mcp` alongside the REST API.
+- No extra process is required: `uvicorn src:app` serves both the REST routes and the MCP transport.
+
 ## Project structure
 ```
 ├── README.md    # this file

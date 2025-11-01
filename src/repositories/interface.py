@@ -9,10 +9,11 @@ from tenacity import (
     wait_fixed,
     retry,
 )
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 from pymongo.errors import PyMongoError
 from pymongo.server_api import ServerApi
-from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import AsyncMongoClient
+
 from fastapi import HTTPException, status
 from bson import ObjectId
 
@@ -34,6 +35,20 @@ class RepositoryNotInitializedException(HTTPException):
 
 
 def repository_exception_handler(method):
+    """
+    Decorator that standardizes error handling and logging for repository coroutine methods.
+
+    Parameters:
+        method (Callable): The asynchronous repository method to wrap.
+
+    Returns:
+        wrapper (Callable): An async wrapper that:
+            - re-raises PyMongoError after logging the exception,
+            - re-raises RepositoryNotInitializedException after logging the exception,
+            - logs any other exception and raises an HTTPException with status 500 and detail 'Unexpected error ocurred',
+            - always logs completion of the repository method call with the repository name, method name, and kwargs.
+    """
+
     @functools.wraps(method)
     async def wrapper(self, *args, **kwargs):
         try:
@@ -62,23 +77,6 @@ def repository_exception_handler(method):
     return wrapper
 
 
-class RepoInstances(BaseModel):
-    instance: object
-    prospecting: int = 0
-
-    def add_prospecting(self):
-        self.prospecting += 1
-
-    def remove_prospecting(self):
-        self.prospecting -= 1
-
-    def get_prospecting(self):
-        return self.prospecting
-
-    def get_instance(self):
-        return self.instance
-
-
 class RepositoryInterface:
     """
     Interface class for all repositories (singleton)
@@ -94,32 +92,34 @@ class RepositoryInterface:
     """
 
     _global_instances = {}
-    _global_thread_lock = threading.RLock()
-    _global_async_lock = asyncio.Lock()
+    _global_thread_lock = threading.Lock()
 
     def __new__(cls, *args, **kwargs):
-        with (
-            cls._global_thread_lock
-        ):  # Ensure thread safety for singleton instance creation
+        """
+        Ensure a single thread-safe instance exists for the subclass.
+
+        Creates and returns the singleton instance for this subclass, creating it if absent while holding a global thread lock to prevent concurrent instantiation.
+
+        Returns:
+            The singleton instance of the subclass.
+        """
+        with cls._global_thread_lock:
             if cls not in cls._global_instances:
-                instance = super(RepositoryInterface, cls).__new__(cls)
-                cls._global_instances[cls] = RepoInstances(instance=instance)
-            else:
-                cls._global_instances[cls].add_prospecting()
-        return cls._global_instances[cls].get_instance()
-
-    @classmethod
-    def _stop_prospecting(cls):
-        if cls in cls._global_instances:
-            cls._global_instances[cls].remove_prospecting()
-
-    @classmethod
-    def _get_instance_prospecting(cls):
-        if cls in cls._global_instances:
-            return cls._global_instances[cls].get_prospecting()
-        return 0
+                instance = super().__new__(cls)
+                cls._global_instances[cls] = instance
+        return cls._global_instances[cls]
 
     def __init__(self, model: ApiBaseModel, *, max_pool_size: int = 3):
+        """
+        Initialize the repository instance for a specific API model and configure its connection pool.
+
+        Parameters:
+            model (ApiBaseModel): The API model used for validation and to determine the repository's collection.
+            max_pool_size (int, optional): Maximum size of the MongoDB connection pool. Defaults to 3.
+
+        Notes:
+            If the instance is already initialized, this constructor will not reconfigure it. Initialization of the underlying connection is started asynchronously.
+        """
         if not getattr(self, '_initialized', False):
             self.model = model
             self._max_pool_size = max_pool_size
@@ -128,39 +128,51 @@ class RepositoryInterface:
 
     @retry(stop=stop_after_attempt(5), wait=wait_fixed(0.2))
     async def _async_init(self):
-        async with (
-            self._global_async_lock
-        ):  # Hybrid safe locks for initialization
-            with self._global_thread_lock:
-                try:
-                    self._initialize_connection()
-                    self._initialized = True
-                except Exception as e:
-                    logger.error("Initialization failed: %s", e, exc_info=True)
-                    self._initialized = False
+        """
+        Perform idempotent, retry-safe asynchronous initialization of the repository instance.
 
-    def _on_init_done(self, future):
-        try:
-            future.result()
-        finally:
+        Ensures a per-instance asyncio.Lock exists and acquires it to run initialization exactly once; on success it marks the instance as initialized and sets the internal _initialized_event so awaiters can proceed. If initialization fails, the original exception from _initialize_connection is propagated after logging.
+        """
+        if getattr(self, '_initialized', False):
+            return
+
+        if not hasattr(self, '_init_lock'):
+            self._init_lock = asyncio.Lock()
+
+        async with self._init_lock:
+            if getattr(self, '_initialized', False):
+                return
+
+            try:
+                self._initialize_connection()
+            except Exception as e:
+                logger.error("Initialization failed: %s", e, exc_info=True)
+                self._initialized = False
+                raise
+
+            self._initialized = True
             self._initialized_event.set()
 
     def _initialize(self):
-        if not asyncio.get_event_loop().is_running():
+        """
+        Ensure the repository's asynchronous initializer is executed: run it immediately if no event loop is active, otherwise schedule it on the running loop.
+
+        If there is no running asyncio event loop, this method runs self._async_init() to completion on the current thread, blocking until it finishes. If an event loop is running, it schedules self._async_init() as a background task on that loop and returns immediately.
+        """
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
             asyncio.run(self._async_init())
         else:
-            loop = asyncio.get_event_loop()
-            loop.create_task(self._async_init()).add_done_callback(
-                self._on_init_done
-            )
-
-    def __del__(self):
-        with self._global_thread_lock:
-            self._global_instances.pop(self.__class__, None)
-            self._initialized = False
-            self._stop_prospecting()
+            loop.create_task(self._async_init())
 
     async def __aenter__(self):
+        """
+        Waits for repository initialization to complete and returns the repository instance.
+
+        Returns:
+            RepositoryInterface: The initialized repository instance.
+        """
         await self._initialized_event.wait()  # Ensure initialization is complete
         return self
 
@@ -168,11 +180,19 @@ class RepositoryInterface:
         await self._initialized_event.wait()
 
     def _initialize_connection(self):
+        """
+        Initialize the MongoDB async client, store the connection string, and bind the collection for this repository instance.
+
+        This method fetches the MongoDB connection string from secrets, creates an AsyncMongoClient configured with pool and timeout settings, and sets self._collection to the repository's collection named by the model. On success it logs the initialized client; on failure it raises a ConnectionError.
+
+        Raises:
+            ConnectionError: If the client or collection cannot be initialized.
+        """
         try:
             self._connection_string = Secrets.get_secret(
                 "MONGODB_CONNECTION_STRING"
             )
-            self._client = AsyncIOMotorClient(
+            self._client = AsyncMongoClient(
                 self._connection_string,
                 server_api=ServerApi("1"),
                 maxIdleTimeMS=30000,
@@ -181,7 +201,10 @@ class RepositoryInterface:
                 serverSelectionTimeoutMS=60000,
             )
             self._collection = self._client.rocketpy[self.model.NAME]
-            logger.info("MongoDB client initialized for %s", self.__class__)
+            logger.info(
+                "AsyncMongoClient initialized for %s",
+                self.__class__,
+            )
         except Exception as e:
             logger.error(
                 f"Failed to initialize MongoDB client: {e}", exc_info=True
