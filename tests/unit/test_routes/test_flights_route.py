@@ -1,10 +1,11 @@
 from unittest.mock import patch, Mock, AsyncMock
+import copy
 import json
 import pytest
 from fastapi.testclient import TestClient
 from fastapi import HTTPException, status
 from src.models.environment import EnvironmentModel
-from src.models.flight import FlightModel
+from src.models.flight import FlightModel, FlightWithReferencesRequest
 from src.models.rocket import RocketModel
 from src.views.motor import MotorView
 from src.views.rocket import RocketView
@@ -54,7 +55,21 @@ def mock_controller_instance():
         mock_controller_instance.get_rocketpy_flight_binary = Mock()
         mock_controller_instance.update_environment_by_flight_id = Mock()
         mock_controller_instance.update_rocket_by_flight_id = Mock()
+        mock_controller_instance.create_flight_from_references = Mock()
+        mock_controller_instance.update_flight_from_references = Mock()
         yield mock_controller_instance
+
+
+@pytest.fixture
+def stub_flight_reference_payload(stub_flight_dump):
+    partial_flight = copy.deepcopy(stub_flight_dump)
+    partial_flight.pop('environment', None)
+    partial_flight.pop('rocket', None)
+    return {
+        'environment_id': 'env-123',
+        'rocket_id': 'rocket-456',
+        'flight': partial_flight,
+    }
 
 
 def test_create_flight(stub_flight_dump, mock_controller_instance):
@@ -69,6 +84,50 @@ def test_create_flight(stub_flight_dump, mock_controller_instance):
     mock_controller_instance.post_flight.assert_called_once_with(
         FlightModel(**stub_flight_dump)
     )
+
+
+def test_create_flight_from_references(
+    stub_flight_reference_payload, mock_controller_instance
+):
+    mock_response = AsyncMock(return_value=FlightCreated(flight_id='123'))
+    mock_controller_instance.create_flight_from_references = mock_response
+    response = client.post(
+        '/flights/from-references', json=stub_flight_reference_payload
+    )
+    assert response.status_code == 201
+    assert response.json() == {
+        'flight_id': '123',
+        'message': 'Flight successfully created',
+    }
+    mock_controller_instance.create_flight_from_references.assert_called_once_with(
+        FlightWithReferencesRequest(**stub_flight_reference_payload)
+    )
+
+
+def test_create_flight_from_references_not_found(
+    stub_flight_reference_payload, mock_controller_instance
+):
+    mock_controller_instance.create_flight_from_references.side_effect = (
+        HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    )
+    response = client.post(
+        '/flights/from-references', json=stub_flight_reference_payload
+    )
+    assert response.status_code == 404
+    assert response.json() == {'detail': 'Not Found'}
+
+
+def test_create_flight_from_references_server_error(
+    stub_flight_reference_payload, mock_controller_instance
+):
+    mock_controller_instance.create_flight_from_references.side_effect = (
+        HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    )
+    response = client.post(
+        '/flights/from-references', json=stub_flight_reference_payload
+    )
+    assert response.status_code == 500
+    assert response.json() == {'detail': 'Internal Server Error'}
 
 
 def test_create_flight_optional_params(
@@ -171,6 +230,49 @@ def test_update_flight_by_id(stub_flight_dump, mock_controller_instance):
     mock_controller_instance.put_flight_by_id.assert_called_once_with(
         '123', FlightModel(**stub_flight_dump)
     )
+
+
+def test_update_flight_from_references(
+    stub_flight_reference_payload, mock_controller_instance
+):
+    mock_response = AsyncMock(return_value=None)
+    mock_controller_instance.update_flight_from_references = mock_response
+    response = client.put(
+        '/flights/123/from-references',
+        json=stub_flight_reference_payload,
+    )
+    assert response.status_code == 204
+    mock_controller_instance.update_flight_from_references.assert_called_once_with(
+        '123', FlightWithReferencesRequest(**stub_flight_reference_payload)
+    )
+
+
+def test_update_flight_from_references_not_found(
+    stub_flight_reference_payload, mock_controller_instance
+):
+    mock_controller_instance.update_flight_from_references.side_effect = (
+        HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    )
+    response = client.put(
+        '/flights/123/from-references',
+        json=stub_flight_reference_payload,
+    )
+    assert response.status_code == 404
+    assert response.json() == {'detail': 'Not Found'}
+
+
+def test_update_flight_from_references_server_error(
+    stub_flight_reference_payload, mock_controller_instance
+):
+    mock_controller_instance.update_flight_from_references.side_effect = (
+        HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    )
+    response = client.put(
+        '/flights/123/from-references',
+        json=stub_flight_reference_payload,
+    )
+    assert response.status_code == 500
+    assert response.json() == {'detail': 'Internal Server Error'}
 
 
 def test_update_environment_by_flight_id(
