@@ -11,7 +11,7 @@ from src.views.flight import (
     FlightRetrieved,
 )
 from src.models.environment import EnvironmentModel
-from src.models.flight import FlightModel
+from src.models.flight import FlightModel, FlightWithReferencesRequest
 from src.models.rocket import RocketModel
 from src.controllers.flight import FlightController
 
@@ -41,6 +41,25 @@ async def create_flight(flight: FlightModel) -> FlightCreated:
         return await controller.post_flight(flight)
 
 
+@router.post("/from-references", status_code=201)
+async def create_flight_from_references(
+    payload: FlightWithReferencesRequest,
+) -> FlightCreated:
+    """
+    Creates a flight using existing rocket and environment references.
+
+    ## Args
+    ```
+        environment_id: str
+        rocket_id: str
+        flight: Flight-only fields JSON
+    ```
+    """
+    with tracer.start_as_current_span("create_flight_from_references"):
+        controller = FlightController()
+        return await controller.create_flight_from_references(payload)
+
+
 @router.get("/{flight_id}")
 async def read_flight(flight_id: str) -> FlightRetrieved:
     """
@@ -68,6 +87,29 @@ async def update_flight(flight_id: str, flight: FlightModel) -> None:
     with tracer.start_as_current_span("update_flight"):
         controller = FlightController()
         return await controller.put_flight_by_id(flight_id, flight)
+
+
+@router.put("/{flight_id}/from-references", status_code=204)
+async def update_flight_from_references(
+    flight_id: str,
+    payload: FlightWithReferencesRequest,
+) -> None:
+    """
+    Updates a flight using existing rocket and environment references.
+
+    ## Args
+    ```
+        flight_id: str
+        environment_id: str
+        rocket_id: str
+        flight: Flight-only fields JSON
+    ```
+    """
+    with tracer.start_as_current_span("update_flight_from_references"):
+        controller = FlightController()
+        return await controller.update_flight_from_references(
+            flight_id, payload
+        )
 
 
 @router.delete("/{flight_id}", status_code=204)
