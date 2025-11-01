@@ -12,6 +12,8 @@ from rocketpy.rocket.aero_surface import (
     Tail as RocketPyTail,
 )
 
+from fastapi import HTTPException, status
+
 from src import logger
 from src.models.rocket import RocketModel, Parachute
 from src.models.sub.aerosurfaces import NoseCone, Tail, Fins
@@ -132,13 +134,20 @@ class RocketService:
             RocketPyNoseCone
         """
 
-        rocketpy_nose = RocketPyNoseCone(
-            name=nose.name,
-            length=nose.length,
-            kind=nose.kind,
-            base_radius=nose.base_radius,
-            rocket_radius=nose.rocket_radius,
-        )
+        try:
+            rocketpy_nose = RocketPyNoseCone(
+                name=nose.name,
+                length=nose.length,
+                kind=nose.kind,
+                base_radius=nose.base_radius,
+                rocket_radius=nose.rocket_radius,
+            )
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=str(exc),
+            ) from exc
+
         rocketpy_nose.position = nose.position
         return rocketpy_nose
 
@@ -159,25 +168,40 @@ class RocketService:
             RocketPyTrapezoidalFins
             RocketPyEllipticalFins
         """
+
+        if fins.rocket_radius is None:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Fin definition missing required field 'rocket_radius'",
+            )
+
+        base_kwargs = {
+            'n': fins.n,
+            'name': fins.name,
+            'root_chord': fins.root_chord,
+            'span': fins.span,
+            'rocket_radius': fins.rocket_radius,
+        }
+
         match kind:
             case "trapezoidal":
-                rocketpy_finset = RocketPyTrapezoidalFins(
-                    n=fins.n,
-                    name=fins.name,
-                    root_chord=fins.root_chord,
-                    span=fins.span,
-                    **fins.get_additional_parameters(),
-                )
+                factory = RocketPyTrapezoidalFins
             case "elliptical":
-                rocketpy_finset = RocketPyEllipticalFins(
-                    n=fins.n,
-                    name=fins.name,
-                    root_chord=fins.root_chord,
-                    span=fins.span,
-                    **fins.get_additional_parameters(),
-                )
+                factory = RocketPyEllipticalFins
             case _:
                 raise ValueError(f"Invalid fins kind: {kind}")
+
+        try:
+            rocketpy_finset = factory(
+                **base_kwargs,
+                **fins.get_additional_parameters(),
+            )
+        except (TypeError, ValueError) as exc:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=str(exc),
+            ) from exc
+
         rocketpy_finset.position = fins.position
         return rocketpy_finset
 
