@@ -27,7 +27,6 @@ rest_app.include_router(environment.router)
 rest_app.include_router(motor.router)
 rest_app.include_router(rocket.router)
 
-FastAPIInstrumentor.instrument_app(rest_app)
 RequestsInstrumentor().instrument()
 
 # Compress responses above 1KB
@@ -104,3 +103,5 @@ app = FastAPI(
 
 app.mount("/mcp", mcp_app)
 app.mount("/", rest_app)
+
+FastAPIInstrumentor.instrument_app(app)
