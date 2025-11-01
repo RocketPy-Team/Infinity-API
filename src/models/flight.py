@@ -73,6 +73,28 @@ class FlightModel(ApiBaseModel):
             )
         )
 
+    @field_validator('environment', mode='before')
+    @classmethod
+    def _coerce_environment(cls, value):
+        if isinstance(value, str):
+            try:
+                return json.loads(value)
+            except json.JSONDecodeError as exc:
+                raise ValueError(
+                    'Invalid JSON for environment payload'
+                ) from exc
+        return value
+
+    @field_validator('rocket', mode='before')
+    @classmethod
+    def _coerce_rocket(cls, value):
+        if isinstance(value, str):
+            try:
+                return json.loads(value)
+            except json.JSONDecodeError as exc:
+                raise ValueError('Invalid JSON for rocket payload') from exc
+        return value
+
 
 class FlightPartialModel(BaseModel):
     """Flight attributes required when rocket/environment are referenced."""

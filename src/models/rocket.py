@@ -13,6 +13,15 @@ from src.models.sub.aerosurfaces import (
 )
 
 
+def _maybe_parse_json(value):
+    if isinstance(value, str):
+        try:
+            return json.loads(value)
+        except json.JSONDecodeError as exc:
+            raise ValueError('Invalid JSON payload') from exc
+    return value
+
+
 class RocketModel(ApiBaseModel):
     NAME: ClassVar = "rocket"
     METHODS: ClassVar = ("POST", "GET", "PUT", "DELETE")
@@ -39,6 +48,42 @@ class RocketModel(ApiBaseModel):
     parachutes: Optional[List[Parachute]] = None
     rail_buttons: Optional[RailButtons] = None
     tail: Optional[Tail] = None
+
+    @field_validator('motor', mode='before')
+    @classmethod
+    def _coerce_motor(cls, value):
+        return _maybe_parse_json(value)
+
+    @field_validator('nose', mode='before')
+    @classmethod
+    def _coerce_nose(cls, value):
+        return _maybe_parse_json(value)
+
+    @field_validator('fins', mode='before')
+    @classmethod
+    def _coerce_fins(cls, value):
+        value = _maybe_parse_json(value)
+        if isinstance(value, dict):
+            value = [value]
+        return value
+
+    @field_validator('parachutes', mode='before')
+    @classmethod
+    def _coerce_parachutes(cls, value):
+        value = _maybe_parse_json(value)
+        if isinstance(value, dict):
+            value = [value]
+        return value
+
+    @field_validator('rail_buttons', mode='before')
+    @classmethod
+    def _coerce_rail_buttons(cls, value):
+        return _maybe_parse_json(value)
+
+    @field_validator('tail', mode='before')
+    @classmethod
+    def _coerce_tail(cls, value):
+        return _maybe_parse_json(value)
 
     @staticmethod
     def UPDATED():

@@ -1,6 +1,7 @@
+import json
 from enum import Enum
 from typing import Optional, Tuple, List, Union, Self, ClassVar, Literal
-from pydantic import model_validator
+from pydantic import model_validator, field_validator
 
 from src.models.interface import ApiBaseModel
 from src.models.sub.tanks import MotorTank
@@ -56,6 +57,18 @@ class MotorModel(ApiBaseModel):
         'nozzle_to_combustion_chamber', 'combustion_chamber_to_nozzle'
     ] = 'nozzle_to_combustion_chamber'
     reshape_thrust_curve: Union[bool, tuple] = False
+
+    @field_validator('tanks', mode='before')
+    @classmethod
+    def _coerce_tanks(cls, value):
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except json.JSONDecodeError as exc:
+                raise ValueError('Invalid JSON for tanks payload') from exc
+        if isinstance(value, dict):
+            value = [value]
+        return value
 
     @model_validator(mode='after')
     # TODO: extend guard to check motor kinds and tank kinds specifics
