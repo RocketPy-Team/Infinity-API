@@ -104,6 +104,21 @@ def test_create_flight_from_references(
     )
 
 
+def test_create_flight_from_references_with_string_payload(
+    stub_flight_reference_payload, mock_controller_instance
+):
+    payload = copy.deepcopy(stub_flight_reference_payload)
+    payload['flight'] = json.dumps(payload['flight'])
+    mock_controller_instance.create_flight_from_references = AsyncMock(
+        return_value=FlightCreated(flight_id='123')
+    )
+    response = client.post('/flights/from-references', json=payload)
+    assert response.status_code == 201
+    mock_controller_instance.create_flight_from_references.assert_called_once_with(
+        FlightWithReferencesRequest(**payload)
+    )
+
+
 def test_create_flight_from_references_not_found(
     stub_flight_reference_payload, mock_controller_instance
 ):
@@ -244,6 +259,21 @@ def test_update_flight_from_references(
     assert response.status_code == 204
     mock_controller_instance.update_flight_from_references.assert_called_once_with(
         '123', FlightWithReferencesRequest(**stub_flight_reference_payload)
+    )
+
+
+def test_update_flight_from_references_with_string_payload(
+    stub_flight_reference_payload, mock_controller_instance
+):
+    payload = copy.deepcopy(stub_flight_reference_payload)
+    payload['flight'] = json.dumps(payload['flight'])
+    mock_controller_instance.update_flight_from_references = AsyncMock(
+        return_value=None
+    )
+    response = client.put('/flights/123/from-references', json=payload)
+    assert response.status_code == 204
+    mock_controller_instance.update_flight_from_references.assert_called_once_with(
+        '123', FlightWithReferencesRequest(**payload)
     )
 
 

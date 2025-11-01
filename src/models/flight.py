@@ -1,6 +1,7 @@
+import json
 from typing import Optional, Self, ClassVar, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from src.models.interface import ApiBaseModel
 from src.models.rocket import RocketModel
 from src.models.environment import EnvironmentModel
@@ -112,3 +113,13 @@ class FlightWithReferencesRequest(BaseModel):
     environment_id: str
     rocket_id: str
     flight: FlightPartialModel
+
+    @field_validator('flight', mode='before')
+    @classmethod
+    def _coerce_flight(cls, value):
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except json.JSONDecodeError as exc:
+                raise ValueError('Invalid JSON for flight payload') from exc
+        return value

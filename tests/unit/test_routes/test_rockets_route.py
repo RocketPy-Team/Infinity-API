@@ -129,6 +129,21 @@ def test_create_rocket_from_motor_reference(
     )
 
 
+def test_create_rocket_from_motor_reference_with_string_payload(
+    stub_rocket_reference_payload, mock_controller_instance
+):
+    payload = copy.deepcopy(stub_rocket_reference_payload)
+    payload['rocket'] = json.dumps(payload['rocket'])
+    mock_controller_instance.create_rocket_from_motor_reference = AsyncMock(
+        return_value=RocketCreated(rocket_id='123')
+    )
+    response = client.post('/rockets/from-motor-reference', json=payload)
+    assert response.status_code == 201
+    mock_controller_instance.create_rocket_from_motor_reference.assert_called_once_with(
+        RocketWithMotorReferenceRequest(**payload)
+    )
+
+
 def test_create_rocket_from_motor_reference_not_found(
     stub_rocket_reference_payload, mock_controller_instance
 ):
@@ -444,6 +459,21 @@ def test_update_rocket_from_motor_reference(
     assert response.status_code == 204
     mock_controller_instance.update_rocket_from_motor_reference.assert_called_once_with(
         '123', RocketWithMotorReferenceRequest(**stub_rocket_reference_payload)
+    )
+
+
+def test_update_rocket_from_motor_reference_with_string_payload(
+    stub_rocket_reference_payload, mock_controller_instance
+):
+    payload = copy.deepcopy(stub_rocket_reference_payload)
+    payload['rocket'] = json.dumps(payload['rocket'])
+    mock_controller_instance.update_rocket_from_motor_reference = AsyncMock(
+        return_value=None
+    )
+    response = client.put('/rockets/123/from-motor-reference', json=payload)
+    assert response.status_code == 204
+    mock_controller_instance.update_rocket_from_motor_reference.assert_called_once_with(
+        '123', RocketWithMotorReferenceRequest(**payload)
     )
 
 

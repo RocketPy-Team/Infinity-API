@@ -1,6 +1,7 @@
+import json
 from typing import Optional, Tuple, List, Union, Self, ClassVar, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from src.models.interface import ApiBaseModel
 from src.models.motor import MotorModel
 from src.models.sub.aerosurfaces import (
@@ -103,3 +104,13 @@ class RocketWithMotorReferenceRequest(BaseModel):
 
     motor_id: str
     rocket: RocketPartialModel
+
+    @field_validator('rocket', mode='before')
+    @classmethod
+    def _coerce_rocket(cls, value):
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except json.JSONDecodeError as exc:
+                raise ValueError('Invalid JSON for rocket payload') from exc
+        return value
