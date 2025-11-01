@@ -86,6 +86,22 @@ def test_create_flight(stub_flight_dump, mock_controller_instance):
     )
 
 
+def test_create_flight_with_string_nested_fields(
+    stub_flight_dump, mock_controller_instance
+):
+    payload = copy.deepcopy(stub_flight_dump)
+    payload['environment'] = json.dumps(payload['environment'])
+    payload['rocket'] = json.dumps(payload['rocket'])
+    mock_controller_instance.post_flight = AsyncMock(
+        return_value=FlightCreated(flight_id='123')
+    )
+    response = client.post('/flights/', json=payload)
+    assert response.status_code == 201
+    mock_controller_instance.post_flight.assert_called_once_with(
+        FlightModel(**payload)
+    )
+
+
 def test_create_flight_from_references(
     stub_flight_reference_payload, mock_controller_instance
 ):
@@ -244,6 +260,20 @@ def test_update_flight_by_id(stub_flight_dump, mock_controller_instance):
     assert response.status_code == 204
     mock_controller_instance.put_flight_by_id.assert_called_once_with(
         '123', FlightModel(**stub_flight_dump)
+    )
+
+
+def test_update_flight_with_string_nested_fields(
+    stub_flight_dump, mock_controller_instance
+):
+    payload = copy.deepcopy(stub_flight_dump)
+    payload['environment'] = json.dumps(payload['environment'])
+    payload['rocket'] = json.dumps(payload['rocket'])
+    mock_controller_instance.put_flight_by_id = AsyncMock(return_value=None)
+    response = client.put('/flights/123', json=payload)
+    assert response.status_code == 204
+    mock_controller_instance.put_flight_by_id.assert_called_once_with(
+        '123', FlightModel(**payload)
     )
 
 

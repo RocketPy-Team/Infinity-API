@@ -111,6 +111,30 @@ def test_create_rocket(stub_rocket_dump, mock_controller_instance):
     )
 
 
+def test_create_rocket_with_string_nested_fields(
+    stub_rocket_dump,
+    stub_parachute_dump,
+    stub_rail_buttons_dump,
+    stub_tail_dump,
+    mock_controller_instance,
+):
+    payload = copy.deepcopy(stub_rocket_dump)
+    payload['motor'] = json.dumps(payload['motor'])
+    payload['nose'] = json.dumps(payload['nose'])
+    payload['fins'] = json.dumps(payload['fins'])
+    payload['parachutes'] = json.dumps([stub_parachute_dump])
+    payload['rail_buttons'] = json.dumps(stub_rail_buttons_dump)
+    payload['tail'] = json.dumps(stub_tail_dump)
+
+    mock_response = AsyncMock(return_value=RocketCreated(rocket_id='123'))
+    mock_controller_instance.post_rocket = mock_response
+    response = client.post('/rockets/', json=payload)
+    assert response.status_code == 201
+    mock_controller_instance.post_rocket.assert_called_once_with(
+        RocketModel(**payload)
+    )
+
+
 def test_create_rocket_from_motor_reference(
     stub_rocket_reference_payload, mock_controller_instance
 ):
@@ -437,6 +461,30 @@ def test_update_rocket(stub_rocket_dump, mock_controller_instance):
     assert response.status_code == 204
     mock_controller_instance.put_rocket_by_id.assert_called_once_with(
         '123', RocketModel(**stub_rocket_dump)
+    )
+
+
+def test_update_rocket_with_string_nested_fields(
+    stub_rocket_dump,
+    stub_parachute_dump,
+    stub_rail_buttons_dump,
+    stub_tail_dump,
+    mock_controller_instance,
+):
+    payload = copy.deepcopy(stub_rocket_dump)
+    payload['motor']['motor_kind'] = 'SOLID'
+    payload['motor'] = json.dumps(payload['motor'])
+    payload['nose'] = json.dumps(payload['nose'])
+    payload['fins'] = json.dumps(payload['fins'])
+    payload['parachutes'] = json.dumps([stub_parachute_dump])
+    payload['rail_buttons'] = json.dumps(stub_rail_buttons_dump)
+    payload['tail'] = json.dumps(stub_tail_dump)
+
+    mock_controller_instance.put_rocket_by_id = AsyncMock(return_value=None)
+    response = client.put('/rockets/123', json=payload)
+    assert response.status_code == 204
+    mock_controller_instance.put_rocket_by_id.assert_called_once_with(
+        '123', RocketModel(**payload)
     )
 
 
