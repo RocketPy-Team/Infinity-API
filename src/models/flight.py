@@ -1,4 +1,7 @@
+import json
 from typing import Optional, Self, ClassVar, Literal
+
+from pydantic import BaseModel, Field, field_validator
 from src.models.interface import ApiBaseModel
 from src.models.rocket import RocketModel
 from src.models.environment import EnvironmentModel
@@ -69,3 +72,76 @@ class FlightModel(ApiBaseModel):
                 **model_instance.model_dump(),
             )
         )
+
+    @field_validator('environment', mode='before')
+    @classmethod
+    def _coerce_environment(cls, value):
+        if isinstance(value, str):
+            try:
+                return json.loads(value)
+            except json.JSONDecodeError as exc:
+                raise ValueError(
+                    'Invalid JSON for environment payload'
+                ) from exc
+        return value
+
+    @field_validator('rocket', mode='before')
+    @classmethod
+    def _coerce_rocket(cls, value):
+        if isinstance(value, str):
+            try:
+                return json.loads(value)
+            except json.JSONDecodeError as exc:
+                raise ValueError('Invalid JSON for rocket payload') from exc
+        return value
+
+
+class FlightPartialModel(BaseModel):
+    """Flight attributes required when rocket/environment are referenced."""
+
+    name: str = Field(default="flight")
+    rail_length: float = 1
+    time_overshoot: bool = True
+    terminate_on_apogee: bool = False
+    equations_of_motion: Literal['standard', 'solid_propulsion'] = 'standard'
+    inclination: float = 90.0
+    heading: float = 0.0
+    max_time: Optional[int] = None
+    max_time_step: Optional[float] = None
+    min_time_step: Optional[int] = None
+    rtol: Optional[float] = None
+    atol: Optional[float] = None
+    verbose: Optional[bool] = None
+
+    def assemble(
+        self,
+        *,
+        environment: EnvironmentModel,
+        rocket: RocketModel,
+    ) -> FlightModel:
+        """Compose a full flight model using referenced resources."""
+
+        flight_data = self.model_dump(exclude_none=True)
+        return FlightModel(
+            environment=environment,
+            rocket=rocket,
+            **flight_data,
+        )
+
+
+class FlightWithReferencesRequest(BaseModel):
+    """Payload for creating or updating flights via component references."""
+
+    environment_id: str
+    rocket_id: str
+    flight: FlightPartialModel
+
+    @field_validator('flight', mode='before')
+    @classmethod
+    def _coerce_flight(cls, value):
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except json.JSONDecodeError as exc:
+                raise ValueError('Invalid JSON for flight payload') from exc
+        return value

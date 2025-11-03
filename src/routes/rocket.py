@@ -10,7 +10,10 @@ from src.views.rocket import (
     RocketCreated,
     RocketRetrieved,
 )
-from src.models.rocket import RocketModel
+from src.models.rocket import (
+    RocketModel,
+    RocketWithMotorReferenceRequest,
+)
 from src.controllers.rocket import RocketController
 
 router = APIRouter(
@@ -37,6 +40,24 @@ async def create_rocket(rocket: RocketModel) -> RocketCreated:
     with tracer.start_as_current_span("create_rocket"):
         controller = RocketController()
         return await controller.post_rocket(rocket)
+
+
+@router.post("/from-motor-reference", status_code=201)
+async def create_rocket_from_motor_reference(
+    payload: RocketWithMotorReferenceRequest,
+) -> RocketCreated:
+    """
+    Creates a rocket using an existing motor reference.
+
+    ## Args
+    ```
+        motor_id: str
+        rocket: Rocket-only fields JSON
+    ```
+    """
+    with tracer.start_as_current_span("create_rocket_from_motor_reference"):
+        controller = RocketController()
+        return await controller.create_rocket_from_motor_reference(payload)
 
 
 @router.get("/{rocket_id}")
@@ -66,6 +87,28 @@ async def update_rocket(rocket_id: str, rocket: RocketModel) -> None:
     with tracer.start_as_current_span("update_rocket"):
         controller = RocketController()
         return await controller.put_rocket_by_id(rocket_id, rocket)
+
+
+@router.put("/{rocket_id}/from-motor-reference", status_code=204)
+async def update_rocket_from_motor_reference(
+    rocket_id: str,
+    payload: RocketWithMotorReferenceRequest,
+) -> None:
+    """
+    Updates a rocket using an existing motor reference.
+
+    ## Args
+    ```
+        rocket_id: str
+        motor_id: str
+        rocket: Rocket-only fields JSON
+    ```
+    """
+    with tracer.start_as_current_span("update_rocket_from_motor_reference"):
+        controller = RocketController()
+        return await controller.update_rocket_from_motor_reference(
+            rocket_id, payload
+        )
 
 
 @router.delete("/{rocket_id}", status_code=204)
