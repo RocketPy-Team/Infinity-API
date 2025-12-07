@@ -14,6 +14,14 @@
 - [install mongodb-atlas](https://www.mongodb.com/try/download/community)
 - Install dependencies `python3 -m pip install -r requirements.txt`
 
+### Windows Users
+⚠️ **Known Issue**: `uvloop` does not support Windows and will fail during pip installation with:
+```
+RuntimeError: uvloop does not support Windows at the moment
+```
+
+**Recommended Solution**: Use Docker (easiest approach)
+
 ## Development
 - make format
 - make test
