@@ -14,7 +14,7 @@ from src.models.rocket import (
     RocketModel,
     RocketWithMotorReferenceRequest,
 )
-from src.controllers.rocket import RocketController
+from src.dependencies import RocketControllerDep
 
 router = APIRouter(
     prefix="/rockets",
@@ -30,7 +30,10 @@ tracer = trace.get_tracer(__name__)
 
 
 @router.post("/", status_code=201)
-async def create_rocket(rocket: RocketModel) -> RocketCreated:
+async def create_rocket(
+    rocket: RocketModel,
+    controller: RocketControllerDep,
+) -> RocketCreated:
     """
     Creates a new rocket
 
@@ -38,13 +41,11 @@ async def create_rocket(rocket: RocketModel) -> RocketCreated:
     ``` models.Rocket JSON ```
     """
     with tracer.start_as_current_span("create_rocket"):
-        controller = RocketController()
         return await controller.post_rocket(rocket)
-
-
 @router.post("/from-motor-reference", status_code=201)
 async def create_rocket_from_motor_reference(
     payload: RocketWithMotorReferenceRequest,
+    controller: RocketControllerDep,
 ) -> RocketCreated:
     """
     Creates a rocket using an existing motor reference.
@@ -56,12 +57,14 @@ async def create_rocket_from_motor_reference(
     ```
     """
     with tracer.start_as_current_span("create_rocket_from_motor_reference"):
-        controller = RocketController()
         return await controller.create_rocket_from_motor_reference(payload)
 
 
 @router.get("/{rocket_id}")
-async def read_rocket(rocket_id: str) -> RocketRetrieved:
+async def read_rocket(
+    rocket_id: str,
+    controller: RocketControllerDep,
+) -> RocketRetrieved:
     """
     Reads an existing rocket
 
@@ -69,12 +72,15 @@ async def read_rocket(rocket_id: str) -> RocketRetrieved:
     ``` rocket_id: str ```
     """
     with tracer.start_as_current_span("read_rocket"):
-        controller = RocketController()
         return await controller.get_rocket_by_id(rocket_id)
 
 
 @router.put("/{rocket_id}", status_code=204)
-async def update_rocket(rocket_id: str, rocket: RocketModel) -> None:
+async def update_rocket(
+    rocket_id: str,
+    rocket: RocketModel,
+    controller: RocketControllerDep,
+) -> None:
     """
     Updates an existing rocket
 
@@ -85,7 +91,6 @@ async def update_rocket(rocket_id: str, rocket: RocketModel) -> None:
     ```
     """
     with tracer.start_as_current_span("update_rocket"):
-        controller = RocketController()
         return await controller.put_rocket_by_id(rocket_id, rocket)
 
 
@@ -93,6 +98,7 @@ async def update_rocket(rocket_id: str, rocket: RocketModel) -> None:
 async def update_rocket_from_motor_reference(
     rocket_id: str,
     payload: RocketWithMotorReferenceRequest,
+    controller: RocketControllerDep,
 ) -> None:
     """
     Updates a rocket using an existing motor reference.
@@ -105,14 +111,15 @@ async def update_rocket_from_motor_reference(
     ```
     """
     with tracer.start_as_current_span("update_rocket_from_motor_reference"):
-        controller = RocketController()
         return await controller.update_rocket_from_motor_reference(
             rocket_id, payload
         )
 
-
 @router.delete("/{rocket_id}", status_code=204)
-async def delete_rocket(rocket_id: str) -> None:
+async def delete_rocket(
+    rocket_id: str,
+    controller: RocketControllerDep,
+) -> None:
     """
     Deletes an existing rocket
 
@@ -120,7 +127,6 @@ async def delete_rocket(rocket_id: str) -> None:
     ``` rocket_id: str ```
     """
     with tracer.start_as_current_span("delete_rocket"):
-        controller = RocketController()
         return await controller.delete_rocket_by_id(rocket_id)
 
 
@@ -135,7 +141,10 @@ async def delete_rocket(rocket_id: str) -> None:
     status_code=200,
     response_class=Response,
 )
-async def get_rocketpy_rocket_binary(rocket_id: str):
+async def get_rocketpy_rocket_binary(
+    rocket_id: str,
+    controller: RocketControllerDep,
+):
     """
     Loads rocketpy.rocket as a dill binary.
     Currently only amd64 architecture is supported.
@@ -147,7 +156,6 @@ async def get_rocketpy_rocket_binary(rocket_id: str):
         headers = {
             'Content-Disposition': f'attachment; filename="rocketpy_rocket_{rocket_id}.dill"'
         }
-        controller = RocketController()
         binary = await controller.get_rocketpy_rocket_binary(rocket_id)
         return Response(
             content=binary,
@@ -158,7 +166,10 @@ async def get_rocketpy_rocket_binary(rocket_id: str):
 
 
 @router.get("/{rocket_id}/simulate")
-async def simulate_rocket(rocket_id: str) -> RocketSimulation:
+async def simulate_rocket(
+    rocket_id: str,
+    controller: RocketControllerDep,
+) -> RocketSimulation:
     """
     Simulates a rocket
 
@@ -166,5 +177,4 @@ async def simulate_rocket(rocket_id: str) -> RocketSimulation:
     ``` rocket_id: Rocket ID ```
     """
     with tracer.start_as_current_span("get_rocket_simulation"):
-        controller = RocketController()
         return await controller.get_rocket_simulation(rocket_id)
