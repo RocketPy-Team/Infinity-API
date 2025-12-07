@@ -15,6 +15,9 @@ from src.views.flight import (
     FlightSimulation,
     FlightView,
 )
+
+from src.dependencies import get_flight_controller
+
 from src import app
 
 client = TestClient(app)
@@ -43,21 +46,26 @@ def stub_flight_simulate_dump():
 
 @pytest.fixture(autouse=True)
 def mock_controller_instance():
-    with patch(
-        "src.routes.flight.FlightController", autospec=True
-    ) as mock_controller:
-        mock_controller_instance = mock_controller.return_value
-        mock_controller_instance.post_flight = Mock()
-        mock_controller_instance.get_flight_by_id = Mock()
-        mock_controller_instance.put_flight_by_id = Mock()
-        mock_controller_instance.delete_flight_by_id = Mock()
-        mock_controller_instance.get_flight_simulation = Mock()
-        mock_controller_instance.get_rocketpy_flight_binary = Mock()
-        mock_controller_instance.update_environment_by_flight_id = Mock()
-        mock_controller_instance.update_rocket_by_flight_id = Mock()
-        mock_controller_instance.create_flight_from_references = Mock()
-        mock_controller_instance.update_flight_from_references = Mock()
-        yield mock_controller_instance
+    with patch("src.dependencies.FlightController") as mock_class:
+        mock_controller = AsyncMock()
+        mock_controller.post_flight = AsyncMock()
+        mock_controller.get_flight_by_id = AsyncMock()
+        mock_controller.put_flight_by_id = AsyncMock()
+        mock_controller.delete_flight_by_id = AsyncMock()
+        mock_controller.get_flight_simulation = AsyncMock()
+        mock_controller.get_rocketpy_flight_binary = AsyncMock()
+        mock_controller.update_environment_by_flight_id = AsyncMock()
+        mock_controller.update_rocket_by_flight_id = AsyncMock()
+        mock_controller.create_flight_from_references = AsyncMock()
+        mock_controller.update_flight_from_references = AsyncMock()
+        
+        mock_class.return_value = mock_controller
+        
+        get_flight_controller.cache_clear()
+        
+        yield mock_controller
+        
+        get_flight_controller.cache_clear()
 
 
 @pytest.fixture

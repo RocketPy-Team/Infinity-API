@@ -9,7 +9,10 @@ from src.views.motor import (
     MotorRetrieved,
     MotorSimulation,
     MotorView,
-)
+)    
+
+from src.dependencies import get_motor_controller
+
 from src import app
 
 client = TestClient(app)
@@ -24,17 +27,22 @@ def stub_motor_dump_simulation():
 
 @pytest.fixture(autouse=True)
 def mock_controller_instance():
-    with patch(
-        "src.routes.motor.MotorController", autospec=True
-    ) as mock_controller:
-        mock_controller_instance = mock_controller.return_value
-        mock_controller_instance.post_motor = Mock()
-        mock_controller_instance.get_motor_by_id = Mock()
-        mock_controller_instance.put_motor_by_id = Mock()
-        mock_controller_instance.delete_motor_by_id = Mock()
-        mock_controller_instance.get_motor_simulation = Mock()
-        mock_controller_instance.get_rocketpy_motor_binary = Mock()
-        yield mock_controller_instance
+    with patch("src.dependencies.MotorController") as mock_class:
+        mock_controller = AsyncMock()
+        mock_controller.post_motor = AsyncMock()
+        mock_controller.get_motor_by_id = AsyncMock()
+        mock_controller.put_motor_by_id = AsyncMock()
+        mock_controller.delete_motor_by_id = AsyncMock()
+        mock_controller.get_motor_simulation = AsyncMock()
+        mock_controller.get_rocketpy_motor_binary = AsyncMock()
+        
+        mock_class.return_value = mock_controller
+
+        get_motor_controller.cache_clear()
+        
+        yield mock_controller
+        
+        get_motor_controller.cache_clear()
 
 
 def test_create_motor(stub_motor_dump, mock_controller_instance):

@@ -10,6 +10,9 @@ from src.views.environment import (
     EnvironmentRetrieved,
     EnvironmentSimulation,
 )
+
+from src.dependencies import get_environment_controller
+
 from src import app
 
 client = TestClient(app)
@@ -24,17 +27,23 @@ def stub_environment_simulation_dump():
 
 @pytest.fixture(autouse=True)
 def mock_controller_instance():
-    with patch(
-        "src.routes.environment.EnvironmentController", autospec=True
-    ) as mock_controller:
-        mock_controller_instance = mock_controller.return_value
-        mock_controller_instance.post_environment = Mock()
-        mock_controller_instance.get_environment_by_id = Mock()
-        mock_controller_instance.put_environment_by_id = Mock()
-        mock_controller_instance.delete_environment_by_id = Mock()
-        mock_controller_instance.get_environment_simulation = Mock()
-        mock_controller_instance.get_rocketpy_environment_binary = Mock()
-        yield mock_controller_instance
+    with patch("src.dependencies.EnvironmentController") as mock_class:
+        mock_controller = AsyncMock()
+        mock_controller.post_environment = AsyncMock()
+        mock_controller.get_environment_by_id = AsyncMock()
+        mock_controller.put_environment_by_id = AsyncMock()
+        mock_controller.delete_environment_by_id = AsyncMock()
+        mock_controller.get_environment_simulation = AsyncMock()
+        mock_controller.get_rocketpy_environment_binary = AsyncMock()
+        
+        mock_class.return_value = mock_controller
+        
+        
+        get_environment_controller.cache_clear()
+        
+        yield mock_controller
+        
+        get_environment_controller.cache_clear()
 
 
 def test_create_environment(stub_environment_dump, mock_controller_instance):
