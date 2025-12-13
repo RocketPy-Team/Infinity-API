@@ -9,7 +9,7 @@ from src.views.motor import (
     MotorRetrieved,
     MotorSimulation,
     MotorView,
-)    
+)
 
 from src.dependencies import get_motor_controller
 
