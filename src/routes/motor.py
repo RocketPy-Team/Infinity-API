@@ -11,7 +11,7 @@ from src.views.motor import (
     MotorRetrieved,
 )
 from src.models.motor import MotorModel
-from src.controllers.motor import MotorController
+from src.dependencies import MotorControllerDep
 
 router = APIRouter(
     prefix="/motors",
@@ -27,7 +27,10 @@ tracer = trace.get_tracer(__name__)
 
 
 @router.post("/", status_code=201)
-async def create_motor(motor: MotorModel) -> MotorCreated:
+async def create_motor(
+    motor: MotorModel,
+    controller: MotorControllerDep,
+) -> MotorCreated:
     """
     Creates a new motor
 
@@ -35,12 +38,14 @@ async def create_motor(motor: MotorModel) -> MotorCreated:
     ``` models.Motor JSON ```
     """
     with tracer.start_as_current_span("create_motor"):
-        controller = MotorController()
         return await controller.post_motor(motor)
 
 
 @router.get("/{motor_id}")
-async def read_motor(motor_id: str) -> MotorRetrieved:
+async def read_motor(
+    motor_id: str,
+    controller: MotorControllerDep,
+) -> MotorRetrieved:
     """
     Reads an existing motor
 
@@ -48,12 +53,15 @@ async def read_motor(motor_id: str) -> MotorRetrieved:
     ``` motor_id: str ```
     """
     with tracer.start_as_current_span("read_motor"):
-        controller = MotorController()
         return await controller.get_motor_by_id(motor_id)
 
 
 @router.put("/{motor_id}", status_code=204)
-async def update_motor(motor_id: str, motor: MotorModel) -> None:
+async def update_motor(
+    motor_id: str,
+    motor: MotorModel,
+    controller: MotorControllerDep,
+) -> None:
     """
     Updates an existing motor
 
@@ -64,12 +72,14 @@ async def update_motor(motor_id: str, motor: MotorModel) -> None:
     ```
     """
     with tracer.start_as_current_span("update_motor"):
-        controller = MotorController()
         return await controller.put_motor_by_id(motor_id, motor)
 
 
 @router.delete("/{motor_id}", status_code=204)
-async def delete_motor(motor_id: str) -> None:
+async def delete_motor(
+    motor_id: str,
+    controller: MotorControllerDep,
+) -> None:
     """
     Deletes an existing motor
 
@@ -77,7 +87,6 @@ async def delete_motor(motor_id: str) -> None:
     ``` motor_id: str ```
     """
     with tracer.start_as_current_span("delete_motor"):
-        controller = MotorController()
         return await controller.delete_motor_by_id(motor_id)
 
 
@@ -92,7 +101,10 @@ async def delete_motor(motor_id: str) -> None:
     status_code=200,
     response_class=Response,
 )
-async def get_rocketpy_motor_binary(motor_id: str):
+async def get_rocketpy_motor_binary(
+    motor_id: str,
+    controller: MotorControllerDep,
+):
     """
     Loads rocketpy.motor as a dill binary.
     Currently only amd64 architecture is supported.
@@ -104,7 +116,6 @@ async def get_rocketpy_motor_binary(motor_id: str):
         headers = {
             'Content-Disposition': f'attachment; filename="rocketpy_motor_{motor_id}.dill"'
         }
-        controller = MotorController()
         binary = await controller.get_rocketpy_motor_binary(motor_id)
         return Response(
             content=binary,
@@ -115,7 +126,10 @@ async def get_rocketpy_motor_binary(motor_id: str):
 
 
 @router.get("/{motor_id}/simulate")
-async def get_motor_simulation(motor_id: str) -> MotorSimulation:
+async def get_motor_simulation(
+    motor_id: str,
+    controller: MotorControllerDep,
+) -> MotorSimulation:
     """
     Simulates a motor
 
@@ -123,5 +137,4 @@ async def get_motor_simulation(motor_id: str) -> MotorSimulation:
     ``` motor_id: Motor ID ```
     """
     with tracer.start_as_current_span("get_motor_simulation"):
-        controller = MotorController()
         return await controller.get_motor_simulation(motor_id)
