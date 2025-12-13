@@ -114,7 +114,6 @@ async def update_rocket_from_motor_reference(
         return await controller.update_rocket_from_motor_reference(
             rocket_id, payload
         )
-
 @router.delete("/{rocket_id}", status_code=204)
 async def delete_rocket(
     rocket_id: str,
