@@ -188,7 +188,7 @@ class RocketService:
             for key, value in fins.get_additional_parameters().items()
             if key not in base_kwargs
         }
-
+        
         match kind:
             case "trapezoidal":
                 factory = RocketPyTrapezoidalFins
