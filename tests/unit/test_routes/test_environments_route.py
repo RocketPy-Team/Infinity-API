@@ -39,9 +39,11 @@ def mock_controller_instance():
         mock_class.return_value = mock_controller
         get_environment_controller.cache_clear()
         
-        yield mock_controller
+        get_environment_controller.cache_clear()
         
         yield mock_controller
+        
+        get_environment_controller.cache_clear()
         
         get_environment_controller.cache_clear()
 
