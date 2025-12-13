@@ -183,6 +183,12 @@ class RocketService:
             'rocket_radius': fins.rocket_radius,
         }
 
+        extra_kwargs = {
+            key: value
+            for key, value in fins.get_additional_parameters().items()
+            if key not in base_kwargs
+        }
+
         match kind:
             case "trapezoidal":
                 factory = RocketPyTrapezoidalFins
@@ -194,7 +200,7 @@ class RocketService:
         try:
             rocketpy_finset = factory(
                 **base_kwargs,
-                **fins.get_additional_parameters(),
+                **extra_kwargs,
             )
         except (TypeError, ValueError) as exc:
             raise HTTPException(
