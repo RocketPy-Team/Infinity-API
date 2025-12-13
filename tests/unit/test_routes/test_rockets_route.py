@@ -20,7 +20,7 @@ from src.views.rocket import (
     RocketView,
 )
 
-        
+
 from src.dependencies import get_rocket_controller
 
 from src import app
