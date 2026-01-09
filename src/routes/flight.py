@@ -2,13 +2,14 @@
 Flight routes
 """
 
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Response, Query
 from opentelemetry import trace
 
 from src.views.flight import (
     FlightSimulation,
     FlightCreated,
     FlightRetrieved,
+    FlightList,
 )
 from src.models.environment import EnvironmentModel
 from src.models.flight import FlightModel, FlightWithReferencesRequest
@@ -26,6 +27,25 @@ router = APIRouter(
 )
 
 tracer = trace.get_tracer(__name__)
+
+
+@router.get("/")
+async def list_flights(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=100),
+) -> FlightList:
+    """
+    Lists flights
+
+    ## Args
+    ```
+        skip: int = 0
+        limit: int = 50
+    ```
+    """
+    with tracer.start_as_current_span("list_flights"):
+        controller = FlightController()
+        return await controller.list_flights(skip=skip, limit=limit)
 
 
 @router.post("/", status_code=201)

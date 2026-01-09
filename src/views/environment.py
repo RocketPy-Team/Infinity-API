@@ -1,7 +1,7 @@
-from typing import Optional, Any
+from typing import Optional, Any, List
 from datetime import datetime, timezone, timedelta
 from pydantic import ConfigDict, Field
-from src.views.interface import ApiBaseView
+from src.views.interface import ApiBaseView, PaginatedResponse
 from src.models.environment import EnvironmentModel
 
 
@@ -90,3 +90,8 @@ class EnvironmentCreated(ApiBaseView):
 class EnvironmentRetrieved(ApiBaseView):
     message: str = "Environment successfully retrieved"
     environment: EnvironmentView
+
+
+class EnvironmentList(PaginatedResponse):
+    message: str = "Environments successfully retrieved"
+    items: List[EnvironmentView]

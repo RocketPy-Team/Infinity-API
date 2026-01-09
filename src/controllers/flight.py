@@ -4,7 +4,12 @@ from src.controllers.interface import (
     ControllerBase,
     controller_exception_handler,
 )
-from src.views.flight import FlightSimulation, FlightCreated
+from src.views.flight import (
+    FlightSimulation,
+    FlightCreated,
+    FlightList,
+    FlightView,
+)
 from src.models.flight import (
     FlightModel,
     FlightWithReferencesRequest,
@@ -162,3 +167,18 @@ class FlightController(ControllerBase):
         flight = await self.get_flight_by_id(flight_id)
         flight_service = FlightService.from_flight_model(flight.flight)
         return flight_service.get_flight_simulation()
+
+    @controller_exception_handler
+    async def list_flights(self, skip: int, limit: int) -> FlightList:
+        model_repo = RepositoryInterface.get_model_repo(FlightModel)
+        async with model_repo() as repo:
+            total, items = await repo.list_flights(skip=skip, limit=limit)
+            return FlightList(
+                items=[
+                    FlightView(**item.model_dump(), flight_id=item.get_id())
+                    for item in items
+                ],
+                total=total,
+                skip=skip,
+                limit=limit,
+            )

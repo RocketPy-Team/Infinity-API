@@ -4,7 +4,12 @@ from src.controllers.interface import (
     ControllerBase,
     controller_exception_handler,
 )
-from src.views.rocket import RocketSimulation, RocketCreated
+from src.views.rocket import (
+    RocketSimulation,
+    RocketCreated,
+    RocketList,
+    RocketView,
+)
 from src.models.motor import MotorModel
 from src.models.rocket import (
     RocketModel,
@@ -95,3 +100,18 @@ class RocketController(ControllerBase):
         rocket = await self.get_rocket_by_id(rocket_id)
         rocket_service = RocketService.from_rocket_model(rocket.rocket)
         return rocket_service.get_rocket_simulation()
+
+    @controller_exception_handler
+    async def list_rockets(self, skip: int, limit: int) -> RocketList:
+        model_repo = RepositoryInterface.get_model_repo(RocketModel)
+        async with model_repo() as repo:
+            total, items = await repo.list_rockets(skip=skip, limit=limit)
+            return RocketList(
+                items=[
+                    RocketView(**item.model_dump(), rocket_id=item.get_id())
+                    for item in items
+                ],
+                total=total,
+                skip=skip,
+                limit=limit,
+            )

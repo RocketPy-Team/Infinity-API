@@ -2,13 +2,14 @@
 Environment routes
 """
 
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Response, Query
 from opentelemetry import trace
 
 from src.views.environment import (
     EnvironmentSimulation,
     EnvironmentCreated,
     EnvironmentRetrieved,
+    EnvironmentList,
 )
 from src.models.environment import EnvironmentModel
 from src.controllers.environment import EnvironmentController
@@ -24,6 +25,25 @@ router = APIRouter(
 )
 
 tracer = trace.get_tracer(__name__)
+
+
+@router.get("/")
+async def list_environments(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=100),
+) -> EnvironmentList:
+    """
+    Lists environments
+
+    ## Args
+    ```
+        skip: int = 0
+        limit: int = 50
+    ```
+    """
+    with tracer.start_as_current_span("list_environments"):
+        controller = EnvironmentController()
+        return await controller.list_environments(skip=skip, limit=limit)
 
 
 @router.post("/", status_code=201)

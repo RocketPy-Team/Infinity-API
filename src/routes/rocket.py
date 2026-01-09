@@ -2,13 +2,14 @@
 Rocket routes
 """
 
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Response, Query
 from opentelemetry import trace
 
 from src.views.rocket import (
     RocketSimulation,
     RocketCreated,
     RocketRetrieved,
+    RocketList,
 )
 from src.models.rocket import (
     RocketModel,
@@ -27,6 +28,25 @@ router = APIRouter(
 )
 
 tracer = trace.get_tracer(__name__)
+
+
+@router.get("/")
+async def list_rockets(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=100),
+) -> RocketList:
+    """
+    Lists rockets
+
+    ## Args
+    ```
+        skip: int = 0
+        limit: int = 50
+    ```
+    """
+    with tracer.start_as_current_span("list_rockets"):
+        controller = RocketController()
+        return await controller.list_rockets(skip=skip, limit=limit)
 
 
 @router.post("/", status_code=201)

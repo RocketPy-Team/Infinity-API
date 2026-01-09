@@ -286,3 +286,17 @@ class RepositoryInterface:
             parsed_model.set_id(str(read_data["_id"]))
             parsed_models.append(parsed_model)
         return parsed_models
+
+    @repository_exception_handler
+    async def find_all_paginated(self, skip: int, limit: int):
+        collection = self.get_collection()
+        total = await collection.count_documents({})
+        cursor = collection.find().sort("_id", -1).skip(skip).limit(limit)
+        
+        parsed_models = []
+        async for read_data in cursor:
+            parsed_model = self.model.model_validate(read_data)
+            parsed_model.set_id(str(read_data["_id"]))
+            parsed_models.append(parsed_model)
+        
+        return total, parsed_models

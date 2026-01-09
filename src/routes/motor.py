@@ -2,13 +2,14 @@
 Motor routes
 """
 
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Response, Query
 from opentelemetry import trace
 
 from src.views.motor import (
     MotorSimulation,
     MotorCreated,
     MotorRetrieved,
+    MotorList,
 )
 from src.models.motor import MotorModel
 from src.controllers.motor import MotorController
@@ -24,6 +25,25 @@ router = APIRouter(
 )
 
 tracer = trace.get_tracer(__name__)
+
+
+@router.get("/")
+async def list_motors(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=100),
+) -> MotorList:
+    """
+    Lists motors
+
+    ## Args
+    ```
+        skip: int = 0
+        limit: int = 50
+    ```
+    """
+    with tracer.start_as_current_span("list_motors"):
+        controller = MotorController()
+        return await controller.list_motors(skip=skip, limit=limit)
 
 
 @router.post("/", status_code=201)

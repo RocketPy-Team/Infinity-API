@@ -1,6 +1,6 @@
-from typing import Optional, Any
+from typing import Optional, Any, List
 from pydantic import ConfigDict
-from src.views.interface import ApiBaseView
+from src.views.interface import ApiBaseView, PaginatedResponse
 from src.models.motor import MotorModel
 
 
@@ -85,3 +85,8 @@ class MotorCreated(ApiBaseView):
 class MotorRetrieved(ApiBaseView):
     message: str = "Motor successfully retrieved"
     motor: MotorView
+
+
+class MotorList(PaginatedResponse):
+    message: str = "Motors successfully retrieved"
+    items: List[MotorView]

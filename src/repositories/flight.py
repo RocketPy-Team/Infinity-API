@@ -34,3 +34,7 @@ class FlightRepository(RepositoryInterface):
     @repository_exception_handler
     async def delete_flight_by_id(self, flight_id: str):
         await self.delete_by_id(data_id=flight_id)
+
+    @repository_exception_handler
+    async def list_flights(self, skip: int, limit: int):
+        return await self.find_all_paginated(skip=skip, limit=limit)

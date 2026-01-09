@@ -34,3 +34,7 @@ class MotorRepository(RepositoryInterface):
     @repository_exception_handler
     async def delete_motor_by_id(self, motor_id: str):
         await self.delete_by_id(data_id=motor_id)
+
+    @repository_exception_handler
+    async def list_motors(self, skip: int, limit: int):
+        return await self.find_all_paginated(skip=skip, limit=limit)

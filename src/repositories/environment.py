@@ -38,3 +38,7 @@ class EnvironmentRepository(RepositoryInterface):
     @repository_exception_handler
     async def delete_environment_by_id(self, environment_id: str):
         await self.delete_by_id(data_id=environment_id)
+
+    @repository_exception_handler
+    async def list_environments(self, skip: int, limit: int):
+        return await self.find_all_paginated(skip=skip, limit=limit)

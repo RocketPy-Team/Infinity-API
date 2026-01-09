@@ -2,9 +2,14 @@ from src.controllers.interface import (
     ControllerBase,
     controller_exception_handler,
 )
-from src.views.environment import EnvironmentSimulation
+from src.views.environment import (
+    EnvironmentSimulation,
+    EnvironmentList,
+    EnvironmentView,
+)
 from src.models.environment import EnvironmentModel
 from src.services.environment import EnvironmentService
+from src.repositories.interface import RepositoryInterface
 
 
 class EnvironmentController(ControllerBase):
@@ -59,3 +64,20 @@ class EnvironmentController(ControllerBase):
         env = await self.get_environment_by_id(env_id)
         env_service = EnvironmentService.from_env_model(env.environment)
         return env_service.get_environment_simulation()
+
+    @controller_exception_handler
+    async def list_environments(self, skip: int, limit: int) -> EnvironmentList:
+        model_repo = RepositoryInterface.get_model_repo(EnvironmentModel)
+        async with model_repo() as repo:
+            total, items = await repo.list_environments(skip=skip, limit=limit)
+            return EnvironmentList(
+                items=[
+                    EnvironmentView(
+                        **item.model_dump(), environment_id=item.get_id()
+                    )
+                    for item in items
+                ],
+                total=total,
+                skip=skip,
+                limit=limit,
+            )

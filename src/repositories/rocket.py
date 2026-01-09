@@ -34,3 +34,7 @@ class RocketRepository(RepositoryInterface):
     @repository_exception_handler
     async def delete_rocket_by_id(self, rocket_id: str):
         await self.delete_by_id(data_id=rocket_id)
+
+    @repository_exception_handler
+    async def list_rockets(self, skip: int, limit: int):
+        return await self.find_all_paginated(skip=skip, limit=limit)

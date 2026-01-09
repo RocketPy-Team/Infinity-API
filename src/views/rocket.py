@@ -1,7 +1,7 @@
-from typing import Optional, Any
+from typing import Optional, Any, List
 from pydantic import ConfigDict
 from src.models.rocket import RocketModel
-from src.views.interface import ApiBaseView
+from src.views.interface import ApiBaseView, PaginatedResponse
 from src.views.motor import MotorView, MotorSimulation
 
 
@@ -72,3 +72,8 @@ class RocketCreated(ApiBaseView):
 class RocketRetrieved(ApiBaseView):
     message: str = "Rocket successfully retrieved"
     rocket: RocketView
+
+
+class RocketList(PaginatedResponse):
+    message: str = "Rockets successfully retrieved"
+    items: List[RocketView]

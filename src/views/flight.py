@@ -1,7 +1,7 @@
-from typing import Optional, Any
+from typing import Optional, Any, List
 from pydantic import ConfigDict
 from src.models.flight import FlightModel
-from src.views.interface import ApiBaseView
+from src.views.interface import ApiBaseView, PaginatedResponse
 from src.views.rocket import RocketView, RocketSimulation
 from src.views.environment import EnvironmentSimulation
 
@@ -153,3 +153,8 @@ class FlightCreated(ApiBaseView):
 class FlightRetrieved(ApiBaseView):
     message: str = "Flight successfully retrieved"
     flight: FlightView
+
+
+class FlightList(PaginatedResponse):
+    message: str = "Flights successfully retrieved"
+    items: List[FlightView]
