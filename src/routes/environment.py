@@ -11,7 +11,7 @@ from src.views.environment import (
     EnvironmentRetrieved,
 )
 from src.models.environment import EnvironmentModel
-from src.controllers.environment import EnvironmentController
+from src.dependencies import EnvironmentControllerDep
 
 router = APIRouter(
     prefix="/environments",
@@ -29,6 +29,7 @@ tracer = trace.get_tracer(__name__)
 @router.post("/", status_code=201)
 async def create_environment(
     environment: EnvironmentModel,
+    controller: EnvironmentControllerDep,
 ) -> EnvironmentCreated:
     """
     Creates a new environment
@@ -37,12 +38,14 @@ async def create_environment(
     ``` models.Environment JSON ```
     """
     with tracer.start_as_current_span("create_environment"):
-        controller = EnvironmentController()
         return await controller.post_environment(environment)
 
 
 @router.get("/{environment_id}")
-async def read_environment(environment_id: str) -> EnvironmentRetrieved:
+async def read_environment(
+    environment_id: str,
+    controller: EnvironmentControllerDep,
+) -> EnvironmentRetrieved:
     """
     Reads an existing environment
 
@@ -50,13 +53,14 @@ async def read_environment(environment_id: str) -> EnvironmentRetrieved:
     ``` environment_id: str ```
     """
     with tracer.start_as_current_span("read_environment"):
-        controller = EnvironmentController()
         return await controller.get_environment_by_id(environment_id)
 
 
 @router.put("/{environment_id}", status_code=204)
 async def update_environment(
-    environment_id: str, environment: EnvironmentModel
+    environment_id: str,
+    environment: EnvironmentModel,
+    controller: EnvironmentControllerDep,
 ) -> None:
     """
     Updates an existing environment
@@ -68,14 +72,16 @@ async def update_environment(
     ```
     """
     with tracer.start_as_current_span("update_environment"):
-        controller = EnvironmentController()
         return await controller.put_environment_by_id(
             environment_id, environment
         )
 
 
 @router.delete("/{environment_id}", status_code=204)
-async def delete_environment(environment_id: str) -> None:
+async def delete_environment(
+    environment_id: str,
+    controller: EnvironmentControllerDep,
+) -> None:
     """
     Deletes an existing environment
 
@@ -83,7 +89,6 @@ async def delete_environment(environment_id: str) -> None:
     ``` environment_id: str ```
     """
     with tracer.start_as_current_span("delete_environment"):
-        controller = EnvironmentController()
         return await controller.delete_environment_by_id(environment_id)
 
 
@@ -98,7 +103,10 @@ async def delete_environment(environment_id: str) -> None:
     status_code=200,
     response_class=Response,
 )
-async def get_rocketpy_environment_binary(environment_id: str):
+async def get_rocketpy_environment_binary(
+    environment_id: str,
+    controller: EnvironmentControllerDep,
+):
     """
     Loads rocketpy.environment as a dill binary.
     Currently only amd64 architecture is supported.
@@ -110,7 +118,6 @@ async def get_rocketpy_environment_binary(environment_id: str):
         headers = {
             'Content-Disposition': f'attachment; filename="rocketpy_environment_{environment_id}.dill"'
         }
-        controller = EnvironmentController()
         binary = await controller.get_rocketpy_environment_binary(
             environment_id
         )
@@ -125,6 +132,7 @@ async def get_rocketpy_environment_binary(environment_id: str):
 @router.get("/{environment_id}/simulate")
 async def get_environment_simulation(
     environment_id: str,
+    controller: EnvironmentControllerDep,
 ) -> EnvironmentSimulation:
     """
     Simulates an environment
@@ -133,5 +141,4 @@ async def get_environment_simulation(
     ``` environment_id: Environment ID```
     """
     with tracer.start_as_current_span("get_environment_simulation"):
-        controller = EnvironmentController()
         return await controller.get_environment_simulation(environment_id)
