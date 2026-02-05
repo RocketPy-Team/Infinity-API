@@ -22,7 +22,7 @@ def get_rocket_controller() -> RocketController:
     return RocketController()
 
 
-@cache(maxsize=1)
+@cache
 def get_motor_controller() -> MotorController:
     """
     Provides a singleton MotorController instance.
