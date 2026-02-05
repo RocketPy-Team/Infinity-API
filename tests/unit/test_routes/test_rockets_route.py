@@ -19,6 +19,10 @@ from src.views.rocket import (
     RocketSimulation,
     RocketView,
 )
+
+
+from src.dependencies import get_rocket_controller
+
 from src import app
 
 client = TestClient(app)
@@ -72,19 +76,24 @@ def stub_parachute_dump():
 
 @pytest.fixture(autouse=True)
 def mock_controller_instance():
-    with patch(
-        "src.routes.rocket.RocketController", autospec=True
-    ) as mock_controller:
-        mock_controller_instance = mock_controller.return_value
-        mock_controller_instance.post_rocket = Mock()
-        mock_controller_instance.get_rocket_by_id = Mock()
-        mock_controller_instance.put_rocket_by_id = Mock()
-        mock_controller_instance.delete_rocket_by_id = Mock()
-        mock_controller_instance.get_rocket_simulation = Mock()
-        mock_controller_instance.get_rocketpy_rocket_binary = Mock()
-        mock_controller_instance.create_rocket_from_motor_reference = Mock()
-        mock_controller_instance.update_rocket_from_motor_reference = Mock()
-        yield mock_controller_instance
+    with patch("src.dependencies.RocketController") as mock_class:
+        mock_controller = AsyncMock()
+        mock_controller.post_rocket = AsyncMock()
+        mock_controller.get_rocket_by_id = AsyncMock()
+        mock_controller.put_rocket_by_id = AsyncMock()
+        mock_controller.delete_rocket_by_id = AsyncMock()
+        mock_controller.get_rocket_simulation = AsyncMock()
+        mock_controller.get_rocketpy_rocket_binary = AsyncMock()
+        mock_controller.create_rocket_from_motor_reference = AsyncMock()
+        mock_controller.update_rocket_from_motor_reference = AsyncMock()
+        
+        mock_class.return_value = mock_controller
+
+        get_rocket_controller.cache_clear()
+        
+        yield mock_controller
+        
+        get_rocket_controller.cache_clear()
 
 
 @pytest.fixture
