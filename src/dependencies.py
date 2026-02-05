@@ -14,7 +14,7 @@ def get_rocket_controller() -> RocketController:
     Provides a singleton RocketController instance.
     
     The controller is stateless and can be safely reused across requests.
-    Using cache ensures thread-safe singleton behavior.
+    Using functools.cache memoizes this function so a single instance is reused per process; it does not by itself guarantee thread-safe initialization in multi-threaded setups.
     
     Returns:
         RocketController: Shared controller instance for rocket operations.
