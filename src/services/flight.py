@@ -5,9 +5,15 @@ import numpy as np
 
 from rocketpy.simulation.flight import Flight as RocketPyFlight
 from rocketpy._encoders import RocketPyEncoder, RocketPyDecoder
+from rocketpy.mathutils.function import Function
 from rocketpy.motors.solid_motor import SolidMotor
 from rocketpy.motors.liquid_motor import LiquidMotor
 from rocketpy.motors.hybrid_motor import HybridMotor
+from rocketpy import (
+    LevelBasedTank,
+    MassBasedTank,
+    UllageBasedTank,
+)
 from rocketpy.rocket.aero_surface import (
     NoseCone as RocketPyNoseCone,
     TrapezoidalFins as RocketPyTrapezoidalFins,
@@ -27,6 +33,7 @@ from src.models.sub.aerosurfaces import (
     Tail,
     Parachute,
 )
+from src.models.sub.tanks import MotorTank, TankFluids, TankKinds
 from src.views.flight import FlightSimulation
 from src.views.rocket import RocketSimulation
 from src.views.motor import MotorSimulation
@@ -169,22 +176,27 @@ class FlightService:
             ),
         }
 
+        grain_fields = {
+            "grain_number": motor.grain_number,
+            "grain_density": motor.grain_density,
+            "grain_outer_radius": motor.grain_outer_radius,
+            "grain_initial_inner_radius": (motor.grain_initial_inner_radius),
+            "grain_initial_height": motor.grain_initial_height,
+            "grain_separation": motor.grain_separation,
+            "grains_center_of_mass_position": (
+                motor.grains_center_of_mass_position
+            ),
+            "throat_radius": motor.throat_radius,
+        }
+
         match kind:
-            case MotorKinds.SOLID | MotorKinds.HYBRID:
-                data |= {
-                    "grain_number": motor.grain_number,
-                    "grain_density": motor.grain_density,
-                    "grain_outer_radius": (motor.grain_outer_radius),
-                    "grain_initial_inner_radius": (
-                        motor.grain_initial_inner_radius
-                    ),
-                    "grain_initial_height": (motor.grain_initial_height),
-                    "grain_separation": motor.grain_separation,
-                    "grains_center_of_mass_position": (
-                        motor.grains_center_of_mass_position
-                    ),
-                    "throat_radius": motor.throat_radius,
-                }
+            case MotorKinds.SOLID:
+                data |= grain_fields
+            case MotorKinds.HYBRID:
+                data |= grain_fields
+                data["tanks"] = FlightService._extract_tanks(motor)
+            case MotorKinds.LIQUID:
+                data["tanks"] = FlightService._extract_tanks(motor)
             case MotorKinds.GENERIC:
                 data |= {
                     "chamber_radius": getattr(motor, "chamber_radius", None),
@@ -201,6 +213,83 @@ class FlightService:
                 }
 
         return MotorModel(**data)
+
+    @staticmethod
+    def _to_float(value) -> float:
+        """Extract a plain float from a RocketPy Function or scalar."""
+        match value:
+            case Function():
+                return float(value(0))
+            case _:
+                return float(value)
+
+    @staticmethod
+    def _extract_tanks(motor) -> list[MotorTank]:
+        tanks: list[MotorTank] = []
+        for entry in motor.positioned_tanks:
+            tank, position = entry["tank"], entry["position"]
+
+            match tank:
+                case LevelBasedTank():
+                    tank_kind = TankKinds.LEVEL
+                case MassBasedTank():
+                    tank_kind = TankKinds.MASS
+                case UllageBasedTank():
+                    tank_kind = TankKinds.ULLAGE
+                case _:
+                    tank_kind = TankKinds.MASS_FLOW
+
+            geometry = [
+                (bounds, float(func(0)))
+                for bounds, func in tank.geometry.geometry.items()
+            ]
+
+            data: dict = {
+                "geometry": geometry,
+                "gas": TankFluids(
+                    name=tank.gas.name,
+                    density=tank.gas.density,
+                ),
+                "liquid": TankFluids(
+                    name=tank.liquid.name,
+                    density=tank.liquid.density,
+                ),
+                "flux_time": tank.flux_time,
+                "position": position,
+                "discretize": tank.discretize,
+                "tank_kind": tank_kind,
+                "name": tank.name,
+            }
+
+            _f = FlightService._to_float
+            match tank_kind:
+                case TankKinds.LEVEL:
+                    data["liquid_height"] = _f(tank.liquid_height)
+                case TankKinds.MASS:
+                    data["liquid_mass"] = _f(tank.liquid_mass)
+                    data["gas_mass"] = _f(tank.gas_mass)
+                case TankKinds.MASS_FLOW:
+                    data |= {
+                        "gas_mass_flow_rate_in": _f(
+                            tank.gas_mass_flow_rate_in
+                        ),
+                        "gas_mass_flow_rate_out": _f(
+                            tank.gas_mass_flow_rate_out
+                        ),
+                        "liquid_mass_flow_rate_in": _f(
+                            tank.liquid_mass_flow_rate_in
+                        ),
+                        "liquid_mass_flow_rate_out": _f(
+                            tank.liquid_mass_flow_rate_out
+                        ),
+                        "initial_liquid_mass": (tank.initial_liquid_mass),
+                        "initial_gas_mass": (tank.initial_gas_mass),
+                    }
+                case TankKinds.ULLAGE:
+                    data["ullage"] = _f(tank.ullage)
+
+            tanks.append(MotorTank(**data))
+        return tanks
 
     @staticmethod
     def _drag_to_list(fn) -> list:
@@ -293,6 +382,8 @@ class FlightService:
             rocket.I_33_without_motor,
         )
 
+        # Schema requires at least one Fins entry; n=0 means
+        # no physical fins (safe for downstream aero calculations).
         default_fins = [
             Fins(
                 fins_kind="trapezoidal",
@@ -359,7 +450,7 @@ class FlightService:
         )
 
     # ------------------------------------------------------------------
-    # Simulation & binary
+    # Simulation & export
     # ------------------------------------------------------------------
 
     def get_flight_simulation(self) -> FlightSimulation:
@@ -432,7 +523,7 @@ class FlightService:
                 "metadata": {},
                 "outputs": [],
                 "source": [
-                    "from rocketpy.utilities import " "load_from_rpy\n",
+                    "from rocketpy.utilities import load_from_rpy\n",
                     "import matplotlib\n",
                 ],
             },

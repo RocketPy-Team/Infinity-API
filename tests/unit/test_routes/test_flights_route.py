@@ -568,7 +568,7 @@ def test_import_flight_from_rpy(mock_controller_instance):
     assert body['rocket_id'] == 'r1'
     assert body['motor_id'] == 'm1'
     assert body['environment_id'] == 'e1'
-    assert 'imported' in body['message'].lower()
+    assert body['message'] == "Flight successfully imported from .rpy file"
     mock_controller_instance.import_flight_from_rpy.assert_called_once_with(
         rpy_content
     )

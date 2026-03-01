@@ -4,7 +4,14 @@ Flight routes with dependency injection for improved performance.
 
 import json
 
-from fastapi import APIRouter, Response, UploadFile, File
+from fastapi import (
+    APIRouter,
+    File,
+    HTTPException,
+    Response,
+    UploadFile,
+    status,
+)
 from opentelemetry import trace
 
 from src.views.flight import (
@@ -29,6 +36,8 @@ router = APIRouter(
 )
 
 tracer = trace.get_tracer(__name__)
+
+MAX_RPY_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 
 
 @router.post("/", status_code=201)
@@ -186,7 +195,7 @@ async def get_rocketpy_flight_rpy(
 )
 async def import_flight_from_rpy(
     file: UploadFile = File(...),
-    controller: FlightControllerDep = None,
+    controller: FlightControllerDep = None,  # noqa: B008
 ) -> FlightImported:
     """
     Upload a ``.rpy`` JSON file containing a RocketPy Flight.
@@ -194,13 +203,18 @@ async def import_flight_from_rpy(
     The file is deserialized and decomposed into its
     constituent objects (Environment, Motor, Rocket, Flight).
     Each object is persisted as a normal JSON model and the
-    corresponding IDs are returned.
+    corresponding IDs are returned.  Maximum upload size is 10 MB.
 
     ## Args
     ``` file: .rpy JSON upload ```
     """
     with tracer.start_as_current_span("import_flight_from_rpy"):
-        content = await file.read()
+        content = await file.read(MAX_RPY_UPLOAD_BYTES + 1)
+        if len(content) > MAX_RPY_UPLOAD_BYTES:
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                detail="Uploaded .rpy file exceeds 10 MB limit.",
+            )
         return await controller.import_flight_from_rpy(content)
 
 
