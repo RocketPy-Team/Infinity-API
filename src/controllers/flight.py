@@ -4,12 +4,13 @@ from src.controllers.interface import (
     ControllerBase,
     controller_exception_handler,
 )
-from src.views.flight import FlightSimulation, FlightCreated
+from src.views.flight import FlightSimulation, FlightCreated, FlightImported
 from src.models.flight import (
     FlightModel,
     FlightWithReferencesRequest,
 )
 from src.models.environment import EnvironmentModel
+from src.models.motor import MotorModel
 from src.models.rocket import RocketModel
 from src.repositories.interface import RepositoryInterface
 from src.services.flight import FlightService
@@ -22,6 +23,7 @@ class FlightController(ControllerBase):
     Enables:
         - Simulation of a RocketPy Flight.
         - CRUD for Flight BaseApiModel.
+        - Import/export as portable .rpy files and Jupyter notebooks.
     """
 
     def __init__(self):
@@ -122,25 +124,26 @@ class FlightController(ControllerBase):
         return
 
     @controller_exception_handler
-    async def get_rocketpy_flight_binary(
+    async def get_rocketpy_flight_rpy(
         self,
         flight_id: str,
     ) -> bytes:
         """
-        Get rocketpy.flight as dill binary.
+        Get rocketpy.flight as a portable ``.rpy`` JSON file.
 
         Args:
             flight_id: str
 
         Returns:
-            bytes
+            bytes (UTF-8 encoded JSON)
 
         Raises:
-            HTTP 404 Not Found: If the flight is not found in the database.
+            HTTP 404 Not Found: If the flight is not found
+                in the database.
         """
         flight = await self.get_flight_by_id(flight_id)
         flight_service = FlightService.from_flight_model(flight.flight)
-        return flight_service.get_flight_binary()
+        return flight_service.get_flight_rpy()
 
     @controller_exception_handler
     async def get_flight_simulation(
@@ -162,3 +165,71 @@ class FlightController(ControllerBase):
         flight = await self.get_flight_by_id(flight_id)
         flight_service = FlightService.from_flight_model(flight.flight)
         return flight_service.get_flight_simulation()
+
+    async def _persist_model(self, model_cls, model_instance) -> str:
+        repo_cls = RepositoryInterface.get_model_repo(model_cls)
+        async with repo_cls() as repo:
+            creator = getattr(repo, f"create_{model_cls.NAME}")
+            return await creator(model_instance)
+
+    @controller_exception_handler
+    async def import_flight_from_rpy(
+        self,
+        content: bytes,
+    ) -> FlightImported:
+        """
+        Import a ``.rpy`` JSON file: decompose the RocketPy Flight
+        into Environment, Motor, Rocket and Flight models, persist
+        each one via the normal CRUD pipeline, and return all IDs.
+
+        Args:
+            content: raw bytes of a ``.rpy`` JSON file.
+
+        Returns:
+            FlightImported with environment_id, motor_id,
+            rocket_id, and flight_id.
+
+        Raises:
+            HTTP 422: If the file is not a valid ``.rpy`` Flight.
+        """
+        try:
+            flight_service = FlightService.from_rpy(content)
+        except Exception as exc:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=f"Invalid .rpy file: {exc}",
+            ) from exc
+
+        env, motor, rocket, flight = flight_service.extract_models()
+
+        env_id = await self._persist_model(EnvironmentModel, env)
+        motor_id = await self._persist_model(MotorModel, motor)
+        rocket_id = await self._persist_model(RocketModel, rocket)
+        flight_id = await self._persist_model(FlightModel, flight)
+
+        return FlightImported(
+            flight_id=flight_id,
+            rocket_id=rocket_id,
+            motor_id=motor_id,
+            environment_id=env_id,
+        )
+
+    @controller_exception_handler
+    async def get_flight_notebook(
+        self,
+        flight_id: str,
+    ) -> dict:
+        """
+        Generate a Jupyter notebook for a persisted flight.
+
+        Args:
+            flight_id: str
+
+        Returns:
+            dict representing a valid .ipynb.
+
+        Raises:
+            HTTP 404 Not Found: If the flight does not exist.
+        """
+        await self.get_flight_by_id(flight_id)
+        return FlightService.generate_notebook(flight_id)

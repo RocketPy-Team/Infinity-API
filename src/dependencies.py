@@ -8,14 +8,15 @@ from src.controllers.motor import MotorController
 from src.controllers.environment import EnvironmentController
 from src.controllers.flight import FlightController
 
+
 @cache
 def get_rocket_controller() -> RocketController:
     """
     Provides a singleton RocketController instance.
-    
+
     The controller is stateless and can be safely reused across requests.
     Using functools.cache memoizes this function so a single instance is reused per process; it does not by itself guarantee thread-safe initialization in multi-threaded setups.
-    
+
     Returns:
         RocketController: Shared controller instance for rocket operations.
     """
@@ -26,7 +27,7 @@ def get_rocket_controller() -> RocketController:
 def get_motor_controller() -> MotorController:
     """
     Provides a singleton MotorController instance.
-    
+
     Returns:
         MotorController: Shared controller instance for motor operations.
     """
@@ -37,7 +38,7 @@ def get_motor_controller() -> MotorController:
 def get_environment_controller() -> EnvironmentController:
     """
     Provides a singleton EnvironmentController instance.
-    
+
     Returns:
         EnvironmentController: Shared controller instance for environment operations.
     """
@@ -48,15 +49,20 @@ def get_environment_controller() -> EnvironmentController:
 def get_flight_controller() -> FlightController:
     """
     Provides a singleton FlightController instance.
-    
+
     Returns:
         FlightController: Shared controller instance for flight operations.
     """
     return FlightController()
 
-RocketControllerDep = Annotated[RocketController, Depends(get_rocket_controller)]
+
+RocketControllerDep = Annotated[
+    RocketController, Depends(get_rocket_controller)
+]
 MotorControllerDep = Annotated[MotorController, Depends(get_motor_controller)]
 EnvironmentControllerDep = Annotated[
     EnvironmentController, Depends(get_environment_controller)
 ]
-FlightControllerDep = Annotated[FlightController, Depends(get_flight_controller)]
+FlightControllerDep = Annotated[
+    FlightController, Depends(get_flight_controller)
+]
