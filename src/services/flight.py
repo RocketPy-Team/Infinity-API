@@ -283,8 +283,8 @@ class FlightService:
                         "liquid_mass_flow_rate_out": _f(
                             tank.liquid_mass_flow_rate_out
                         ),
-                        "initial_liquid_mass": (tank.initial_liquid_mass),
-                        "initial_gas_mass": (tank.initial_gas_mass),
+                        "initial_liquid_mass": _f(tank.initial_liquid_mass),
+                        "initial_gas_mass": _f(tank.initial_gas_mass),
                     }
                 case TankKinds.ULLAGE:
                     data["ullage"] = _f(tank.ullage)
