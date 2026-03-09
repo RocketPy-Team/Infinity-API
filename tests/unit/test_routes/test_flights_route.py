@@ -601,6 +601,21 @@ def test_import_flight_from_rpy_server_error(
     assert response.status_code == 500
 
 
+def test_import_flight_from_rpy_payload_too_large(
+    mock_controller_instance,
+):
+    oversized = b"a" * (10 * 1024 * 1024 + 1)
+    response = client.post(
+        '/flights/upload',
+        files={'file': ('large.rpy', oversized, 'application/json')},
+    )
+    assert response.status_code == 413
+    assert response.json() == {
+        'detail': 'Uploaded .rpy file exceeds 10 MB limit.'
+    }
+    mock_controller_instance.import_flight_from_rpy.assert_not_called()
+
+
 # --- Issue #57: Export flight as notebook ---
 
 

@@ -190,6 +190,7 @@ async def get_rocketpy_flight_rpy(
     status_code=201,
     responses={
         201: {"description": "Flight imported from .rpy file"},
+        413: {"description": "Uploaded .rpy file exceeds size limit"},
         422: {"description": "Invalid .rpy file"},
     },
 )

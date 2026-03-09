@@ -176,25 +176,24 @@ class FlightService:
             ),
         }
 
-        grain_fields = {
-            "grain_number": motor.grain_number,
-            "grain_density": motor.grain_density,
-            "grain_outer_radius": motor.grain_outer_radius,
-            "grain_initial_inner_radius": (motor.grain_initial_inner_radius),
-            "grain_initial_height": motor.grain_initial_height,
-            "grain_separation": motor.grain_separation,
-            "grains_center_of_mass_position": (
-                motor.grains_center_of_mass_position
-            ),
-            "throat_radius": motor.throat_radius,
-        }
-
         match kind:
-            case MotorKinds.SOLID:
-                data |= grain_fields
-            case MotorKinds.HYBRID:
-                data |= grain_fields
-                data["tanks"] = FlightService._extract_tanks(motor)
+            case MotorKinds.SOLID | MotorKinds.HYBRID:
+                data |= {
+                    "grain_number": motor.grain_number,
+                    "grain_density": motor.grain_density,
+                    "grain_outer_radius": motor.grain_outer_radius,
+                    "grain_initial_inner_radius": (
+                        motor.grain_initial_inner_radius
+                    ),
+                    "grain_initial_height": (motor.grain_initial_height),
+                    "grain_separation": motor.grain_separation,
+                    "grains_center_of_mass_position": (
+                        motor.grains_center_of_mass_position
+                    ),
+                    "throat_radius": motor.throat_radius,
+                }
+                if kind is MotorKinds.HYBRID:
+                    data["tanks"] = FlightService._extract_tanks(motor)
             case MotorKinds.LIQUID:
                 data["tanks"] = FlightService._extract_tanks(motor)
             case MotorKinds.GENERIC:
