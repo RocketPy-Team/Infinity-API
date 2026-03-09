@@ -91,6 +91,8 @@ class FlightService:
                         or does not contain a Flight.
         """
         data = json.loads(content)
+        if not isinstance(data, dict):
+            raise ValueError("File does not contain a valid .rpy JSON object")
         simulation = data.get("simulation", data)
         flight = json.loads(
             json.dumps(simulation),
@@ -535,7 +537,7 @@ class FlightService:
                 "source": [
                     "flight = load_from_rpy("
                     f'"{rpy_filename}", '
-                    "resimulate=False)\n",
+                    "resimulate=True)\n",
                     "\n",
                     "flight.all_info()",
                 ],
