@@ -433,6 +433,7 @@ class FlightService:
                 "min_time_step",
                 "rtol",
                 "atol",
+                "verbose",
             )
             if (val := getattr(flight, attr, None)) is not None
         }
