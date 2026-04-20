@@ -9,6 +9,7 @@ from src.views.rocket import (
     RocketSimulation,
     RocketCreated,
     RocketRetrieved,
+    RocketDrawingGeometry,
 )
 from src.models.rocket import (
     RocketModel,
@@ -177,3 +178,23 @@ async def simulate_rocket(
     """
     with tracer.start_as_current_span("get_rocket_simulation"):
         return await controller.get_rocket_simulation(rocket_id)
+
+
+@router.get("/{rocket_id}/drawing-geometry")
+async def get_rocket_drawing_geometry(
+    rocket_id: str,
+    controller: RocketControllerDep,
+) -> RocketDrawingGeometry:
+    """
+    Returns structured drawing geometry for the rocket so that a frontend
+    can redraw exactly what rocketpy.Rocket.draw() would render.
+
+    Response contains shape coordinate arrays for each aerodynamic surface,
+    tube segments, motor polygons (nozzle, chamber, grains, tanks, outline),
+    rail-button positions, CG/CP at t=0, sensors, and overall drawing bounds.
+
+    ## Args
+    ``` rocket_id: Rocket ID ```
+    """
+    with tracer.start_as_current_span("get_rocket_drawing_geometry"):
+        return await controller.get_rocket_drawing_geometry(rocket_id)
