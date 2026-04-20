@@ -76,6 +76,7 @@ async def read_flight(
     with tracer.start_as_current_span("read_flight"):
         return await controller.get_flight_by_id(flight_id)
 
+
 @router.put("/{flight_id}", status_code=204)
 async def update_flight(
     flight_id: str,
@@ -117,6 +118,7 @@ async def update_flight_from_references(
             flight_id, payload
         )
 
+
 @router.delete("/{flight_id}", status_code=204)
 async def delete_flight(
     flight_id: str,
@@ -143,7 +145,6 @@ async def delete_flight(
     status_code=200,
     response_class=Response,
 )
-
 async def get_rocketpy_flight_binary(
     flight_id: str,
     controller: FlightControllerDep,
@@ -209,6 +210,7 @@ async def update_flight_rocket(
             flight_id,
             rocket=rocket,
         )
+
 
 @router.get("/{flight_id}/simulate")
 async def get_flight_simulation(

@@ -1,4 +1,4 @@
-from unittest.mock import patch, Mock, AsyncMock
+from unittest.mock import patch, AsyncMock
 import copy
 import json
 import pytest
@@ -58,13 +58,13 @@ def mock_controller_instance():
         mock_controller.update_rocket_by_flight_id = AsyncMock()
         mock_controller.create_flight_from_references = AsyncMock()
         mock_controller.update_flight_from_references = AsyncMock()
-        
+
         mock_class.return_value = mock_controller
-        
+
         get_flight_controller.cache_clear()
-        
+
         yield mock_controller
-        
+
         get_flight_controller.cache_clear()
 
 
