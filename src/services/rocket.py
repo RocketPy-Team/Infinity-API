@@ -3,7 +3,13 @@ from typing import Self, List
 import dill
 import numpy as np
 
-from rocketpy.motors import EmptyMotor, HybridMotor, LiquidMotor, SolidMotor
+from rocketpy.motors import (
+    EmptyMotor,
+    GenericMotor,
+    HybridMotor,
+    LiquidMotor,
+    SolidMotor,
+)
 from rocketpy.rocket.rocket import Rocket as RocketPyRocket
 from rocketpy.rocket.parachute import Parachute as RocketPyParachute
 from rocketpy.rocket.aero_surface import (
@@ -400,6 +406,25 @@ class RocketService:
                 patches.append(
                     MotorPatch(role="tank", **_polygon_xy(tank))
                 )
+        elif isinstance(motor, GenericMotor):
+            # RocketPy's rocket.draw() does not render a chamber for GenericMotor —
+            # _MotorPlots._generate_combustion_chamber depends on grain fields that
+            # GenericMotor lacks. We build an equivalent rectangular chamber here
+            # using the GenericMotor-specific fields (chamber_radius, chamber_height,
+            # chamber_position) so users can see their chamber geometry in the playground.
+            motor_type = "generic"
+            chamber_center_x = (
+                rocket.motor_position
+                + motor.chamber_position * total_csys
+            )
+            chamber_patch = _build_generic_chamber_patch(
+                center_x=chamber_center_x,
+                chamber_height=motor.chamber_height,
+                chamber_radius=motor.chamber_radius,
+            )
+            patches.append(
+                MotorPatch(role="chamber", **_polygon_xy(chamber_patch))
+            )
         else:
             motor_type = "generic"
 
@@ -686,6 +711,50 @@ class RocketService:
         if isinstance(trigger, (int, float)):
             return True
         return False
+
+
+def _build_generic_chamber_patch(
+    center_x: float, chamber_height: float, chamber_radius: float
+):
+    """Build a rectangular combustion-chamber polygon for a GenericMotor.
+
+    Mirrors the vertex order of rocketpy.plots.motor_plots._generate_combustion_chamber
+    so the resulting patch can flow through _generate_motor_region for outline
+    computation identically to a SolidMotor chamber.
+
+    Parameters
+    ----------
+    center_x : float
+        World-frame x-coordinate of the chamber centroid (already includes
+        rocket.motor_position + motor.chamber_position * csys).
+    chamber_height : float
+        Axial length of the chamber (m).
+    chamber_radius : float
+        Internal radius of the chamber (m).
+    """
+    from matplotlib.patches import Polygon  # local import keeps service cold-start lean
+
+    half_len = chamber_height / 2.0
+    # Top edge then mirror to the bottom, matching _generate_combustion_chamber's
+    # vertex ordering so motor-region assembly sees a consistent shape.
+    x = np.array(
+        [
+            -half_len,
+            half_len,
+            half_len,
+            -half_len,
+        ]
+    )
+    y = np.array(
+        [
+            chamber_radius,
+            chamber_radius,
+            -chamber_radius,
+            -chamber_radius,
+        ]
+    )
+    x = x + center_x
+    return Polygon(np.column_stack([x, y]))
 
 
 def _polygon_xy(patch) -> dict:
