@@ -22,7 +22,8 @@ class MotorTank(BaseModel):
     liquid: TankFluids
     flux_time: Tuple[float, float]
     position: float
-    discretize: int
+    # discretize is optional in RocketPy's Tank classes (defaults to 100).
+    discretize: int = 100
 
     # Level based tank parameters
     liquid_height: Optional[float] = None
