@@ -11,6 +11,7 @@ from src.views.motor import MotorView
 from src.views.rocket import RocketView
 from src.views.flight import (
     FlightCreated,
+    FlightImported,
     FlightRetrieved,
     FlightSimulation,
     FlightView,
@@ -53,7 +54,9 @@ def mock_controller_instance():
         mock_controller.put_flight_by_id = AsyncMock()
         mock_controller.delete_flight_by_id = AsyncMock()
         mock_controller.get_flight_simulation = AsyncMock()
-        mock_controller.get_rocketpy_flight_binary = AsyncMock()
+        mock_controller.get_rocketpy_flight_rpy = AsyncMock()
+        mock_controller.import_flight_from_rpy = AsyncMock()
+        mock_controller.get_flight_notebook = AsyncMock()
         mock_controller.update_environment_by_flight_id = AsyncMock()
         mock_controller.update_rocket_by_flight_id = AsyncMock()
         mock_controller.create_flight_from_references = AsyncMock()
@@ -504,21 +507,22 @@ def test_get_flight_simulation_server_error(mock_controller_instance):
     assert response.json() == {'detail': 'Internal Server Error'}
 
 
-def test_read_rocketpy_flight_binary(mock_controller_instance):
-    mock_controller_instance.get_rocketpy_flight_binary = AsyncMock(
-        return_value=b'rocketpy'
+def test_read_rocketpy_flight_rpy(mock_controller_instance):
+    mock_controller_instance.get_rocketpy_flight_rpy = AsyncMock(
+        return_value=b'{"simulation": {}}',
     )
     response = client.get('/flights/123/rocketpy')
     assert response.status_code == 200
-    assert response.content == b'rocketpy'
-    assert response.headers['content-type'] == 'application/octet-stream'
-    mock_controller_instance.get_rocketpy_flight_binary.assert_called_once_with(
+    assert response.content == b'{"simulation": {}}'
+    assert response.headers['content-type'] == 'application/json'
+    assert '.rpy' in response.headers['content-disposition']
+    mock_controller_instance.get_rocketpy_flight_rpy.assert_called_once_with(
         '123'
     )
 
 
-def test_read_rocketpy_flight_binary_not_found(mock_controller_instance):
-    mock_controller_instance.get_rocketpy_flight_binary.side_effect = (
+def test_read_rocketpy_flight_rpy_not_found(mock_controller_instance):
+    mock_controller_instance.get_rocketpy_flight_rpy.side_effect = (
         HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     )
     response = client.get('/flights/123/rocketpy')
@@ -526,10 +530,127 @@ def test_read_rocketpy_flight_binary_not_found(mock_controller_instance):
     assert response.json() == {'detail': 'Not Found'}
 
 
-def test_read_rocketpy_flight_binary_server_error(mock_controller_instance):
-    mock_controller_instance.get_rocketpy_flight_binary.side_effect = (
+def test_read_rocketpy_flight_rpy_server_error(mock_controller_instance):
+    mock_controller_instance.get_rocketpy_flight_rpy.side_effect = (
         HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     )
     response = client.get('/flights/123/rocketpy')
+    assert response.status_code == 500
+    assert response.json() == {'detail': 'Internal Server Error'}
+
+
+# --- Issue #56: Import flight from .rpy ---
+
+
+def test_import_flight_from_rpy(mock_controller_instance):
+    mock_controller_instance.import_flight_from_rpy = AsyncMock(
+        return_value=FlightImported(
+            flight_id='f1',
+            rocket_id='r1',
+            motor_id='m1',
+            environment_id='e1',
+        )
+    )
+    rpy_content = b'{"simulation": {}}'
+    response = client.post(
+        '/flights/upload',
+        files={
+            'file': (
+                'flight.rpy',
+                rpy_content,
+                'application/json',
+            )
+        },
+    )
+    assert response.status_code == 201
+    body = response.json()
+    assert body['flight_id'] == 'f1'
+    assert body['rocket_id'] == 'r1'
+    assert body['motor_id'] == 'm1'
+    assert body['environment_id'] == 'e1'
+    assert body['message'] == "Flight successfully imported from .rpy file"
+    mock_controller_instance.import_flight_from_rpy.assert_called_once_with(
+        rpy_content
+    )
+
+
+def test_import_flight_from_rpy_invalid(mock_controller_instance):
+    mock_controller_instance.import_flight_from_rpy.side_effect = (
+        HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail='Invalid .rpy file: bad data',
+        )
+    )
+    response = client.post(
+        '/flights/upload',
+        files={'file': ('bad.rpy', b'bad', 'application/json')},
+    )
+    assert response.status_code == 422
+
+
+def test_import_flight_from_rpy_server_error(
+    mock_controller_instance,
+):
+    mock_controller_instance.import_flight_from_rpy.side_effect = (
+        HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    )
+    response = client.post(
+        '/flights/upload',
+        files={'file': ('f.rpy', b'{}', 'application/json')},
+    )
+    assert response.status_code == 500
+
+
+def test_import_flight_from_rpy_payload_too_large(
+    mock_controller_instance,
+):
+    oversized = b"a" * (10 * 1024 * 1024 + 1)
+    response = client.post(
+        '/flights/upload',
+        files={'file': ('large.rpy', oversized, 'application/json')},
+    )
+    assert response.status_code == 413
+    assert response.json() == {
+        'detail': 'Uploaded .rpy file exceeds 10 MB limit.'
+    }
+    mock_controller_instance.import_flight_from_rpy.assert_not_called()
+
+
+# --- Issue #57: Export flight as notebook ---
+
+
+def test_get_flight_notebook(mock_controller_instance):
+    notebook = {
+        'nbformat': 4,
+        'nbformat_minor': 5,
+        'metadata': {},
+        'cells': [],
+    }
+    mock_controller_instance.get_flight_notebook = AsyncMock(
+        return_value=notebook
+    )
+    response = client.get('/flights/123/notebook')
+    assert response.status_code == 200
+    assert response.headers['content-type'] == 'application/x-ipynb+json'
+    assert 'flight_123.ipynb' in response.headers['content-disposition']
+    body = json.loads(response.content)
+    assert body['nbformat'] == 4
+    mock_controller_instance.get_flight_notebook.assert_called_once_with('123')
+
+
+def test_get_flight_notebook_not_found(mock_controller_instance):
+    mock_controller_instance.get_flight_notebook.side_effect = HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND
+    )
+    response = client.get('/flights/999/notebook')
+    assert response.status_code == 404
+    assert response.json() == {'detail': 'Not Found'}
+
+
+def test_get_flight_notebook_server_error(mock_controller_instance):
+    mock_controller_instance.get_flight_notebook.side_effect = HTTPException(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+    )
+    response = client.get('/flights/123/notebook')
     assert response.status_code == 500
     assert response.json() == {'detail': 'Internal Server Error'}

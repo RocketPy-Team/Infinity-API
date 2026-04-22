@@ -2,13 +2,23 @@
 Flight routes with dependency injection for improved performance.
 """
 
-from fastapi import APIRouter, Response
+import json
+
+from fastapi import (
+    APIRouter,
+    File,
+    HTTPException,
+    Response,
+    UploadFile,
+    status,
+)
 from opentelemetry import trace
 
 from src.views.flight import (
     FlightSimulation,
     FlightCreated,
     FlightRetrieved,
+    FlightImported,
 )
 from src.models.environment import EnvironmentModel
 from src.models.flight import FlightModel, FlightWithReferencesRequest
@@ -26,6 +36,8 @@ router = APIRouter(
 )
 
 tracer = trace.get_tracer(__name__)
+
+MAX_RPY_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 
 
 @router.post("/", status_code=201)
@@ -75,6 +87,7 @@ async def read_flight(
     """
     with tracer.start_as_current_span("read_flight"):
         return await controller.get_flight_by_id(flight_id)
+
 
 
 @router.put("/{flight_id}", status_code=204)
@@ -138,33 +151,38 @@ async def delete_flight(
     "/{flight_id}/rocketpy",
     responses={
         200: {
-            "description": "Binary file download",
-            "content": {"application/octet-stream": {}},
+            "description": "Portable .rpy JSON file download",
+            "content": {"application/json": {}},
         }
     },
     status_code=200,
     response_class=Response,
 )
+
 async def get_rocketpy_flight_binary(
     flight_id: str,
     controller: FlightControllerDep,
 ):
     """
-    Loads rocketpy.flight as a dill binary.
-    Currently only amd64 architecture is supported.
+    Export a flight as a Jupyter notebook (.ipynb).
+
+    The notebook loads the flight's ``.rpy`` file and calls
+    ``flight.all_info()`` for interactive exploration.
 
     ## Args
     ``` flight_id: str ```
     """
-    with tracer.start_as_current_span("get_rocketpy_flight_binary"):
+    with tracer.start_as_current_span("get_flight_notebook"):
+        notebook = await controller.get_flight_notebook(flight_id)
+        content = json.dumps(notebook, indent=1).encode()
+        filename = f"flight_{flight_id}.ipynb"
         headers = {
-            'Content-Disposition': f'attachment; filename="rocketpy_flight_{flight_id}.dill"'
+            "Content-Disposition": (f'attachment; filename="{filename}"'),
         }
-        binary = await controller.get_rocketpy_flight_binary(flight_id)
         return Response(
-            content=binary,
+            content=content,
             headers=headers,
-            media_type="application/octet-stream",
+            media_type="application/x-ipynb+json",
             status_code=200,
         )
 
