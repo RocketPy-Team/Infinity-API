@@ -73,4 +73,7 @@ clean:
 build:
 	docker build -t infinity-api . --no-cache
 
+buildx:
+	docker buildx build --platform linux/amd64 -t infinity-api . --no-cache
+
 .PHONY: black flake8 pylint test dev clean build ruff format
