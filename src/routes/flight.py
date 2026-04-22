@@ -89,7 +89,6 @@ async def read_flight(
         return await controller.get_flight_by_id(flight_id)
 
 
-
 @router.put("/{flight_id}", status_code=204)
 async def update_flight(
     flight_id: str,
@@ -158,8 +157,80 @@ async def delete_flight(
     status_code=200,
     response_class=Response,
 )
+async def get_rocketpy_flight_rpy(
+    flight_id: str,
+    controller: FlightControllerDep,
+):
+    """
+    Export a rocketpy Flight as a portable ``.rpy`` JSON file.
 
-async def get_rocketpy_flight_binary(
+    The ``.rpy`` format is architecture-, OS-, and
+    Python-version-agnostic.
+
+    ## Args
+    ``` flight_id: str ```
+    """
+    with tracer.start_as_current_span("get_rocketpy_flight_rpy"):
+        headers = {
+            'Content-Disposition': (
+                'attachment; filename=' f'"rocketpy_flight_{flight_id}.rpy"'
+            ),
+        }
+        rpy = await controller.get_rocketpy_flight_rpy(flight_id)
+        return Response(
+            content=rpy,
+            headers=headers,
+            media_type="application/json",
+            status_code=200,
+        )
+
+
+@router.post(
+    "/upload",
+    status_code=201,
+    responses={
+        201: {"description": "Flight imported from .rpy file"},
+        413: {"description": "Uploaded .rpy file exceeds size limit"},
+        422: {"description": "Invalid .rpy file"},
+    },
+)
+async def import_flight_from_rpy(
+    file: UploadFile = File(...),
+    controller: FlightControllerDep = None,  # noqa: B008
+) -> FlightImported:
+    """
+    Upload a ``.rpy`` JSON file containing a RocketPy Flight.
+
+    The file is deserialized and decomposed into its
+    constituent objects (Environment, Motor, Rocket, Flight).
+    Each object is persisted as a normal JSON model and the
+    corresponding IDs are returned.  Maximum upload size is 10 MB.
+
+    ## Args
+    ``` file: .rpy JSON upload ```
+    """
+    with tracer.start_as_current_span("import_flight_from_rpy"):
+        content = await file.read(MAX_RPY_UPLOAD_BYTES + 1)
+        if len(content) > MAX_RPY_UPLOAD_BYTES:
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                detail="Uploaded .rpy file exceeds 10 MB limit.",
+            )
+        return await controller.import_flight_from_rpy(content)
+
+
+@router.get(
+    "/{flight_id}/notebook",
+    responses={
+        200: {
+            "description": "Jupyter notebook file download",
+            "content": {"application/x-ipynb+json": {}},
+        }
+    },
+    status_code=200,
+    response_class=Response,
+)
+async def get_flight_notebook(
     flight_id: str,
     controller: FlightControllerDep,
 ):
