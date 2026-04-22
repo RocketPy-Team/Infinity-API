@@ -2,13 +2,23 @@
 Flight routes with dependency injection for improved performance.
 """
 
-from fastapi import APIRouter, Response
+import json
+
+from fastapi import (
+    APIRouter,
+    File,
+    HTTPException,
+    Response,
+    UploadFile,
+    status,
+)
 from opentelemetry import trace
 
 from src.views.flight import (
     FlightSimulation,
     FlightCreated,
     FlightRetrieved,
+    FlightImported,
 )
 from src.models.environment import EnvironmentModel
 from src.models.flight import FlightModel, FlightWithReferencesRequest
@@ -26,6 +36,8 @@ router = APIRouter(
 )
 
 tracer = trace.get_tracer(__name__)
+
+MAX_RPY_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 
 
 @router.post("/", status_code=201)
@@ -76,6 +88,7 @@ async def read_flight(
     with tracer.start_as_current_span("read_flight"):
         return await controller.get_flight_by_id(flight_id)
 
+
 @router.put("/{flight_id}", status_code=204)
 async def update_flight(
     flight_id: str,
@@ -117,6 +130,7 @@ async def update_flight_from_references(
             flight_id, payload
         )
 
+
 @router.delete("/{flight_id}", status_code=204)
 async def delete_flight(
     flight_id: str,
@@ -136,34 +150,110 @@ async def delete_flight(
     "/{flight_id}/rocketpy",
     responses={
         200: {
-            "description": "Binary file download",
-            "content": {"application/octet-stream": {}},
+            "description": "Portable .rpy JSON file download",
+            "content": {"application/json": {}},
         }
     },
     status_code=200,
     response_class=Response,
 )
-
-async def get_rocketpy_flight_binary(
+async def get_rocketpy_flight_rpy(
     flight_id: str,
     controller: FlightControllerDep,
 ):
     """
-    Loads rocketpy.flight as a dill binary.
-    Currently only amd64 architecture is supported.
+    Export a rocketpy Flight as a portable ``.rpy`` JSON file.
+
+    The ``.rpy`` format is architecture-, OS-, and
+    Python-version-agnostic.
 
     ## Args
     ``` flight_id: str ```
     """
-    with tracer.start_as_current_span("get_rocketpy_flight_binary"):
+    with tracer.start_as_current_span("get_rocketpy_flight_rpy"):
         headers = {
-            'Content-Disposition': f'attachment; filename="rocketpy_flight_{flight_id}.dill"'
+            'Content-Disposition': (
+                'attachment; filename=' f'"rocketpy_flight_{flight_id}.rpy"'
+            ),
         }
-        binary = await controller.get_rocketpy_flight_binary(flight_id)
+        rpy = await controller.get_rocketpy_flight_rpy(flight_id)
         return Response(
-            content=binary,
+            content=rpy,
             headers=headers,
-            media_type="application/octet-stream",
+            media_type="application/json",
+            status_code=200,
+        )
+
+
+@router.post(
+    "/upload",
+    status_code=201,
+    responses={
+        201: {"description": "Flight imported from .rpy file"},
+        413: {"description": "Uploaded .rpy file exceeds size limit"},
+        422: {"description": "Invalid .rpy file"},
+    },
+)
+async def import_flight_from_rpy(
+    file: UploadFile = File(...),
+    controller: FlightControllerDep = None,  # noqa: B008
+) -> FlightImported:
+    """
+    Upload a ``.rpy`` JSON file containing a RocketPy Flight.
+
+    The file is deserialized and decomposed into its
+    constituent objects (Environment, Motor, Rocket, Flight).
+    Each object is persisted as a normal JSON model and the
+    corresponding IDs are returned.  Maximum upload size is 10 MB.
+
+    ## Args
+    ``` file: .rpy JSON upload ```
+    """
+    with tracer.start_as_current_span("import_flight_from_rpy"):
+        content = await file.read(MAX_RPY_UPLOAD_BYTES + 1)
+        if len(content) > MAX_RPY_UPLOAD_BYTES:
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                detail="Uploaded .rpy file exceeds 10 MB limit.",
+            )
+        return await controller.import_flight_from_rpy(content)
+
+
+@router.get(
+    "/{flight_id}/notebook",
+    responses={
+        200: {
+            "description": "Jupyter notebook file download",
+            "content": {"application/x-ipynb+json": {}},
+        }
+    },
+    status_code=200,
+    response_class=Response,
+)
+async def get_flight_notebook(
+    flight_id: str,
+    controller: FlightControllerDep,
+):
+    """
+    Export a flight as a Jupyter notebook (.ipynb).
+
+    The notebook loads the flight's ``.rpy`` file and calls
+    ``flight.all_info()`` for interactive exploration.
+
+    ## Args
+    ``` flight_id: str ```
+    """
+    with tracer.start_as_current_span("get_flight_notebook"):
+        notebook = await controller.get_flight_notebook(flight_id)
+        content = json.dumps(notebook, indent=1).encode()
+        filename = f"flight_{flight_id}.ipynb"
+        headers = {
+            "Content-Disposition": (f'attachment; filename="{filename}"'),
+        }
+        return Response(
+            content=content,
+            headers=headers,
+            media_type="application/x-ipynb+json",
             status_code=200,
         )
 
@@ -209,6 +299,7 @@ async def update_flight_rocket(
             flight_id,
             rocket=rocket,
         )
+
 
 @router.get("/{flight_id}/simulate")
 async def get_flight_simulation(

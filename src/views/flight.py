@@ -150,6 +150,14 @@ class FlightCreated(ApiBaseView):
     flight_id: str
 
 
+class FlightImported(ApiBaseView):
+    message: str = "Flight successfully imported from .rpy file"
+    flight_id: str
+    rocket_id: str
+    motor_id: str
+    environment_id: str
+
+
 class FlightRetrieved(ApiBaseView):
     message: str = "Flight successfully retrieved"
     flight: FlightView

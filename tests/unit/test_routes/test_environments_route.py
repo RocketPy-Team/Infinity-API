@@ -1,4 +1,4 @@
-from unittest.mock import patch, Mock, AsyncMock
+from unittest.mock import patch, AsyncMock
 import json
 import pytest
 from fastapi.testclient import TestClient
@@ -35,11 +35,13 @@ def mock_controller_instance():
         mock_controller.delete_environment_by_id = AsyncMock()
         mock_controller.get_environment_simulation = AsyncMock()
         mock_controller.get_rocketpy_environment_binary = AsyncMock()
-        
+
         mock_class.return_value = mock_controller
-        
+
+        get_environment_controller.cache_clear()
+
         yield mock_controller
-        
+
         get_environment_controller.cache_clear()
 
 

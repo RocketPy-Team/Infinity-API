@@ -1,4 +1,4 @@
-from unittest.mock import patch, AsyncMock, Mock
+from unittest.mock import patch, AsyncMock
 import json
 import pytest
 from fastapi.testclient import TestClient
@@ -35,13 +35,13 @@ def mock_controller_instance():
         mock_controller.delete_motor_by_id = AsyncMock()
         mock_controller.get_motor_simulation = AsyncMock()
         mock_controller.get_rocketpy_motor_binary = AsyncMock()
-        
+
         mock_class.return_value = mock_controller
 
         get_motor_controller.cache_clear()
-        
+
         yield mock_controller
-        
+
         get_motor_controller.cache_clear()
 
 

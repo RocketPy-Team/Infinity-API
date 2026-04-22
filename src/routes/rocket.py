@@ -42,6 +42,8 @@ async def create_rocket(
     """
     with tracer.start_as_current_span("create_rocket"):
         return await controller.post_rocket(rocket)
+
+
 @router.post("/from-motor-reference", status_code=201)
 async def create_rocket_from_motor_reference(
     payload: RocketWithMotorReferenceRequest,
@@ -114,6 +116,8 @@ async def update_rocket_from_motor_reference(
         return await controller.update_rocket_from_motor_reference(
             rocket_id, payload
         )
+
+
 @router.delete("/{rocket_id}", status_code=204)
 async def delete_rocket(
     rocket_id: str,

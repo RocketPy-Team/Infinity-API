@@ -1,5 +1,6 @@
 dill
 python-dotenv
+python-multipart
 fastapi
 uvloop
 pydantic
