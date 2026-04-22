@@ -175,7 +175,7 @@ class RocketService:
             )
 
         csys = rocket._csys
-        rocket.aerodynamic_surfaces.sort_by_position(reverse=(csys == 1))
+        rocket.aerodynamic_surfaces.sort_by_position(reverse=csys == 1)
 
         nose_cones: list[NoseConeGeometry] = []
         tails: list[TailGeometry] = []
@@ -287,9 +287,7 @@ class RocketService:
 
         tubes = self._build_tubes(drawn_surfaces)
         motor_geometry, nozzle_position = self._build_motor_geometry(csys)
-        tubes += self._build_nozzle_tube(
-            tubes, drawn_surfaces, nozzle_position, csys
-        )
+        tubes += self._build_nozzle_tube(drawn_surfaces, nozzle_position, csys)
         rail_buttons = self._build_rail_buttons(csys)
         sensors = self._build_sensors()
 
@@ -467,7 +465,6 @@ class RocketService:
 
     def _build_nozzle_tube(
         self,
-        existing_tubes: list[TubeGeometry],
         drawn_surfaces: list,
         nozzle_position: float,
         csys: int,
