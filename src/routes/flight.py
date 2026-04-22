@@ -89,7 +89,6 @@ async def read_flight(
         return await controller.get_flight_by_id(flight_id)
 
 
-
 @router.put("/{flight_id}", status_code=204)
 async def update_flight(
     flight_id: str,
