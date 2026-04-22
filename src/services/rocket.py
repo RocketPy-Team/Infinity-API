@@ -187,7 +187,7 @@ class RocketService:
         for surface, position in rocket.aerodynamic_surfaces:
             position_z = position.z
             if isinstance(surface, RocketPyNoseCone):
-                x_vals = (-csys * np.asarray(surface.shape_vec[0]) + position_z)
+                x_vals = -csys * np.asarray(surface.shape_vec[0]) + position_z
                 y_vals = np.asarray(surface.shape_vec[1])
                 nose_cones.append(
                     NoseConeGeometry(
@@ -199,10 +199,15 @@ class RocketService:
                     )
                 )
                 drawn_surfaces.append(
-                    (surface, float(x_vals[-1]), float(surface.rocket_radius), float(x_vals[-1]))
+                    (
+                        surface,
+                        float(x_vals[-1]),
+                        float(surface.rocket_radius),
+                        float(x_vals[-1]),
+                    )
                 )
             elif isinstance(surface, RocketPyTail):
-                x_vals = (-csys * np.asarray(surface.shape_vec[0]) + position_z)
+                x_vals = -csys * np.asarray(surface.shape_vec[0]) + position_z
                 y_vals = np.asarray(surface.shape_vec[1])
                 tails.append(
                     TailGeometry(
@@ -223,14 +228,14 @@ class RocketService:
             elif isinstance(surface, RocketPyFins):
                 num_fins = surface.n
                 x_fin = -csys * np.asarray(surface.shape_vec[0]) + position_z
-                y_fin = np.asarray(surface.shape_vec[1]) + surface.rocket_radius
+                y_fin = (
+                    np.asarray(surface.shape_vec[1]) + surface.rocket_radius
+                )
                 outlines: list[FinOutline] = []
                 last_x_rotated = float(x_fin[-1])
                 for i in range(num_fins):
                     angle = 2 * np.pi * i / num_fins
-                    rotation_matrix = np.array(
-                        [[1, 0], [0, np.cos(angle)]]
-                    )
+                    rotation_matrix = np.array([[1, 0], [0, np.cos(angle)]])
                     rotated = rotation_matrix @ np.vstack((x_fin, y_fin))
                     outlines.append(
                         FinOutline(
@@ -242,16 +247,20 @@ class RocketService:
                 kind = (
                     "trapezoidal"
                     if isinstance(surface, RocketPyTrapezoidalFins)
-                    else "elliptical"
-                    if isinstance(surface, RocketPyEllipticalFins)
-                    else "free_form"
+                    else (
+                        "elliptical"
+                        if isinstance(surface, RocketPyEllipticalFins)
+                        else "free_form"
+                    )
                 )
                 fins.append(
                     FinsGeometry(
                         name=getattr(surface, "name", None),
                         kind=kind,
                         n=int(num_fins),
-                        cant_angle_deg=float(getattr(surface, "cant_angle", 0.0) or 0.0),
+                        cant_angle_deg=float(
+                            getattr(surface, "cant_angle", 0.0) or 0.0
+                        ),
                         position=float(position_z),
                         outlines=outlines,
                     )
@@ -278,13 +287,17 @@ class RocketService:
 
         tubes = self._build_tubes(drawn_surfaces)
         motor_geometry, nozzle_position = self._build_motor_geometry(csys)
-        tubes += self._build_nozzle_tube(tubes, drawn_surfaces, nozzle_position, csys)
+        tubes += self._build_nozzle_tube(
+            tubes, drawn_surfaces, nozzle_position, csys
+        )
         rail_buttons = self._build_rail_buttons(csys)
         sensors = self._build_sensors()
 
         try:
             center_of_mass = float(rocket.center_of_mass(0))
-        except Exception:  # pragma: no cover - defensive; rocket may not be fully built
+        except (
+            Exception
+        ):  # pragma: no cover - defensive; rocket may not be fully built
             center_of_mass = None
         try:
             cp_position = float(rocket.cp_position(0))
@@ -298,7 +311,9 @@ class RocketService:
         return RocketDrawingGeometry(
             radius=float(rocket.radius),
             csys=int(csys),
-            coordinate_system_orientation=str(rocket.coordinate_system_orientation),
+            coordinate_system_orientation=str(
+                rocket.coordinate_system_orientation
+            ),
             nose_cones=nose_cones,
             tails=tails,
             fins=fins,
@@ -365,15 +380,11 @@ class RocketService:
             chamber = motor.plots._generate_combustion_chamber(
                 translate=(grains_cm_position, 0), label=None
             )
-            patches.append(
-                MotorPatch(role="chamber", **_polygon_xy(chamber))
-            )
+            patches.append(MotorPatch(role="chamber", **_polygon_xy(chamber)))
             for grain in motor.plots._generate_grains(
                 translate=(grains_cm_position, 0)
             ):
-                patches.append(
-                    MotorPatch(role="grain", **_polygon_xy(grain))
-                )
+                patches.append(MotorPatch(role="grain", **_polygon_xy(grain)))
         elif isinstance(motor, HybridMotor):
             motor_type = "hybrid"
             grains_cm_position = (
@@ -383,29 +394,21 @@ class RocketService:
             chamber = motor.plots._generate_combustion_chamber(
                 translate=(grains_cm_position, 0), label=None
             )
-            patches.append(
-                MotorPatch(role="chamber", **_polygon_xy(chamber))
-            )
+            patches.append(MotorPatch(role="chamber", **_polygon_xy(chamber)))
             for grain in motor.plots._generate_grains(
                 translate=(grains_cm_position, 0)
             ):
-                patches.append(
-                    MotorPatch(role="grain", **_polygon_xy(grain))
-                )
+                patches.append(MotorPatch(role="grain", **_polygon_xy(grain)))
             for tank, _center in motor.plots._generate_positioned_tanks(
                 translate=(rocket.motor_position, 0), csys=total_csys
             ):
-                patches.append(
-                    MotorPatch(role="tank", **_polygon_xy(tank))
-                )
+                patches.append(MotorPatch(role="tank", **_polygon_xy(tank)))
         elif isinstance(motor, LiquidMotor):
             motor_type = "liquid"
             for tank, _center in motor.plots._generate_positioned_tanks(
                 translate=(rocket.motor_position, 0), csys=total_csys
             ):
-                patches.append(
-                    MotorPatch(role="tank", **_polygon_xy(tank))
-                )
+                patches.append(MotorPatch(role="tank", **_polygon_xy(tank)))
         elif isinstance(motor, GenericMotor):
             # RocketPy's rocket.draw() does not render a chamber for GenericMotor —
             # _MotorPlots._generate_combustion_chamber depends on grain fields that
@@ -414,8 +417,7 @@ class RocketService:
             # chamber_position) so users can see their chamber geometry in the playground.
             motor_type = "generic"
             chamber_center_x = (
-                rocket.motor_position
-                + motor.chamber_position * total_csys
+                rocket.motor_position + motor.chamber_position * total_csys
             )
             chamber_patch = _build_generic_chamber_patch(
                 center_x=chamber_center_x,
@@ -438,9 +440,7 @@ class RocketService:
         # so we need matplotlib Polygon objects; rebuild them once from our
         # coordinate copies.
         try:
-            mpl_patches = [
-                _rebuild_polygon(p.x, p.y) for p in patches
-            ]
+            mpl_patches = [_rebuild_polygon(p.x, p.y) for p in patches]
             outline_patch = motor.plots._generate_motor_region(
                 list_of_patches=mpl_patches
             )
@@ -448,9 +448,7 @@ class RocketService:
                 0, MotorPatch(role="outline", **_polygon_xy(outline_patch))
             )
         except Exception as exc:  # pragma: no cover - defensive
-            logger.warning(
-                "Failed to generate motor outline patch: %s", exc
-            )
+            logger.warning("Failed to generate motor outline patch: %s", exc)
 
         return (
             MotorDrawingGeometry(
@@ -635,7 +633,7 @@ class RocketService:
             for key, value in fins.get_additional_parameters().items()
             if key not in base_kwargs
         }
-        
+
         match kind:
             case "trapezoidal":
                 factory = RocketPyTrapezoidalFins
@@ -732,7 +730,9 @@ def _build_generic_chamber_patch(
     chamber_radius : float
         Internal radius of the chamber (m).
     """
-    from matplotlib.patches import Polygon  # local import keeps service cold-start lean
+    from matplotlib.patches import (
+        Polygon,
+    )  # local import keeps service cold-start lean
 
     half_len = chamber_height / 2.0
     # Top edge then mirror to the bottom, matching _generate_combustion_chamber's
@@ -774,5 +774,8 @@ def _rebuild_polygon(x: list[float], y: list[float]):
     Used only so _MotorPlots._generate_motor_region can read patch.xy
     bounds when we assemble the motor outline.
     """
-    from matplotlib.patches import Polygon  # local import keeps service cold-start lean
+    from matplotlib.patches import (
+        Polygon,
+    )  # local import keeps service cold-start lean
+
     return Polygon(np.column_stack([np.asarray(x), np.asarray(y)]))

@@ -87,9 +87,10 @@ class MotorModel(ApiBaseModel):
         # RocketPy's SolidMotor/LiquidMotor/HybridMotor require dry_inertia with no default.
         # Only GenericMotor accepts (0, 0, 0). Surface a clear error at the API boundary
         # instead of letting RocketPy crash deep in construction.
-        if (
-            self.motor_kind != MotorKinds.GENERIC
-            and self.dry_inertia == (0, 0, 0)
+        if self.motor_kind != MotorKinds.GENERIC and self.dry_inertia == (
+            0,
+            0,
+            0,
         ):
             raise ValueError(
                 f"dry_inertia is required for {self.motor_kind} motors "
