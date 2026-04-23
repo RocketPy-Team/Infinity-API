@@ -36,6 +36,31 @@ async def create_motor(
 
     ## Args
     ``` models.Motor JSON ```
+
+    For liquid/hybrid motors the `tanks` field supports three geometry
+    kinds via the `geometry_kind` discriminator and a scalar-or-sampled
+    fluid `density`:
+
+    ```
+    {
+      "motor_kind": "LIQUID",
+      ...
+      "tanks": [{
+        "geometry": {
+          "geometry_kind": "cylindrical",    // or "spherical", "custom"
+          "radius": 0.1, "height": 0.5
+        },
+        "liquid": {
+          "name": "LOX",
+          "density": [[90.0, 1141.0], [120.0, 1091.0]]   // or scalar
+        },
+        "gas": {"name": "N2", "density": 1.2},
+        "tank_kind": "LEVEL",
+        "liquid_height": 0.25,
+        ...
+      }]
+    }
+    ```
     """
     with tracer.start_as_current_span("create_motor"):
         return await controller.post_motor(motor)
