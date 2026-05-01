@@ -17,12 +17,16 @@ def stub_environment_dump():
 
 @pytest.fixture
 def stub_motor_dump():
+    # Non-zero dry_inertia so tests that override motor_kind to SOLID/LIQUID/HYBRID
+    # pass the validate_dry_inertia_for_kind guard. GENERIC still accepts (0, 0, 0)
+    # at the model level, but we use a non-default value here to keep the stub
+    # compatible with every motor_kind.
     motor = MotorModel(
         thrust_source=[[0, 0]],
         burn_time=0,
         nozzle_radius=0,
         dry_mass=0,
-        dry_inertia=[0, 0, 0],
+        dry_inertia=[0.1, 0.1, 0.1],
         center_of_dry_mass_position=0,
         motor_kind='GENERIC',
     )

@@ -1,6 +1,7 @@
 from typing import Optional, Any
 from pydantic import ConfigDict
 from src.views.interface import ApiBaseView
+from src.views.drawing import DrawingBounds, MotorDrawingGeometry
 from src.models.motor import MotorModel
 
 
@@ -85,3 +86,21 @@ class MotorCreated(ApiBaseView):
 class MotorRetrieved(ApiBaseView):
     message: str = "Motor successfully retrieved"
     motor: MotorView
+
+
+class MotorDrawingGeometryView(ApiBaseView):
+    """Motor-only drawing-geometry response.
+
+    Returns exactly the subset of the rocket drawing payload that belongs
+    to the motor — the patches rocketpy's ``Rocket.draw()`` would feed to
+    matplotlib for this motor, plus a tight bounding box. When the client
+    needs the motor embedded in a full rocket render it should call
+    ``GET /rockets/{rocket_id}/drawing-geometry`` instead.
+    """
+
+    model_config = ConfigDict(ser_json_exclude_none=True)
+
+    message: str = "Motor drawing geometry retrieved"
+    motor: MotorDrawingGeometry
+    coordinate_system_orientation: str
+    bounds: DrawingBounds

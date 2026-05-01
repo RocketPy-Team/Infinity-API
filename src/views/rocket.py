@@ -4,6 +4,39 @@ from src.models.rocket import RocketModel
 from src.views.interface import ApiBaseView
 from src.views.motor import MotorView, MotorSimulation
 
+# Re-export drawing types from src.views.drawing so callers that previously
+# imported them from src.views.rocket (the original home) keep working.
+from src.views.drawing import (
+    NoseConeGeometry,
+    TailGeometry,
+    FinOutline,
+    FinsGeometry,
+    TubeGeometry,
+    MotorPatch,
+    MotorDrawingGeometry,
+    RailButtonsGeometry,
+    SensorGeometry,
+    DrawingBounds,
+)
+
+__all__ = [
+    "RocketSimulation",
+    "RocketView",
+    "RocketCreated",
+    "RocketRetrieved",
+    "RocketDrawingGeometry",
+    "NoseConeGeometry",
+    "TailGeometry",
+    "FinOutline",
+    "FinsGeometry",
+    "TubeGeometry",
+    "MotorPatch",
+    "MotorDrawingGeometry",
+    "RailButtonsGeometry",
+    "SensorGeometry",
+    "DrawingBounds",
+]
+
 
 class RocketSimulation(MotorSimulation):
     """
@@ -62,6 +95,32 @@ class RocketSimulation(MotorSimulation):
 class RocketView(RocketModel):
     rocket_id: Optional[str] = None
     motor: MotorView
+
+
+class RocketDrawingGeometry(ApiBaseView):
+    """
+    Geometry payload that mirrors what ``rocketpy.Rocket.draw()`` feeds to
+    matplotlib, but as raw coordinate arrays instead of a rendered figure.
+    All x/y values are already in the rocket drawing frame (the csys-applied
+    axial direction matches what ``_RocketPlots`` would plot).
+    """
+
+    model_config = ConfigDict(ser_json_exclude_none=True)
+
+    message: str = "Rocket drawing geometry retrieved"
+    radius: float
+    csys: int
+    coordinate_system_orientation: str
+    nose_cones: list[NoseConeGeometry] = []
+    tails: list[TailGeometry] = []
+    fins: list[FinsGeometry] = []
+    tubes: list[TubeGeometry] = []
+    motor: Optional[MotorDrawingGeometry] = None
+    rail_buttons: Optional[RailButtonsGeometry] = None
+    center_of_mass: Optional[float] = None
+    cp_position: Optional[float] = None
+    sensors: list[SensorGeometry] = []
+    bounds: DrawingBounds
 
 
 class RocketCreated(ApiBaseView):

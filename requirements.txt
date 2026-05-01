@@ -9,7 +9,7 @@ pymongo>=4.15
 jsonpickle
 gunicorn
 uvicorn
-git+https://github.com/RocketPy-Team/RocketPy.git@develop
+rocketpy
 uptrace
 opentelemetry.instrumentation.fastapi
 opentelemetry.instrumentation.requests
