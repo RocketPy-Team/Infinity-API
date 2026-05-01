@@ -29,7 +29,6 @@ from src.views.rocket import (
     FinOutline,
     TubeGeometry,
     MotorDrawingGeometry,
-    MotorPatch,
     RailButtonsGeometry,
     SensorGeometry,
     DrawingBounds,
