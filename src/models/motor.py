@@ -20,7 +20,11 @@ class MotorModel(ApiBaseModel):
 
     # Required parameters
     thrust_source: List[List[float]]
-    burn_time: float
+    # burn_time is optional for Liquid/Hybrid/Solid motors — rocketpy
+    # auto-detects the burn window from the thrust_source array span.
+    # GenericMotor still requires it; the motor service re-raises an
+    # explicit error when the GENERIC path receives None.
+    burn_time: Optional[float] = None
     nozzle_radius: float
     dry_mass: float
     dry_inertia: Tuple[float, float, float] = (0, 0, 0)
@@ -79,6 +83,22 @@ class MotorModel(ApiBaseModel):
         ):
             raise ValueError(
                 "Tanks must be provided for liquid and hybrid motors."
+            )
+        return self
+
+    @model_validator(mode='after')
+    def validate_dry_inertia_for_kind(self):
+        # RocketPy's SolidMotor/LiquidMotor/HybridMotor require dry_inertia with no default.
+        # Only GenericMotor accepts (0, 0, 0). Surface a clear error at the API boundary
+        # instead of letting RocketPy crash deep in construction.
+        if self.motor_kind != MotorKinds.GENERIC and self.dry_inertia == (
+            0,
+            0,
+            0,
+        ):
+            raise ValueError(
+                f"dry_inertia is required for {self.motor_kind} motors "
+                f"and must be explicitly provided (cannot be (0, 0, 0))."
             )
         return self
 

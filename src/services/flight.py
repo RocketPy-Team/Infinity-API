@@ -225,6 +225,22 @@ class FlightService:
                 return float(value)
 
     @staticmethod
+    def _extract_fluid_density(fluid):
+        """Project a rocketpy Fluid's density back onto the API schema.
+
+        The API accepts either a scalar or a list of (T_K, density)
+        samples. Rocketpy may store density as either a raw scalar or a
+        ``Function`` wrapping a 2D ``(T, P) -> density`` callable. A
+        full sample round-trip is not supported in this iteration;
+        Function-valued densities are collapsed to a scalar evaluated
+        at rocketpy's default reference (273.15 K, 101325 Pa).
+        """
+        density = fluid.density
+        if isinstance(density, Function):
+            return float(density(273.15, 101325))
+        return density
+
+    @staticmethod
     def _extract_tanks(motor) -> list[MotorTank]:
         tanks: list[MotorTank] = []
         for entry in motor.positioned_tanks:
@@ -240,20 +256,29 @@ class FlightService:
                 case _:
                     tank_kind = TankKinds.MASS_FLOW
 
-            geometry = [
+            # Geometry round-trip is lossy: even if the client originally
+            # sent a cylindrical/spherical geometry, we discretise it back
+            # to the generic piecewise form on read. Every rocketpy tank
+            # geometry exposes its internal piecewise dict via
+            # `tank.geometry.geometry`, so this path covers all three
+            # geometry subclasses uniformly.
+            geometry_segments = [
                 (bounds, float(func(0)))
                 for bounds, func in tank.geometry.geometry.items()
             ]
 
             data: dict = {
-                "geometry": geometry,
+                "geometry": {
+                    "geometry_kind": "custom",
+                    "geometry": geometry_segments,
+                },
                 "gas": TankFluids(
                     name=tank.gas.name,
-                    density=tank.gas.density,
+                    density=FlightService._extract_fluid_density(tank.gas),
                 ),
                 "liquid": TankFluids(
                     name=tank.liquid.name,
-                    density=tank.liquid.density,
+                    density=FlightService._extract_fluid_density(tank.liquid),
                 ),
                 "flux_time": tank.flux_time,
                 "position": position,

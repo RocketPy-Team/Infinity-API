@@ -4,7 +4,11 @@ from src.controllers.interface import (
     ControllerBase,
     controller_exception_handler,
 )
-from src.views.rocket import RocketSimulation, RocketCreated
+from src.views.rocket import (
+    RocketSimulation,
+    RocketCreated,
+    RocketDrawingGeometry,
+)
 from src.models.motor import MotorModel
 from src.models.rocket import (
     RocketModel,
@@ -74,6 +78,27 @@ class RocketController(ControllerBase):
         rocket = await self.get_rocket_by_id(rocket_id)
         rocket_service = RocketService.from_rocket_model(rocket.rocket)
         return rocket_service.get_rocket_binary()
+
+    @controller_exception_handler
+    async def get_rocket_drawing_geometry(
+        self, rocket_id: str
+    ) -> RocketDrawingGeometry:
+        """
+        Build the drawing geometry payload for a persisted rocket.
+
+        Args:
+            rocket_id: str
+
+        Returns:
+            views.RocketDrawingGeometry
+
+        Raises:
+            HTTP 404 Not Found: If the rocket does not exist in the database.
+            HTTP 422: If the rocket has no aerodynamic surfaces to draw.
+        """
+        rocket = await self.get_rocket_by_id(rocket_id)
+        rocket_service = RocketService.from_rocket_model(rocket.rocket)
+        return rocket_service.get_drawing_geometry()
 
     @controller_exception_handler
     async def get_rocket_simulation(

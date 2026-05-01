@@ -182,6 +182,152 @@ def test_create_liquid_motor_mass_tank(
     )
 
 
+def test_create_liquid_motor_cylindrical_geometry(
+    stub_motor_dump, stub_cylindrical_tank_dump, mock_controller_instance
+):
+    stub_cylindrical_tank_dump.update(
+        {'tank_kind': 'LEVEL', 'liquid_height': 0.2}
+    )
+    stub_cylindrical_tank_dump.update(
+        {
+            'gas_mass_flow_rate_in': None,
+            'gas_mass_flow_rate_out': None,
+            'liquid_mass_flow_rate_in': None,
+            'liquid_mass_flow_rate_out': None,
+            'initial_liquid_mass': None,
+            'initial_gas_mass': None,
+        }
+    )
+    stub_motor_dump.update(
+        {'tanks': [stub_cylindrical_tank_dump], 'motor_kind': 'LIQUID'}
+    )
+    mock_response = AsyncMock(return_value=MotorCreated(motor_id='123'))
+    mock_controller_instance.post_motor = mock_response
+    response = client.post('/motors/', json=stub_motor_dump)
+    assert response.status_code == 201
+
+
+def test_create_liquid_motor_spherical_geometry(
+    stub_motor_dump, stub_spherical_tank_dump, mock_controller_instance
+):
+    stub_spherical_tank_dump.update(
+        {
+            'tank_kind': 'LEVEL',
+            'liquid_height': 0.1,
+            'gas_mass_flow_rate_in': None,
+            'gas_mass_flow_rate_out': None,
+            'liquid_mass_flow_rate_in': None,
+            'liquid_mass_flow_rate_out': None,
+            'initial_liquid_mass': None,
+            'initial_gas_mass': None,
+        }
+    )
+    stub_motor_dump.update(
+        {'tanks': [stub_spherical_tank_dump], 'motor_kind': 'LIQUID'}
+    )
+    mock_response = AsyncMock(return_value=MotorCreated(motor_id='123'))
+    mock_controller_instance.post_motor = mock_response
+    response = client.post('/motors/', json=stub_motor_dump)
+    assert response.status_code == 201
+
+
+def test_create_liquid_motor_sampled_density(
+    stub_motor_dump,
+    stub_tank_with_sampled_density_dump,
+    mock_controller_instance,
+):
+    stub_motor_dump.update(
+        {
+            'tanks': [stub_tank_with_sampled_density_dump],
+            'motor_kind': 'LIQUID',
+        }
+    )
+    mock_response = AsyncMock(return_value=MotorCreated(motor_id='123'))
+    mock_controller_instance.post_motor = mock_response
+    response = client.post('/motors/', json=stub_motor_dump)
+    assert response.status_code == 201
+
+
+def test_create_motor_invalid_geometry_kind(
+    stub_motor_dump, stub_tank_dump, mock_controller_instance
+):
+    stub_tank_dump['geometry'] = {
+        'geometry_kind': 'pyramid',
+        'radius': 0.1,
+    }
+    stub_motor_dump.update(
+        {'tanks': [stub_tank_dump], 'motor_kind': 'LIQUID'}
+    )
+    response = client.post('/motors/', json=stub_motor_dump)
+    assert response.status_code == 422
+
+
+def test_create_motor_mass_kind_missing_fields(
+    stub_motor_dump, stub_tank_dump, mock_controller_instance
+):
+    # stub_tank_dump defaults to MASS_FLOW with all required fields
+    # populated; switching to MASS without adding liquid_mass/gas_mass
+    # must trigger the tank_kind guard at schema validation.
+    stub_tank_dump['tank_kind'] = 'MASS'
+    stub_motor_dump.update(
+        {'tanks': [stub_tank_dump], 'motor_kind': 'LIQUID'}
+    )
+    response = client.post('/motors/', json=stub_motor_dump)
+    assert response.status_code == 422
+    body = response.json()
+    assert 'liquid_mass' in json.dumps(body)
+    assert 'gas_mass' in json.dumps(body)
+
+
+def test_create_motor_level_kind_missing_liquid_height(
+    stub_motor_dump, stub_tank_dump, mock_controller_instance
+):
+    stub_tank_dump['tank_kind'] = 'LEVEL'
+    stub_motor_dump.update(
+        {'tanks': [stub_tank_dump], 'motor_kind': 'LIQUID'}
+    )
+    response = client.post('/motors/', json=stub_motor_dump)
+    assert response.status_code == 422
+    assert 'liquid_height' in json.dumps(response.json())
+
+
+def test_create_motor_ullage_kind_missing_ullage(
+    stub_motor_dump, stub_tank_dump, mock_controller_instance
+):
+    stub_tank_dump['tank_kind'] = 'ULLAGE'
+    stub_motor_dump.update(
+        {'tanks': [stub_tank_dump], 'motor_kind': 'LIQUID'}
+    )
+    response = client.post('/motors/', json=stub_motor_dump)
+    assert response.status_code == 422
+    assert 'ullage' in json.dumps(response.json())
+
+
+def test_create_motor_mass_flow_kind_missing_flow_rates(
+    stub_motor_dump, mock_controller_instance
+):
+    # Build a tank payload with MASS_FLOW kind but no flow-rate fields
+    # so the guard rejects it.
+    tank_payload = {
+        'geometry': {
+            'geometry_kind': 'custom',
+            'geometry': [[[0, 0], 0]],
+        },
+        'gas': {'name': 'gas', 'density': 0},
+        'liquid': {'name': 'liquid', 'density': 0},
+        'flux_time': [0, 0],
+        'position': 0,
+        'discretize': 0,
+        'tank_kind': 'MASS_FLOW',
+    }
+    stub_motor_dump.update(
+        {'tanks': [tank_payload], 'motor_kind': 'LIQUID'}
+    )
+    response = client.post('/motors/', json=stub_motor_dump)
+    assert response.status_code == 422
+    assert 'initial_liquid_mass' in json.dumps(response.json())
+
+
 def test_create_hybrid_motor(
     stub_motor_dump, stub_level_tank_dump, mock_controller_instance
 ):

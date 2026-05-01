@@ -7,19 +7,81 @@ from rocketpy.motors.solid_motor import SolidMotor
 from rocketpy.motors.liquid_motor import LiquidMotor
 from rocketpy.motors.hybrid_motor import HybridMotor
 from rocketpy import (
+    CylindricalTank,
+    Fluid,
+    Function,
     LevelBasedTank,
     MassBasedTank,
     MassFlowRateBasedTank,
-    UllageBasedTank,
+    SphericalTank,
     TankGeometry,
+    UllageBasedTank,
 )
 
 from fastapi import HTTPException, status
 
-from src.models.sub.tanks import TankKinds
+from src.models.sub.tanks import (
+    CustomTankGeometry,
+    CylindricalTankGeometry,
+    SphericalTankGeometry,
+    TankFluids,
+    TankKinds,
+)
 from src.models.motor import MotorKinds, MotorModel
 from src.views.motor import MotorSimulation
 from src.utils import collect_attributes
+
+
+def _build_rocketpy_tank_geometry(geometry):
+    """Convert an API geometry model into a rocketpy geometry object.
+
+    Dispatch mirrors the discriminated union in
+    ``src.models.sub.tanks.TankGeometryInput``.
+    """
+    if isinstance(geometry, CylindricalTankGeometry):
+        return CylindricalTank(
+            radius=geometry.radius,
+            height=geometry.height,
+            spherical_caps=geometry.spherical_caps,
+        )
+    if isinstance(geometry, SphericalTankGeometry):
+        return SphericalTank(radius=geometry.radius)
+    if isinstance(geometry, CustomTankGeometry):
+        return TankGeometry(geometry_dict=dict(geometry.geometry))
+    raise ValueError(
+        f"Unsupported tank geometry kind: {type(geometry).__name__}"
+    )
+
+
+def _build_rocketpy_fluid(fluids: TankFluids) -> Fluid:
+    """Convert an API TankFluids into a rocketpy Fluid.
+
+    Scalar density is passed through (Fluid stores it as a constant).
+    Sampled density is converted to a 1D Temperature → Density Function
+    and wrapped in a ``(T, P)`` callable because rocketpy's Fluid expects
+    density to be a function of both temperature and pressure. Pressure
+    is ignored here intentionally; only temperature-dependent density
+    is supported in this iteration.
+    """
+    density = fluids.density
+    if isinstance(density, list):
+        temperature_to_density = Function(
+            source=density,
+            interpolation='linear',
+            extrapolation='natural',
+            inputs=['Temperature (K)'],
+            outputs='Density (kg/m^3)',
+        )
+
+        def density_callable(temperature, pressure):  # noqa: ARG001
+            # pylint: disable=unused-argument
+            # Rocketpy's Fluid wraps this into a 2-input Function of
+            # (T, P); pressure is accepted for signature compatibility
+            # but intentionally ignored in this iteration.
+            return temperature_to_density.get_value(temperature)
+
+        return Fluid(name=fluids.name, density=density_callable)
+    return Fluid(name=fluids.name, density=density)
 
 
 class MotorService:
@@ -45,7 +107,6 @@ class MotorService:
 
         motor_core = {
             "thrust_source": motor.thrust_source,
-            "burn_time": motor.burn_time,
             "nozzle_radius": motor.nozzle_radius,
             "dry_mass": motor.dry_mass,
             "dry_inertia": motor.dry_inertia,
@@ -54,6 +115,13 @@ class MotorService:
             "interpolation_method": motor.interpolation_method,
             "reshape_thrust_curve": reshape_thrust_curve,
         }
+        # Only forward optional rocketpy args when the client supplied them.
+        # Leaving them out lets rocketpy pick its own default (burn_time
+        # auto-detected from thrust_source span; nozzle_position = 0).
+        if motor.burn_time is not None:
+            motor_core["burn_time"] = motor.burn_time
+        if motor.nozzle_position is not None:
+            motor_core["nozzle_position"] = motor.nozzle_position
 
         match MotorKinds(motor.motor_kind):
             case MotorKinds.LIQUID:
@@ -103,25 +171,34 @@ class MotorService:
                     **optional_params,
                 )
             case _:
+                # GenericMotor requires burn_time even though it's optional
+                # for the other motor kinds — surface the constraint at the
+                # API boundary instead of letting rocketpy raise a
+                # confusing stack trace deeper in construction.
+                if motor.burn_time is None:
+                    raise HTTPException(
+                        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                        detail="burn_time is required for generic motors.",
+                    )
+                # nozzle_position is already forwarded via motor_core when
+                # the client supplied it; GenericMotor's own default (0)
+                # applies otherwise.
                 rocketpy_motor = GenericMotor(
                     **motor_core,
                     chamber_radius=motor.chamber_radius,
                     chamber_height=motor.chamber_height,
                     chamber_position=motor.chamber_position,
                     propellant_initial_mass=motor.propellant_initial_mass,
-                    nozzle_position=motor.nozzle_position,
                 )
 
         if motor.motor_kind not in (MotorKinds.SOLID, MotorKinds.GENERIC):
             for tank in motor.tanks or []:
                 tank_core = {
                     "name": tank.name,
-                    "geometry": TankGeometry(
-                        geometry_dict=dict(tank.geometry)
-                    ),
+                    "geometry": _build_rocketpy_tank_geometry(tank.geometry),
                     "flux_time": tank.flux_time,
-                    "gas": tank.gas,
-                    "liquid": tank.liquid,
+                    "gas": _build_rocketpy_fluid(tank.gas),
+                    "liquid": _build_rocketpy_fluid(tank.liquid),
                     "discretize": tank.discretize,
                 }
 
