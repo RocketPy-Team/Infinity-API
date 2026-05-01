@@ -279,7 +279,9 @@ class MotorService:
         # Fall back to the nozzle radius when the motor has no drawable
         # patches (e.g. EmptyMotor) so the bounds aren't a zero-height
         # line. Every real rocketpy motor class exposes nozzle_radius.
-        fallback_radius = float(getattr(self._motor, "nozzle_radius", 0.0) or 0.0)
+        fallback_radius = float(
+            getattr(self._motor, "nozzle_radius", 0.0) or 0.0
+        )
         return MotorDrawingGeometryView(
             motor=motor_geometry,
             coordinate_system_orientation=str(

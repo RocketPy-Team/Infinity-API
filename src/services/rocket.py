@@ -596,7 +596,6 @@ class RocketService:
         return False
 
 
-
 # Drawing helpers (_polygon_xy, _rebuild_polygon, _build_generic_chamber_patch)
 # moved to src/services/motor.py so the motor-only drawing endpoint and the
 # rocket drawing endpoint share a single implementation. This module now
