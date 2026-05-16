@@ -3,13 +3,6 @@ from typing import Self, List
 import dill
 import numpy as np
 
-from rocketpy.motors import (
-    EmptyMotor,
-    GenericMotor,
-    HybridMotor,
-    LiquidMotor,
-    SolidMotor,
-)
 from rocketpy.rocket.rocket import Rocket as RocketPyRocket
 from rocketpy.rocket.parachute import Parachute as RocketPyParachute
 from rocketpy.rocket.aero_surface import (
@@ -36,7 +29,6 @@ from src.views.rocket import (
     FinOutline,
     TubeGeometry,
     MotorDrawingGeometry,
-    MotorPatch,
     RailButtonsGeometry,
     SensorGeometry,
     DrawingBounds,
@@ -348,119 +340,15 @@ class RocketService:
     def _build_motor_geometry(
         self, csys: int
     ) -> tuple[MotorDrawingGeometry | None, float]:
-        rocket = self._rocket
-        motor = rocket.motor
-        total_csys = csys * motor._csys
-        nozzle_position = (
-            rocket.motor_position + motor.nozzle_position * total_csys
-        )
-
-        if isinstance(motor, EmptyMotor):
-            return (
-                MotorDrawingGeometry(
-                    type="empty",
-                    position=float(rocket.motor_position),
-                    nozzle_position=float(nozzle_position),
-                    patches=[],
-                ),
-                float(nozzle_position),
-            )
-
-        patches: list[MotorPatch] = []
-        grains_cm_position: float | None = None
-
-        if isinstance(motor, SolidMotor):
-            motor_type = "solid"
-            grains_cm_position = (
-                rocket.motor_position
-                + motor.grains_center_of_mass_position * total_csys
-            )
-            chamber = motor.plots._generate_combustion_chamber(
-                translate=(grains_cm_position, 0), label=None
-            )
-            patches.append(MotorPatch(role="chamber", **_polygon_xy(chamber)))
-            for grain in motor.plots._generate_grains(
-                translate=(grains_cm_position, 0)
-            ):
-                patches.append(MotorPatch(role="grain", **_polygon_xy(grain)))
-        elif isinstance(motor, HybridMotor):
-            motor_type = "hybrid"
-            grains_cm_position = (
-                rocket.motor_position
-                + motor.grains_center_of_mass_position * total_csys
-            )
-            chamber = motor.plots._generate_combustion_chamber(
-                translate=(grains_cm_position, 0), label=None
-            )
-            patches.append(MotorPatch(role="chamber", **_polygon_xy(chamber)))
-            for grain in motor.plots._generate_grains(
-                translate=(grains_cm_position, 0)
-            ):
-                patches.append(MotorPatch(role="grain", **_polygon_xy(grain)))
-            for tank, _center in motor.plots._generate_positioned_tanks(
-                translate=(rocket.motor_position, 0), csys=total_csys
-            ):
-                patches.append(MotorPatch(role="tank", **_polygon_xy(tank)))
-        elif isinstance(motor, LiquidMotor):
-            motor_type = "liquid"
-            for tank, _center in motor.plots._generate_positioned_tanks(
-                translate=(rocket.motor_position, 0), csys=total_csys
-            ):
-                patches.append(MotorPatch(role="tank", **_polygon_xy(tank)))
-        elif isinstance(motor, GenericMotor):
-            # RocketPy's rocket.draw() does not render a chamber for GenericMotor —
-            # _MotorPlots._generate_combustion_chamber depends on grain fields that
-            # GenericMotor lacks. We build an equivalent rectangular chamber here
-            # using the GenericMotor-specific fields (chamber_radius, chamber_height,
-            # chamber_position) so users can see their chamber geometry in the playground.
-            motor_type = "generic"
-            chamber_center_x = (
-                rocket.motor_position + motor.chamber_position * total_csys
-            )
-            chamber_patch = _build_generic_chamber_patch(
-                center_x=chamber_center_x,
-                chamber_height=motor.chamber_height,
-                chamber_radius=motor.chamber_radius,
-            )
-            patches.append(
-                MotorPatch(role="chamber", **_polygon_xy(chamber_patch))
-            )
-        else:
-            motor_type = "generic"
-
-        # Nozzle (added after so the outline encompasses it, matching rocketpy)
-        nozzle_patch = motor.plots._generate_nozzle(
-            translate=(nozzle_position, 0), csys=csys
-        )
-        patches.append(MotorPatch(role="nozzle", **_polygon_xy(nozzle_patch)))
-
-        # Motor region outline. _generate_motor_region reads patch.xy arrays
-        # so we need matplotlib Polygon objects; rebuild them once from our
-        # coordinate copies.
-        try:
-            mpl_patches = [_rebuild_polygon(p.x, p.y) for p in patches]
-            outline_patch = motor.plots._generate_motor_region(
-                list_of_patches=mpl_patches
-            )
-            patches.insert(
-                0, MotorPatch(role="outline", **_polygon_xy(outline_patch))
-            )
-        except Exception as exc:  # pragma: no cover - defensive
-            logger.warning("Failed to generate motor outline patch: %s", exc)
-
-        return (
-            MotorDrawingGeometry(
-                type=motor_type,
-                position=float(rocket.motor_position),
-                nozzle_position=float(nozzle_position),
-                grains_center_of_mass_position=(
-                    float(grains_cm_position)
-                    if grains_cm_position is not None
-                    else None
-                ),
-                patches=patches,
-            ),
-            float(nozzle_position),
+        # Delegate to the motor service so motor-only and rocket-embedded
+        # drawings share exactly one code path. The motor service carries
+        # all the isinstance branches, private rocketpy plot calls, and
+        # matplotlib Polygon plumbing; here we just bind the rocket-level
+        # position + csys and forward.
+        motor_service = MotorService(self._rocket.motor)
+        return motor_service.build_drawing_geometry(
+            motor_position=self._rocket.motor_position,
+            parent_csys=csys,
         )
 
     def _build_nozzle_tube(
@@ -708,71 +596,8 @@ class RocketService:
         return False
 
 
-def _build_generic_chamber_patch(
-    center_x: float, chamber_height: float, chamber_radius: float
-):
-    """Build a rectangular combustion-chamber polygon for a GenericMotor.
-
-    Mirrors the vertex order of rocketpy.plots.motor_plots._generate_combustion_chamber
-    so the resulting patch can flow through _generate_motor_region for outline
-    computation identically to a SolidMotor chamber.
-
-    Parameters
-    ----------
-    center_x : float
-        World-frame x-coordinate of the chamber centroid (already includes
-        rocket.motor_position + motor.chamber_position * csys).
-    chamber_height : float
-        Axial length of the chamber (m).
-    chamber_radius : float
-        Internal radius of the chamber (m).
-    """
-    from matplotlib.patches import (
-        Polygon,
-    )  # local import keeps service cold-start lean
-
-    half_len = chamber_height / 2.0
-    # Top edge then mirror to the bottom, matching _generate_combustion_chamber's
-    # vertex ordering so motor-region assembly sees a consistent shape.
-    x = np.array(
-        [
-            -half_len,
-            half_len,
-            half_len,
-            -half_len,
-        ]
-    )
-    y = np.array(
-        [
-            chamber_radius,
-            chamber_radius,
-            -chamber_radius,
-            -chamber_radius,
-        ]
-    )
-    x = x + center_x
-    return Polygon(np.column_stack([x, y]))
-
-
-def _polygon_xy(patch) -> dict:
-    """Extract (x, y) coordinate lists from a matplotlib Polygon patch.
-
-    The generator helpers on rocketpy's _MotorPlots return matplotlib
-    Polygon objects; we only ever use them as a data carrier (patch.xy
-    is an Nx2 numpy array), never for rendering.
-    """
-    xy = np.asarray(patch.xy)
-    return {"x": xy[:, 0].tolist(), "y": xy[:, 1].tolist()}
-
-
-def _rebuild_polygon(x: list[float], y: list[float]):
-    """Rebuild a matplotlib Polygon from coordinate lists.
-
-    Used only so _MotorPlots._generate_motor_region can read patch.xy
-    bounds when we assemble the motor outline.
-    """
-    from matplotlib.patches import (
-        Polygon,
-    )  # local import keeps service cold-start lean
-
-    return Polygon(np.column_stack([np.asarray(x), np.asarray(y)]))
+# Drawing helpers (_polygon_xy, _rebuild_polygon, _build_generic_chamber_patch)
+# moved to src/services/motor.py so the motor-only drawing endpoint and the
+# rocket drawing endpoint share a single implementation. This module now
+# imports nothing motor-specific for drawing — RocketService._build_motor_geometry
+# delegates to MotorService.build_drawing_geometry.

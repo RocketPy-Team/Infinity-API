@@ -9,6 +9,7 @@ from src.views.motor import (
     MotorSimulation,
     MotorCreated,
     MotorRetrieved,
+    MotorDrawingGeometryView,
 )
 from src.models.motor import MotorModel
 from src.dependencies import MotorControllerDep
@@ -163,3 +164,24 @@ async def get_motor_simulation(
     """
     with tracer.start_as_current_span("get_motor_simulation"):
         return await controller.get_motor_simulation(motor_id)
+
+
+@router.get("/{motor_id}/drawing-geometry")
+async def get_motor_drawing_geometry(
+    motor_id: str,
+    controller: MotorControllerDep,
+) -> MotorDrawingGeometryView:
+    """
+    Returns motor-only drawing geometry so a frontend can render the
+    motor in isolation. The payload mirrors what the motor portion of
+    `rocketpy.Rocket.draw()` would produce, but at the motor's own
+    coordinate origin rather than embedded inside a rocket.
+
+    Use `GET /rockets/{rocket_id}/drawing-geometry` instead when the
+    motor should be shown inside a complete rocket.
+
+    ## Args
+    ``` motor_id: Motor ID ```
+    """
+    with tracer.start_as_current_span("get_motor_drawing_geometry"):
+        return await controller.get_motor_drawing_geometry(motor_id)
