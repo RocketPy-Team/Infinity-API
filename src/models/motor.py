@@ -20,7 +20,11 @@ class MotorModel(ApiBaseModel):
 
     # Required parameters
     thrust_source: List[List[float]]
-    burn_time: float
+    # burn_time is optional for Liquid/Hybrid/Solid motors — rocketpy
+    # auto-detects the burn window from the thrust_source array span.
+    # GenericMotor still requires it; the motor service re-raises an
+    # explicit error when the GENERIC path receives None.
+    burn_time: Optional[float] = None
     nozzle_radius: float
     dry_mass: float
     dry_inertia: Tuple[float, float, float] = (0, 0, 0)
