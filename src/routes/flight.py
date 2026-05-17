@@ -301,6 +301,42 @@ async def update_flight_rocket(
         )
 
 
+@router.get(
+    "/{flight_id}/kml",
+    responses={
+        200: {
+            "description": "KML trajectory file download",
+            "content": {"application/vnd.google-earth.kml+xml": {}},
+        }
+    },
+    status_code=200,
+    response_class=Response,
+)
+async def get_flight_kml(
+    flight_id: str,
+    controller: FlightControllerDep,
+):
+    """
+    Export a flight trajectory as a KML file for Google Earth.
+
+    ## Args
+    ``` flight_id: str ```
+    """
+    with tracer.start_as_current_span("get_flight_kml"):
+        kml = await controller.get_flight_kml(flight_id)
+        headers = {
+            "Content-Disposition": (
+                f'attachment; filename="flight_{flight_id}.kml"'
+            ),
+        }
+        return Response(
+            content=kml,
+            headers=headers,
+            media_type="application/vnd.google-earth.kml+xml",
+            status_code=200,
+        )
+
+
 @router.get("/{flight_id}/simulate")
 async def get_flight_simulation(
     flight_id: str,

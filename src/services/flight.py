@@ -1,9 +1,12 @@
 import json
+import os
+import tempfile
 from typing import Self, Tuple
 
 import numpy as np
 
 from rocketpy.simulation.flight import Flight as RocketPyFlight
+from rocketpy.simulation.flight_data_exporter import FlightDataExporter
 from rocketpy._encoders import RocketPyEncoder, RocketPyDecoder
 from rocketpy.mathutils.function import Function
 from rocketpy.motors.solid_motor import SolidMotor
@@ -498,6 +501,25 @@ class FlightService:
         )
         flight_simulation = FlightSimulation(**encoded_attributes)
         return flight_simulation
+
+    def get_flight_kml(self) -> bytes:
+        """
+        Get the flight trajectory as a KML file for Google Earth.
+
+        Returns:
+            bytes (UTF-8 encoded KML)
+        """
+        with tempfile.NamedTemporaryFile(
+            suffix=".kml", delete=False
+        ) as tmp:
+            tmp_path = tmp.name
+        try:
+            FlightDataExporter(self._flight).export_kml(file_name=tmp_path)
+            with open(tmp_path, "rb") as fh:
+                return fh.read()
+        finally:
+            if os.path.exists(tmp_path):
+                os.unlink(tmp_path)
 
     def get_flight_rpy(self) -> bytes:
         """

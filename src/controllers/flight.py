@@ -146,6 +146,28 @@ class FlightController(ControllerBase):
         return flight_service.get_flight_rpy()
 
     @controller_exception_handler
+    async def get_flight_kml(
+        self,
+        flight_id: str,
+    ) -> bytes:
+        """
+        Get the flight trajectory as a KML file.
+
+        Args:
+            flight_id: str
+
+        Returns:
+            bytes (KML XML)
+
+        Raises:
+            HTTP 404 Not Found: If the flight is not found
+                in the database.
+        """
+        flight = await self.get_flight_by_id(flight_id)
+        flight_service = FlightService.from_flight_model(flight.flight)
+        return flight_service.get_flight_kml()
+
+    @controller_exception_handler
     async def get_flight_simulation(
         self,
         flight_id: str,
