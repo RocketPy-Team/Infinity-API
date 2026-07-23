@@ -28,13 +28,17 @@ class EnvironmentService:
             elevation=env.elevation,
             date=env.date,
         )
+        # RocketPy guards pressure/temperature against None but NOT wind, so a
+        # custom_atmosphere with wind_u/wind_v left unset raises
+        # "'NoneType' object has no attribute 'shape'". Default missing wind to 0
+        # (only None is replaced — real 0.0 values and wind profiles pass through).
         rocketpy_env.set_atmospheric_model(
             type=env.atmospheric_model_type,
             file=env.atmospheric_model_file,
             pressure=env.pressure,
             temperature=env.temperature,
-            wind_u=env.wind_u,
-            wind_v=env.wind_v,
+            wind_u=env.wind_u if env.wind_u is not None else 0.0,
+            wind_v=env.wind_v if env.wind_v is not None else 0.0,
         )
         return cls(environment=rocketpy_env)
 
