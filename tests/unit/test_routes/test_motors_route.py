@@ -249,7 +249,7 @@ def test_create_liquid_motor_sampled_density(
 
 
 def test_create_motor_invalid_geometry_kind(
-    stub_motor_dump, stub_tank_dump, mock_controller_instance
+    stub_motor_dump, stub_tank_dump
 ):
     stub_tank_dump['geometry'] = {
         'geometry_kind': 'pyramid',
@@ -263,7 +263,7 @@ def test_create_motor_invalid_geometry_kind(
 
 
 def test_create_motor_mass_kind_missing_fields(
-    stub_motor_dump, stub_tank_dump, mock_controller_instance
+    stub_motor_dump, stub_tank_dump
 ):
     # stub_tank_dump defaults to MASS_FLOW with all required fields
     # populated; switching to MASS without adding liquid_mass/gas_mass
@@ -280,7 +280,7 @@ def test_create_motor_mass_kind_missing_fields(
 
 
 def test_create_motor_level_kind_missing_liquid_height(
-    stub_motor_dump, stub_tank_dump, mock_controller_instance
+    stub_motor_dump, stub_tank_dump
 ):
     stub_tank_dump['tank_kind'] = 'LEVEL'
     stub_motor_dump.update(
@@ -292,7 +292,7 @@ def test_create_motor_level_kind_missing_liquid_height(
 
 
 def test_create_motor_ullage_kind_missing_ullage(
-    stub_motor_dump, stub_tank_dump, mock_controller_instance
+    stub_motor_dump, stub_tank_dump
 ):
     stub_tank_dump['tank_kind'] = 'ULLAGE'
     stub_motor_dump.update(
@@ -304,7 +304,7 @@ def test_create_motor_ullage_kind_missing_ullage(
 
 
 def test_create_motor_mass_flow_kind_missing_flow_rates(
-    stub_motor_dump, mock_controller_instance
+    stub_motor_dump
 ):
     # Build a tank payload with MASS_FLOW kind but no flow-rate fields
     # so the guard rejects it.
