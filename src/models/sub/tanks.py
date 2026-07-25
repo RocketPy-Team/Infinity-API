@@ -11,24 +11,15 @@ class TankKinds(str, Enum):
     ULLAGE: str = "ULLAGE"
 
 
-# Scalar density keeps the legacy behaviour (constant kg/m^3).
-# A list of (temperature_K, density_kg_per_m3) samples enables
-# temperature-dependent density — required for realistic LOX / N2O
-# modelling. Pressure dependence is out of scope for this iteration.
+# Scalar: constant density (kg/m^3).
+# [(temp_K, density_kg_m3)]: temperature-dependent (LOX / N2O).
+# No pressure dependence.
 DensityInput = Union[float, List[Tuple[float, float]]]
 
 
 class TankFluids(BaseModel):
     name: str
     density: DensityInput
-
-
-# --- Tank geometry discriminated union ----------------------------------
-# RocketPy ships three concrete geometry classes. We mirror them as a
-# discriminated Pydantic union keyed on `geometry_kind`. `custom` is the
-# generic piecewise form (original API shape); `cylindrical` and
-# `spherical` map to `rocketpy.motors.CylindricalTank` and
-# `SphericalTank` respectively.
 
 
 class CustomTankGeometry(BaseModel):
@@ -59,9 +50,7 @@ TankGeometryInput = Annotated[
 
 
 # Map tank_kind → tuple of MotorTank field names that rocketpy's
-# corresponding Tank subclass requires. The validator below rejects
-# payloads that omit any of them so the API returns 422 instead of
-# letting rocketpy crash during motor construction.
+# corresponding Tank subclass requires.
 _REQUIRED_FIELDS_BY_TANK_KIND = {
     TankKinds.MASS_FLOW: (
         "initial_liquid_mass",
@@ -113,8 +102,7 @@ class MotorTank(BaseModel):
 
     @model_validator(mode='after')
     def validate_tank_kind_fields(self):
-        # Mirrors the validate_dry_inertia_for_kind pattern used on
-        # MotorModel: reject incoherent payloads at the API boundary
+        # reject incoherent payloads at the API boundary
         # instead of letting rocketpy crash during Tank construction.
         missing = [
             field
