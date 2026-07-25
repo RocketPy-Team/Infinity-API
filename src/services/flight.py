@@ -514,7 +514,7 @@ class FlightService:
         ) as tmp:
             tmp_path = tmp.name
         try:
-            FlightDataExporter(self._flight).export_kml(file_name=tmp_path)
+            FlightDataExporter(self.flight).export_kml(file_name=tmp_path)
             with open(tmp_path, "rb") as fh:
                 return fh.read()
         finally:
