@@ -1,6 +1,7 @@
 from enum import Enum
-from typing import Optional, Tuple, List
-from pydantic import BaseModel
+from typing import Annotated, List, Literal, Optional, Tuple, Union
+
+from pydantic import BaseModel, Field, model_validator
 
 
 class TankKinds(str, Enum):
@@ -10,14 +11,64 @@ class TankKinds(str, Enum):
     ULLAGE: str = "ULLAGE"
 
 
+# Scalar: constant density (kg/m^3).
+# [(temp_K, density_kg_m3)]: temperature-dependent (LOX / N2O).
+# No pressure dependence.
+DensityInput = Union[float, List[Tuple[float, float]]]
+
+
 class TankFluids(BaseModel):
     name: str
-    density: float
+    density: DensityInput
+
+
+class CustomTankGeometry(BaseModel):
+    geometry_kind: Literal["custom"] = "custom"
+    geometry: List[Tuple[Tuple[float, float], float]]
+
+
+class CylindricalTankGeometry(BaseModel):
+    geometry_kind: Literal["cylindrical"] = "cylindrical"
+    radius: float
+    height: float
+    spherical_caps: bool = False
+
+
+class SphericalTankGeometry(BaseModel):
+    geometry_kind: Literal["spherical"] = "spherical"
+    radius: float
+
+
+TankGeometryInput = Annotated[
+    Union[
+        CustomTankGeometry,
+        CylindricalTankGeometry,
+        SphericalTankGeometry,
+    ],
+    Field(discriminator="geometry_kind"),
+]
+
+
+# Map tank_kind → tuple of MotorTank field names that rocketpy's
+# corresponding Tank subclass requires.
+_REQUIRED_FIELDS_BY_TANK_KIND = {
+    TankKinds.MASS_FLOW: (
+        "initial_liquid_mass",
+        "initial_gas_mass",
+        "liquid_mass_flow_rate_in",
+        "liquid_mass_flow_rate_out",
+        "gas_mass_flow_rate_in",
+        "gas_mass_flow_rate_out",
+    ),
+    TankKinds.LEVEL: ("liquid_height",),
+    TankKinds.ULLAGE: ("ullage",),
+    TankKinds.MASS: ("liquid_mass", "gas_mass"),
+}
 
 
 class MotorTank(BaseModel):
     # Required parameters
-    geometry: List[Tuple[Tuple[float, float], float]]
+    geometry: TankGeometryInput
     gas: TankFluids
     liquid: TankFluids
     flux_time: Tuple[float, float]
@@ -48,3 +99,19 @@ class MotorTank(BaseModel):
 
     # Computed parameters
     tank_kind: TankKinds = TankKinds.MASS_FLOW
+
+    @model_validator(mode='after')
+    def validate_tank_kind_fields(self):
+        # reject incoherent payloads at the API boundary
+        # instead of letting rocketpy crash during Tank construction.
+        missing = [
+            field
+            for field in _REQUIRED_FIELDS_BY_TANK_KIND[self.tank_kind]
+            if getattr(self, field) is None
+        ]
+        if missing:
+            raise ValueError(
+                f"tank_kind={self.tank_kind.value} requires: "
+                f"{', '.join(missing)}"
+            )
+        return self

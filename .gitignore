@@ -161,3 +161,9 @@ cython_debug/
 
 # VSCode config
 .vscode/
+
+# context specific ignores
+.context
+
+# lint
+.pylint.d/

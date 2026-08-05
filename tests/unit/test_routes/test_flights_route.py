@@ -57,6 +57,7 @@ def mock_controller_instance():
         mock_controller.get_rocketpy_flight_rpy = AsyncMock()
         mock_controller.import_flight_from_rpy = AsyncMock()
         mock_controller.get_flight_notebook = AsyncMock()
+        mock_controller.get_flight_kml = AsyncMock()
         mock_controller.update_environment_by_flight_id = AsyncMock()
         mock_controller.update_rocket_by_flight_id = AsyncMock()
         mock_controller.create_flight_from_references = AsyncMock()
@@ -535,6 +536,38 @@ def test_read_rocketpy_flight_rpy_server_error(mock_controller_instance):
         HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     )
     response = client.get('/flights/123/rocketpy')
+    assert response.status_code == 500
+    assert response.json() == {'detail': 'Internal Server Error'}
+
+
+def test_read_flight_kml(mock_controller_instance):
+    kml_bytes = b'<?xml version="1.0" encoding="UTF-8"?><kml></kml>'
+    mock_controller_instance.get_flight_kml = AsyncMock(return_value=kml_bytes)
+    response = client.get('/flights/123/kml')
+    assert response.status_code == 200
+    assert response.content == kml_bytes
+    assert (
+        response.headers['content-type']
+        == 'application/vnd.google-earth.kml+xml'
+    )
+    assert 'flight_123.kml' in response.headers['content-disposition']
+    mock_controller_instance.get_flight_kml.assert_called_once_with('123')
+
+
+def test_read_flight_kml_not_found(mock_controller_instance):
+    mock_controller_instance.get_flight_kml.side_effect = HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND
+    )
+    response = client.get('/flights/123/kml')
+    assert response.status_code == 404
+    assert response.json() == {'detail': 'Not Found'}
+
+
+def test_read_flight_kml_server_error(mock_controller_instance):
+    mock_controller_instance.get_flight_kml.side_effect = HTTPException(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+    )
+    response = client.get('/flights/123/kml')
     assert response.status_code == 500
     assert response.json() == {'detail': 'Internal Server Error'}
 

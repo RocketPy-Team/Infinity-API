@@ -36,51 +36,117 @@ def stub_motor_dump():
 
 @pytest.fixture
 def stub_tank_dump():
+    # Base fixture defaults to MASS_FLOW (matches MotorTank's own default)
+    # so the tank validates standalone. Sub-variant fixtures below switch
+    # tank_kind and populate only the fields that variant requires.
     tank = MotorTank(
-        geometry=[[(0, 0), 0]],
+        geometry={
+            'geometry_kind': 'custom',
+            'geometry': [[(0, 0), 0]],
+        },
         gas=TankFluids(name='gas', density=0),
         liquid=TankFluids(name='liquid', density=0),
         flux_time=(0, 0),
         position=0,
         discretize=0,
         name='tank',
+        gas_mass_flow_rate_in=0,
+        gas_mass_flow_rate_out=0,
+        liquid_mass_flow_rate_in=0,
+        liquid_mass_flow_rate_out=0,
+        initial_liquid_mass=0,
+        initial_gas_mass=0,
     )
     tank_json = tank.model_dump_json()
     return json.loads(tank_json)
 
 
 @pytest.fixture
-def stub_level_tank_dump(stub_tank_dump):
-    stub_tank_dump.update({'tank_kind': TankKinds.LEVEL, 'liquid_height': 0})
+def stub_cylindrical_tank_dump(stub_tank_dump):
+    stub_tank_dump['geometry'] = {
+        'geometry_kind': 'cylindrical',
+        'radius': 0.1,
+        'height': 0.5,
+        'spherical_caps': False,
+    }
     return stub_tank_dump
 
 
 @pytest.fixture
-def stub_mass_flow_tank_dump(stub_tank_dump):
+def stub_spherical_tank_dump(stub_tank_dump):
+    stub_tank_dump['geometry'] = {
+        'geometry_kind': 'spherical',
+        'radius': 0.2,
+    }
+    return stub_tank_dump
+
+
+@pytest.fixture
+def stub_tank_with_sampled_density_dump(stub_tank_dump):
+    stub_tank_dump['liquid'] = {
+        'name': 'LOX',
+        'density': [[90.0, 1141.0], [120.0, 1091.0], [150.0, 1021.0]],
+    }
+    return stub_tank_dump
+
+
+@pytest.fixture
+def stub_level_tank_dump(stub_tank_dump):
+    # Switch out of the MASS_FLOW defaults into LEVEL, clearing the
+    # unused MASS_FLOW fields so the kind-specific validator passes.
     stub_tank_dump.update(
         {
-            'tank_kind': TankKinds.MASS_FLOW,
-            'gas_mass_flow_rate_in': 0,
-            'gas_mass_flow_rate_out': 0,
-            'liquid_mass_flow_rate_in': 0,
-            'liquid_mass_flow_rate_out': 0,
-            'initial_liquid_mass': 0,
-            'initial_gas_mass': 0,
+            'tank_kind': TankKinds.LEVEL,
+            'liquid_height': 0,
+            'gas_mass_flow_rate_in': None,
+            'gas_mass_flow_rate_out': None,
+            'liquid_mass_flow_rate_in': None,
+            'liquid_mass_flow_rate_out': None,
+            'initial_liquid_mass': None,
+            'initial_gas_mass': None,
         }
     )
     return stub_tank_dump
 
 
 @pytest.fixture
+def stub_mass_flow_tank_dump(stub_tank_dump):
+    # stub_tank_dump already includes all MASS_FLOW fields.
+    stub_tank_dump['tank_kind'] = TankKinds.MASS_FLOW
+    return stub_tank_dump
+
+
+@pytest.fixture
 def stub_ullage_tank_dump(stub_tank_dump):
-    stub_tank_dump.update({'tank_kind': TankKinds.ULLAGE, 'ullage': 0})
+    stub_tank_dump.update(
+        {
+            'tank_kind': TankKinds.ULLAGE,
+            'ullage': 0,
+            'gas_mass_flow_rate_in': None,
+            'gas_mass_flow_rate_out': None,
+            'liquid_mass_flow_rate_in': None,
+            'liquid_mass_flow_rate_out': None,
+            'initial_liquid_mass': None,
+            'initial_gas_mass': None,
+        }
+    )
     return stub_tank_dump
 
 
 @pytest.fixture
 def stub_mass_tank_dump(stub_tank_dump):
     stub_tank_dump.update(
-        {'tank_kind': TankKinds.MASS, 'liquid_mass': 0, 'gas_mass': 0}
+        {
+            'tank_kind': TankKinds.MASS,
+            'liquid_mass': 0,
+            'gas_mass': 0,
+            'gas_mass_flow_rate_in': None,
+            'gas_mass_flow_rate_out': None,
+            'liquid_mass_flow_rate_in': None,
+            'liquid_mass_flow_rate_out': None,
+            'initial_liquid_mass': None,
+            'initial_gas_mass': None,
+        }
     )
     return stub_tank_dump
 

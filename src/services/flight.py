@@ -1,9 +1,12 @@
 import json
+import os
+import tempfile
 from typing import Self, Tuple
 
 import numpy as np
 
 from rocketpy.simulation.flight import Flight as RocketPyFlight
+from rocketpy.simulation.flight_data_exporter import FlightDataExporter
 from rocketpy._encoders import RocketPyEncoder, RocketPyDecoder
 from rocketpy.mathutils.function import Function
 from rocketpy.motors.solid_motor import SolidMotor
@@ -225,6 +228,22 @@ class FlightService:
                 return float(value)
 
     @staticmethod
+    def _extract_fluid_density(fluid):
+        """Project a rocketpy Fluid's density back onto the API schema.
+
+        The API accepts either a scalar or a list of (T_K, density)
+        samples. Rocketpy may store density as either a raw scalar or a
+        ``Function`` wrapping a 2D ``(T, P) -> density`` callable. A
+        full sample round-trip is not supported in this iteration;
+        Function-valued densities are collapsed to a scalar evaluated
+        at rocketpy's default reference (273.15 K, 101325 Pa).
+        """
+        density = fluid.density
+        if isinstance(density, Function):
+            return float(density(273.15, 101325))
+        return density
+
+    @staticmethod
     def _extract_tanks(motor) -> list[MotorTank]:
         tanks: list[MotorTank] = []
         for entry in motor.positioned_tanks:
@@ -240,20 +259,29 @@ class FlightService:
                 case _:
                     tank_kind = TankKinds.MASS_FLOW
 
-            geometry = [
+            # Geometry round-trip is lossy: even if the client originally
+            # sent a cylindrical/spherical geometry, we discretise it back
+            # to the generic piecewise form on read. Every rocketpy tank
+            # geometry exposes its internal piecewise dict via
+            # `tank.geometry.geometry`, so this path covers all three
+            # geometry subclasses uniformly.
+            geometry_segments = [
                 (bounds, float(func(0)))
                 for bounds, func in tank.geometry.geometry.items()
             ]
 
             data: dict = {
-                "geometry": geometry,
+                "geometry": {
+                    "geometry_kind": "custom",
+                    "geometry": geometry_segments,
+                },
                 "gas": TankFluids(
                     name=tank.gas.name,
-                    density=tank.gas.density,
+                    density=FlightService._extract_fluid_density(tank.gas),
                 ),
                 "liquid": TankFluids(
                     name=tank.liquid.name,
-                    density=tank.liquid.density,
+                    density=FlightService._extract_fluid_density(tank.liquid),
                 ),
                 "flux_time": tank.flux_time,
                 "position": position,
@@ -473,6 +501,25 @@ class FlightService:
         )
         flight_simulation = FlightSimulation(**encoded_attributes)
         return flight_simulation
+
+    def get_flight_kml(self) -> bytes:
+        """
+        Get the flight trajectory as a KML file for Google Earth.
+
+        Returns:
+            bytes (UTF-8 encoded KML)
+        """
+        with tempfile.NamedTemporaryFile(
+            suffix=".kml", delete=False
+        ) as tmp:
+            tmp_path = tmp.name
+        try:
+            FlightDataExporter(self.flight).export_kml(file_name=tmp_path)
+            with open(tmp_path, "rb") as fh:
+                return fh.read()
+        finally:
+            if os.path.exists(tmp_path):
+                os.unlink(tmp_path)
 
     def get_flight_rpy(self) -> bytes:
         """
