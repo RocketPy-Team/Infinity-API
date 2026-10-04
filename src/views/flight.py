@@ -20,6 +20,13 @@ class FlightSimulation(ApiBaseView):
 
     message: str = "Flight successfully simulated"
 
+    # [{name, time}] for every chute that opened, projected in the service
+    # from RocketPy's flight.parachute_events. Without it a client can only
+    # *derive* trigger times, and only for `trigger='apogee'` - an
+    # altitude-triggered main has no derivable timestamp and silently goes
+    # unreported.
+    parachute_events: Optional[Any] = None
+
     # Core Flight attributes (always present)
 
     # Core Flight attributes (always present)

@@ -500,6 +500,15 @@ class FlightService:
             ],
         )
         flight_simulation = FlightSimulation(**encoded_attributes)
+
+        # Project the deployment list down to name + time. Encoding the
+        # Parachute objects wholesale drags each one's noise_signal - thousands
+        # of samples per chute - into every simulate response, and a client
+        # plotting deployment markers needs neither.
+        flight_simulation.parachute_events = [
+            {"name": parachute.name, "time": deploy_time}
+            for deploy_time, parachute in self.flight.parachute_events
+        ]
         return flight_simulation
 
     def get_flight_kml(self) -> bytes:
