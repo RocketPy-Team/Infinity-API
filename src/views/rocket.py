@@ -94,7 +94,7 @@ class RocketSimulation(MotorSimulation):
 
 class RocketView(RocketModel):
     rocket_id: Optional[str] = None
-    motor: MotorView
+    motor: Optional[MotorView] = None
 
 
 class RocketDrawingGeometry(ApiBaseView):

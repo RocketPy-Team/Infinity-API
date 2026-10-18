@@ -7,8 +7,10 @@ adapter and the rocketpy API surfaces immediately.
 """
 
 import pytest
+from fastapi import HTTPException
 from rocketpy import (
     CylindricalTank,
+    GenericMotor,
     Fluid,
     Function,
     LevelBasedTank,
@@ -80,18 +82,14 @@ class TestGeometryAdapter:
         assert built.height == pytest.approx(0.5)
 
     def test_spherical_geometry_produces_spherical_tank(self):
-        tank = _level_tank(
-            {'geometry_kind': 'spherical', 'radius': 0.2}
-        )
+        tank = _level_tank({'geometry_kind': 'spherical', 'radius': 0.2})
         built = _build_rocketpy_tank_geometry(tank.geometry)
         assert isinstance(built, SphericalTank)
 
 
 class TestFluidAdapter:
     def test_scalar_density_passes_through(self):
-        fluid = _build_rocketpy_fluid(
-            TankFluids(name='water', density=1000.0)
-        )
+        fluid = _build_rocketpy_fluid(TankFluids(name='water', density=1000.0))
         assert isinstance(fluid, Fluid)
         assert fluid.density == 1000.0
 
@@ -105,12 +103,12 @@ class TestFluidAdapter:
         assert isinstance(fluid, Fluid)
         # The 2-input density function interpolates correctly. Rocketpy
         # wraps our 1D callable so pressure is accepted but ignored.
-        assert fluid.density_function.get_value(
-            105.0, 1e5
-        ) == pytest.approx(1116.0)
-        assert fluid.density_function.get_value(
-            135.0, 1e5
-        ) == pytest.approx(1056.0)
+        assert fluid.density_function.get_value(105.0, 1e5) == pytest.approx(
+            1116.0
+        )
+        assert fluid.density_function.get_value(135.0, 1e5) == pytest.approx(
+            1056.0
+        )
 
 
 class TestFromMotorModelLiquid:
@@ -227,3 +225,88 @@ class TestFromMotorModelLiquid:
         ) == pytest.approx(1116.0)
         # Gas density stayed scalar.
         assert tank.gas.density == 1.2
+
+
+# ---------------------------------------------------------------------------
+# GenericMotor guard — RocketPy's GenericMotor has no defaults for
+# chamber_radius / chamber_height / chamber_position / propellant_initial_mass.
+# Passing None crashes deep inside Function() when the motor is first used
+# (drawing geometry, rocket assembly, flight simulation). The service must
+# reject the model at the API boundary with a 422 that names the fields.
+# ---------------------------------------------------------------------------
+
+_GENERIC_CORE = {
+    'thrust_source': [[0, 1000], [1, 500]],
+    'burn_time': 1.0,
+    'nozzle_radius': 0.05,
+    'dry_mass': 5.0,
+    'center_of_dry_mass_position': 0.1,
+    'motor_kind': 'GENERIC',
+    'chamber_radius': 0.049,
+    'chamber_height': 0.597,
+    'chamber_position': 0.3,
+    'propellant_initial_mass': 3.65,
+}
+
+
+class TestGenericMotorGuard:
+    def test_complete_generic_motor_builds(self):
+        service = MotorService.from_motor_model(MotorModel(**_GENERIC_CORE))
+        assert isinstance(service.motor, GenericMotor)
+        # The crash path in production: center_of_propellant_mass must be
+        # computable once the chamber fields are present.
+        assert service.motor.center_of_propellant_mass(0.5) == pytest.approx(
+            0.3
+        )
+
+    @pytest.mark.parametrize(
+        'missing',
+        [
+            'chamber_position',
+            'chamber_radius',
+            'chamber_height',
+            'propellant_initial_mass',
+        ],
+    )
+    def test_missing_single_generic_field_is_422(self, missing):
+        payload = {**_GENERIC_CORE, missing: None}
+        with pytest.raises(HTTPException) as exc:
+            MotorService.from_motor_model(MotorModel(**payload))
+        assert exc.value.status_code == 422
+        assert missing in exc.value.detail
+        assert 'requires' in exc.value.detail
+
+    def test_missing_burn_time_and_chamber_reported_together(self):
+        payload = {
+            **_GENERIC_CORE,
+            'burn_time': None,
+            'chamber_position': None,
+        }
+        with pytest.raises(HTTPException) as exc:
+            MotorService.from_motor_model(MotorModel(**payload))
+        assert exc.value.status_code == 422
+        assert 'burn_time' in exc.value.detail
+        assert 'chamber_position' in exc.value.detail
+
+    def test_generic_guard_does_not_apply_to_liquid(self):
+        # LIQUID motors legitimately carry null chamber fields.
+        motor_model = MotorModel(
+            **_LIQUID_CORE,
+            tanks=[
+                MotorTank(
+                    geometry={
+                        'geometry_kind': 'cylindrical',
+                        'radius': 0.1,
+                        'height': 0.5,
+                    },
+                    gas=TankFluids(name='N2', density=1.2),
+                    liquid=TankFluids(name='LOX', density=1141.0),
+                    flux_time=(0, 1.0),
+                    position=0.5,
+                    discretize=100,
+                    tank_kind=TankKinds.LEVEL,
+                    liquid_height=0.2,
+                )
+            ],
+        )
+        assert MotorService.from_motor_model(motor_model).motor is not None
