@@ -11,6 +11,7 @@ from fastapi import HTTPException
 from rocketpy import (
     CylindricalTank,
     GenericMotor,
+    SolidMotor,
     Fluid,
     Function,
     LevelBasedTank,
@@ -310,3 +311,29 @@ class TestGenericMotorGuard:
             ],
         )
         assert MotorService.from_motor_model(motor_model).motor is not None
+
+
+class TestDryInertiaZeroIsAccepted:
+    """RocketPy accepts dry_inertia=(0, 0, 0) for every motor kind (12 of
+    the 17 official example notebooks use exactly that, usually with
+    dry_mass=0). The API-boundary validator that rejected it blocked 70% of
+    the official examples at POST /motors/, /rockets/ and /flights/."""
+
+    def test_solid_motor_with_zero_dry_inertia_validates_and_builds(self):
+        motor_model = MotorModel(
+            thrust_source=[[0, 1000], [1, 500]],
+            nozzle_radius=0.0335,
+            dry_mass=0.0,
+            dry_inertia=[0, 0, 0],
+            center_of_dry_mass_position=-0.683,
+            motor_kind='SOLID',
+            grain_number=5,
+            grain_separation=0.006,
+            grain_outer_radius=0.0465,
+            grain_initial_inner_radius=0.016,
+            grain_initial_height=0.156,
+            grain_density=1748.9,
+            grains_center_of_mass_position=-0.683,
+        )
+        service = MotorService.from_motor_model(motor_model)
+        assert isinstance(service.motor, SolidMotor)
