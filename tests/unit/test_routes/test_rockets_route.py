@@ -660,3 +660,39 @@ def test_read_rocketpy_rocket_binary_server_error(mock_controller_instance):
     response = client.get('/rockets/123/rocketpy')
     assert response.status_code == 500
     assert response.json() == {'detail': 'Internal Server Error'}
+
+
+def test_create_rocket_without_nose_and_fins_is_structured_422(
+    stub_rocket_dump,
+):
+    # The jarvis placeholder rocket ships with nose/fins = null. Infinity
+    # requires both; the rejection must come back in FastAPI's standard
+    # `{"detail": [{loc, msg, type}]}` shape so the client can paint the
+    # offending fields instead of showing "Unknown validation error".
+    payload = copy.deepcopy(stub_rocket_dump)
+    payload['nose'] = None
+    payload['fins'] = None
+    response = client.post('/rockets/', json=payload)
+    assert response.status_code == 422
+    body = response.json()
+    assert isinstance(body, dict)
+    assert isinstance(body['detail'], list)
+    locs = [tuple(entry['loc']) for entry in body['detail']]
+    assert ('body', 'nose') in locs
+    assert ('body', 'fins') in locs
+    for entry in body['detail']:
+        assert set(entry) >= {'loc', 'msg', 'type'}
+
+
+def test_create_rocket_without_motor_is_accepted(
+    stub_rocket_dump, mock_controller_instance
+):
+    # A rocket saved before its motor exists goes on the wire with
+    # `motor: null`; the API must accept it (RocketPy uses an EmptyMotor).
+    payload = copy.deepcopy(stub_rocket_dump)
+    payload['motor'] = None
+    mock_controller_instance.post_rocket = AsyncMock(
+        return_value=RocketCreated(rocket_id='123')
+    )
+    response = client.post('/rockets/', json=payload)
+    assert response.status_code == 201

@@ -248,16 +248,12 @@ def test_create_liquid_motor_sampled_density(
     assert response.status_code == 201
 
 
-def test_create_motor_invalid_geometry_kind(
-    stub_motor_dump, stub_tank_dump
-):
+def test_create_motor_invalid_geometry_kind(stub_motor_dump, stub_tank_dump):
     stub_tank_dump['geometry'] = {
         'geometry_kind': 'pyramid',
         'radius': 0.1,
     }
-    stub_motor_dump.update(
-        {'tanks': [stub_tank_dump], 'motor_kind': 'LIQUID'}
-    )
+    stub_motor_dump.update({'tanks': [stub_tank_dump], 'motor_kind': 'LIQUID'})
     response = client.post('/motors/', json=stub_motor_dump)
     assert response.status_code == 422
 
@@ -269,9 +265,7 @@ def test_create_motor_mass_kind_missing_fields(
     # populated; switching to MASS without adding liquid_mass/gas_mass
     # must trigger the tank_kind guard at schema validation.
     stub_tank_dump['tank_kind'] = 'MASS'
-    stub_motor_dump.update(
-        {'tanks': [stub_tank_dump], 'motor_kind': 'LIQUID'}
-    )
+    stub_motor_dump.update({'tanks': [stub_tank_dump], 'motor_kind': 'LIQUID'})
     response = client.post('/motors/', json=stub_motor_dump)
     assert response.status_code == 422
     body = response.json()
@@ -283,9 +277,7 @@ def test_create_motor_level_kind_missing_liquid_height(
     stub_motor_dump, stub_tank_dump
 ):
     stub_tank_dump['tank_kind'] = 'LEVEL'
-    stub_motor_dump.update(
-        {'tanks': [stub_tank_dump], 'motor_kind': 'LIQUID'}
-    )
+    stub_motor_dump.update({'tanks': [stub_tank_dump], 'motor_kind': 'LIQUID'})
     response = client.post('/motors/', json=stub_motor_dump)
     assert response.status_code == 422
     assert 'liquid_height' in json.dumps(response.json())
@@ -295,17 +287,13 @@ def test_create_motor_ullage_kind_missing_ullage(
     stub_motor_dump, stub_tank_dump
 ):
     stub_tank_dump['tank_kind'] = 'ULLAGE'
-    stub_motor_dump.update(
-        {'tanks': [stub_tank_dump], 'motor_kind': 'LIQUID'}
-    )
+    stub_motor_dump.update({'tanks': [stub_tank_dump], 'motor_kind': 'LIQUID'})
     response = client.post('/motors/', json=stub_motor_dump)
     assert response.status_code == 422
     assert 'ullage' in json.dumps(response.json())
 
 
-def test_create_motor_mass_flow_kind_missing_flow_rates(
-    stub_motor_dump
-):
+def test_create_motor_mass_flow_kind_missing_flow_rates(stub_motor_dump):
     # Build a tank payload with MASS_FLOW kind but no flow-rate fields
     # so the guard rejects it.
     tank_payload = {
@@ -320,9 +308,7 @@ def test_create_motor_mass_flow_kind_missing_flow_rates(
         'discretize': 0,
         'tank_kind': 'MASS_FLOW',
     }
-    stub_motor_dump.update(
-        {'tanks': [tank_payload], 'motor_kind': 'LIQUID'}
-    )
+    stub_motor_dump.update({'tanks': [tank_payload], 'motor_kind': 'LIQUID'})
     response = client.post('/motors/', json=stub_motor_dump)
     assert response.status_code == 422
     assert 'initial_liquid_mass' in json.dumps(response.json())

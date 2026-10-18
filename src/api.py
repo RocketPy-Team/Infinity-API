@@ -86,8 +86,21 @@ async def validation_exception_handler(
 ):
     exc_str = parse_error(exc)
     logger.error("%s: %s", request, exc_str)
+    # Answer in FastAPI's standard `{"detail": [{loc, msg, type}]}` shape.
+    # `input` and `ctx` are dropped: `ctx` can carry raw exception objects
+    # that are not JSON serialisable (the reason this handler originally
+    # stringified the whole error), and `input` echoes the request body.
+    detail = [
+        {
+            "loc": list(error.get("loc", ())),
+            "msg": error.get("msg", ""),
+            "type": error.get("type", ""),
+        }
+        for error in exc.errors()
+    ]
     return JSONResponse(
-        content=exc_str, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
+        content={"detail": detail},
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
     )
 
 

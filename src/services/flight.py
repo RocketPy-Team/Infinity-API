@@ -61,7 +61,9 @@ class FlightService:
         rocketpy_env = EnvironmentService.from_env_model(
             flight.environment
         ).environment
-        rocketpy_rocket = RocketService.from_rocket_model(flight.rocket).rocket
+        rocket_service = RocketService.from_rocket_model(flight.rocket)
+        rocket_service.require_motor()
+        rocketpy_rocket = rocket_service.rocket
         rocketpy_flight = RocketPyFlight(
             rocket=rocketpy_rocket,
             environment=rocketpy_env,
@@ -518,9 +520,7 @@ class FlightService:
         Returns:
             bytes (UTF-8 encoded KML)
         """
-        with tempfile.NamedTemporaryFile(
-            suffix=".kml", delete=False
-        ) as tmp:
+        with tempfile.NamedTemporaryFile(suffix=".kml", delete=False) as tmp:
             tmp_path = tmp.name
         try:
             FlightDataExporter(self.flight).export_kml(file_name=tmp_path)

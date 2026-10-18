@@ -22,6 +22,17 @@ def controller_exception_handler(method):
             )
         except HTTPException as e:
             raise e from e
+        except ValueError as e:
+            # RocketPy raises ValueError for physically invalid input
+            # (overfilled tank, bad parachute trigger, inconsistent
+            # geometry). That is the client's design, not a server fault:
+            # return it as 422 with the message instead of a bare 500.
+            detail = " ".join(str(e).split())
+            logger.warning(f"{method.__name__}: Invalid input {detail}")
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=detail,
+            ) from e
         except Exception as e:
             logger.exception(f"{method.__name__}: Unexpected error {e}")
             raise HTTPException(

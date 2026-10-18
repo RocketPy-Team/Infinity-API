@@ -236,14 +236,32 @@ class MotorService:
                     **optional_params,
                 )
             case _:
-                # GenericMotor requires burn_time even though it's optional
-                # for the other motor kinds — surface the constraint at the
-                # API boundary instead of letting rocketpy raise a
-                # confusing stack trace deeper in construction.
-                if motor.burn_time is None:
+                # GenericMotor has no defaults for burn_time or the chamber
+                # fields. A None here does not fail at construction — it
+                # blows up later as `Function(None)` inside
+                # center_of_propellant_mass when the motor is drawn, added
+                # to a rocket, or flown. Surface the constraint at the API
+                # boundary as a 422 that names every missing field, in the
+                # same "requires: a, b" shape the tank_kind guard uses so
+                # clients can paint field-level errors.
+                generic_params = {
+                    'burn_time': motor.burn_time,
+                    'chamber_radius': motor.chamber_radius,
+                    'chamber_height': motor.chamber_height,
+                    'chamber_position': motor.chamber_position,
+                    'propellant_initial_mass': motor.propellant_initial_mass,
+                }
+                missing = [
+                    key
+                    for key, value in generic_params.items()
+                    if value is None
+                ]
+                if missing:
                     raise HTTPException(
                         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                        detail="burn_time is required for generic motors.",
+                        detail=(
+                            "Generic motor requires: " + ', '.join(missing)
+                        ),
                     )
                 # nozzle_position is already forwarded via motor_core when
                 # the client supplied it; GenericMotor's own default (0)
