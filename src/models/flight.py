@@ -23,9 +23,11 @@ class FlightModel(ApiBaseModel):
     inclination: float = 90.0
     heading: float = 0.0
     # TODO: implement initial_solution
-    max_time: Optional[int] = None
+    # rocketpy.Flight types these as floats (the lince example uses
+    # max_time=399.35159); `int` rejected it as "not a valid integer".
+    max_time: Optional[float] = None
     max_time_step: Optional[float] = None
-    min_time_step: Optional[int] = None
+    min_time_step: Optional[float] = None
     rtol: Optional[float] = None
     atol: Optional[float] = None
     verbose: Optional[bool] = None
@@ -106,9 +108,11 @@ class FlightPartialModel(BaseModel):
     equations_of_motion: Literal['standard', 'solid_propulsion'] = 'standard'
     inclination: float = 90.0
     heading: float = 0.0
-    max_time: Optional[int] = None
+    # rocketpy.Flight types these as floats (the lince example uses
+    # max_time=399.35159); `int` rejected it as "not a valid integer".
+    max_time: Optional[float] = None
     max_time_step: Optional[float] = None
-    min_time_step: Optional[int] = None
+    min_time_step: Optional[float] = None
     rtol: Optional[float] = None
     atol: Optional[float] = None
     verbose: Optional[bool] = None
