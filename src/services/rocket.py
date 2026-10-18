@@ -36,6 +36,41 @@ from src.views.rocket import (
 )
 from src.views.motor import MotorSimulation
 from src.utils import collect_attributes
+from rocketpy import Function
+
+
+def _drag_curve_function(points, coeff_name: str):
+    """Build a Mach -> Cd Function the way rocketpy's CSV loader does.
+
+    The notebooks hand rocketpy a CSV *path*; `Rocket.__load_rocket_drag_csv`
+    turns it into a Function with linear interpolation and constant
+    extrapolation. Infinity's wire format forces an inline list, which
+    rocketpy routes through `Function(list)` with the default *spline*
+    interpolation. Duplicate Mach rows (present in five of the official
+    example drag curves) make that spline solve NaN and the whole rocket is
+    rejected with "Invalid list/tuple format for Drag Coefficient ...".
+
+    So: sort by Mach, keep the first row of any duplicate Mach, and build
+    the Function with the CSV loader's settings. rocketpy then wraps the
+    1-D Function into its 7-variable drag model exactly as for a CSV.
+    """
+    seen = set()
+    rows = []
+    for mach, cd in sorted((float(m), float(c)) for m, c in points):
+        if mach in seen:
+            continue
+        seen.add(mach)
+        rows.append([mach, cd])
+    if len(rows) == 1:
+        # A single point is a constant coefficient.
+        return rows[0][1]
+    return Function(
+        rows,
+        inputs=['Mach Number'],
+        outputs=[coeff_name],
+        interpolation='linear',
+        extrapolation='constant',
+    )
 
 
 class RocketService:
@@ -58,8 +93,12 @@ class RocketService:
             radius=rocket.radius,
             mass=rocket.mass,
             inertia=rocket.inertia,
-            power_off_drag=rocket.power_off_drag,
-            power_on_drag=rocket.power_on_drag,
+            power_off_drag=_drag_curve_function(
+                rocket.power_off_drag, 'Drag Coefficient with Power Off'
+            ),
+            power_on_drag=_drag_curve_function(
+                rocket.power_on_drag, 'Drag Coefficient with Power On'
+            ),
             center_of_mass_without_motor=rocket.center_of_mass_without_motor,
             coordinate_system_orientation=rocket.coordinate_system_orientation,
         )
