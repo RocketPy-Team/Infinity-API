@@ -26,8 +26,11 @@ class RocketModel(ApiBaseModel):
     NAME: ClassVar = "rocket"
     METHODS: ClassVar = ("POST", "GET", "PUT", "DELETE")
 
-    # Required parameters
-    motor: MotorModel
+    # A rocket may be created before its motor exists (jarvis saves the
+    # airframe first). `None` maps to rocketpy's `EmptyMotor`, which a
+    # Rocket carries by default: the rocket persists and draws, and the
+    # simulate endpoints answer 422 until a real motor is attached.
+    motor: Optional[MotorModel] = None
     radius: float
     mass: float
     motor_position: float

@@ -2,6 +2,7 @@ from unittest.mock import patch, Mock
 import pytest
 from pymongo.errors import PyMongoError
 from fastapi import HTTPException, status
+from pydantic import BaseModel
 from src.controllers.interface import (
     ControllerBase,
     controller_exception_handler,
@@ -81,8 +82,10 @@ async def test_controller_exception_handler_http_exception(stub_model):
 
 @pytest.mark.asyncio
 async def test_controller_exception_handler_unexpected_exception(stub_model):
+    # ValueError is now a deliberate 422 (see the test below); use a
+    # RuntimeError as the representative programming error.
     async def method(self, model, *args, **kwargs):
-        raise ValueError('Test Error')
+        raise RuntimeError('Test Error')
 
     wrapped_method = controller_exception_handler(method)
     with patch('src.controllers.interface.logger') as mock_logger:
@@ -225,3 +228,47 @@ async def test_controller_interface_delete_model(stub_controller, stub_model):
                 )
                 == 'Deleted'
             )
+
+
+@pytest.mark.asyncio
+async def test_controller_exception_handler_value_error_is_422(stub_model):
+    # RocketPy raises ValueError for physically invalid input (overfilled
+    # tank, bad parachute trigger, ...). That is a client error, not a
+    # server fault: surface the message as 422 instead of a bare 500.
+    async def method(self, model, *args, **kwargs):
+        raise ValueError(
+            "The tank 'Tank' is overfilled. The gas volume is greater than "
+            "the total volume of the tank.\n\t\tTry increasing the tank height."
+        )
+
+    wrapped_method = controller_exception_handler(method)
+    with patch('src.controllers.interface.logger') as mock_logger:
+        with pytest.raises(HTTPException) as exc:
+            await wrapped_method(None, stub_model)
+        assert exc.value.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert exc.value.detail.startswith("The tank 'Tank' is overfilled")
+        mock_logger.warning.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_controller_exception_handler_pydantic_validation_error_stays_500(
+    stub_model,
+):
+    # pydantic.ValidationError subclasses ValueError. A model failing to
+    # validate inside a controller means persisted data or a view is
+    # malformed (server fault): it must not take the 422 branch and leak the
+    # validation detail to the client.
+    class Strict(BaseModel):
+        radius: float
+
+    async def method(self, model):
+        Strict(radius="not a number")
+
+    wrapped_method = controller_exception_handler(method)
+    with patch('src.controllers.interface.logger') as mock_logger:
+        with pytest.raises(HTTPException) as exc:
+            await wrapped_method(None, stub_model)
+        assert exc.value.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+        assert exc.value.detail == 'Unexpected error'
+        mock_logger.exception.assert_called_once()
+        mock_logger.warning.assert_not_called()

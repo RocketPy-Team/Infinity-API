@@ -16,6 +16,7 @@ from pymongo import AsyncMongoClient
 
 from fastapi import HTTPException, status
 from bson import ObjectId
+from bson.errors import InvalidId
 
 from src import logger
 from src.secrets import Secrets
@@ -60,6 +61,10 @@ def repository_exception_handler(method):
             logger.exception(
                 f"{method.__name__} - Repository not initialized: {e}"
             )
+            raise
+        except HTTPException:
+            # Deliberate client-facing errors raised inside a repository
+            # method (e.g. malformed id → 404) must not be re-wrapped as 500.
             raise
         except Exception as e:
             logger.exception(
@@ -258,13 +263,20 @@ class RepositoryInterface:
     async def update_by_id(self, data: dict, *, data_id: str):
         collection = self.get_collection()
         assert self.model.model_validate(data)
-        await collection.update_one({"_id": ObjectId(data_id)}, {"$set": data})
+        object_id = self._object_id_or_404(data_id)
+        await collection.update_one({"_id": object_id}, {"$set": data})
         return self
 
     @repository_exception_handler
     async def find_by_id(self, *, data_id: str):
         collection = self.get_collection()
-        read_data = await collection.find_one({"_id": ObjectId(data_id)})
+        try:
+            object_id = ObjectId(data_id)
+        except InvalidId:
+            # A malformed id can never match a document; treat it exactly
+            # like a missing one so the controller answers 404, not 500.
+            return None
+        read_data = await collection.find_one({"_id": object_id})
         if read_data:
             parsed_model = self.model.model_validate(read_data)
             parsed_model.set_id(str(read_data["_id"]))
@@ -274,8 +286,23 @@ class RepositoryInterface:
     @repository_exception_handler
     async def delete_by_id(self, *, data_id: str):
         collection = self.get_collection()
-        await collection.delete_one({"_id": ObjectId(data_id)})
+        await collection.delete_one({"_id": self._object_id_or_404(data_id)})
         return self
+
+    def _object_id_or_404(self, data_id: str) -> ObjectId:
+        """Parse a path id, answering 404 for a malformed one.
+
+        The jarvis client was observed issuing PUT /rockets/undefined; bson
+        raises InvalidId for that, which the generic handler used to turn
+        into a 500 "Unexpected error ocurred".
+        """
+        try:
+            return ObjectId(data_id)
+        except InvalidId as exc:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"{self.model.NAME} not found",
+            ) from exc
 
     @repository_exception_handler
     async def find_by_query(self, query: dict):

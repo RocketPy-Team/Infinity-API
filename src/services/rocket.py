@@ -13,6 +13,7 @@ from rocketpy.rocket.aero_surface import (
     Tail as RocketPyTail,
 )
 from rocketpy.rocket.aero_surface.generic_surface import GenericSurface
+from rocketpy.motors.empty_motor import EmptyMotor
 
 from fastapi import HTTPException, status
 
@@ -62,10 +63,13 @@ class RocketService:
             center_of_mass_without_motor=rocket.center_of_mass_without_motor,
             coordinate_system_orientation=rocket.coordinate_system_orientation,
         )
-        rocketpy_rocket.add_motor(
-            MotorService.from_motor_model(rocket.motor).motor,
-            rocket.motor_position,
-        )
+        # No motor yet: keep the EmptyMotor rocketpy constructs the Rocket
+        # with. Drawing works; the simulate paths refuse via require_motor.
+        if rocket.motor is not None:
+            rocketpy_rocket.add_motor(
+                MotorService.from_motor_model(rocket.motor).motor,
+                rocket.motor_position,
+            )
 
         # RailButtons
         if rocket.rail_buttons:
@@ -124,11 +128,22 @@ class RocketService:
         Returns:
             RocketSimulation
         """
+        self.require_motor()
         encoded_attributes = collect_attributes(
             self.rocket, [RocketSimulation, MotorSimulation]
         )
         rocket_simulation = RocketSimulation(**encoded_attributes)
         return rocket_simulation
+
+    def require_motor(self) -> None:
+        """Refuse to simulate a rocket that still carries the EmptyMotor."""
+        if isinstance(self._rocket.motor, EmptyMotor):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=(
+                    "Rocket has no motor yet. Save a motor before simulating."
+                ),
+            )
 
     def get_rocket_binary(self) -> bytes:
         """

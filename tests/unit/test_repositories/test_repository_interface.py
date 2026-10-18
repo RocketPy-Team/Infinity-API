@@ -284,3 +284,51 @@ async def test_repository_find_by_query_not_found(
     ):
         assert await stub_repository.find_by_query('mock_query') == []
         mock_db_interface_empty_find.find.assert_called_once_with('mock_query')
+
+
+# ---------------------------------------------------------------------------
+# Malformed ids. The jarvis client was observed calling PUT /rockets/undefined;
+# bson raises InvalidId, which the generic handler turned into a 500. A
+# malformed id is a client error: find returns None (→ 404 upstream),
+# update/delete raise 404 directly.
+# ---------------------------------------------------------------------------
+@pytest.mark.asyncio
+async def test_repository_find_by_invalid_id_returns_none(
+    stub_repository, mock_db_interface
+):
+    with patch(
+        'src.repositories.interface.RepositoryInterface.get_collection',
+        return_value=mock_db_interface,
+    ):
+        assert await stub_repository.find_by_id(data_id='undefined') is None
+        mock_db_interface.find_one.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_repository_update_by_invalid_id_is_404(
+    stub_repository, mock_db_interface
+):
+    with patch(
+        'src.repositories.interface.RepositoryInterface.get_collection',
+        return_value=mock_db_interface,
+    ):
+        with pytest.raises(HTTPException) as exc:
+            await stub_repository.update_by_id(
+                data_id='undefined', data={'foo': 'bar'}
+            )
+        assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+        mock_db_interface.update_one.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_repository_delete_by_invalid_id_is_404(
+    stub_repository, mock_db_interface
+):
+    with patch(
+        'src.repositories.interface.RepositoryInterface.get_collection',
+        return_value=mock_db_interface,
+    ):
+        with pytest.raises(HTTPException) as exc:
+            await stub_repository.delete_by_id(data_id='undefined')
+        assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+        mock_db_interface.delete_one.assert_not_called()

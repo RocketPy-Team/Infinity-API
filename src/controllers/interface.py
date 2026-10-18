@@ -1,5 +1,6 @@
 import functools
 from typing import List
+from pydantic import ValidationError
 from pymongo.errors import PyMongoError
 from fastapi import HTTPException, status
 
@@ -22,6 +23,27 @@ def controller_exception_handler(method):
             )
         except HTTPException as e:
             raise e from e
+        except ValidationError as e:
+            # pydantic's ValidationError subclasses ValueError, but a model
+            # failing to validate here means a persisted document or a view
+            # is malformed: a server fault, never client input. Keep it on
+            # the generic 500 path so no internal detail reaches the client.
+            logger.exception(f"{method.__name__}: Unexpected error {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Unexpected error",
+            ) from e
+        except ValueError as e:
+            # RocketPy raises ValueError for physically invalid input
+            # (overfilled tank, bad parachute trigger, inconsistent
+            # geometry). That is the client's design, not a server fault:
+            # return it as 422 with the message instead of a bare 500.
+            detail = " ".join(str(e).split())
+            logger.warning(f"{method.__name__}: Invalid input {detail}")
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=detail,
+            ) from e
         except Exception as e:
             logger.exception(f"{method.__name__}: Unexpected error {e}")
             raise HTTPException(
