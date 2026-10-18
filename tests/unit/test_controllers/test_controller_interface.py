@@ -261,7 +261,7 @@ async def test_controller_exception_handler_pydantic_validation_error_stays_500(
     class Strict(BaseModel):
         radius: float
 
-    async def method(self, model):
+    async def method(self, model):  # pylint: disable=unused-argument
         Strict(radius="not a number")
 
     wrapped_method = controller_exception_handler(method)
